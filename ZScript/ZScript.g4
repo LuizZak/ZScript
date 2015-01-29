@@ -1,0 +1,324 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+grammar ZScript;
+/*
+options
+{
+    language=CSharp2;
+}*/
+
+program: scriptBody;
+
+scriptBody : (variableBlock | functionBlock | objectDefinition | sequenceBlock)*;
+
+////
+//// Object Definition
+////
+objectDefinition : 'object' objectName objectInherit? objectBody;
+objectInherit : ':' objectName;
+objectName : IDENT;
+objectBody : '{' (objectField | objectFunction)* '}';
+objectField : varDecl ';';
+objectFunction : ('override')? 'function' functionDefinition;
+
+
+////
+//// Blocks
+////
+variableBlock : '[' globalVariable* ']';
+functionBlock : '{' (variableBlock | exportDefinition | functionDefinition)* '}' ;
+
+
+////
+//// Variable Block
+////
+globalVariable : 'const'? variableDeclare ';';
+
+////
+//// Sequence Block
+////
+sequenceBlock       : 'sequence' sequenceName sequenceBody;
+sequenceName        : IDENT;
+sequenceBody        : '[' (objectField | sequenceFrame | sequenceFrameChange)* ']';
+sequenceFrame       : frameRange? blockStatement;
+sequenceFrameChange : '=' frameNumber | ('-' frameNumber);
+frameRange          : frameRangeElement (',' frameRangeElement)*;
+frameRangeElement   : '+'? frameNumber ('-' frameNumber)?;
+frameNumber         : INT;
+
+////
+//// Function Block
+////
+functionDefinition : functionName functionArguments? returnType? functionTriggers? blockStatement;
+exportDefinition : '@' functionName functionArguments? returnType?;
+
+functionName : IDENT;
+functionArguments : '(' argumentList ')';
+argumentList : (functionArg (',' functionArg)*)?;
+returnType : ':' type;
+functionArg : argumentName (':' type)? ('...' | ('=' constantAtom))?;
+argumentName : IDENT;
+
+functionTriggers : '=' functionTrigger (',' functionTrigger)*;
+functionTriggerArgs : '(' constantAtom (',' constantAtom)* ')';
+functionTrigger : constantAtom functionTriggerArgs?;
+
+////
+//// Statements
+////
+statement: (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | valueDecl);
+blockStatement : '{' statement* '}';
+
+////
+//// Control flow statements
+////
+
+// If
+ifStatement : 'if' '(' expression ')' statement elseStatement?;
+elseStatement : 'else' (statement);
+
+// Switch
+switchStatement : 'switch' '(' expression ')' switchBlock;
+switchBlock : '{' (caseBlock | defaultBlock)* '}';
+caseBlock : 'case' expression ':' ((caseBlock) | (statement 'break' ';'));
+defaultBlock : 'default' ':' statement 'break' ';';
+
+// While
+whileStatement : 'while' '(' expression ')' statement;
+
+// For
+forStatement
+  : 'for' '(' forInit? ';' expression? ';' expression? ')' statement;
+forInit : varDecl | expression;
+
+// Return statement
+returnStatement : 'return' expression? ';';
+
+
+////
+//// Value holder declare statements
+////
+valueDecl : (varDecl | letDecl) ';';
+
+varDecl : 'var' variableDeclare;
+letDecl : 'let' constantDeclare;
+
+variableDeclare : valueHolderDecl ('=' expression)?;
+constantDeclare : valueHolderDecl '=' expression;
+valueHolderDecl : valueHolderName (':' type)?;
+
+valueHolderName : IDENT;
+
+// Types
+type : 'object' | typeName | closureType;
+typeName : IDENT ('.' typeName)?;
+closureType : '(' typeList? '->' type? ')';
+typeList : type (',' type)*;
+
+////
+//// Expressions
+////
+primaryExpression : IDENT;
+
+expression:  '(' expression ')'
+          |  primaryExpression
+          |  assignmentExpression
+          |  prefixOperator leftValue
+          |  leftValue postfixOperator
+          |  closureExpression
+          |  IDENT valueAccess?
+          |  object objectAccess?
+          |  newExpression
+          |  unaryExpression
+          |  arrayDeclaration valueAccess?
+          |  expression multOp expression
+          |  expression additionOp expression
+          |  expression bitwiseAndXOrOp expression
+          |  expression bitwiseOrOp expression
+          |  expression comparisionOp expression
+          |  expression logicalOp expression
+          |  constantAtom
+          ;
+
+multOp : ('*' | '/' | '%');
+additionOp : ('+' | '-');
+bitwiseAndXOrOp : ('&' | '^');
+bitwiseOrOp : ('|');
+comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '|' | '<');
+logicalOp : ('&&' | '||');
+
+assignmentExpression: leftValue assignmentOperator expression;
+newExpression : 'new' typeName funcCallArguments;
+closureExpression : functionArguments returnType? '=>' blockStatement;
+unaryExpression  : ('-' | '+' | '!') expression;
+
+prefixOperator : '++' | '--';
+postfixOperator : '++' | '--';
+
+assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=';
+
+arrayDeclaration : '[' expressionList? ']';
+
+funcCallArguments : '(' expressionList? ')';
+expressionList : expression (',' expression)*;
+
+leftValue : memberName (funcCallArguments leftValueAccess | leftValueAccess)?;
+leftValueAccess : ('.' leftValue?) | (arrayAccess (leftValue | leftValueAccess)?);
+functionCall : funcCallArguments;
+fieldAccess  : '.' memberName;
+arrayAccess : '[' expression ']';
+
+objectAccess : (fieldAccess | arrayAccess) valueAccess?;
+valueAccess : (functionCall | fieldAccess | arrayAccess) valueAccess?;
+
+memberName : IDENT;
+
+// Values
+object: '{' objectEntryList? '}';
+
+objectEntryList: objectEntryDefinition (',' objectEntryDefinition)*;
+objectEntryDefinition: entryName ':' expression;
+entryName : IDENT;
+
+// Atomics
+constantAtom : ('-' | '+')? numericAtom
+             | atom
+             | T_FALSE | T_TRUE | T_NULL
+             | stringLiteral;
+
+stringLiteral : StringLiteral;
+StringLiteral : '"' (StringEscape | ~('"'))* '"'
+              | '\'' ~('\'')* '\'';
+
+atom: numericAtom;
+numericAtom : hexadecimalNumber | binaryNumber | (FLOAT | INT | BINARY);
+hexadecimalNumber : HEX;
+binaryNumber : BINARY;
+
+StringEscape : '\\' ('n' | 'r');
+
+////
+//// Token Definitions
+////
+
+// Statements
+T_VAR   : 'var';
+T_LET   : 'let';
+T_CONST : 'const';
+T_NEW   : 'new';
+
+T_EXPORT : '@';
+T_FUNCTION : 'function';
+T_OVERRIDE : 'override';
+T_OBJECT   : 'object';
+T_SEQUENCE : 'sequence';
+
+T_IF       : 'if';
+T_ELSE     : 'else';
+T_WHILE    : 'while';
+T_FOR      : 'for';
+
+T_BREAK    : 'break';
+T_CONTINUE : 'continue';
+
+T_SWITCH   : 'switch';
+T_CASE     : 'case';
+T_DEFAULT  : 'default';
+
+T_RETURN   : 'return';
+
+T_LEFT_PAREN  : '(';
+T_RIGHT_PAREN : ')';
+
+T_LEFT_BRACKET : '[';
+T_RIGHT_BRACKET : ']';
+
+T_LEFT_CURLY  : '{';
+T_RIGHT_CURLY : '}';
+
+T_CLOSURE_RETURN : '->';
+T_CLOSURE_CALL : '=>';
+
+// Atoms
+INT     : Decimal;
+HEX     : '0x' Hexadecimal;
+BINARY  : '0b' Binary;
+FLOAT   : Decimal DecimalFraction? ExponentPart?;
+
+T_FALSE : 'false';
+T_TRUE  : 'true';
+T_NULL  : 'null';
+
+T_QUOTES : '\'';
+T_DOUBLE_QUOTES : '"';
+
+T_TRIPPLE_DOT : '...';
+
+T_DOUBLE_COLON : ':';
+T_SEMICOLON : ';';
+T_PERIOD : '.';
+T_COMMA  : ',';
+
+// All these operators are sorted by precedence
+T_MULT  : '*';
+T_DIV   : '/';
+T_MOD   : '%';
+
+T_NOT   : '!';
+T_PLUS  : '+';
+T_MINUS : '-';
+
+T_INCREMENT : '++';
+T_DECREMENT : '--';
+
+T_BITWISE_AND : '&';
+T_BITWISE_XOR : '^';
+
+T_BITWISE_OR : '|';
+
+T_EQUALITY : '==';
+T_UNEQUALITY : '!=';
+T_MORE_THAN_OR_EQUALS : '>=';
+T_LESS_THAN_OR_EQUALS : '<=';
+T_MORE_THAN : '>';
+T_LESS_THAN : '<';
+
+T_LOGICAL_AND : '&&';
+T_LOGICAL_OR : '||';
+
+// Equality operators
+T_EQUALS : '=';
+T_PLUS_EQUALS : '+=';
+T_MINUS_EQUALS : '-=';
+T_TIMES_EQUALS : '*=';
+T_DIV_EQUALS : '/=';
+T_MOD_EQUALS : '%=';
+T_XOR_EQUALS : '^=';
+T_AND_EQUALS : '&=';
+T_TILDE_EQUALS : '~=';
+T_OR_EQUALS : '|=';
+
+IDENT : CHAR_azAZ_+ CHAR_09azAZ_*;
+
+fragment CHAR_azAZ_ : ([a-z] | [A-Z] | '_');
+fragment CHAR_09azAZ_ : ([a-z] | [A-Z] | '_' | [0-9]);
+
+fragment DoubleQuoteStringChar : ~('\r' | '\n' | '"');
+fragment SingleQuoteStringChar : ~('\r' | '\n' | '\'');
+
+fragment Binary : [01]+;
+fragment Hexadecimal : [0-9a-fA-F]+; 
+fragment Decimal : [0-9]+;
+fragment DecimalFraction : '.' Decimal;
+fragment ExponentPart : [eE] Sign Decimal+;
+fragment Sign : [+\-];
+
+Whitespace : [ \t]+ -> skip;
+Newline : ( '\r' '\n'? | '\n') -> skip;
+BlockComment : '/*' .*? '*/' -> skip;
+LineComment : '//' ~[\r\n]* -> skip;
+ImportDirective : '#' Whitespace? 'include' Whitespace? ~('\r' | '\n')* -> skip;
