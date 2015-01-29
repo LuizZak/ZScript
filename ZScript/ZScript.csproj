@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Elements\FunctionDef.cs" />
     <Compile Include="CodeGeneration\Messages\CodeMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parser\ZScriptBaseListener.cs" />
@@ -54,15 +55,14 @@
     <Compile Include="CodeGeneration\Messages\SyntaxError.cs" />
     <Compile Include="CodeGeneration\Messages\Warning.cs" />
     <Compile Include="CodeGeneration\ZScriptGenerator.cs" />
+    <Compile Include="Runtime\ZRuntimeDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ZScript.g4" />
     <None Include="Parser\ZScript.tokens" />
     <None Include="Parser\ZScriptLexer.tokens" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Elements\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

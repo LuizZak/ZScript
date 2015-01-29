@@ -369,18 +369,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionTriggers([NotNull] ZScriptParser.FunctionTriggersContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.functionTriggerArgs"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterFunctionTriggerArgs([NotNull] ZScriptParser.FunctionTriggerArgsContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.functionTriggerArgs"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitFunctionTriggerArgs([NotNull] ZScriptParser.FunctionTriggerArgsContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.functionTrigger"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -392,6 +380,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionTrigger([NotNull] ZScriptParser.FunctionTriggerContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.functionTriggerArgs"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionTriggerArgs([NotNull] ZScriptParser.FunctionTriggerArgsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.functionTriggerArgs"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionTriggerArgs([NotNull] ZScriptParser.FunctionTriggerArgsContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -801,18 +801,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitUnaryExpression([NotNull] ZScriptParser.UnaryExpressionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.binaryOperator"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterBinaryOperator([NotNull] ZScriptParser.BinaryOperatorContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.binaryOperator"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitBinaryOperator([NotNull] ZScriptParser.BinaryOperatorContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.prefixOperator"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -848,18 +836,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAssignmentOperator([NotNull] ZScriptParser.AssignmentOperatorContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayDeclaration"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterArrayDeclaration([NotNull] ZScriptParser.ArrayDeclarationContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.arrayDeclaration"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitArrayDeclaration([NotNull] ZScriptParser.ArrayDeclarationContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.funcCallArguments"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -981,17 +957,29 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMemberName([NotNull] ZScriptParser.MemberNameContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.@object"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObject([NotNull] ZScriptParser.ObjectContext context) { }
+	public virtual void EnterArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.@object"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.arrayLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObject([NotNull] ZScriptParser.ObjectContext context) { }
+	public virtual void ExitArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.objectLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.objectLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectEntryList"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -1029,6 +1017,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitEntryName([NotNull] ZScriptParser.EntryNameContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.constant"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterConstant([NotNull] ZScriptParser.ConstantContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.constant"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitConstant([NotNull] ZScriptParser.ConstantContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.constantAtom"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -1052,18 +1052,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.atom"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterAtom([NotNull] ZScriptParser.AtomContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.atom"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitAtom([NotNull] ZScriptParser.AtomContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.numericAtom"/>.
 	/// <para>The default implementation does nothing.</para>

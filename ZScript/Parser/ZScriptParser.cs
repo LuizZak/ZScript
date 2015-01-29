@@ -55,7 +55,7 @@ public partial class ZScriptParser : Parser {
 		RULE_frameRangeElement = 17, RULE_frameNumber = 18, RULE_functionDefinition = 19, 
 		RULE_exportDefinition = 20, RULE_functionName = 21, RULE_functionArguments = 22, 
 		RULE_argumentList = 23, RULE_returnType = 24, RULE_functionArg = 25, RULE_argumentName = 26, 
-		RULE_functionTriggers = 27, RULE_functionTriggerArgs = 28, RULE_functionTrigger = 29, 
+		RULE_functionTriggers = 27, RULE_functionTrigger = 28, RULE_functionTriggerArgs = 29, 
 		RULE_statement = 30, RULE_blockStatement = 31, RULE_ifStatement = 32, 
 		RULE_elseStatement = 33, RULE_switchStatement = 34, RULE_switchBlock = 35, 
 		RULE_caseBlock = 36, RULE_defaultBlock = 37, RULE_whileStatement = 38, 
@@ -66,14 +66,14 @@ public partial class ZScriptParser : Parser {
 		RULE_expression = 53, RULE_multOp = 54, RULE_additionOp = 55, RULE_bitwiseAndXOrOp = 56, 
 		RULE_bitwiseOrOp = 57, RULE_comparisionOp = 58, RULE_logicalOp = 59, RULE_assignmentExpression = 60, 
 		RULE_newExpression = 61, RULE_closureExpression = 62, RULE_unaryExpression = 63, 
-		RULE_binaryOperator = 64, RULE_prefixOperator = 65, RULE_postfixOperator = 66, 
-		RULE_assignmentOperator = 67, RULE_arrayDeclaration = 68, RULE_funcCallArguments = 69, 
-		RULE_expressionList = 70, RULE_leftValue = 71, RULE_leftValueAccess = 72, 
-		RULE_functionCall = 73, RULE_fieldAccess = 74, RULE_arrayAccess = 75, 
-		RULE_objectAccess = 76, RULE_valueAccess = 77, RULE_memberName = 78, RULE_object = 79, 
-		RULE_objectEntryList = 80, RULE_objectEntryDefinition = 81, RULE_entryName = 82, 
-		RULE_constantAtom = 83, RULE_stringLiteral = 84, RULE_atom = 85, RULE_numericAtom = 86, 
-		RULE_hexadecimalNumber = 87, RULE_binaryNumber = 88;
+		RULE_prefixOperator = 64, RULE_postfixOperator = 65, RULE_assignmentOperator = 66, 
+		RULE_funcCallArguments = 67, RULE_expressionList = 68, RULE_leftValue = 69, 
+		RULE_leftValueAccess = 70, RULE_functionCall = 71, RULE_fieldAccess = 72, 
+		RULE_arrayAccess = 73, RULE_objectAccess = 74, RULE_valueAccess = 75, 
+		RULE_memberName = 76, RULE_arrayLiteral = 77, RULE_objectLiteral = 78, 
+		RULE_objectEntryList = 79, RULE_objectEntryDefinition = 80, RULE_entryName = 81, 
+		RULE_constant = 82, RULE_constantAtom = 83, RULE_stringLiteral = 84, RULE_numericAtom = 85, 
+		RULE_hexadecimalNumber = 86, RULE_binaryNumber = 87;
 	public static readonly string[] ruleNames = {
 		"program", "scriptBody", "objectDefinition", "objectInherit", "objectName", 
 		"objectBody", "objectField", "objectFunction", "variableBlock", "functionBlock", 
@@ -81,19 +81,19 @@ public partial class ZScriptParser : Parser {
 		"sequenceFrameChange", "frameRange", "frameRangeElement", "frameNumber", 
 		"functionDefinition", "exportDefinition", "functionName", "functionArguments", 
 		"argumentList", "returnType", "functionArg", "argumentName", "functionTriggers", 
-		"functionTriggerArgs", "functionTrigger", "statement", "blockStatement", 
+		"functionTrigger", "functionTriggerArgs", "statement", "blockStatement", 
 		"ifStatement", "elseStatement", "switchStatement", "switchBlock", "caseBlock", 
 		"defaultBlock", "whileStatement", "forStatement", "forInit", "returnStatement", 
 		"valueDecl", "varDecl", "letDecl", "variableDeclare", "constantDeclare", 
 		"valueHolderDecl", "valueHolderName", "type", "typeName", "closureType", 
 		"typeList", "expression", "multOp", "additionOp", "bitwiseAndXOrOp", "bitwiseOrOp", 
 		"comparisionOp", "logicalOp", "assignmentExpression", "newExpression", 
-		"closureExpression", "unaryExpression", "binaryOperator", "prefixOperator", 
-		"postfixOperator", "assignmentOperator", "arrayDeclaration", "funcCallArguments", 
-		"expressionList", "leftValue", "leftValueAccess", "functionCall", "fieldAccess", 
-		"arrayAccess", "objectAccess", "valueAccess", "memberName", "object", 
-		"objectEntryList", "objectEntryDefinition", "entryName", "constantAtom", 
-		"stringLiteral", "atom", "numericAtom", "hexadecimalNumber", "binaryNumber"
+		"closureExpression", "unaryExpression", "prefixOperator", "postfixOperator", 
+		"assignmentOperator", "funcCallArguments", "expressionList", "leftValue", 
+		"leftValueAccess", "functionCall", "fieldAccess", "arrayAccess", "objectAccess", 
+		"valueAccess", "memberName", "arrayLiteral", "objectLiteral", "objectEntryList", 
+		"objectEntryDefinition", "entryName", "constant", "constantAtom", "stringLiteral", 
+		"numericAtom", "hexadecimalNumber", "binaryNumber"
 	};
 
 	private static readonly string[] _LiteralNames = {
@@ -172,7 +172,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 178; scriptBody();
+			State = 176; scriptBody();
 			}
 		}
 		catch (RecognitionException re) {
@@ -234,38 +234,38 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 186;
+			State = 184;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_OBJECT) | (1L << T_SEQUENCE) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY))) != 0)) {
 				{
-				State = 184;
+				State = 182;
 				switch (TokenStream.La(1)) {
 				case T_LEFT_BRACKET:
 					{
-					State = 180; variableBlock();
+					State = 178; variableBlock();
 					}
 					break;
 				case T_LEFT_CURLY:
 					{
-					State = 181; functionBlock();
+					State = 179; functionBlock();
 					}
 					break;
 				case T_OBJECT:
 					{
-					State = 182; objectDefinition();
+					State = 180; objectDefinition();
 					}
 					break;
 				case T_SEQUENCE:
 					{
-					State = 183; sequenceBlock();
+					State = 181; sequenceBlock();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
 				}
-				State = 188;
+				State = 186;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
@@ -315,17 +315,17 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 189; Match(T_OBJECT);
-			State = 190; objectName();
-			State = 192;
+			State = 187; Match(T_OBJECT);
+			State = 188; objectName();
+			State = 190;
 			_la = TokenStream.La(1);
 			if (_la==T_DOUBLE_COLON) {
 				{
-				State = 191; objectInherit();
+				State = 189; objectInherit();
 				}
 			}
 
-			State = 194; objectBody();
+			State = 192; objectBody();
 			}
 		}
 		catch (RecognitionException re) {
@@ -365,8 +365,8 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 196; Match(T_DOUBLE_COLON);
-			State = 197; objectName();
+			State = 194; Match(T_DOUBLE_COLON);
+			State = 195; objectName();
 			}
 		}
 		catch (RecognitionException re) {
@@ -404,7 +404,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 199; Match(IDENT);
+			State = 197; Match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -454,34 +454,34 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 201; Match(T_LEFT_CURLY);
-			State = 206;
+			State = 199; Match(T_LEFT_CURLY);
+			State = 204;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_VAR) | (1L << T_FUNCTION) | (1L << T_OVERRIDE))) != 0)) {
 				{
-				State = 204;
+				State = 202;
 				switch (TokenStream.La(1)) {
 				case T_VAR:
 					{
-					State = 202; objectField();
+					State = 200; objectField();
 					}
 					break;
 				case T_FUNCTION:
 				case T_OVERRIDE:
 					{
-					State = 203; objectFunction();
+					State = 201; objectFunction();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
 				}
-				State = 208;
+				State = 206;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			State = 209; Match(T_RIGHT_CURLY);
+			State = 207; Match(T_RIGHT_CURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -521,8 +521,8 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 211; varDecl();
-			State = 212; Match(T_SEMICOLON);
+			State = 209; varDecl();
+			State = 210; Match(T_SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -563,16 +563,16 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 215;
+			State = 213;
 			_la = TokenStream.La(1);
 			if (_la==T_OVERRIDE) {
 				{
-				State = 214; Match(T_OVERRIDE);
+				State = 212; Match(T_OVERRIDE);
 				}
 			}
 
-			State = 217; Match(T_FUNCTION);
-			State = 218; functionDefinition();
+			State = 215; Match(T_FUNCTION);
+			State = 216; functionDefinition();
 			}
 		}
 		catch (RecognitionException re) {
@@ -616,21 +616,21 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 220; Match(T_LEFT_BRACKET);
-			State = 224;
+			State = 218; Match(T_LEFT_BRACKET);
+			State = 222;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_CONST || _la==IDENT) {
 				{
 				{
-				State = 221; globalVariable();
+				State = 219; globalVariable();
 				}
 				}
-				State = 226;
+				State = 224;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			State = 227; Match(T_RIGHT_BRACKET);
+			State = 225; Match(T_RIGHT_BRACKET);
 			}
 		}
 		catch (RecognitionException re) {
@@ -686,38 +686,38 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 229; Match(T_LEFT_CURLY);
-			State = 235;
+			State = 227; Match(T_LEFT_CURLY);
+			State = 233;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_EXPORT || _la==T_LEFT_BRACKET || _la==IDENT) {
 				{
-				State = 233;
+				State = 231;
 				switch (TokenStream.La(1)) {
 				case T_LEFT_BRACKET:
 					{
-					State = 230; variableBlock();
+					State = 228; variableBlock();
 					}
 					break;
 				case T_EXPORT:
 					{
-					State = 231; exportDefinition();
+					State = 229; exportDefinition();
 					}
 					break;
 				case IDENT:
 					{
-					State = 232; functionDefinition();
+					State = 230; functionDefinition();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
 				}
-				State = 237;
+				State = 235;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			State = 238; Match(T_RIGHT_CURLY);
+			State = 236; Match(T_RIGHT_CURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -758,16 +758,16 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 241;
+			State = 239;
 			_la = TokenStream.La(1);
 			if (_la==T_CONST) {
 				{
-				State = 240; Match(T_CONST);
+				State = 238; Match(T_CONST);
 				}
 			}
 
-			State = 243; variableDeclare();
-			State = 244; Match(T_SEMICOLON);
+			State = 241; variableDeclare();
+			State = 242; Match(T_SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -810,9 +810,9 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 246; Match(T_SEQUENCE);
-			State = 247; sequenceName();
-			State = 248; sequenceBody();
+			State = 244; Match(T_SEQUENCE);
+			State = 245; sequenceName();
+			State = 246; sequenceBody();
 			}
 		}
 		catch (RecognitionException re) {
@@ -850,7 +850,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 250; Match(IDENT);
+			State = 248; Match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -906,41 +906,41 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 252; Match(T_LEFT_BRACKET);
-			State = 258;
+			State = 250; Match(T_LEFT_BRACKET);
+			State = 256;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_VAR) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_EQUALS))) != 0)) {
 				{
-				State = 256;
+				State = 254;
 				switch (TokenStream.La(1)) {
 				case T_VAR:
 					{
-					State = 253; objectField();
+					State = 251; objectField();
 					}
 					break;
 				case T_LEFT_CURLY:
 				case INT:
 				case T_PLUS:
 					{
-					State = 254; sequenceFrame();
+					State = 252; sequenceFrame();
 					}
 					break;
 				case T_MINUS:
 				case T_EQUALS:
 					{
-					State = 255; sequenceFrameChange();
+					State = 253; sequenceFrameChange();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
 				}
-				State = 260;
+				State = 258;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			State = 261; Match(T_RIGHT_BRACKET);
+			State = 259; Match(T_RIGHT_BRACKET);
 			}
 		}
 		catch (RecognitionException re) {
@@ -958,11 +958,8 @@ public partial class ZScriptParser : Parser {
 		public BlockStatementContext blockStatement() {
 			return GetRuleContext<BlockStatementContext>(0);
 		}
-		public FrameRangeContext[] frameRange() {
-			return GetRuleContexts<FrameRangeContext>();
-		}
-		public FrameRangeContext frameRange(int i) {
-			return GetRuleContext<FrameRangeContext>(i);
+		public FrameRangeContext frameRange() {
+			return GetRuleContext<FrameRangeContext>(0);
 		}
 		public SequenceFrameContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -987,29 +984,15 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 271;
+			State = 262;
 			_la = TokenStream.La(1);
 			if (_la==INT || _la==T_PLUS) {
 				{
-				State = 263; frameRange();
-				State = 268;
-				ErrorHandler.Sync(this);
-				_la = TokenStream.La(1);
-				while (_la==T_COMMA) {
-					{
-					{
-					State = 264; Match(T_COMMA);
-					State = 265; frameRange();
-					}
-					}
-					State = 270;
-					ErrorHandler.Sync(this);
-					_la = TokenStream.La(1);
-				}
+				State = 261; frameRange();
 				}
 			}
 
-			State = 273; blockStatement();
+			State = 264; blockStatement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1047,23 +1030,21 @@ public partial class ZScriptParser : Parser {
 		SequenceFrameChangeContext _localctx = new SequenceFrameChangeContext(Context, State);
 		EnterRule(_localctx, 30, RULE_sequenceFrameChange);
 		try {
-			State = 279;
+			State = 270;
 			switch (TokenStream.La(1)) {
 			case T_EQUALS:
 				EnterOuterAlt(_localctx, 1);
 				{
-				{
-				State = 275; Match(T_EQUALS);
-				State = 276; frameNumber();
-				}
+				State = 266; Match(T_EQUALS);
+				State = 267; frameNumber();
 				}
 				break;
 			case T_MINUS:
 				EnterOuterAlt(_localctx, 2);
 				{
 				{
-				State = 277; Match(T_MINUS);
-				State = 278; frameNumber();
+				State = 268; Match(T_MINUS);
+				State = 269; frameNumber();
 				}
 				}
 				break;
@@ -1108,26 +1089,24 @@ public partial class ZScriptParser : Parser {
 	public FrameRangeContext frameRange() {
 		FrameRangeContext _localctx = new FrameRangeContext(Context, State);
 		EnterRule(_localctx, 32, RULE_frameRange);
+		int _la;
 		try {
-			int _alt;
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 281; frameRangeElement();
-			State = 286;
+			State = 272; frameRangeElement();
+			State = 277;
 			ErrorHandler.Sync(this);
-			_alt = Interpreter.AdaptivePredict(TokenStream,15,Context);
-			while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.InvalidAltNumber ) {
-				if ( _alt==1 ) {
-					{
-					{
-					State = 282; Match(T_COMMA);
-					State = 283; frameRangeElement();
-					}
-					} 
+			_la = TokenStream.La(1);
+			while (_la==T_COMMA) {
+				{
+				{
+				State = 273; Match(T_COMMA);
+				State = 274; frameRangeElement();
 				}
-				State = 288;
+				}
+				State = 279;
 				ErrorHandler.Sync(this);
-				_alt = Interpreter.AdaptivePredict(TokenStream,15,Context);
+				_la = TokenStream.La(1);
 			}
 			}
 		}
@@ -1172,21 +1151,21 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 290;
+			State = 281;
 			_la = TokenStream.La(1);
 			if (_la==T_PLUS) {
 				{
-				State = 289; Match(T_PLUS);
+				State = 280; Match(T_PLUS);
 				}
 			}
 
-			State = 292; frameNumber();
-			State = 295;
+			State = 283; frameNumber();
+			State = 286;
 			_la = TokenStream.La(1);
 			if (_la==T_MINUS) {
 				{
-				State = 293; Match(T_MINUS);
-				State = 294; frameNumber();
+				State = 284; Match(T_MINUS);
+				State = 285; frameNumber();
 				}
 			}
 
@@ -1227,7 +1206,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 297; Match(INT);
+			State = 288; Match(INT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1280,32 +1259,32 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 299; functionName();
-			State = 301;
+			State = 290; functionName();
+			State = 292;
 			_la = TokenStream.La(1);
 			if (_la==T_LEFT_PAREN) {
 				{
-				State = 300; functionArguments();
+				State = 291; functionArguments();
 				}
 			}
 
-			State = 304;
+			State = 295;
 			_la = TokenStream.La(1);
 			if (_la==T_DOUBLE_COLON) {
 				{
-				State = 303; returnType();
+				State = 294; returnType();
 				}
 			}
 
-			State = 307;
+			State = 298;
 			_la = TokenStream.La(1);
 			if (_la==T_EQUALS) {
 				{
-				State = 306; functionTriggers();
+				State = 297; functionTriggers();
 				}
 			}
 
-			State = 309; blockStatement();
+			State = 300; blockStatement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1352,21 +1331,21 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 311; Match(T_EXPORT);
-			State = 312; functionName();
-			State = 314;
+			State = 302; Match(T_EXPORT);
+			State = 303; functionName();
+			State = 305;
 			_la = TokenStream.La(1);
 			if (_la==T_LEFT_PAREN) {
 				{
-				State = 313; functionArguments();
+				State = 304; functionArguments();
 				}
 			}
 
-			State = 317;
+			State = 308;
 			_la = TokenStream.La(1);
 			if (_la==T_DOUBLE_COLON) {
 				{
-				State = 316; returnType();
+				State = 307; returnType();
 				}
 			}
 
@@ -1407,7 +1386,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 319; Match(IDENT);
+			State = 310; Match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1444,12 +1423,20 @@ public partial class ZScriptParser : Parser {
 	public FunctionArgumentsContext functionArguments() {
 		FunctionArgumentsContext _localctx = new FunctionArgumentsContext(Context, State);
 		EnterRule(_localctx, 44, RULE_functionArguments);
+		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 321; Match(T_LEFT_PAREN);
-			State = 322; argumentList();
-			State = 323; Match(T_RIGHT_PAREN);
+			State = 312; Match(T_LEFT_PAREN);
+			State = 314;
+			_la = TokenStream.La(1);
+			if (_la==IDENT) {
+				{
+				State = 313; argumentList();
+				}
+			}
+
+			State = 316; Match(T_RIGHT_PAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1493,28 +1480,21 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 333;
+			State = 318; functionArg();
+			State = 323;
+			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
-			if (_la==IDENT) {
+			while (_la==T_COMMA) {
 				{
-				State = 325; functionArg();
-				State = 330;
+				{
+				State = 319; Match(T_COMMA);
+				State = 320; functionArg();
+				}
+				}
+				State = 325;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
-				while (_la==T_COMMA) {
-					{
-					{
-					State = 326; Match(T_COMMA);
-					State = 327; functionArg();
-					}
-					}
-					State = 332;
-					ErrorHandler.Sync(this);
-					_la = TokenStream.La(1);
-				}
-				}
 			}
-
 			}
 		}
 		catch (RecognitionException re) {
@@ -1554,8 +1534,8 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 335; Match(T_DOUBLE_COLON);
-			State = 336; type();
+			State = 326; Match(T_DOUBLE_COLON);
+			State = 327; type();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1576,8 +1556,8 @@ public partial class ZScriptParser : Parser {
 		public TypeContext type() {
 			return GetRuleContext<TypeContext>(0);
 		}
-		public ConstantAtomContext constantAtom() {
-			return GetRuleContext<ConstantAtomContext>(0);
+		public ConstantContext constant() {
+			return GetRuleContext<ConstantContext>(0);
 		}
 		public FunctionArgContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -1602,28 +1582,28 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 338; argumentName();
-			State = 341;
+			State = 329; argumentName();
+			State = 332;
 			_la = TokenStream.La(1);
 			if (_la==T_DOUBLE_COLON) {
 				{
-				State = 339; Match(T_DOUBLE_COLON);
-				State = 340; type();
+				State = 330; Match(T_DOUBLE_COLON);
+				State = 331; type();
 				}
 			}
 
-			State = 346;
+			State = 337;
 			switch (TokenStream.La(1)) {
 			case T_TRIPPLE_DOT:
 				{
-				State = 343; Match(T_TRIPPLE_DOT);
+				State = 334; Match(T_TRIPPLE_DOT);
 				}
 				break;
 			case T_EQUALS:
 				{
 				{
-				State = 344; Match(T_EQUALS);
-				State = 345; constantAtom();
+				State = 335; Match(T_EQUALS);
+				State = 336; constant();
 				}
 				}
 				break;
@@ -1670,7 +1650,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 348; Match(IDENT);
+			State = 339; Match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1714,82 +1694,22 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 350; Match(T_EQUALS);
-			State = 351; functionTrigger();
-			State = 356;
+			State = 341; Match(T_EQUALS);
+			State = 342; functionTrigger();
+			State = 347;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_COMMA) {
 				{
 				{
-				State = 352; Match(T_COMMA);
-				State = 353; functionTrigger();
+				State = 343; Match(T_COMMA);
+				State = 344; functionTrigger();
 				}
 				}
-				State = 358;
+				State = 349;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class FunctionTriggerArgsContext : ParserRuleContext {
-		public ConstantAtomContext[] constantAtom() {
-			return GetRuleContexts<ConstantAtomContext>();
-		}
-		public ConstantAtomContext constantAtom(int i) {
-			return GetRuleContext<ConstantAtomContext>(i);
-		}
-		public FunctionTriggerArgsContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_functionTriggerArgs; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.EnterFunctionTriggerArgs(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.ExitFunctionTriggerArgs(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public FunctionTriggerArgsContext functionTriggerArgs() {
-		FunctionTriggerArgsContext _localctx = new FunctionTriggerArgsContext(Context, State);
-		EnterRule(_localctx, 56, RULE_functionTriggerArgs);
-		int _la;
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 359; Match(T_LEFT_PAREN);
-			State = 360; constantAtom();
-			State = 365;
-			ErrorHandler.Sync(this);
-			_la = TokenStream.La(1);
-			while (_la==T_COMMA) {
-				{
-				{
-				State = 361; Match(T_COMMA);
-				State = 362; constantAtom();
-				}
-				}
-				State = 367;
-				ErrorHandler.Sync(this);
-				_la = TokenStream.La(1);
-			}
-			State = 368; Match(T_RIGHT_PAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1828,20 +1748,80 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public FunctionTriggerContext functionTrigger() {
 		FunctionTriggerContext _localctx = new FunctionTriggerContext(Context, State);
-		EnterRule(_localctx, 58, RULE_functionTrigger);
+		EnterRule(_localctx, 56, RULE_functionTrigger);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 370; constantAtom();
-			State = 372;
+			State = 350; constantAtom();
+			State = 352;
 			_la = TokenStream.La(1);
 			if (_la==T_LEFT_PAREN) {
 				{
-				State = 371; functionTriggerArgs();
+				State = 351; functionTriggerArgs();
 				}
 			}
 
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class FunctionTriggerArgsContext : ParserRuleContext {
+		public ConstantAtomContext[] constantAtom() {
+			return GetRuleContexts<ConstantAtomContext>();
+		}
+		public ConstantAtomContext constantAtom(int i) {
+			return GetRuleContext<ConstantAtomContext>(i);
+		}
+		public FunctionTriggerArgsContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_functionTriggerArgs; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IZScriptListener typedListener = listener as IZScriptListener;
+			if (typedListener != null) typedListener.EnterFunctionTriggerArgs(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IZScriptListener typedListener = listener as IZScriptListener;
+			if (typedListener != null) typedListener.ExitFunctionTriggerArgs(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public FunctionTriggerArgsContext functionTriggerArgs() {
+		FunctionTriggerArgsContext _localctx = new FunctionTriggerArgsContext(Context, State);
+		EnterRule(_localctx, 58, RULE_functionTriggerArgs);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 354; Match(T_LEFT_PAREN);
+			State = 355; constantAtom();
+			State = 360;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.La(1);
+			while (_la==T_COMMA) {
+				{
+				{
+				State = 356; Match(T_COMMA);
+				State = 357; constantAtom();
+				}
+				}
+				State = 362;
+				ErrorHandler.Sync(this);
+				_la = TokenStream.La(1);
+			}
+			State = 363; Match(T_RIGHT_PAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1905,66 +1885,66 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 388;
-			switch ( Interpreter.AdaptivePredict(TokenStream,31,Context) ) {
+			State = 379;
+			switch ( Interpreter.AdaptivePredict(TokenStream,30,Context) ) {
 			case 1:
 				{
 				{
-				State = 376;
-				switch ( Interpreter.AdaptivePredict(TokenStream,30,Context) ) {
+				State = 367;
+				switch ( Interpreter.AdaptivePredict(TokenStream,29,Context) ) {
 				case 1:
 					{
-					State = 374; expression(0);
+					State = 365; expression(0);
 					}
 					break;
 				case 2:
 					{
-					State = 375; assignmentExpression();
+					State = 366; assignmentExpression();
 					}
 					break;
 				}
-				State = 378; Match(T_SEMICOLON);
+				State = 369; Match(T_SEMICOLON);
 				}
 				}
 				break;
 			case 2:
 				{
-				State = 380; blockStatement();
+				State = 371; blockStatement();
 				}
 				break;
 			case 3:
 				{
-				State = 381; Match(T_SEMICOLON);
+				State = 372; Match(T_SEMICOLON);
 				}
 				break;
 			case 4:
 				{
-				State = 382; ifStatement();
+				State = 373; ifStatement();
 				}
 				break;
 			case 5:
 				{
-				State = 383; whileStatement();
+				State = 374; whileStatement();
 				}
 				break;
 			case 6:
 				{
-				State = 384; forStatement();
+				State = 375; forStatement();
 				}
 				break;
 			case 7:
 				{
-				State = 385; switchStatement();
+				State = 376; switchStatement();
 				}
 				break;
 			case 8:
 				{
-				State = 386; returnStatement();
+				State = 377; returnStatement();
 				}
 				break;
 			case 9:
 				{
-				State = 387; valueDecl();
+				State = 378; valueDecl();
 				}
 				break;
 			}
@@ -2011,21 +1991,21 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 390; Match(T_LEFT_CURLY);
-			State = 394;
+			State = 381; Match(T_LEFT_CURLY);
+			State = 385;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_VAR) | (1L << T_LET) | (1L << T_NEW) | (1L << T_IF) | (1L << T_WHILE) | (1L << T_FOR) | (1L << T_SWITCH) | (1L << T_RETURN) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_SEMICOLON) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
 				{
-				State = 391; statement();
+				State = 382; statement();
 				}
 				}
-				State = 396;
+				State = 387;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			State = 397; Match(T_RIGHT_CURLY);
+			State = 388; Match(T_RIGHT_CURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2071,16 +2051,16 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 399; Match(T_IF);
-			State = 400; Match(T_LEFT_PAREN);
-			State = 401; expression(0);
-			State = 402; Match(T_RIGHT_PAREN);
-			State = 403; statement();
-			State = 405;
-			switch ( Interpreter.AdaptivePredict(TokenStream,33,Context) ) {
+			State = 390; Match(T_IF);
+			State = 391; Match(T_LEFT_PAREN);
+			State = 392; expression(0);
+			State = 393; Match(T_RIGHT_PAREN);
+			State = 394; statement();
+			State = 396;
+			switch ( Interpreter.AdaptivePredict(TokenStream,32,Context) ) {
 			case 1:
 				{
-				State = 404; elseStatement();
+				State = 395; elseStatement();
 				}
 				break;
 			}
@@ -2123,10 +2103,8 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 407; Match(T_ELSE);
-			{
-			State = 408; statement();
-			}
+			State = 398; Match(T_ELSE);
+			State = 399; statement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2169,11 +2147,11 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 410; Match(T_SWITCH);
-			State = 411; Match(T_LEFT_PAREN);
-			State = 412; expression(0);
-			State = 413; Match(T_RIGHT_PAREN);
-			State = 414; switchBlock();
+			State = 401; Match(T_SWITCH);
+			State = 402; Match(T_LEFT_PAREN);
+			State = 403; expression(0);
+			State = 404; Match(T_RIGHT_PAREN);
+			State = 405; switchBlock();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2223,33 +2201,33 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 416; Match(T_LEFT_CURLY);
-			State = 421;
+			State = 407; Match(T_LEFT_CURLY);
+			State = 412;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_CASE || _la==T_DEFAULT) {
 				{
-				State = 419;
+				State = 410;
 				switch (TokenStream.La(1)) {
 				case T_CASE:
 					{
-					State = 417; caseBlock();
+					State = 408; caseBlock();
 					}
 					break;
 				case T_DEFAULT:
 					{
-					State = 418; defaultBlock();
+					State = 409; defaultBlock();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
 				}
-				State = 423;
+				State = 414;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
-			State = 424; Match(T_RIGHT_CURLY);
+			State = 415; Match(T_RIGHT_CURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2295,15 +2273,15 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 426; Match(T_CASE);
-			State = 427; expression(0);
-			State = 428; Match(T_DOUBLE_COLON);
-			State = 434;
+			State = 417; Match(T_CASE);
+			State = 418; expression(0);
+			State = 419; Match(T_DOUBLE_COLON);
+			State = 425;
 			switch (TokenStream.La(1)) {
 			case T_CASE:
 				{
 				{
-				State = 429; caseBlock();
+				State = 420; caseBlock();
 				}
 				}
 				break;
@@ -2335,9 +2313,9 @@ public partial class ZScriptParser : Parser {
 			case IDENT:
 				{
 				{
-				State = 430; statement();
-				State = 431; Match(T_BREAK);
-				State = 432; Match(T_SEMICOLON);
+				State = 421; statement();
+				State = 422; Match(T_BREAK);
+				State = 423; Match(T_SEMICOLON);
 				}
 				}
 				break;
@@ -2383,11 +2361,11 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 436; Match(T_DEFAULT);
-			State = 437; Match(T_DOUBLE_COLON);
-			State = 438; statement();
-			State = 439; Match(T_BREAK);
-			State = 440; Match(T_SEMICOLON);
+			State = 427; Match(T_DEFAULT);
+			State = 428; Match(T_DOUBLE_COLON);
+			State = 429; statement();
+			State = 430; Match(T_BREAK);
+			State = 431; Match(T_SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2430,11 +2408,11 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 442; Match(T_WHILE);
-			State = 443; Match(T_LEFT_PAREN);
-			State = 444; expression(0);
-			State = 445; Match(T_RIGHT_PAREN);
-			State = 446; statement();
+			State = 433; Match(T_WHILE);
+			State = 434; Match(T_LEFT_PAREN);
+			State = 435; expression(0);
+			State = 436; Match(T_RIGHT_PAREN);
+			State = 437; statement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2484,36 +2462,36 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 448; Match(T_FOR);
-			State = 449; Match(T_LEFT_PAREN);
-			State = 451;
+			State = 439; Match(T_FOR);
+			State = 440; Match(T_LEFT_PAREN);
+			State = 442;
 			_la = TokenStream.La(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_VAR) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
-				State = 450; forInit();
+				State = 441; forInit();
 				}
 			}
 
-			State = 453; Match(T_SEMICOLON);
-			State = 455;
+			State = 444; Match(T_SEMICOLON);
+			State = 446;
 			_la = TokenStream.La(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
-				State = 454; expression(0);
+				State = 445; expression(0);
 				}
 			}
 
-			State = 457; Match(T_SEMICOLON);
-			State = 459;
+			State = 448; Match(T_SEMICOLON);
+			State = 450;
 			_la = TokenStream.La(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
-				State = 458; expression(0);
+				State = 449; expression(0);
 				}
 			}
 
-			State = 461; Match(T_RIGHT_PAREN);
-			State = 462; statement();
+			State = 452; Match(T_RIGHT_PAREN);
+			State = 453; statement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2554,12 +2532,12 @@ public partial class ZScriptParser : Parser {
 		ForInitContext _localctx = new ForInitContext(Context, State);
 		EnterRule(_localctx, 80, RULE_forInit);
 		try {
-			State = 466;
+			State = 457;
 			switch (TokenStream.La(1)) {
 			case T_VAR:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 464; varDecl();
+				State = 455; varDecl();
 				}
 				break;
 			case StringLiteral:
@@ -2582,7 +2560,7 @@ public partial class ZScriptParser : Parser {
 			case IDENT:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 465; expression(0);
+				State = 456; expression(0);
 				}
 				break;
 			default:
@@ -2627,16 +2605,16 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 468; Match(T_RETURN);
-			State = 470;
+			State = 459; Match(T_RETURN);
+			State = 461;
 			_la = TokenStream.La(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
-				State = 469; expression(0);
+				State = 460; expression(0);
 				}
 			}
 
-			State = 472; Match(T_SEMICOLON);
+			State = 463; Match(T_SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2679,22 +2657,22 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 476;
+			State = 467;
 			switch (TokenStream.La(1)) {
 			case T_VAR:
 				{
-				State = 474; varDecl();
+				State = 465; varDecl();
 				}
 				break;
 			case T_LET:
 				{
-				State = 475; letDecl();
+				State = 466; letDecl();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			State = 478; Match(T_SEMICOLON);
+			State = 469; Match(T_SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2734,8 +2712,8 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 480; Match(T_VAR);
-			State = 481; variableDeclare();
+			State = 471; Match(T_VAR);
+			State = 472; variableDeclare();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2775,8 +2753,8 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 483; Match(T_LET);
-			State = 484; constantDeclare();
+			State = 474; Match(T_LET);
+			State = 475; constantDeclare();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2820,13 +2798,13 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 486; valueHolderDecl();
-			State = 489;
+			State = 477; valueHolderDecl();
+			State = 480;
 			_la = TokenStream.La(1);
 			if (_la==T_EQUALS) {
 				{
-				State = 487; Match(T_EQUALS);
-				State = 488; expression(0);
+				State = 478; Match(T_EQUALS);
+				State = 479; expression(0);
 				}
 			}
 
@@ -2872,9 +2850,9 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 491; valueHolderDecl();
-			State = 492; Match(T_EQUALS);
-			State = 493; expression(0);
+			State = 482; valueHolderDecl();
+			State = 483; Match(T_EQUALS);
+			State = 484; expression(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2918,13 +2896,13 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 495; valueHolderName();
-			State = 498;
+			State = 486; valueHolderName();
+			State = 489;
 			_la = TokenStream.La(1);
 			if (_la==T_DOUBLE_COLON) {
 				{
-				State = 496; Match(T_DOUBLE_COLON);
-				State = 497; type();
+				State = 487; Match(T_DOUBLE_COLON);
+				State = 488; type();
 				}
 			}
 
@@ -2965,7 +2943,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 500; Match(IDENT);
+			State = 491; Match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -3006,24 +2984,24 @@ public partial class ZScriptParser : Parser {
 		TypeContext _localctx = new TypeContext(Context, State);
 		EnterRule(_localctx, 98, RULE_type);
 		try {
-			State = 505;
+			State = 496;
 			switch (TokenStream.La(1)) {
 			case T_OBJECT:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 502; Match(T_OBJECT);
+				State = 493; Match(T_OBJECT);
 				}
 				break;
 			case IDENT:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 503; typeName();
+				State = 494; typeName();
 				}
 				break;
 			case T_LEFT_PAREN:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 504; closureType();
+				State = 495; closureType();
 				}
 				break;
 			default:
@@ -3069,13 +3047,13 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 507; Match(IDENT);
-			State = 510;
+			State = 498; Match(IDENT);
+			State = 501;
 			_la = TokenStream.La(1);
 			if (_la==T_PERIOD) {
 				{
-				State = 508; Match(T_PERIOD);
-				State = 509; typeName();
+				State = 499; Match(T_PERIOD);
+				State = 500; typeName();
 				}
 			}
 
@@ -3122,25 +3100,25 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 512; Match(T_LEFT_PAREN);
-			State = 514;
+			State = 503; Match(T_LEFT_PAREN);
+			State = 505;
 			_la = TokenStream.La(1);
 			if (((((_la - 10)) & ~0x3f) == 0 && ((1L << (_la - 10)) & ((1L << (T_OBJECT - 10)) | (1L << (T_LEFT_PAREN - 10)) | (1L << (IDENT - 10)))) != 0)) {
 				{
-				State = 513; typeList();
+				State = 504; typeList();
 				}
 			}
 
-			State = 516; Match(T_CLOSURE_RETURN);
-			State = 518;
+			State = 507; Match(T_CLOSURE_RETURN);
+			State = 509;
 			_la = TokenStream.La(1);
 			if (((((_la - 10)) & ~0x3f) == 0 && ((1L << (_la - 10)) & ((1L << (T_OBJECT - 10)) | (1L << (T_LEFT_PAREN - 10)) | (1L << (IDENT - 10)))) != 0)) {
 				{
-				State = 517; type();
+				State = 508; type();
 				}
 			}
 
-			State = 520; Match(T_RIGHT_PAREN);
+			State = 511; Match(T_RIGHT_PAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -3184,18 +3162,18 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 522; type();
-			State = 527;
+			State = 513; type();
+			State = 518;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_COMMA) {
 				{
 				{
-				State = 523; Match(T_COMMA);
-				State = 524; type();
+				State = 514; Match(T_COMMA);
+				State = 515; type();
 				}
 				}
-				State = 529;
+				State = 520;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
@@ -3219,9 +3197,6 @@ public partial class ZScriptParser : Parser {
 		public ExpressionContext expression(int i) {
 			return GetRuleContext<ExpressionContext>(i);
 		}
-		public AssignmentExpressionContext assignmentExpression() {
-			return GetRuleContext<AssignmentExpressionContext>(0);
-		}
 		public PrefixOperatorContext prefixOperator() {
 			return GetRuleContext<PrefixOperatorContext>(0);
 		}
@@ -3234,12 +3209,17 @@ public partial class ZScriptParser : Parser {
 		public ClosureExpressionContext closureExpression() {
 			return GetRuleContext<ClosureExpressionContext>(0);
 		}
-		public ITerminalNode IDENT() { return GetToken(ZScriptParser.IDENT, 0); }
+		public FuncCallArgumentsContext funcCallArguments() {
+			return GetRuleContext<FuncCallArgumentsContext>(0);
+		}
+		public MemberNameContext memberName() {
+			return GetRuleContext<MemberNameContext>(0);
+		}
 		public ValueAccessContext valueAccess() {
 			return GetRuleContext<ValueAccessContext>(0);
 		}
-		public ObjectContext @object() {
-			return GetRuleContext<ObjectContext>(0);
+		public ObjectLiteralContext objectLiteral() {
+			return GetRuleContext<ObjectLiteralContext>(0);
 		}
 		public ObjectAccessContext objectAccess() {
 			return GetRuleContext<ObjectAccessContext>(0);
@@ -3247,14 +3227,8 @@ public partial class ZScriptParser : Parser {
 		public NewExpressionContext newExpression() {
 			return GetRuleContext<NewExpressionContext>(0);
 		}
-		public UnaryExpressionContext unaryExpression() {
-			return GetRuleContext<UnaryExpressionContext>(0);
-		}
-		public ArrayDeclarationContext arrayDeclaration() {
-			return GetRuleContext<ArrayDeclarationContext>(0);
-		}
-		public AtomContext atom() {
-			return GetRuleContext<AtomContext>(0);
+		public ArrayLiteralContext arrayLiteral() {
+			return GetRuleContext<ArrayLiteralContext>(0);
 		}
 		public ConstantAtomContext constantAtom() {
 			return GetRuleContext<ConstantAtomContext>(0);
@@ -3308,58 +3282,53 @@ public partial class ZScriptParser : Parser {
 			int _alt;
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 559;
+			State = 556;
 			switch ( Interpreter.AdaptivePredict(TokenStream,53,Context) ) {
 			case 1:
 				{
-				State = 531; Match(T_LEFT_PAREN);
-				State = 532; expression(0);
-				State = 533; Match(T_RIGHT_PAREN);
+				State = 522; Match(T_MINUS);
+				State = 523; expression(10);
 				}
 				break;
 			case 2:
 				{
-				State = 535; assignmentExpression();
+				State = 524; Match(T_PLUS);
+				State = 525; expression(9);
 				}
 				break;
 			case 3:
 				{
-				State = 536; prefixOperator();
-				State = 537; leftValue();
+				State = 526; Match(T_NOT);
+				State = 527; expression(8);
 				}
 				break;
 			case 4:
 				{
-				State = 539; leftValue();
-				State = 540; postfixOperator();
+				State = 528; Match(T_LEFT_PAREN);
+				State = 529; expression(0);
+				State = 530; Match(T_RIGHT_PAREN);
 				}
 				break;
 			case 5:
 				{
-				State = 542; closureExpression();
+				State = 532; prefixOperator();
+				State = 533; leftValue();
 				}
 				break;
 			case 6:
 				{
-				State = 543; Match(IDENT);
-				State = 545;
-				switch ( Interpreter.AdaptivePredict(TokenStream,50,Context) ) {
-				case 1:
-					{
-					State = 544; valueAccess();
-					}
-					break;
-				}
+				State = 535; leftValue();
+				State = 536; postfixOperator();
 				}
 				break;
 			case 7:
 				{
-				State = 547; @object();
-				State = 549;
-				switch ( Interpreter.AdaptivePredict(TokenStream,51,Context) ) {
+				State = 538; closureExpression();
+				State = 540;
+				switch ( Interpreter.AdaptivePredict(TokenStream,49,Context) ) {
 				case 1:
 					{
-					State = 548; objectAccess();
+					State = 539; funcCallArguments();
 					}
 					break;
 				}
@@ -3367,40 +3336,56 @@ public partial class ZScriptParser : Parser {
 				break;
 			case 8:
 				{
-				State = 551; newExpression();
-				}
-				break;
-			case 9:
-				{
-				State = 552; unaryExpression();
-				}
-				break;
-			case 10:
-				{
-				State = 553; arrayDeclaration();
-				State = 555;
-				switch ( Interpreter.AdaptivePredict(TokenStream,52,Context) ) {
+				State = 542; memberName();
+				State = 544;
+				switch ( Interpreter.AdaptivePredict(TokenStream,50,Context) ) {
 				case 1:
 					{
-					State = 554; valueAccess();
+					State = 543; valueAccess();
 					}
 					break;
 				}
 				}
 				break;
+			case 9:
+				{
+				State = 546; objectLiteral();
+				State = 548;
+				switch ( Interpreter.AdaptivePredict(TokenStream,51,Context) ) {
+				case 1:
+					{
+					State = 547; objectAccess();
+					}
+					break;
+				}
+				}
+				break;
+			case 10:
+				{
+				State = 550; newExpression();
+				}
+				break;
 			case 11:
 				{
-				State = 557; atom();
+				State = 551; arrayLiteral();
+				State = 553;
+				switch ( Interpreter.AdaptivePredict(TokenStream,52,Context) ) {
+				case 1:
+					{
+					State = 552; valueAccess();
+					}
+					break;
+				}
 				}
 				break;
 			case 12:
 				{
-				State = 558; constantAtom();
+				State = 555; constantAtom();
 				}
 				break;
 			}
 			Context.Stop = TokenStream.Lt(-1);
-			State = 587;
+			State = 584;
 			ErrorHandler.Sync(this);
 			_alt = Interpreter.AdaptivePredict(TokenStream,55,Context);
 			while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.InvalidAltNumber ) {
@@ -3409,72 +3394,72 @@ public partial class ZScriptParser : Parser {
 						TriggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					State = 585;
+					State = 582;
 					switch ( Interpreter.AdaptivePredict(TokenStream,54,Context) ) {
 					case 1:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 561;
-						if (!(Precpred(Context, 8))) throw new FailedPredicateException(this, "Precpred(Context, 8)");
-						State = 562; multOp();
-						State = 563; expression(9);
+						State = 558;
+						if (!(Precpred(Context, 7))) throw new FailedPredicateException(this, "Precpred(Context, 7)");
+						State = 559; multOp();
+						State = 560; expression(8);
 						}
 						break;
 					case 2:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 565;
-						if (!(Precpred(Context, 7))) throw new FailedPredicateException(this, "Precpred(Context, 7)");
-						State = 566; additionOp();
-						State = 567; expression(8);
+						State = 562;
+						if (!(Precpred(Context, 6))) throw new FailedPredicateException(this, "Precpred(Context, 6)");
+						State = 563; additionOp();
+						State = 564; expression(7);
 						}
 						break;
 					case 3:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 569;
-						if (!(Precpred(Context, 6))) throw new FailedPredicateException(this, "Precpred(Context, 6)");
-						State = 570; bitwiseAndXOrOp();
-						State = 571; expression(7);
+						State = 566;
+						if (!(Precpred(Context, 5))) throw new FailedPredicateException(this, "Precpred(Context, 5)");
+						State = 567; bitwiseAndXOrOp();
+						State = 568; expression(6);
 						}
 						break;
 					case 4:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 573;
-						if (!(Precpred(Context, 5))) throw new FailedPredicateException(this, "Precpred(Context, 5)");
-						State = 574; bitwiseOrOp();
-						State = 575; expression(6);
+						State = 570;
+						if (!(Precpred(Context, 4))) throw new FailedPredicateException(this, "Precpred(Context, 4)");
+						State = 571; bitwiseOrOp();
+						State = 572; expression(5);
 						}
 						break;
 					case 5:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 577;
-						if (!(Precpred(Context, 4))) throw new FailedPredicateException(this, "Precpred(Context, 4)");
-						State = 578; comparisionOp();
-						State = 579; expression(5);
+						State = 574;
+						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
+						State = 575; comparisionOp();
+						State = 576; expression(4);
 						}
 						break;
 					case 6:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 581;
-						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
-						State = 582; logicalOp();
-						State = 583; expression(4);
+						State = 578;
+						if (!(Precpred(Context, 2))) throw new FailedPredicateException(this, "Precpred(Context, 2)");
+						State = 579; logicalOp();
+						State = 580; expression(3);
 						}
 						break;
 					}
 					} 
 				}
-				State = 589;
+				State = 586;
 				ErrorHandler.Sync(this);
 				_alt = Interpreter.AdaptivePredict(TokenStream,55,Context);
 			}
@@ -3515,7 +3500,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 590;
+			State = 587;
 			_la = TokenStream.La(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_MULT) | (1L << T_DIV) | (1L << T_MOD))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -3558,7 +3543,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 592;
+			State = 589;
 			_la = TokenStream.La(1);
 			if ( !(_la==T_PLUS || _la==T_MINUS) ) {
 			ErrorHandler.RecoverInline(this);
@@ -3601,7 +3586,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 594;
+			State = 591;
 			_la = TokenStream.La(1);
 			if ( !(_la==T_BITWISE_AND || _la==T_BITWISE_XOR) ) {
 			ErrorHandler.RecoverInline(this);
@@ -3644,7 +3629,7 @@ public partial class ZScriptParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			{
-			State = 596; Match(T_BITWISE_OR);
+			State = 593; Match(T_BITWISE_OR);
 			}
 			}
 		}
@@ -3683,7 +3668,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 598;
+			State = 595;
 			_la = TokenStream.La(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_BITWISE_OR) | (1L << T_EQUALITY) | (1L << T_UNEQUALITY) | (1L << T_MORE_THAN_OR_EQUALS) | (1L << T_LESS_THAN_OR_EQUALS) | (1L << T_MORE_THAN) | (1L << T_LESS_THAN))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -3726,7 +3711,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 600;
+			State = 597;
 			_la = TokenStream.La(1);
 			if ( !(_la==T_LOGICAL_AND || _la==T_LOGICAL_OR) ) {
 			ErrorHandler.RecoverInline(this);
@@ -3755,6 +3740,9 @@ public partial class ZScriptParser : Parser {
 		public ExpressionContext expression() {
 			return GetRuleContext<ExpressionContext>(0);
 		}
+		public AssignmentExpressionContext assignmentExpression() {
+			return GetRuleContext<AssignmentExpressionContext>(0);
+		}
 		public AssignmentExpressionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -3777,9 +3765,21 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 602; leftValue();
-			State = 603; assignmentOperator();
-			State = 604; expression(0);
+			State = 599; leftValue();
+			State = 600; assignmentOperator();
+			State = 603;
+			switch ( Interpreter.AdaptivePredict(TokenStream,56,Context) ) {
+			case 1:
+				{
+				State = 601; expression(0);
+				}
+				break;
+			case 2:
+				{
+				State = 602; assignmentExpression();
+				}
+				break;
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -3822,9 +3822,9 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 606; Match(T_NEW);
-			State = 607; typeName();
-			State = 608; funcCallArguments();
+			State = 605; Match(T_NEW);
+			State = 606; typeName();
+			State = 607; funcCallArguments();
 			}
 		}
 		catch (RecognitionException re) {
@@ -3871,17 +3871,17 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 610; functionArguments();
-			State = 612;
+			State = 609; functionArguments();
+			State = 611;
 			_la = TokenStream.La(1);
 			if (_la==T_DOUBLE_COLON) {
 				{
-				State = 611; returnType();
+				State = 610; returnType();
 				}
 			}
 
-			State = 614; Match(T_CLOSURE_CALL);
-			State = 615; blockStatement();
+			State = 613; Match(T_CLOSURE_CALL);
+			State = 614; blockStatement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -3922,111 +3922,13 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 617;
+			State = 616;
 			_la = TokenStream.La(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			Consume();
-			State = 618; expression(0);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class BinaryOperatorContext : ParserRuleContext {
-		public BinaryOperatorContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_binaryOperator; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.EnterBinaryOperator(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.ExitBinaryOperator(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public BinaryOperatorContext binaryOperator() {
-		BinaryOperatorContext _localctx = new BinaryOperatorContext(Context, State);
-		EnterRule(_localctx, 128, RULE_binaryOperator);
-		int _la;
-		try {
-			State = 626;
-			switch ( Interpreter.AdaptivePredict(TokenStream,57,Context) ) {
-			case 1:
-				EnterOuterAlt(_localctx, 1);
-				{
-				State = 620;
-				_la = TokenStream.La(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_MULT) | (1L << T_DIV) | (1L << T_MOD))) != 0)) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				}
-				break;
-			case 2:
-				EnterOuterAlt(_localctx, 2);
-				{
-				State = 621;
-				_la = TokenStream.La(1);
-				if ( !(_la==T_PLUS || _la==T_MINUS) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				}
-				break;
-			case 3:
-				EnterOuterAlt(_localctx, 3);
-				{
-				State = 622;
-				_la = TokenStream.La(1);
-				if ( !(_la==T_BITWISE_AND || _la==T_BITWISE_XOR) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				}
-				break;
-			case 4:
-				EnterOuterAlt(_localctx, 4);
-				{
-				State = 623; Match(T_BITWISE_OR);
-				}
-				break;
-			case 5:
-				EnterOuterAlt(_localctx, 5);
-				{
-				State = 624;
-				_la = TokenStream.La(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T_BITWISE_OR) | (1L << T_EQUALITY) | (1L << T_UNEQUALITY) | (1L << T_MORE_THAN_OR_EQUALS) | (1L << T_LESS_THAN_OR_EQUALS) | (1L << T_MORE_THAN) | (1L << T_LESS_THAN))) != 0)) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				}
-				break;
-			case 6:
-				EnterOuterAlt(_localctx, 6);
-				{
-				State = 625;
-				_la = TokenStream.La(1);
-				if ( !(_la==T_LOGICAL_AND || _la==T_LOGICAL_OR) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				}
-				break;
+			State = 617; expression(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4059,12 +3961,12 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public PrefixOperatorContext prefixOperator() {
 		PrefixOperatorContext _localctx = new PrefixOperatorContext(Context, State);
-		EnterRule(_localctx, 130, RULE_prefixOperator);
+		EnterRule(_localctx, 128, RULE_prefixOperator);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 628;
+			State = 619;
 			_la = TokenStream.La(1);
 			if ( !(_la==T_INCREMENT || _la==T_DECREMENT) ) {
 			ErrorHandler.RecoverInline(this);
@@ -4102,12 +4004,12 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public PostfixOperatorContext postfixOperator() {
 		PostfixOperatorContext _localctx = new PostfixOperatorContext(Context, State);
-		EnterRule(_localctx, 132, RULE_postfixOperator);
+		EnterRule(_localctx, 130, RULE_postfixOperator);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 630;
+			State = 621;
 			_la = TokenStream.La(1);
 			if ( !(_la==T_INCREMENT || _la==T_DECREMENT) ) {
 			ErrorHandler.RecoverInline(this);
@@ -4145,67 +4047,17 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public AssignmentOperatorContext assignmentOperator() {
 		AssignmentOperatorContext _localctx = new AssignmentOperatorContext(Context, State);
-		EnterRule(_localctx, 134, RULE_assignmentOperator);
+		EnterRule(_localctx, 132, RULE_assignmentOperator);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 632;
+			State = 623;
 			_la = TokenStream.La(1);
 			if ( !(((((_la - 63)) & ~0x3f) == 0 && ((1L << (_la - 63)) & ((1L << (T_EQUALS - 63)) | (1L << (T_PLUS_EQUALS - 63)) | (1L << (T_MINUS_EQUALS - 63)) | (1L << (T_TIMES_EQUALS - 63)) | (1L << (T_DIV_EQUALS - 63)) | (1L << (T_MOD_EQUALS - 63)) | (1L << (T_XOR_EQUALS - 63)) | (1L << (T_AND_EQUALS - 63)) | (1L << (T_TILDE_EQUALS - 63)) | (1L << (T_OR_EQUALS - 63)))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			Consume();
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class ArrayDeclarationContext : ParserRuleContext {
-		public ExpressionListContext expressionList() {
-			return GetRuleContext<ExpressionListContext>(0);
-		}
-		public ArrayDeclarationContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_arrayDeclaration; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.EnterArrayDeclaration(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.ExitArrayDeclaration(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public ArrayDeclarationContext arrayDeclaration() {
-		ArrayDeclarationContext _localctx = new ArrayDeclarationContext(Context, State);
-		EnterRule(_localctx, 136, RULE_arrayDeclaration);
-		int _la;
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 634; Match(T_LEFT_BRACKET);
-			State = 636;
-			_la = TokenStream.La(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
-				{
-				State = 635; expressionList();
-				}
-			}
-
-			State = 638; Match(T_RIGHT_BRACKET);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4241,21 +4093,21 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public FuncCallArgumentsContext funcCallArguments() {
 		FuncCallArgumentsContext _localctx = new FuncCallArgumentsContext(Context, State);
-		EnterRule(_localctx, 138, RULE_funcCallArguments);
+		EnterRule(_localctx, 134, RULE_funcCallArguments);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 640; Match(T_LEFT_PAREN);
-			State = 642;
+			State = 625; Match(T_LEFT_PAREN);
+			State = 627;
 			_la = TokenStream.La(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
-				State = 641; expressionList();
+				State = 626; expressionList();
 				}
 			}
 
-			State = 644; Match(T_RIGHT_PAREN);
+			State = 629; Match(T_RIGHT_PAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4294,23 +4146,23 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public ExpressionListContext expressionList() {
 		ExpressionListContext _localctx = new ExpressionListContext(Context, State);
-		EnterRule(_localctx, 140, RULE_expressionList);
+		EnterRule(_localctx, 136, RULE_expressionList);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 646; expression(0);
-			State = 651;
+			State = 631; expression(0);
+			State = 636;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_COMMA) {
 				{
 				{
-				State = 647; Match(T_COMMA);
-				State = 648; expression(0);
+				State = 632; Match(T_COMMA);
+				State = 633; expression(0);
 				}
 				}
-				State = 653;
+				State = 638;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
@@ -4330,9 +4182,6 @@ public partial class ZScriptParser : Parser {
 	public partial class LeftValueContext : ParserRuleContext {
 		public MemberNameContext memberName() {
 			return GetRuleContext<MemberNameContext>(0);
-		}
-		public FuncCallArgumentsContext funcCallArguments() {
-			return GetRuleContext<FuncCallArgumentsContext>(0);
 		}
 		public LeftValueAccessContext leftValueAccess() {
 			return GetRuleContext<LeftValueAccessContext>(0);
@@ -4355,22 +4204,16 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public LeftValueContext leftValue() {
 		LeftValueContext _localctx = new LeftValueContext(Context, State);
-		EnterRule(_localctx, 142, RULE_leftValue);
+		EnterRule(_localctx, 138, RULE_leftValue);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 654; memberName();
-			State = 659;
-			switch ( Interpreter.AdaptivePredict(TokenStream,61,Context) ) {
+			State = 639; memberName();
+			State = 641;
+			switch ( Interpreter.AdaptivePredict(TokenStream,60,Context) ) {
 			case 1:
 				{
-				State = 655; funcCallArguments();
-				State = 656; leftValueAccess();
-				}
-				break;
-			case 2:
-				{
-				State = 658; leftValueAccess();
+				State = 640; leftValueAccess();
 				}
 				break;
 			}
@@ -4388,14 +4231,17 @@ public partial class ZScriptParser : Parser {
 	}
 
 	public partial class LeftValueAccessContext : ParserRuleContext {
+		public FuncCallArgumentsContext funcCallArguments() {
+			return GetRuleContext<FuncCallArgumentsContext>(0);
+		}
+		public LeftValueAccessContext leftValueAccess() {
+			return GetRuleContext<LeftValueAccessContext>(0);
+		}
 		public LeftValueContext leftValue() {
 			return GetRuleContext<LeftValueContext>(0);
 		}
 		public ArrayAccessContext arrayAccess() {
 			return GetRuleContext<ArrayAccessContext>(0);
-		}
-		public LeftValueAccessContext leftValueAccess() {
-			return GetRuleContext<LeftValueAccessContext>(0);
 		}
 		public LeftValueAccessContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -4415,41 +4261,38 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public LeftValueAccessContext leftValueAccess() {
 		LeftValueAccessContext _localctx = new LeftValueAccessContext(Context, State);
-		EnterRule(_localctx, 144, RULE_leftValueAccess);
+		EnterRule(_localctx, 140, RULE_leftValueAccess);
 		try {
-			State = 670;
+			State = 652;
 			switch (TokenStream.La(1)) {
-			case T_PERIOD:
+			case T_LEFT_PAREN:
 				EnterOuterAlt(_localctx, 1);
 				{
 				{
-				State = 661; Match(T_PERIOD);
-				State = 663;
-				switch ( Interpreter.AdaptivePredict(TokenStream,62,Context) ) {
-				case 1:
-					{
-					State = 662; leftValue();
-					}
-					break;
+				State = 643; funcCallArguments();
+				State = 644; leftValueAccess();
 				}
+				}
+				break;
+			case T_PERIOD:
+				EnterOuterAlt(_localctx, 2);
+				{
+				{
+				State = 646; Match(T_PERIOD);
+				State = 647; leftValue();
 				}
 				}
 				break;
 			case T_LEFT_BRACKET:
-				EnterOuterAlt(_localctx, 2);
+				EnterOuterAlt(_localctx, 3);
 				{
 				{
-				State = 665; arrayAccess();
-				State = 668;
-				switch ( Interpreter.AdaptivePredict(TokenStream,63,Context) ) {
+				State = 648; arrayAccess();
+				State = 650;
+				switch ( Interpreter.AdaptivePredict(TokenStream,61,Context) ) {
 				case 1:
 					{
-					State = 666; leftValue();
-					}
-					break;
-				case 2:
-					{
-					State = 667; leftValueAccess();
+					State = 649; leftValueAccess();
 					}
 					break;
 				}
@@ -4493,11 +4336,11 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public FunctionCallContext functionCall() {
 		FunctionCallContext _localctx = new FunctionCallContext(Context, State);
-		EnterRule(_localctx, 146, RULE_functionCall);
+		EnterRule(_localctx, 142, RULE_functionCall);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 672; funcCallArguments();
+			State = 654; funcCallArguments();
 			}
 		}
 		catch (RecognitionException re) {
@@ -4533,12 +4376,12 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public FieldAccessContext fieldAccess() {
 		FieldAccessContext _localctx = new FieldAccessContext(Context, State);
-		EnterRule(_localctx, 148, RULE_fieldAccess);
+		EnterRule(_localctx, 144, RULE_fieldAccess);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 674; Match(T_PERIOD);
-			State = 675; memberName();
+			State = 656; Match(T_PERIOD);
+			State = 657; memberName();
 			}
 		}
 		catch (RecognitionException re) {
@@ -4574,13 +4417,13 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public ArrayAccessContext arrayAccess() {
 		ArrayAccessContext _localctx = new ArrayAccessContext(Context, State);
-		EnterRule(_localctx, 150, RULE_arrayAccess);
+		EnterRule(_localctx, 146, RULE_arrayAccess);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 677; Match(T_LEFT_BRACKET);
-			State = 678; expression(0);
-			State = 679; Match(T_RIGHT_BRACKET);
+			State = 659; Match(T_LEFT_BRACKET);
+			State = 660; expression(0);
+			State = 661; Match(T_RIGHT_BRACKET);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4622,30 +4465,30 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public ObjectAccessContext objectAccess() {
 		ObjectAccessContext _localctx = new ObjectAccessContext(Context, State);
-		EnterRule(_localctx, 152, RULE_objectAccess);
+		EnterRule(_localctx, 148, RULE_objectAccess);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 683;
+			State = 665;
 			switch (TokenStream.La(1)) {
 			case T_PERIOD:
 				{
-				State = 681; fieldAccess();
+				State = 663; fieldAccess();
 				}
 				break;
 			case T_LEFT_BRACKET:
 				{
-				State = 682; arrayAccess();
+				State = 664; arrayAccess();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			State = 686;
-			switch ( Interpreter.AdaptivePredict(TokenStream,66,Context) ) {
+			State = 668;
+			switch ( Interpreter.AdaptivePredict(TokenStream,64,Context) ) {
 			case 1:
 				{
-				State = 685; valueAccess();
+				State = 667; valueAccess();
 				}
 				break;
 			}
@@ -4693,35 +4536,35 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public ValueAccessContext valueAccess() {
 		ValueAccessContext _localctx = new ValueAccessContext(Context, State);
-		EnterRule(_localctx, 154, RULE_valueAccess);
+		EnterRule(_localctx, 150, RULE_valueAccess);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 691;
+			State = 673;
 			switch (TokenStream.La(1)) {
 			case T_LEFT_PAREN:
 				{
-				State = 688; functionCall();
+				State = 670; functionCall();
 				}
 				break;
 			case T_PERIOD:
 				{
-				State = 689; fieldAccess();
+				State = 671; fieldAccess();
 				}
 				break;
 			case T_LEFT_BRACKET:
 				{
-				State = 690; arrayAccess();
+				State = 672; arrayAccess();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			State = 694;
-			switch ( Interpreter.AdaptivePredict(TokenStream,68,Context) ) {
+			State = 676;
+			switch ( Interpreter.AdaptivePredict(TokenStream,66,Context) ) {
 			case 1:
 				{
-				State = 693; valueAccess();
+				State = 675; valueAccess();
 				}
 				break;
 			}
@@ -4758,11 +4601,11 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public MemberNameContext memberName() {
 		MemberNameContext _localctx = new MemberNameContext(Context, State);
-		EnterRule(_localctx, 156, RULE_memberName);
+		EnterRule(_localctx, 152, RULE_memberName);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 696; Match(IDENT);
+			State = 678; Match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4776,43 +4619,93 @@ public partial class ZScriptParser : Parser {
 		return _localctx;
 	}
 
-	public partial class ObjectContext : ParserRuleContext {
-		public ObjectEntryListContext objectEntryList() {
-			return GetRuleContext<ObjectEntryListContext>(0);
+	public partial class ArrayLiteralContext : ParserRuleContext {
+		public ExpressionListContext expressionList() {
+			return GetRuleContext<ExpressionListContext>(0);
 		}
-		public ObjectContext(ParserRuleContext parent, int invokingState)
+		public ArrayLiteralContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_object; } }
+		public override int RuleIndex { get { return RULE_arrayLiteral; } }
 		public override void EnterRule(IParseTreeListener listener) {
 			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.EnterObject(this);
+			if (typedListener != null) typedListener.EnterArrayLiteral(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.ExitObject(this);
+			if (typedListener != null) typedListener.ExitArrayLiteral(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public ObjectContext @object() {
-		ObjectContext _localctx = new ObjectContext(Context, State);
-		EnterRule(_localctx, 158, RULE_object);
+	public ArrayLiteralContext arrayLiteral() {
+		ArrayLiteralContext _localctx = new ArrayLiteralContext(Context, State);
+		EnterRule(_localctx, 154, RULE_arrayLiteral);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 698; Match(T_LEFT_CURLY);
-			State = 700;
+			State = 680; Match(T_LEFT_BRACKET);
+			State = 682;
 			_la = TokenStream.La(1);
-			if (_la==IDENT) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StringLiteral) | (1L << T_NEW) | (1L << T_LEFT_PAREN) | (1L << T_LEFT_BRACKET) | (1L << T_LEFT_CURLY) | (1L << INT) | (1L << HEX) | (1L << BINARY) | (1L << FLOAT) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL) | (1L << T_NOT) | (1L << T_PLUS) | (1L << T_MINUS) | (1L << T_INCREMENT) | (1L << T_DECREMENT))) != 0) || _la==IDENT) {
 				{
-				State = 699; objectEntryList();
+				State = 681; expressionList();
 				}
 			}
 
-			State = 702; Match(T_RIGHT_CURLY);
+			State = 684; Match(T_RIGHT_BRACKET);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class ObjectLiteralContext : ParserRuleContext {
+		public ObjectEntryListContext objectEntryList() {
+			return GetRuleContext<ObjectEntryListContext>(0);
+		}
+		public ObjectLiteralContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_objectLiteral; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IZScriptListener typedListener = listener as IZScriptListener;
+			if (typedListener != null) typedListener.EnterObjectLiteral(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IZScriptListener typedListener = listener as IZScriptListener;
+			if (typedListener != null) typedListener.ExitObjectLiteral(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public ObjectLiteralContext objectLiteral() {
+		ObjectLiteralContext _localctx = new ObjectLiteralContext(Context, State);
+		EnterRule(_localctx, 156, RULE_objectLiteral);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 686; Match(T_LEFT_CURLY);
+			State = 688;
+			_la = TokenStream.La(1);
+			if (_la==IDENT) {
+				{
+				State = 687; objectEntryList();
+				}
+			}
+
+			State = 690; Match(T_RIGHT_CURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4851,23 +4744,23 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public ObjectEntryListContext objectEntryList() {
 		ObjectEntryListContext _localctx = new ObjectEntryListContext(Context, State);
-		EnterRule(_localctx, 160, RULE_objectEntryList);
+		EnterRule(_localctx, 158, RULE_objectEntryList);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 704; objectEntryDefinition();
-			State = 709;
+			State = 692; objectEntryDefinition();
+			State = 697;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
 			while (_la==T_COMMA) {
 				{
 				{
-				State = 705; Match(T_COMMA);
-				State = 706; objectEntryDefinition();
+				State = 693; Match(T_COMMA);
+				State = 694; objectEntryDefinition();
 				}
 				}
-				State = 711;
+				State = 699;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.La(1);
 			}
@@ -4909,13 +4802,13 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public ObjectEntryDefinitionContext objectEntryDefinition() {
 		ObjectEntryDefinitionContext _localctx = new ObjectEntryDefinitionContext(Context, State);
-		EnterRule(_localctx, 162, RULE_objectEntryDefinition);
+		EnterRule(_localctx, 160, RULE_objectEntryDefinition);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 712; entryName();
-			State = 713; Match(T_DOUBLE_COLON);
-			State = 714; expression(0);
+			State = 700; entryName();
+			State = 701; Match(T_DOUBLE_COLON);
+			State = 702; expression(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4949,11 +4842,107 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public EntryNameContext entryName() {
 		EntryNameContext _localctx = new EntryNameContext(Context, State);
-		EnterRule(_localctx, 164, RULE_entryName);
+		EnterRule(_localctx, 162, RULE_entryName);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 716; Match(IDENT);
+			State = 704; Match(IDENT);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class ConstantContext : ParserRuleContext {
+		public NumericAtomContext numericAtom() {
+			return GetRuleContext<NumericAtomContext>(0);
+		}
+		public ITerminalNode T_FALSE() { return GetToken(ZScriptParser.T_FALSE, 0); }
+		public ITerminalNode T_TRUE() { return GetToken(ZScriptParser.T_TRUE, 0); }
+		public ITerminalNode T_NULL() { return GetToken(ZScriptParser.T_NULL, 0); }
+		public StringLiteralContext stringLiteral() {
+			return GetRuleContext<StringLiteralContext>(0);
+		}
+		public ConstantContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_constant; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IZScriptListener typedListener = listener as IZScriptListener;
+			if (typedListener != null) typedListener.EnterConstant(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IZScriptListener typedListener = listener as IZScriptListener;
+			if (typedListener != null) typedListener.ExitConstant(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public ConstantContext constant() {
+		ConstantContext _localctx = new ConstantContext(Context, State);
+		EnterRule(_localctx, 164, RULE_constant);
+		int _la;
+		try {
+			State = 714;
+			switch (TokenStream.La(1)) {
+			case INT:
+			case HEX:
+			case BINARY:
+			case FLOAT:
+			case T_PLUS:
+			case T_MINUS:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 707;
+				_la = TokenStream.La(1);
+				if (_la==T_PLUS || _la==T_MINUS) {
+					{
+					State = 706;
+					_la = TokenStream.La(1);
+					if ( !(_la==T_PLUS || _la==T_MINUS) ) {
+					ErrorHandler.RecoverInline(this);
+					}
+					Consume();
+					}
+				}
+
+				State = 709; numericAtom();
+				}
+				break;
+			case T_FALSE:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 710; Match(T_FALSE);
+				}
+				break;
+			case T_TRUE:
+				EnterOuterAlt(_localctx, 3);
+				{
+				State = 711; Match(T_TRUE);
+				}
+				break;
+			case T_NULL:
+				EnterOuterAlt(_localctx, 4);
+				{
+				State = 712; Match(T_NULL);
+				}
+				break;
+			case StringLiteral:
+				EnterOuterAlt(_localctx, 5);
+				{
+				State = 713; stringLiteral();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4971,9 +4960,9 @@ public partial class ZScriptParser : Parser {
 		public NumericAtomContext numericAtom() {
 			return GetRuleContext<NumericAtomContext>(0);
 		}
-		public AtomContext atom() {
-			return GetRuleContext<AtomContext>(0);
-		}
+		public ITerminalNode T_FALSE() { return GetToken(ZScriptParser.T_FALSE, 0); }
+		public ITerminalNode T_TRUE() { return GetToken(ZScriptParser.T_TRUE, 0); }
+		public ITerminalNode T_NULL() { return GetToken(ZScriptParser.T_NULL, 0); }
 		public StringLiteralContext stringLiteral() {
 			return GetRuleContext<StringLiteralContext>(0);
 		}
@@ -4996,39 +4985,40 @@ public partial class ZScriptParser : Parser {
 	public ConstantAtomContext constantAtom() {
 		ConstantAtomContext _localctx = new ConstantAtomContext(Context, State);
 		EnterRule(_localctx, 166, RULE_constantAtom);
-		int _la;
 		try {
-			State = 722;
+			State = 721;
 			switch (TokenStream.La(1)) {
-			case T_PLUS:
-			case T_MINUS:
-				EnterOuterAlt(_localctx, 1);
-				{
-				State = 718;
-				_la = TokenStream.La(1);
-				if ( !(_la==T_PLUS || _la==T_MINUS) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				State = 719; numericAtom();
-				}
-				break;
 			case INT:
 			case HEX:
 			case BINARY:
 			case FLOAT:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 716; numericAtom();
+				}
+				break;
 			case T_FALSE:
-			case T_TRUE:
-			case T_NULL:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 720; atom();
+				State = 717; Match(T_FALSE);
+				}
+				break;
+			case T_TRUE:
+				EnterOuterAlt(_localctx, 3);
+				{
+				State = 718; Match(T_TRUE);
+				}
+				break;
+			case T_NULL:
+				EnterOuterAlt(_localctx, 4);
+				{
+				State = 719; Match(T_NULL);
 				}
 				break;
 			case StringLiteral:
-				EnterOuterAlt(_localctx, 3);
+				EnterOuterAlt(_localctx, 5);
 				{
-				State = 721; stringLiteral();
+				State = 720; stringLiteral();
 				}
 				break;
 			default:
@@ -5070,68 +5060,7 @@ public partial class ZScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 724; Match(StringLiteral);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class AtomContext : ParserRuleContext {
-		public NumericAtomContext numericAtom() {
-			return GetRuleContext<NumericAtomContext>(0);
-		}
-		public ITerminalNode BINARY() { return GetToken(ZScriptParser.BINARY, 0); }
-		public ITerminalNode T_FALSE() { return GetToken(ZScriptParser.T_FALSE, 0); }
-		public ITerminalNode T_TRUE() { return GetToken(ZScriptParser.T_TRUE, 0); }
-		public ITerminalNode T_NULL() { return GetToken(ZScriptParser.T_NULL, 0); }
-		public AtomContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_atom; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.EnterAtom(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IZScriptListener typedListener = listener as IZScriptListener;
-			if (typedListener != null) typedListener.ExitAtom(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public AtomContext atom() {
-		AtomContext _localctx = new AtomContext(Context, State);
-		EnterRule(_localctx, 170, RULE_atom);
-		int _la;
-		try {
-			State = 728;
-			switch ( Interpreter.AdaptivePredict(TokenStream,72,Context) ) {
-			case 1:
-				EnterOuterAlt(_localctx, 1);
-				{
-				State = 726; numericAtom();
-				}
-				break;
-			case 2:
-				EnterOuterAlt(_localctx, 2);
-				{
-				State = 727;
-				_la = TokenStream.La(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BINARY) | (1L << T_FALSE) | (1L << T_TRUE) | (1L << T_NULL))) != 0)) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				Consume();
-				}
-				break;
+			State = 723; Match(StringLiteral);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5154,7 +5083,6 @@ public partial class ZScriptParser : Parser {
 		}
 		public ITerminalNode FLOAT() { return GetToken(ZScriptParser.FLOAT, 0); }
 		public ITerminalNode INT() { return GetToken(ZScriptParser.INT, 0); }
-		public ITerminalNode BINARY() { return GetToken(ZScriptParser.BINARY, 0); }
 		public NumericAtomContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -5173,34 +5101,37 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public NumericAtomContext numericAtom() {
 		NumericAtomContext _localctx = new NumericAtomContext(Context, State);
-		EnterRule(_localctx, 172, RULE_numericAtom);
+		EnterRule(_localctx, 170, RULE_numericAtom);
 		int _la;
 		try {
-			State = 733;
-			switch ( Interpreter.AdaptivePredict(TokenStream,73,Context) ) {
-			case 1:
+			State = 728;
+			switch (TokenStream.La(1)) {
+			case HEX:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 730; hexadecimalNumber();
+				State = 725; hexadecimalNumber();
 				}
 				break;
-			case 2:
+			case BINARY:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 731; binaryNumber();
+				State = 726; binaryNumber();
 				}
 				break;
-			case 3:
+			case INT:
+			case FLOAT:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 732;
+				State = 727;
 				_la = TokenStream.La(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << BINARY) | (1L << FLOAT))) != 0)) ) {
+				if ( !(_la==INT || _la==FLOAT) ) {
 				ErrorHandler.RecoverInline(this);
 				}
 				Consume();
 				}
 				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5234,11 +5165,11 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public HexadecimalNumberContext hexadecimalNumber() {
 		HexadecimalNumberContext _localctx = new HexadecimalNumberContext(Context, State);
-		EnterRule(_localctx, 174, RULE_hexadecimalNumber);
+		EnterRule(_localctx, 172, RULE_hexadecimalNumber);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 735; Match(HEX);
+			State = 730; Match(HEX);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5272,11 +5203,11 @@ public partial class ZScriptParser : Parser {
 	[RuleVersion(0)]
 	public BinaryNumberContext binaryNumber() {
 		BinaryNumberContext _localctx = new BinaryNumberContext(Context, State);
-		EnterRule(_localctx, 176, RULE_binaryNumber);
+		EnterRule(_localctx, 174, RULE_binaryNumber);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 737; Match(BINARY);
+			State = 732; Match(BINARY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5298,18 +5229,18 @@ public partial class ZScriptParser : Parser {
 	}
 	private bool expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
-		case 0: return Precpred(Context, 8);
-		case 1: return Precpred(Context, 7);
-		case 2: return Precpred(Context, 6);
-		case 3: return Precpred(Context, 5);
-		case 4: return Precpred(Context, 4);
-		case 5: return Precpred(Context, 3);
+		case 0: return Precpred(Context, 7);
+		case 1: return Precpred(Context, 6);
+		case 2: return Precpred(Context, 5);
+		case 3: return Precpred(Context, 4);
+		case 4: return Precpred(Context, 3);
+		case 5: return Precpred(Context, 2);
 		}
 		return true;
 	}
 
 	public static readonly string _serializedATN =
-		"\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3P\x2E6\x4\x2\t\x2"+
+		"\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3P\x2E1\x4\x2\t\x2"+
 		"\x4\x3\t\x3\x4\x4\t\x4\x4\x5\t\x5\x4\x6\t\x6\x4\a\t\a\x4\b\t\b\x4\t\t"+
 		"\t\x4\n\t\n\x4\v\t\v\x4\f\t\f\x4\r\t\r\x4\xE\t\xE\x4\xF\t\xF\x4\x10\t"+
 		"\x10\x4\x11\t\x11\x4\x12\t\x12\x4\x13\t\x13\x4\x14\t\x14\x4\x15\t\x15"+
@@ -5322,289 +5253,288 @@ public partial class ZScriptParser : Parser {
 		"@\t@\x4\x41\t\x41\x4\x42\t\x42\x4\x43\t\x43\x4\x44\t\x44\x4\x45\t\x45"+
 		"\x4\x46\t\x46\x4G\tG\x4H\tH\x4I\tI\x4J\tJ\x4K\tK\x4L\tL\x4M\tM\x4N\tN"+
 		"\x4O\tO\x4P\tP\x4Q\tQ\x4R\tR\x4S\tS\x4T\tT\x4U\tU\x4V\tV\x4W\tW\x4X\t"+
-		"X\x4Y\tY\x4Z\tZ\x3\x2\x3\x2\x3\x3\x3\x3\x3\x3\x3\x3\a\x3\xBB\n\x3\f\x3"+
-		"\xE\x3\xBE\v\x3\x3\x4\x3\x4\x3\x4\x5\x4\xC3\n\x4\x3\x4\x3\x4\x3\x5\x3"+
-		"\x5\x3\x5\x3\x6\x3\x6\x3\a\x3\a\x3\a\a\a\xCF\n\a\f\a\xE\a\xD2\v\a\x3\a"+
-		"\x3\a\x3\b\x3\b\x3\b\x3\t\x5\t\xDA\n\t\x3\t\x3\t\x3\t\x3\n\x3\n\a\n\xE1"+
-		"\n\n\f\n\xE\n\xE4\v\n\x3\n\x3\n\x3\v\x3\v\x3\v\x3\v\a\v\xEC\n\v\f\v\xE"+
-		"\v\xEF\v\v\x3\v\x3\v\x3\f\x5\f\xF4\n\f\x3\f\x3\f\x3\f\x3\r\x3\r\x3\r\x3"+
-		"\r\x3\xE\x3\xE\x3\xF\x3\xF\x3\xF\x3\xF\a\xF\x103\n\xF\f\xF\xE\xF\x106"+
-		"\v\xF\x3\xF\x3\xF\x3\x10\x3\x10\x3\x10\a\x10\x10D\n\x10\f\x10\xE\x10\x110"+
-		"\v\x10\x5\x10\x112\n\x10\x3\x10\x3\x10\x3\x11\x3\x11\x3\x11\x3\x11\x5"+
-		"\x11\x11A\n\x11\x3\x12\x3\x12\x3\x12\a\x12\x11F\n\x12\f\x12\xE\x12\x122"+
-		"\v\x12\x3\x13\x5\x13\x125\n\x13\x3\x13\x3\x13\x3\x13\x5\x13\x12A\n\x13"+
-		"\x3\x14\x3\x14\x3\x15\x3\x15\x5\x15\x130\n\x15\x3\x15\x5\x15\x133\n\x15"+
-		"\x3\x15\x5\x15\x136\n\x15\x3\x15\x3\x15\x3\x16\x3\x16\x3\x16\x5\x16\x13D"+
-		"\n\x16\x3\x16\x5\x16\x140\n\x16\x3\x17\x3\x17\x3\x18\x3\x18\x3\x18\x3"+
-		"\x18\x3\x19\x3\x19\x3\x19\a\x19\x14B\n\x19\f\x19\xE\x19\x14E\v\x19\x5"+
-		"\x19\x150\n\x19\x3\x1A\x3\x1A\x3\x1A\x3\x1B\x3\x1B\x3\x1B\x5\x1B\x158"+
-		"\n\x1B\x3\x1B\x3\x1B\x3\x1B\x5\x1B\x15D\n\x1B\x3\x1C\x3\x1C\x3\x1D\x3"+
-		"\x1D\x3\x1D\x3\x1D\a\x1D\x165\n\x1D\f\x1D\xE\x1D\x168\v\x1D\x3\x1E\x3"+
-		"\x1E\x3\x1E\x3\x1E\a\x1E\x16E\n\x1E\f\x1E\xE\x1E\x171\v\x1E\x3\x1E\x3"+
-		"\x1E\x3\x1F\x3\x1F\x5\x1F\x177\n\x1F\x3 \x3 \x5 \x17B\n \x3 \x3 \x3 \x3"+
-		" \x3 \x3 \x3 \x3 \x3 \x3 \x5 \x187\n \x3!\x3!\a!\x18B\n!\f!\xE!\x18E\v"+
-		"!\x3!\x3!\x3\"\x3\"\x3\"\x3\"\x3\"\x3\"\x5\"\x198\n\"\x3#\x3#\x3#\x3$"+
-		"\x3$\x3$\x3$\x3$\x3$\x3%\x3%\x3%\a%\x1A6\n%\f%\xE%\x1A9\v%\x3%\x3%\x3"+
-		"&\x3&\x3&\x3&\x3&\x3&\x3&\x3&\x5&\x1B5\n&\x3\'\x3\'\x3\'\x3\'\x3\'\x3"+
-		"\'\x3(\x3(\x3(\x3(\x3(\x3(\x3)\x3)\x3)\x5)\x1C6\n)\x3)\x3)\x5)\x1CA\n"+
-		")\x3)\x3)\x5)\x1CE\n)\x3)\x3)\x3)\x3*\x3*\x5*\x1D5\n*\x3+\x3+\x5+\x1D9"+
-		"\n+\x3+\x3+\x3,\x3,\x5,\x1DF\n,\x3,\x3,\x3-\x3-\x3-\x3.\x3.\x3.\x3/\x3"+
-		"/\x3/\x5/\x1EC\n/\x3\x30\x3\x30\x3\x30\x3\x30\x3\x31\x3\x31\x3\x31\x5"+
-		"\x31\x1F5\n\x31\x3\x32\x3\x32\x3\x33\x3\x33\x3\x33\x5\x33\x1FC\n\x33\x3"+
-		"\x34\x3\x34\x3\x34\x5\x34\x201\n\x34\x3\x35\x3\x35\x5\x35\x205\n\x35\x3"+
-		"\x35\x3\x35\x5\x35\x209\n\x35\x3\x35\x3\x35\x3\x36\x3\x36\x3\x36\a\x36"+
-		"\x210\n\x36\f\x36\xE\x36\x213\v\x36\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37"+
+		"X\x4Y\tY\x3\x2\x3\x2\x3\x3\x3\x3\x3\x3\x3\x3\a\x3\xB9\n\x3\f\x3\xE\x3"+
+		"\xBC\v\x3\x3\x4\x3\x4\x3\x4\x5\x4\xC1\n\x4\x3\x4\x3\x4\x3\x5\x3\x5\x3"+
+		"\x5\x3\x6\x3\x6\x3\a\x3\a\x3\a\a\a\xCD\n\a\f\a\xE\a\xD0\v\a\x3\a\x3\a"+
+		"\x3\b\x3\b\x3\b\x3\t\x5\t\xD8\n\t\x3\t\x3\t\x3\t\x3\n\x3\n\a\n\xDF\n\n"+
+		"\f\n\xE\n\xE2\v\n\x3\n\x3\n\x3\v\x3\v\x3\v\x3\v\a\v\xEA\n\v\f\v\xE\v\xED"+
+		"\v\v\x3\v\x3\v\x3\f\x5\f\xF2\n\f\x3\f\x3\f\x3\f\x3\r\x3\r\x3\r\x3\r\x3"+
+		"\xE\x3\xE\x3\xF\x3\xF\x3\xF\x3\xF\a\xF\x101\n\xF\f\xF\xE\xF\x104\v\xF"+
+		"\x3\xF\x3\xF\x3\x10\x5\x10\x109\n\x10\x3\x10\x3\x10\x3\x11\x3\x11\x3\x11"+
+		"\x3\x11\x5\x11\x111\n\x11\x3\x12\x3\x12\x3\x12\a\x12\x116\n\x12\f\x12"+
+		"\xE\x12\x119\v\x12\x3\x13\x5\x13\x11C\n\x13\x3\x13\x3\x13\x3\x13\x5\x13"+
+		"\x121\n\x13\x3\x14\x3\x14\x3\x15\x3\x15\x5\x15\x127\n\x15\x3\x15\x5\x15"+
+		"\x12A\n\x15\x3\x15\x5\x15\x12D\n\x15\x3\x15\x3\x15\x3\x16\x3\x16\x3\x16"+
+		"\x5\x16\x134\n\x16\x3\x16\x5\x16\x137\n\x16\x3\x17\x3\x17\x3\x18\x3\x18"+
+		"\x5\x18\x13D\n\x18\x3\x18\x3\x18\x3\x19\x3\x19\x3\x19\a\x19\x144\n\x19"+
+		"\f\x19\xE\x19\x147\v\x19\x3\x1A\x3\x1A\x3\x1A\x3\x1B\x3\x1B\x3\x1B\x5"+
+		"\x1B\x14F\n\x1B\x3\x1B\x3\x1B\x3\x1B\x5\x1B\x154\n\x1B\x3\x1C\x3\x1C\x3"+
+		"\x1D\x3\x1D\x3\x1D\x3\x1D\a\x1D\x15C\n\x1D\f\x1D\xE\x1D\x15F\v\x1D\x3"+
+		"\x1E\x3\x1E\x5\x1E\x163\n\x1E\x3\x1F\x3\x1F\x3\x1F\x3\x1F\a\x1F\x169\n"+
+		"\x1F\f\x1F\xE\x1F\x16C\v\x1F\x3\x1F\x3\x1F\x3 \x3 \x5 \x172\n \x3 \x3"+
+		" \x3 \x3 \x3 \x3 \x3 \x3 \x3 \x3 \x5 \x17E\n \x3!\x3!\a!\x182\n!\f!\xE"+
+		"!\x185\v!\x3!\x3!\x3\"\x3\"\x3\"\x3\"\x3\"\x3\"\x5\"\x18F\n\"\x3#\x3#"+
+		"\x3#\x3$\x3$\x3$\x3$\x3$\x3$\x3%\x3%\x3%\a%\x19D\n%\f%\xE%\x1A0\v%\x3"+
+		"%\x3%\x3&\x3&\x3&\x3&\x3&\x3&\x3&\x3&\x5&\x1AC\n&\x3\'\x3\'\x3\'\x3\'"+
+		"\x3\'\x3\'\x3(\x3(\x3(\x3(\x3(\x3(\x3)\x3)\x3)\x5)\x1BD\n)\x3)\x3)\x5"+
+		")\x1C1\n)\x3)\x3)\x5)\x1C5\n)\x3)\x3)\x3)\x3*\x3*\x5*\x1CC\n*\x3+\x3+"+
+		"\x5+\x1D0\n+\x3+\x3+\x3,\x3,\x5,\x1D6\n,\x3,\x3,\x3-\x3-\x3-\x3.\x3.\x3"+
+		".\x3/\x3/\x3/\x5/\x1E3\n/\x3\x30\x3\x30\x3\x30\x3\x30\x3\x31\x3\x31\x3"+
+		"\x31\x5\x31\x1EC\n\x31\x3\x32\x3\x32\x3\x33\x3\x33\x3\x33\x5\x33\x1F3"+
+		"\n\x33\x3\x34\x3\x34\x3\x34\x5\x34\x1F8\n\x34\x3\x35\x3\x35\x5\x35\x1FC"+
+		"\n\x35\x3\x35\x3\x35\x5\x35\x200\n\x35\x3\x35\x3\x35\x3\x36\x3\x36\x3"+
+		"\x36\a\x36\x207\n\x36\f\x36\xE\x36\x20A\v\x36\x3\x37\x3\x37\x3\x37\x3"+
+		"\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3"+
+		"\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x5\x37\x21F\n\x37\x3\x37\x3\x37"+
+		"\x5\x37\x223\n\x37\x3\x37\x3\x37\x5\x37\x227\n\x37\x3\x37\x3\x37\x3\x37"+
+		"\x5\x37\x22C\n\x37\x3\x37\x5\x37\x22F\n\x37\x3\x37\x3\x37\x3\x37\x3\x37"+
 		"\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37"+
-		"\x5\x37\x224\n\x37\x3\x37\x3\x37\x5\x37\x228\n\x37\x3\x37\x3\x37\x3\x37"+
-		"\x3\x37\x5\x37\x22E\n\x37\x3\x37\x3\x37\x5\x37\x232\n\x37\x3\x37\x3\x37"+
 		"\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37"+
-		"\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37\x3\x37"+
-		"\x3\x37\x3\x37\a\x37\x24C\n\x37\f\x37\xE\x37\x24F\v\x37\x3\x38\x3\x38"+
-		"\x3\x39\x3\x39\x3:\x3:\x3;\x3;\x3<\x3<\x3=\x3=\x3>\x3>\x3>\x3>\x3?\x3"+
-		"?\x3?\x3?\x3@\x3@\x5@\x267\n@\x3@\x3@\x3@\x3\x41\x3\x41\x3\x41\x3\x42"+
-		"\x3\x42\x3\x42\x3\x42\x3\x42\x3\x42\x5\x42\x275\n\x42\x3\x43\x3\x43\x3"+
-		"\x44\x3\x44\x3\x45\x3\x45\x3\x46\x3\x46\x5\x46\x27F\n\x46\x3\x46\x3\x46"+
-		"\x3G\x3G\x5G\x285\nG\x3G\x3G\x3H\x3H\x3H\aH\x28C\nH\fH\xEH\x28F\vH\x3"+
-		"I\x3I\x3I\x3I\x3I\x5I\x296\nI\x3J\x3J\x5J\x29A\nJ\x3J\x3J\x3J\x5J\x29F"+
-		"\nJ\x5J\x2A1\nJ\x3K\x3K\x3L\x3L\x3L\x3M\x3M\x3M\x3M\x3N\x3N\x5N\x2AE\n"+
-		"N\x3N\x5N\x2B1\nN\x3O\x3O\x3O\x5O\x2B6\nO\x3O\x5O\x2B9\nO\x3P\x3P\x3Q"+
-		"\x3Q\x5Q\x2BF\nQ\x3Q\x3Q\x3R\x3R\x3R\aR\x2C6\nR\fR\xER\x2C9\vR\x3S\x3"+
-		"S\x3S\x3S\x3T\x3T\x3U\x3U\x3U\x3U\x5U\x2D5\nU\x3V\x3V\x3W\x3W\x5W\x2DB"+
-		"\nW\x3X\x3X\x3X\x5X\x2E0\nX\x3Y\x3Y\x3Z\x3Z\x3Z\x2\x3l[\x2\x4\x6\b\n\f"+
-		"\xE\x10\x12\x14\x16\x18\x1A\x1C\x1E \"$&(*,.\x30\x32\x34\x36\x38:<>@\x42"+
-		"\x44\x46HJLNPRTVXZ\\^`\x62\x64\x66hjlnprtvxz|~\x80\x82\x84\x86\x88\x8A"+
-		"\x8C\x8E\x90\x92\x94\x96\x98\x9A\x9C\x9E\xA0\xA2\xA4\xA6\xA8\xAA\xAC\xAE"+
-		"\xB0\xB2\x2\f\x3\x2.\x30\x3\x2\x32\x33\x3\x2\x36\x37\x3\x2\x38>\x3\x2"+
-		"?@\x3\x2\x31\x33\x3\x2\x34\x35\x3\x2\x41J\x4\x2\"\"$&\x4\x2  \"#\x2FA"+
-		"\x2\xB4\x3\x2\x2\x2\x4\xBC\x3\x2\x2\x2\x6\xBF\x3\x2\x2\x2\b\xC6\x3\x2"+
-		"\x2\x2\n\xC9\x3\x2\x2\x2\f\xCB\x3\x2\x2\x2\xE\xD5\x3\x2\x2\x2\x10\xD9"+
-		"\x3\x2\x2\x2\x12\xDE\x3\x2\x2\x2\x14\xE7\x3\x2\x2\x2\x16\xF3\x3\x2\x2"+
-		"\x2\x18\xF8\x3\x2\x2\x2\x1A\xFC\x3\x2\x2\x2\x1C\xFE\x3\x2\x2\x2\x1E\x111"+
-		"\x3\x2\x2\x2 \x119\x3\x2\x2\x2\"\x11B\x3\x2\x2\x2$\x124\x3\x2\x2\x2&\x12B"+
-		"\x3\x2\x2\x2(\x12D\x3\x2\x2\x2*\x139\x3\x2\x2\x2,\x141\x3\x2\x2\x2.\x143"+
-		"\x3\x2\x2\x2\x30\x14F\x3\x2\x2\x2\x32\x151\x3\x2\x2\x2\x34\x154\x3\x2"+
-		"\x2\x2\x36\x15E\x3\x2\x2\x2\x38\x160\x3\x2\x2\x2:\x169\x3\x2\x2\x2<\x174"+
-		"\x3\x2\x2\x2>\x186\x3\x2\x2\x2@\x188\x3\x2\x2\x2\x42\x191\x3\x2\x2\x2"+
-		"\x44\x199\x3\x2\x2\x2\x46\x19C\x3\x2\x2\x2H\x1A2\x3\x2\x2\x2J\x1AC\x3"+
-		"\x2\x2\x2L\x1B6\x3\x2\x2\x2N\x1BC\x3\x2\x2\x2P\x1C2\x3\x2\x2\x2R\x1D4"+
-		"\x3\x2\x2\x2T\x1D6\x3\x2\x2\x2V\x1DE\x3\x2\x2\x2X\x1E2\x3\x2\x2\x2Z\x1E5"+
-		"\x3\x2\x2\x2\\\x1E8\x3\x2\x2\x2^\x1ED\x3\x2\x2\x2`\x1F1\x3\x2\x2\x2\x62"+
-		"\x1F6\x3\x2\x2\x2\x64\x1FB\x3\x2\x2\x2\x66\x1FD\x3\x2\x2\x2h\x202\x3\x2"+
-		"\x2\x2j\x20C\x3\x2\x2\x2l\x231\x3\x2\x2\x2n\x250\x3\x2\x2\x2p\x252\x3"+
-		"\x2\x2\x2r\x254\x3\x2\x2\x2t\x256\x3\x2\x2\x2v\x258\x3\x2\x2\x2x\x25A"+
-		"\x3\x2\x2\x2z\x25C\x3\x2\x2\x2|\x260\x3\x2\x2\x2~\x264\x3\x2\x2\x2\x80"+
-		"\x26B\x3\x2\x2\x2\x82\x274\x3\x2\x2\x2\x84\x276\x3\x2\x2\x2\x86\x278\x3"+
-		"\x2\x2\x2\x88\x27A\x3\x2\x2\x2\x8A\x27C\x3\x2\x2\x2\x8C\x282\x3\x2\x2"+
-		"\x2\x8E\x288\x3\x2\x2\x2\x90\x290\x3\x2\x2\x2\x92\x2A0\x3\x2\x2\x2\x94"+
-		"\x2A2\x3\x2\x2\x2\x96\x2A4\x3\x2\x2\x2\x98\x2A7\x3\x2\x2\x2\x9A\x2AD\x3"+
-		"\x2\x2\x2\x9C\x2B5\x3\x2\x2\x2\x9E\x2BA\x3\x2\x2\x2\xA0\x2BC\x3\x2\x2"+
-		"\x2\xA2\x2C2\x3\x2\x2\x2\xA4\x2CA\x3\x2\x2\x2\xA6\x2CE\x3\x2\x2\x2\xA8"+
-		"\x2D4\x3\x2\x2\x2\xAA\x2D6\x3\x2\x2\x2\xAC\x2DA\x3\x2\x2\x2\xAE\x2DF\x3"+
-		"\x2\x2\x2\xB0\x2E1\x3\x2\x2\x2\xB2\x2E3\x3\x2\x2\x2\xB4\xB5\x5\x4\x3\x2"+
-		"\xB5\x3\x3\x2\x2\x2\xB6\xBB\x5\x12\n\x2\xB7\xBB\x5\x14\v\x2\xB8\xBB\x5"+
-		"\x6\x4\x2\xB9\xBB\x5\x18\r\x2\xBA\xB6\x3\x2\x2\x2\xBA\xB7\x3\x2\x2\x2"+
-		"\xBA\xB8\x3\x2\x2\x2\xBA\xB9\x3\x2\x2\x2\xBB\xBE\x3\x2\x2\x2\xBC\xBA\x3"+
-		"\x2\x2\x2\xBC\xBD\x3\x2\x2\x2\xBD\x5\x3\x2\x2\x2\xBE\xBC\x3\x2\x2\x2\xBF"+
-		"\xC0\a\f\x2\x2\xC0\xC2\x5\n\x6\x2\xC1\xC3\x5\b\x5\x2\xC2\xC1\x3\x2\x2"+
-		"\x2\xC2\xC3\x3\x2\x2\x2\xC3\xC4\x3\x2\x2\x2\xC4\xC5\x5\f\a\x2\xC5\a\x3"+
-		"\x2\x2\x2\xC6\xC7\a*\x2\x2\xC7\xC8\x5\n\x6\x2\xC8\t\x3\x2\x2\x2\xC9\xCA"+
-		"\aK\x2\x2\xCA\v\x3\x2\x2\x2\xCB\xD0\a\x1C\x2\x2\xCC\xCF\x5\xE\b\x2\xCD"+
-		"\xCF\x5\x10\t\x2\xCE\xCC\x3\x2\x2\x2\xCE\xCD\x3\x2\x2\x2\xCF\xD2\x3\x2"+
-		"\x2\x2\xD0\xCE\x3\x2\x2\x2\xD0\xD1\x3\x2\x2\x2\xD1\xD3\x3\x2\x2\x2\xD2"+
-		"\xD0\x3\x2\x2\x2\xD3\xD4\a\x1D\x2\x2\xD4\r\x3\x2\x2\x2\xD5\xD6\x5X-\x2"+
-		"\xD6\xD7\a+\x2\x2\xD7\xF\x3\x2\x2\x2\xD8\xDA\a\v\x2\x2\xD9\xD8\x3\x2\x2"+
-		"\x2\xD9\xDA\x3\x2\x2\x2\xDA\xDB\x3\x2\x2\x2\xDB\xDC\a\n\x2\x2\xDC\xDD"+
-		"\x5(\x15\x2\xDD\x11\x3\x2\x2\x2\xDE\xE2\a\x1A\x2\x2\xDF\xE1\x5\x16\f\x2"+
-		"\xE0\xDF\x3\x2\x2\x2\xE1\xE4\x3\x2\x2\x2\xE2\xE0\x3\x2\x2\x2\xE2\xE3\x3"+
-		"\x2\x2\x2\xE3\xE5\x3\x2\x2\x2\xE4\xE2\x3\x2\x2\x2\xE5\xE6\a\x1B\x2\x2"+
-		"\xE6\x13\x3\x2\x2\x2\xE7\xED\a\x1C\x2\x2\xE8\xEC\x5\x12\n\x2\xE9\xEC\x5"+
-		"*\x16\x2\xEA\xEC\x5(\x15\x2\xEB\xE8\x3\x2\x2\x2\xEB\xE9\x3\x2\x2\x2\xEB"+
-		"\xEA\x3\x2\x2\x2\xEC\xEF\x3\x2\x2\x2\xED\xEB\x3\x2\x2\x2\xED\xEE\x3\x2"+
-		"\x2\x2\xEE\xF0\x3\x2\x2\x2\xEF\xED\x3\x2\x2\x2\xF0\xF1\a\x1D\x2\x2\xF1"+
-		"\x15\x3\x2\x2\x2\xF2\xF4\a\a\x2\x2\xF3\xF2\x3\x2\x2\x2\xF3\xF4\x3\x2\x2"+
-		"\x2\xF4\xF5\x3\x2\x2\x2\xF5\xF6\x5\\/\x2\xF6\xF7\a+\x2\x2\xF7\x17\x3\x2"+
-		"\x2\x2\xF8\xF9\a\r\x2\x2\xF9\xFA\x5\x1A\xE\x2\xFA\xFB\x5\x1C\xF\x2\xFB"+
-		"\x19\x3\x2\x2\x2\xFC\xFD\aK\x2\x2\xFD\x1B\x3\x2\x2\x2\xFE\x104\a\x1A\x2"+
-		"\x2\xFF\x103\x5\xE\b\x2\x100\x103\x5\x1E\x10\x2\x101\x103\x5 \x11\x2\x102"+
-		"\xFF\x3\x2\x2\x2\x102\x100\x3\x2\x2\x2\x102\x101\x3\x2\x2\x2\x103\x106"+
-		"\x3\x2\x2\x2\x104\x102\x3\x2\x2\x2\x104\x105\x3\x2\x2\x2\x105\x107\x3"+
-		"\x2\x2\x2\x106\x104\x3\x2\x2\x2\x107\x108\a\x1B\x2\x2\x108\x1D\x3\x2\x2"+
-		"\x2\x109\x10E\x5\"\x12\x2\x10A\x10B\a-\x2\x2\x10B\x10D\x5\"\x12\x2\x10C"+
-		"\x10A\x3\x2\x2\x2\x10D\x110\x3\x2\x2\x2\x10E\x10C\x3\x2\x2\x2\x10E\x10F"+
-		"\x3\x2\x2\x2\x10F\x112\x3\x2\x2\x2\x110\x10E\x3\x2\x2\x2\x111\x109\x3"+
-		"\x2\x2\x2\x111\x112\x3\x2\x2\x2\x112\x113\x3\x2\x2\x2\x113\x114\x5@!\x2"+
-		"\x114\x1F\x3\x2\x2\x2\x115\x116\a\x41\x2\x2\x116\x11A\x5&\x14\x2\x117"+
-		"\x118\a\x33\x2\x2\x118\x11A\x5&\x14\x2\x119\x115\x3\x2\x2\x2\x119\x117"+
-		"\x3\x2\x2\x2\x11A!\x3\x2\x2\x2\x11B\x120\x5$\x13\x2\x11C\x11D\a-\x2\x2"+
-		"\x11D\x11F\x5$\x13\x2\x11E\x11C\x3\x2\x2\x2\x11F\x122\x3\x2\x2\x2\x120"+
-		"\x11E\x3\x2\x2\x2\x120\x121\x3\x2\x2\x2\x121#\x3\x2\x2\x2\x122\x120\x3"+
-		"\x2\x2\x2\x123\x125\a\x32\x2\x2\x124\x123\x3\x2\x2\x2\x124\x125\x3\x2"+
-		"\x2\x2\x125\x126\x3\x2\x2\x2\x126\x129\x5&\x14\x2\x127\x128\a\x33\x2\x2"+
-		"\x128\x12A\x5&\x14\x2\x129\x127\x3\x2\x2\x2\x129\x12A\x3\x2\x2\x2\x12A"+
-		"%\x3\x2\x2\x2\x12B\x12C\a \x2\x2\x12C\'\x3\x2\x2\x2\x12D\x12F\x5,\x17"+
-		"\x2\x12E\x130\x5.\x18\x2\x12F\x12E\x3\x2\x2\x2\x12F\x130\x3\x2\x2\x2\x130"+
-		"\x132\x3\x2\x2\x2\x131\x133\x5\x32\x1A\x2\x132\x131\x3\x2\x2\x2\x132\x133"+
-		"\x3\x2\x2\x2\x133\x135\x3\x2\x2\x2\x134\x136\x5\x38\x1D\x2\x135\x134\x3"+
-		"\x2\x2\x2\x135\x136\x3\x2\x2\x2\x136\x137\x3\x2\x2\x2\x137\x138\x5@!\x2"+
-		"\x138)\x3\x2\x2\x2\x139\x13A\a\t\x2\x2\x13A\x13C\x5,\x17\x2\x13B\x13D"+
-		"\x5.\x18\x2\x13C\x13B\x3\x2\x2\x2\x13C\x13D\x3\x2\x2\x2\x13D\x13F\x3\x2"+
-		"\x2\x2\x13E\x140\x5\x32\x1A\x2\x13F\x13E\x3\x2\x2\x2\x13F\x140\x3\x2\x2"+
-		"\x2\x140+\x3\x2\x2\x2\x141\x142\aK\x2\x2\x142-\x3\x2\x2\x2\x143\x144\a"+
-		"\x18\x2\x2\x144\x145\x5\x30\x19\x2\x145\x146\a\x19\x2\x2\x146/\x3\x2\x2"+
-		"\x2\x147\x14C\x5\x34\x1B\x2\x148\x149\a-\x2\x2\x149\x14B\x5\x34\x1B\x2"+
-		"\x14A\x148\x3\x2\x2\x2\x14B\x14E\x3\x2\x2\x2\x14C\x14A\x3\x2\x2\x2\x14C"+
-		"\x14D\x3\x2\x2\x2\x14D\x150\x3\x2\x2\x2\x14E\x14C\x3\x2\x2\x2\x14F\x147"+
-		"\x3\x2\x2\x2\x14F\x150\x3\x2\x2\x2\x150\x31\x3\x2\x2\x2\x151\x152\a*\x2"+
-		"\x2\x152\x153\x5\x64\x33\x2\x153\x33\x3\x2\x2\x2\x154\x157\x5\x36\x1C"+
-		"\x2\x155\x156\a*\x2\x2\x156\x158\x5\x64\x33\x2\x157\x155\x3\x2\x2\x2\x157"+
-		"\x158\x3\x2\x2\x2\x158\x15C\x3\x2\x2\x2\x159\x15D\a)\x2\x2\x15A\x15B\a"+
-		"\x41\x2\x2\x15B\x15D\x5\xA8U\x2\x15C\x159\x3\x2\x2\x2\x15C\x15A\x3\x2"+
-		"\x2\x2\x15C\x15D\x3\x2\x2\x2\x15D\x35\x3\x2\x2\x2\x15E\x15F\aK\x2\x2\x15F"+
-		"\x37\x3\x2\x2\x2\x160\x161\a\x41\x2\x2\x161\x166\x5<\x1F\x2\x162\x163"+
-		"\a-\x2\x2\x163\x165\x5<\x1F\x2\x164\x162\x3\x2\x2\x2\x165\x168\x3\x2\x2"+
-		"\x2\x166\x164\x3\x2\x2\x2\x166\x167\x3\x2\x2\x2\x167\x39\x3\x2\x2\x2\x168"+
-		"\x166\x3\x2\x2\x2\x169\x16A\a\x18\x2\x2\x16A\x16F\x5\xA8U\x2\x16B\x16C"+
-		"\a-\x2\x2\x16C\x16E\x5\xA8U\x2\x16D\x16B\x3\x2\x2\x2\x16E\x171\x3\x2\x2"+
-		"\x2\x16F\x16D\x3\x2\x2\x2\x16F\x170\x3\x2\x2\x2\x170\x172\x3\x2\x2\x2"+
-		"\x171\x16F\x3\x2\x2\x2\x172\x173\a\x19\x2\x2\x173;\x3\x2\x2\x2\x174\x176"+
-		"\x5\xA8U\x2\x175\x177\x5:\x1E\x2\x176\x175\x3\x2\x2\x2\x176\x177\x3\x2"+
-		"\x2\x2\x177=\x3\x2\x2\x2\x178\x17B\x5l\x37\x2\x179\x17B\x5z>\x2\x17A\x178"+
-		"\x3\x2\x2\x2\x17A\x179\x3\x2\x2\x2\x17B\x17C\x3\x2\x2\x2\x17C\x17D\a+"+
-		"\x2\x2\x17D\x187\x3\x2\x2\x2\x17E\x187\x5@!\x2\x17F\x187\a+\x2\x2\x180"+
-		"\x187\x5\x42\"\x2\x181\x187\x5N(\x2\x182\x187\x5P)\x2\x183\x187\x5\x46"+
-		"$\x2\x184\x187\x5T+\x2\x185\x187\x5V,\x2\x186\x17A\x3\x2\x2\x2\x186\x17E"+
-		"\x3\x2\x2\x2\x186\x17F\x3\x2\x2\x2\x186\x180\x3\x2\x2\x2\x186\x181\x3"+
-		"\x2\x2\x2\x186\x182\x3\x2\x2\x2\x186\x183\x3\x2\x2\x2\x186\x184\x3\x2"+
-		"\x2\x2\x186\x185\x3\x2\x2\x2\x187?\x3\x2\x2\x2\x188\x18C\a\x1C\x2\x2\x189"+
-		"\x18B\x5> \x2\x18A\x189\x3\x2\x2\x2\x18B\x18E\x3\x2\x2\x2\x18C\x18A\x3"+
-		"\x2\x2\x2\x18C\x18D\x3\x2\x2\x2\x18D\x18F\x3\x2\x2\x2\x18E\x18C\x3\x2"+
-		"\x2\x2\x18F\x190\a\x1D\x2\x2\x190\x41\x3\x2\x2\x2\x191\x192\a\xE\x2\x2"+
-		"\x192\x193\a\x18\x2\x2\x193\x194\x5l\x37\x2\x194\x195\a\x19\x2\x2\x195"+
-		"\x197\x5> \x2\x196\x198\x5\x44#\x2\x197\x196\x3\x2\x2\x2\x197\x198\x3"+
-		"\x2\x2\x2\x198\x43\x3\x2\x2\x2\x199\x19A\a\xF\x2\x2\x19A\x19B\x5> \x2"+
-		"\x19B\x45\x3\x2\x2\x2\x19C\x19D\a\x14\x2\x2\x19D\x19E\a\x18\x2\x2\x19E"+
-		"\x19F\x5l\x37\x2\x19F\x1A0\a\x19\x2\x2\x1A0\x1A1\x5H%\x2\x1A1G\x3\x2\x2"+
-		"\x2\x1A2\x1A7\a\x1C\x2\x2\x1A3\x1A6\x5J&\x2\x1A4\x1A6\x5L\'\x2\x1A5\x1A3"+
-		"\x3\x2\x2\x2\x1A5\x1A4\x3\x2\x2\x2\x1A6\x1A9\x3\x2\x2\x2\x1A7\x1A5\x3"+
-		"\x2\x2\x2\x1A7\x1A8\x3\x2\x2\x2\x1A8\x1AA\x3\x2\x2\x2\x1A9\x1A7\x3\x2"+
-		"\x2\x2\x1AA\x1AB\a\x1D\x2\x2\x1ABI\x3\x2\x2\x2\x1AC\x1AD\a\x15\x2\x2\x1AD"+
-		"\x1AE\x5l\x37\x2\x1AE\x1B4\a*\x2\x2\x1AF\x1B5\x5J&\x2\x1B0\x1B1\x5> \x2"+
-		"\x1B1\x1B2\a\x12\x2\x2\x1B2\x1B3\a+\x2\x2\x1B3\x1B5\x3\x2\x2\x2\x1B4\x1AF"+
-		"\x3\x2\x2\x2\x1B4\x1B0\x3\x2\x2\x2\x1B5K\x3\x2\x2\x2\x1B6\x1B7\a\x16\x2"+
-		"\x2\x1B7\x1B8\a*\x2\x2\x1B8\x1B9\x5> \x2\x1B9\x1BA\a\x12\x2\x2\x1BA\x1BB"+
-		"\a+\x2\x2\x1BBM\x3\x2\x2\x2\x1BC\x1BD\a\x10\x2\x2\x1BD\x1BE\a\x18\x2\x2"+
-		"\x1BE\x1BF\x5l\x37\x2\x1BF\x1C0\a\x19\x2\x2\x1C0\x1C1\x5> \x2\x1C1O\x3"+
-		"\x2\x2\x2\x1C2\x1C3\a\x11\x2\x2\x1C3\x1C5\a\x18\x2\x2\x1C4\x1C6\x5R*\x2"+
-		"\x1C5\x1C4\x3\x2\x2\x2\x1C5\x1C6\x3\x2\x2\x2\x1C6\x1C7\x3\x2\x2\x2\x1C7"+
-		"\x1C9\a+\x2\x2\x1C8\x1CA\x5l\x37\x2\x1C9\x1C8\x3\x2\x2\x2\x1C9\x1CA\x3"+
-		"\x2\x2\x2\x1CA\x1CB\x3\x2\x2\x2\x1CB\x1CD\a+\x2\x2\x1CC\x1CE\x5l\x37\x2"+
-		"\x1CD\x1CC\x3\x2\x2\x2\x1CD\x1CE\x3\x2\x2\x2\x1CE\x1CF\x3\x2\x2\x2\x1CF"+
-		"\x1D0\a\x19\x2\x2\x1D0\x1D1\x5> \x2\x1D1Q\x3\x2\x2\x2\x1D2\x1D5\x5X-\x2"+
-		"\x1D3\x1D5\x5l\x37\x2\x1D4\x1D2\x3\x2\x2\x2\x1D4\x1D3\x3\x2\x2\x2\x1D5"+
-		"S\x3\x2\x2\x2\x1D6\x1D8\a\x17\x2\x2\x1D7\x1D9\x5l\x37\x2\x1D8\x1D7\x3"+
-		"\x2\x2\x2\x1D8\x1D9\x3\x2\x2\x2\x1D9\x1DA\x3\x2\x2\x2\x1DA\x1DB\a+\x2"+
-		"\x2\x1DBU\x3\x2\x2\x2\x1DC\x1DF\x5X-\x2\x1DD\x1DF\x5Z.\x2\x1DE\x1DC\x3"+
-		"\x2\x2\x2\x1DE\x1DD\x3\x2\x2\x2\x1DF\x1E0\x3\x2\x2\x2\x1E0\x1E1\a+\x2"+
-		"\x2\x1E1W\x3\x2\x2\x2\x1E2\x1E3\a\x5\x2\x2\x1E3\x1E4\x5\\/\x2\x1E4Y\x3"+
-		"\x2\x2\x2\x1E5\x1E6\a\x6\x2\x2\x1E6\x1E7\x5^\x30\x2\x1E7[\x3\x2\x2\x2"+
-		"\x1E8\x1EB\x5`\x31\x2\x1E9\x1EA\a\x41\x2\x2\x1EA\x1EC\x5l\x37\x2\x1EB"+
-		"\x1E9\x3\x2\x2\x2\x1EB\x1EC\x3\x2\x2\x2\x1EC]\x3\x2\x2\x2\x1ED\x1EE\x5"+
-		"`\x31\x2\x1EE\x1EF\a\x41\x2\x2\x1EF\x1F0\x5l\x37\x2\x1F0_\x3\x2\x2\x2"+
-		"\x1F1\x1F4\x5\x62\x32\x2\x1F2\x1F3\a*\x2\x2\x1F3\x1F5\x5\x64\x33\x2\x1F4"+
-		"\x1F2\x3\x2\x2\x2\x1F4\x1F5\x3\x2\x2\x2\x1F5\x61\x3\x2\x2\x2\x1F6\x1F7"+
-		"\aK\x2\x2\x1F7\x63\x3\x2\x2\x2\x1F8\x1FC\a\f\x2\x2\x1F9\x1FC\x5\x66\x34"+
-		"\x2\x1FA\x1FC\x5h\x35\x2\x1FB\x1F8\x3\x2\x2\x2\x1FB\x1F9\x3\x2\x2\x2\x1FB"+
-		"\x1FA\x3\x2\x2\x2\x1FC\x65\x3\x2\x2\x2\x1FD\x200\aK\x2\x2\x1FE\x1FF\a"+
-		",\x2\x2\x1FF\x201\x5\x66\x34\x2\x200\x1FE\x3\x2\x2\x2\x200\x201\x3\x2"+
-		"\x2\x2\x201g\x3\x2\x2\x2\x202\x204\a\x18\x2\x2\x203\x205\x5j\x36\x2\x204"+
-		"\x203\x3\x2\x2\x2\x204\x205\x3\x2\x2\x2\x205\x206\x3\x2\x2\x2\x206\x208"+
-		"\a\x1E\x2\x2\x207\x209\x5\x64\x33\x2\x208\x207\x3\x2\x2\x2\x208\x209\x3"+
-		"\x2\x2\x2\x209\x20A\x3\x2\x2\x2\x20A\x20B\a\x19\x2\x2\x20Bi\x3\x2\x2\x2"+
-		"\x20C\x211\x5\x64\x33\x2\x20D\x20E\a-\x2\x2\x20E\x210\x5\x64\x33\x2\x20F"+
-		"\x20D\x3\x2\x2\x2\x210\x213\x3\x2\x2\x2\x211\x20F\x3\x2\x2\x2\x211\x212"+
-		"\x3\x2\x2\x2\x212k\x3\x2\x2\x2\x213\x211\x3\x2\x2\x2\x214\x215\b\x37\x1"+
-		"\x2\x215\x216\a\x18\x2\x2\x216\x217\x5l\x37\x2\x217\x218\a\x19\x2\x2\x218"+
-		"\x232\x3\x2\x2\x2\x219\x232\x5z>\x2\x21A\x21B\x5\x84\x43\x2\x21B\x21C"+
-		"\x5\x90I\x2\x21C\x232\x3\x2\x2\x2\x21D\x21E\x5\x90I\x2\x21E\x21F\x5\x86"+
-		"\x44\x2\x21F\x232\x3\x2\x2\x2\x220\x232\x5~@\x2\x221\x223\aK\x2\x2\x222"+
-		"\x224\x5\x9CO\x2\x223\x222\x3\x2\x2\x2\x223\x224\x3\x2\x2\x2\x224\x232"+
-		"\x3\x2\x2\x2\x225\x227\x5\xA0Q\x2\x226\x228\x5\x9AN\x2\x227\x226\x3\x2"+
-		"\x2\x2\x227\x228\x3\x2\x2\x2\x228\x232\x3\x2\x2\x2\x229\x232\x5|?\x2\x22A"+
-		"\x232\x5\x80\x41\x2\x22B\x22D\x5\x8A\x46\x2\x22C\x22E\x5\x9CO\x2\x22D"+
-		"\x22C\x3\x2\x2\x2\x22D\x22E\x3\x2\x2\x2\x22E\x232\x3\x2\x2\x2\x22F\x232"+
-		"\x5\xACW\x2\x230\x232\x5\xA8U\x2\x231\x214\x3\x2\x2\x2\x231\x219\x3\x2"+
-		"\x2\x2\x231\x21A\x3\x2\x2\x2\x231\x21D\x3\x2\x2\x2\x231\x220\x3\x2\x2"+
-		"\x2\x231\x221\x3\x2\x2\x2\x231\x225\x3\x2\x2\x2\x231\x229\x3\x2\x2\x2"+
-		"\x231\x22A\x3\x2\x2\x2\x231\x22B\x3\x2\x2\x2\x231\x22F\x3\x2\x2\x2\x231"+
-		"\x230\x3\x2\x2\x2\x232\x24D\x3\x2\x2\x2\x233\x234\f\n\x2\x2\x234\x235"+
-		"\x5n\x38\x2\x235\x236\x5l\x37\v\x236\x24C\x3\x2\x2\x2\x237\x238\f\t\x2"+
-		"\x2\x238\x239\x5p\x39\x2\x239\x23A\x5l\x37\n\x23A\x24C\x3\x2\x2\x2\x23B"+
-		"\x23C\f\b\x2\x2\x23C\x23D\x5r:\x2\x23D\x23E\x5l\x37\t\x23E\x24C\x3\x2"+
-		"\x2\x2\x23F\x240\f\a\x2\x2\x240\x241\x5t;\x2\x241\x242\x5l\x37\b\x242"+
-		"\x24C\x3\x2\x2\x2\x243\x244\f\x6\x2\x2\x244\x245\x5v<\x2\x245\x246\x5"+
-		"l\x37\a\x246\x24C\x3\x2\x2\x2\x247\x248\f\x5\x2\x2\x248\x249\x5x=\x2\x249"+
-		"\x24A\x5l\x37\x6\x24A\x24C\x3\x2\x2\x2\x24B\x233\x3\x2\x2\x2\x24B\x237"+
-		"\x3\x2\x2\x2\x24B\x23B\x3\x2\x2\x2\x24B\x23F\x3\x2\x2\x2\x24B\x243\x3"+
-		"\x2\x2\x2\x24B\x247\x3\x2\x2\x2\x24C\x24F\x3\x2\x2\x2\x24D\x24B\x3\x2"+
-		"\x2\x2\x24D\x24E\x3\x2\x2\x2\x24Em\x3\x2\x2\x2\x24F\x24D\x3\x2\x2\x2\x250"+
-		"\x251\t\x2\x2\x2\x251o\x3\x2\x2\x2\x252\x253\t\x3\x2\x2\x253q\x3\x2\x2"+
-		"\x2\x254\x255\t\x4\x2\x2\x255s\x3\x2\x2\x2\x256\x257\a\x38\x2\x2\x257"+
-		"u\x3\x2\x2\x2\x258\x259\t\x5\x2\x2\x259w\x3\x2\x2\x2\x25A\x25B\t\x6\x2"+
-		"\x2\x25By\x3\x2\x2\x2\x25C\x25D\x5\x90I\x2\x25D\x25E\x5\x88\x45\x2\x25E"+
-		"\x25F\x5l\x37\x2\x25F{\x3\x2\x2\x2\x260\x261\a\b\x2\x2\x261\x262\x5\x66"+
-		"\x34\x2\x262\x263\x5\x8CG\x2\x263}\x3\x2\x2\x2\x264\x266\x5.\x18\x2\x265"+
-		"\x267\x5\x32\x1A\x2\x266\x265\x3\x2\x2\x2\x266\x267\x3\x2\x2\x2\x267\x268"+
-		"\x3\x2\x2\x2\x268\x269\a\x1F\x2\x2\x269\x26A\x5@!\x2\x26A\x7F\x3\x2\x2"+
-		"\x2\x26B\x26C\t\a\x2\x2\x26C\x26D\x5l\x37\x2\x26D\x81\x3\x2\x2\x2\x26E"+
-		"\x275\t\x2\x2\x2\x26F\x275\t\x3\x2\x2\x270\x275\t\x4\x2\x2\x271\x275\a"+
-		"\x38\x2\x2\x272\x275\t\x5\x2\x2\x273\x275\t\x6\x2\x2\x274\x26E\x3\x2\x2"+
-		"\x2\x274\x26F\x3\x2\x2\x2\x274\x270\x3\x2\x2\x2\x274\x271\x3\x2\x2\x2"+
-		"\x274\x272\x3\x2\x2\x2\x274\x273\x3\x2\x2\x2\x275\x83\x3\x2\x2\x2\x276"+
-		"\x277\t\b\x2\x2\x277\x85\x3\x2\x2\x2\x278\x279\t\b\x2\x2\x279\x87\x3\x2"+
-		"\x2\x2\x27A\x27B\t\t\x2\x2\x27B\x89\x3\x2\x2\x2\x27C\x27E\a\x1A\x2\x2"+
-		"\x27D\x27F\x5\x8EH\x2\x27E\x27D\x3\x2\x2\x2\x27E\x27F\x3\x2\x2\x2\x27F"+
-		"\x280\x3\x2\x2\x2\x280\x281\a\x1B\x2\x2\x281\x8B\x3\x2\x2\x2\x282\x284"+
-		"\a\x18\x2\x2\x283\x285\x5\x8EH\x2\x284\x283\x3\x2\x2\x2\x284\x285\x3\x2"+
-		"\x2\x2\x285\x286\x3\x2\x2\x2\x286\x287\a\x19\x2\x2\x287\x8D\x3\x2\x2\x2"+
-		"\x288\x28D\x5l\x37\x2\x289\x28A\a-\x2\x2\x28A\x28C\x5l\x37\x2\x28B\x289"+
-		"\x3\x2\x2\x2\x28C\x28F\x3\x2\x2\x2\x28D\x28B\x3\x2\x2\x2\x28D\x28E\x3"+
-		"\x2\x2\x2\x28E\x8F\x3\x2\x2\x2\x28F\x28D\x3\x2\x2\x2\x290\x295\x5\x9E"+
-		"P\x2\x291\x292\x5\x8CG\x2\x292\x293\x5\x92J\x2\x293\x296\x3\x2\x2\x2\x294"+
-		"\x296\x5\x92J\x2\x295\x291\x3\x2\x2\x2\x295\x294\x3\x2\x2\x2\x295\x296"+
-		"\x3\x2\x2\x2\x296\x91\x3\x2\x2\x2\x297\x299\a,\x2\x2\x298\x29A\x5\x90"+
-		"I\x2\x299\x298\x3\x2\x2\x2\x299\x29A\x3\x2\x2\x2\x29A\x2A1\x3\x2\x2\x2"+
-		"\x29B\x29E\x5\x98M\x2\x29C\x29F\x5\x90I\x2\x29D\x29F\x5\x92J\x2\x29E\x29C"+
-		"\x3\x2\x2\x2\x29E\x29D\x3\x2\x2\x2\x29E\x29F\x3\x2\x2\x2\x29F\x2A1\x3"+
-		"\x2\x2\x2\x2A0\x297\x3\x2\x2\x2\x2A0\x29B\x3\x2\x2\x2\x2A1\x93\x3\x2\x2"+
-		"\x2\x2A2\x2A3\x5\x8CG\x2\x2A3\x95\x3\x2\x2\x2\x2A4\x2A5\a,\x2\x2\x2A5"+
-		"\x2A6\x5\x9EP\x2\x2A6\x97\x3\x2\x2\x2\x2A7\x2A8\a\x1A\x2\x2\x2A8\x2A9"+
-		"\x5l\x37\x2\x2A9\x2AA\a\x1B\x2\x2\x2AA\x99\x3\x2\x2\x2\x2AB\x2AE\x5\x96"+
-		"L\x2\x2AC\x2AE\x5\x98M\x2\x2AD\x2AB\x3\x2\x2\x2\x2AD\x2AC\x3\x2\x2\x2"+
-		"\x2AE\x2B0\x3\x2\x2\x2\x2AF\x2B1\x5\x9CO\x2\x2B0\x2AF\x3\x2\x2\x2\x2B0"+
-		"\x2B1\x3\x2\x2\x2\x2B1\x9B\x3\x2\x2\x2\x2B2\x2B6\x5\x94K\x2\x2B3\x2B6"+
-		"\x5\x96L\x2\x2B4\x2B6\x5\x98M\x2\x2B5\x2B2\x3\x2\x2\x2\x2B5\x2B3\x3\x2"+
-		"\x2\x2\x2B5\x2B4\x3\x2\x2\x2\x2B6\x2B8\x3\x2\x2\x2\x2B7\x2B9\x5\x9CO\x2"+
-		"\x2B8\x2B7\x3\x2\x2\x2\x2B8\x2B9\x3\x2\x2\x2\x2B9\x9D\x3\x2\x2\x2\x2BA"+
-		"\x2BB\aK\x2\x2\x2BB\x9F\x3\x2\x2\x2\x2BC\x2BE\a\x1C\x2\x2\x2BD\x2BF\x5"+
-		"\xA2R\x2\x2BE\x2BD\x3\x2\x2\x2\x2BE\x2BF\x3\x2\x2\x2\x2BF\x2C0\x3\x2\x2"+
-		"\x2\x2C0\x2C1\a\x1D\x2\x2\x2C1\xA1\x3\x2\x2\x2\x2C2\x2C7\x5\xA4S\x2\x2C3"+
-		"\x2C4\a-\x2\x2\x2C4\x2C6\x5\xA4S\x2\x2C5\x2C3\x3\x2\x2\x2\x2C6\x2C9\x3"+
-		"\x2\x2\x2\x2C7\x2C5\x3\x2\x2\x2\x2C7\x2C8\x3\x2\x2\x2\x2C8\xA3\x3\x2\x2"+
-		"\x2\x2C9\x2C7\x3\x2\x2\x2\x2CA\x2CB\x5\xA6T\x2\x2CB\x2CC\a*\x2\x2\x2CC"+
-		"\x2CD\x5l\x37\x2\x2CD\xA5\x3\x2\x2\x2\x2CE\x2CF\aK\x2\x2\x2CF\xA7\x3\x2"+
-		"\x2\x2\x2D0\x2D1\t\x3\x2\x2\x2D1\x2D5\x5\xAEX\x2\x2D2\x2D5\x5\xACW\x2"+
-		"\x2D3\x2D5\x5\xAAV\x2\x2D4\x2D0\x3\x2\x2\x2\x2D4\x2D2\x3\x2\x2\x2\x2D4"+
-		"\x2D3\x3\x2\x2\x2\x2D5\xA9\x3\x2\x2\x2\x2D6\x2D7\a\x3\x2\x2\x2D7\xAB\x3"+
-		"\x2\x2\x2\x2D8\x2DB\x5\xAEX\x2\x2D9\x2DB\t\n\x2\x2\x2DA\x2D8\x3\x2\x2"+
-		"\x2\x2DA\x2D9\x3\x2\x2\x2\x2DB\xAD\x3\x2\x2\x2\x2DC\x2E0\x5\xB0Y\x2\x2DD"+
-		"\x2E0\x5\xB2Z\x2\x2DE\x2E0\t\v\x2\x2\x2DF\x2DC\x3\x2\x2\x2\x2DF\x2DD\x3"+
-		"\x2\x2\x2\x2DF\x2DE\x3\x2\x2\x2\x2E0\xAF\x3\x2\x2\x2\x2E1\x2E2\a!\x2\x2"+
-		"\x2E2\xB1\x3\x2\x2\x2\x2E3\x2E4\a\"\x2\x2\x2E4\xB3\x3\x2\x2\x2L\xBA\xBC"+
-		"\xC2\xCE\xD0\xD9\xE2\xEB\xED\xF3\x102\x104\x10E\x111\x119\x120\x124\x129"+
-		"\x12F\x132\x135\x13C\x13F\x14C\x14F\x157\x15C\x166\x16F\x176\x17A\x186"+
-		"\x18C\x197\x1A5\x1A7\x1B4\x1C5\x1C9\x1CD\x1D4\x1D8\x1DE\x1EB\x1F4\x1FB"+
-		"\x200\x204\x208\x211\x223\x227\x22D\x231\x24B\x24D\x266\x274\x27E\x284"+
-		"\x28D\x295\x299\x29E\x2A0\x2AD\x2B0\x2B5\x2B8\x2BE\x2C7\x2D4\x2DA\x2DF";
+		"\a\x37\x249\n\x37\f\x37\xE\x37\x24C\v\x37\x3\x38\x3\x38\x3\x39\x3\x39"+
+		"\x3:\x3:\x3;\x3;\x3<\x3<\x3=\x3=\x3>\x3>\x3>\x3>\x5>\x25E\n>\x3?\x3?\x3"+
+		"?\x3?\x3@\x3@\x5@\x266\n@\x3@\x3@\x3@\x3\x41\x3\x41\x3\x41\x3\x42\x3\x42"+
+		"\x3\x43\x3\x43\x3\x44\x3\x44\x3\x45\x3\x45\x5\x45\x276\n\x45\x3\x45\x3"+
+		"\x45\x3\x46\x3\x46\x3\x46\a\x46\x27D\n\x46\f\x46\xE\x46\x280\v\x46\x3"+
+		"G\x3G\x5G\x284\nG\x3H\x3H\x3H\x3H\x3H\x3H\x3H\x5H\x28D\nH\x5H\x28F\nH"+
+		"\x3I\x3I\x3J\x3J\x3J\x3K\x3K\x3K\x3K\x3L\x3L\x5L\x29C\nL\x3L\x5L\x29F"+
+		"\nL\x3M\x3M\x3M\x5M\x2A4\nM\x3M\x5M\x2A7\nM\x3N\x3N\x3O\x3O\x5O\x2AD\n"+
+		"O\x3O\x3O\x3P\x3P\x5P\x2B3\nP\x3P\x3P\x3Q\x3Q\x3Q\aQ\x2BA\nQ\fQ\xEQ\x2BD"+
+		"\vQ\x3R\x3R\x3R\x3R\x3S\x3S\x3T\x5T\x2C6\nT\x3T\x3T\x3T\x3T\x3T\x5T\x2CD"+
+		"\nT\x3U\x3U\x3U\x3U\x3U\x5U\x2D4\nU\x3V\x3V\x3W\x3W\x3W\x5W\x2DB\nW\x3"+
+		"X\x3X\x3Y\x3Y\x3Y\x2\x3lZ\x2\x4\x6\b\n\f\xE\x10\x12\x14\x16\x18\x1A\x1C"+
+		"\x1E \"$&(*,.\x30\x32\x34\x36\x38:<>@\x42\x44\x46HJLNPRTVXZ\\^`\x62\x64"+
+		"\x66hjlnprtvxz|~\x80\x82\x84\x86\x88\x8A\x8C\x8E\x90\x92\x94\x96\x98\x9A"+
+		"\x9C\x9E\xA0\xA2\xA4\xA6\xA8\xAA\xAC\xAE\xB0\x2\v\x3\x2.\x30\x3\x2\x32"+
+		"\x33\x3\x2\x36\x37\x3\x2\x38>\x3\x2?@\x3\x2\x31\x33\x3\x2\x34\x35\x3\x2"+
+		"\x41J\x4\x2  ##\x2F6\x2\xB2\x3\x2\x2\x2\x4\xBA\x3\x2\x2\x2\x6\xBD\x3\x2"+
+		"\x2\x2\b\xC4\x3\x2\x2\x2\n\xC7\x3\x2\x2\x2\f\xC9\x3\x2\x2\x2\xE\xD3\x3"+
+		"\x2\x2\x2\x10\xD7\x3\x2\x2\x2\x12\xDC\x3\x2\x2\x2\x14\xE5\x3\x2\x2\x2"+
+		"\x16\xF1\x3\x2\x2\x2\x18\xF6\x3\x2\x2\x2\x1A\xFA\x3\x2\x2\x2\x1C\xFC\x3"+
+		"\x2\x2\x2\x1E\x108\x3\x2\x2\x2 \x110\x3\x2\x2\x2\"\x112\x3\x2\x2\x2$\x11B"+
+		"\x3\x2\x2\x2&\x122\x3\x2\x2\x2(\x124\x3\x2\x2\x2*\x130\x3\x2\x2\x2,\x138"+
+		"\x3\x2\x2\x2.\x13A\x3\x2\x2\x2\x30\x140\x3\x2\x2\x2\x32\x148\x3\x2\x2"+
+		"\x2\x34\x14B\x3\x2\x2\x2\x36\x155\x3\x2\x2\x2\x38\x157\x3\x2\x2\x2:\x160"+
+		"\x3\x2\x2\x2<\x164\x3\x2\x2\x2>\x17D\x3\x2\x2\x2@\x17F\x3\x2\x2\x2\x42"+
+		"\x188\x3\x2\x2\x2\x44\x190\x3\x2\x2\x2\x46\x193\x3\x2\x2\x2H\x199\x3\x2"+
+		"\x2\x2J\x1A3\x3\x2\x2\x2L\x1AD\x3\x2\x2\x2N\x1B3\x3\x2\x2\x2P\x1B9\x3"+
+		"\x2\x2\x2R\x1CB\x3\x2\x2\x2T\x1CD\x3\x2\x2\x2V\x1D5\x3\x2\x2\x2X\x1D9"+
+		"\x3\x2\x2\x2Z\x1DC\x3\x2\x2\x2\\\x1DF\x3\x2\x2\x2^\x1E4\x3\x2\x2\x2`\x1E8"+
+		"\x3\x2\x2\x2\x62\x1ED\x3\x2\x2\x2\x64\x1F2\x3\x2\x2\x2\x66\x1F4\x3\x2"+
+		"\x2\x2h\x1F9\x3\x2\x2\x2j\x203\x3\x2\x2\x2l\x22E\x3\x2\x2\x2n\x24D\x3"+
+		"\x2\x2\x2p\x24F\x3\x2\x2\x2r\x251\x3\x2\x2\x2t\x253\x3\x2\x2\x2v\x255"+
+		"\x3\x2\x2\x2x\x257\x3\x2\x2\x2z\x259\x3\x2\x2\x2|\x25F\x3\x2\x2\x2~\x263"+
+		"\x3\x2\x2\x2\x80\x26A\x3\x2\x2\x2\x82\x26D\x3\x2\x2\x2\x84\x26F\x3\x2"+
+		"\x2\x2\x86\x271\x3\x2\x2\x2\x88\x273\x3\x2\x2\x2\x8A\x279\x3\x2\x2\x2"+
+		"\x8C\x281\x3\x2\x2\x2\x8E\x28E\x3\x2\x2\x2\x90\x290\x3\x2\x2\x2\x92\x292"+
+		"\x3\x2\x2\x2\x94\x295\x3\x2\x2\x2\x96\x29B\x3\x2\x2\x2\x98\x2A3\x3\x2"+
+		"\x2\x2\x9A\x2A8\x3\x2\x2\x2\x9C\x2AA\x3\x2\x2\x2\x9E\x2B0\x3\x2\x2\x2"+
+		"\xA0\x2B6\x3\x2\x2\x2\xA2\x2BE\x3\x2\x2\x2\xA4\x2C2\x3\x2\x2\x2\xA6\x2CC"+
+		"\x3\x2\x2\x2\xA8\x2D3\x3\x2\x2\x2\xAA\x2D5\x3\x2\x2\x2\xAC\x2DA\x3\x2"+
+		"\x2\x2\xAE\x2DC\x3\x2\x2\x2\xB0\x2DE\x3\x2\x2\x2\xB2\xB3\x5\x4\x3\x2\xB3"+
+		"\x3\x3\x2\x2\x2\xB4\xB9\x5\x12\n\x2\xB5\xB9\x5\x14\v\x2\xB6\xB9\x5\x6"+
+		"\x4\x2\xB7\xB9\x5\x18\r\x2\xB8\xB4\x3\x2\x2\x2\xB8\xB5\x3\x2\x2\x2\xB8"+
+		"\xB6\x3\x2\x2\x2\xB8\xB7\x3\x2\x2\x2\xB9\xBC\x3\x2\x2\x2\xBA\xB8\x3\x2"+
+		"\x2\x2\xBA\xBB\x3\x2\x2\x2\xBB\x5\x3\x2\x2\x2\xBC\xBA\x3\x2\x2\x2\xBD"+
+		"\xBE\a\f\x2\x2\xBE\xC0\x5\n\x6\x2\xBF\xC1\x5\b\x5\x2\xC0\xBF\x3\x2\x2"+
+		"\x2\xC0\xC1\x3\x2\x2\x2\xC1\xC2\x3\x2\x2\x2\xC2\xC3\x5\f\a\x2\xC3\a\x3"+
+		"\x2\x2\x2\xC4\xC5\a*\x2\x2\xC5\xC6\x5\n\x6\x2\xC6\t\x3\x2\x2\x2\xC7\xC8"+
+		"\aK\x2\x2\xC8\v\x3\x2\x2\x2\xC9\xCE\a\x1C\x2\x2\xCA\xCD\x5\xE\b\x2\xCB"+
+		"\xCD\x5\x10\t\x2\xCC\xCA\x3\x2\x2\x2\xCC\xCB\x3\x2\x2\x2\xCD\xD0\x3\x2"+
+		"\x2\x2\xCE\xCC\x3\x2\x2\x2\xCE\xCF\x3\x2\x2\x2\xCF\xD1\x3\x2\x2\x2\xD0"+
+		"\xCE\x3\x2\x2\x2\xD1\xD2\a\x1D\x2\x2\xD2\r\x3\x2\x2\x2\xD3\xD4\x5X-\x2"+
+		"\xD4\xD5\a+\x2\x2\xD5\xF\x3\x2\x2\x2\xD6\xD8\a\v\x2\x2\xD7\xD6\x3\x2\x2"+
+		"\x2\xD7\xD8\x3\x2\x2\x2\xD8\xD9\x3\x2\x2\x2\xD9\xDA\a\n\x2\x2\xDA\xDB"+
+		"\x5(\x15\x2\xDB\x11\x3\x2\x2\x2\xDC\xE0\a\x1A\x2\x2\xDD\xDF\x5\x16\f\x2"+
+		"\xDE\xDD\x3\x2\x2\x2\xDF\xE2\x3\x2\x2\x2\xE0\xDE\x3\x2\x2\x2\xE0\xE1\x3"+
+		"\x2\x2\x2\xE1\xE3\x3\x2\x2\x2\xE2\xE0\x3\x2\x2\x2\xE3\xE4\a\x1B\x2\x2"+
+		"\xE4\x13\x3\x2\x2\x2\xE5\xEB\a\x1C\x2\x2\xE6\xEA\x5\x12\n\x2\xE7\xEA\x5"+
+		"*\x16\x2\xE8\xEA\x5(\x15\x2\xE9\xE6\x3\x2\x2\x2\xE9\xE7\x3\x2\x2\x2\xE9"+
+		"\xE8\x3\x2\x2\x2\xEA\xED\x3\x2\x2\x2\xEB\xE9\x3\x2\x2\x2\xEB\xEC\x3\x2"+
+		"\x2\x2\xEC\xEE\x3\x2\x2\x2\xED\xEB\x3\x2\x2\x2\xEE\xEF\a\x1D\x2\x2\xEF"+
+		"\x15\x3\x2\x2\x2\xF0\xF2\a\a\x2\x2\xF1\xF0\x3\x2\x2\x2\xF1\xF2\x3\x2\x2"+
+		"\x2\xF2\xF3\x3\x2\x2\x2\xF3\xF4\x5\\/\x2\xF4\xF5\a+\x2\x2\xF5\x17\x3\x2"+
+		"\x2\x2\xF6\xF7\a\r\x2\x2\xF7\xF8\x5\x1A\xE\x2\xF8\xF9\x5\x1C\xF\x2\xF9"+
+		"\x19\x3\x2\x2\x2\xFA\xFB\aK\x2\x2\xFB\x1B\x3\x2\x2\x2\xFC\x102\a\x1A\x2"+
+		"\x2\xFD\x101\x5\xE\b\x2\xFE\x101\x5\x1E\x10\x2\xFF\x101\x5 \x11\x2\x100"+
+		"\xFD\x3\x2\x2\x2\x100\xFE\x3\x2\x2\x2\x100\xFF\x3\x2\x2\x2\x101\x104\x3"+
+		"\x2\x2\x2\x102\x100\x3\x2\x2\x2\x102\x103\x3\x2\x2\x2\x103\x105\x3\x2"+
+		"\x2\x2\x104\x102\x3\x2\x2\x2\x105\x106\a\x1B\x2\x2\x106\x1D\x3\x2\x2\x2"+
+		"\x107\x109\x5\"\x12\x2\x108\x107\x3\x2\x2\x2\x108\x109\x3\x2\x2\x2\x109"+
+		"\x10A\x3\x2\x2\x2\x10A\x10B\x5@!\x2\x10B\x1F\x3\x2\x2\x2\x10C\x10D\a\x41"+
+		"\x2\x2\x10D\x111\x5&\x14\x2\x10E\x10F\a\x33\x2\x2\x10F\x111\x5&\x14\x2"+
+		"\x110\x10C\x3\x2\x2\x2\x110\x10E\x3\x2\x2\x2\x111!\x3\x2\x2\x2\x112\x117"+
+		"\x5$\x13\x2\x113\x114\a-\x2\x2\x114\x116\x5$\x13\x2\x115\x113\x3\x2\x2"+
+		"\x2\x116\x119\x3\x2\x2\x2\x117\x115\x3\x2\x2\x2\x117\x118\x3\x2\x2\x2"+
+		"\x118#\x3\x2\x2\x2\x119\x117\x3\x2\x2\x2\x11A\x11C\a\x32\x2\x2\x11B\x11A"+
+		"\x3\x2\x2\x2\x11B\x11C\x3\x2\x2\x2\x11C\x11D\x3\x2\x2\x2\x11D\x120\x5"+
+		"&\x14\x2\x11E\x11F\a\x33\x2\x2\x11F\x121\x5&\x14\x2\x120\x11E\x3\x2\x2"+
+		"\x2\x120\x121\x3\x2\x2\x2\x121%\x3\x2\x2\x2\x122\x123\a \x2\x2\x123\'"+
+		"\x3\x2\x2\x2\x124\x126\x5,\x17\x2\x125\x127\x5.\x18\x2\x126\x125\x3\x2"+
+		"\x2\x2\x126\x127\x3\x2\x2\x2\x127\x129\x3\x2\x2\x2\x128\x12A\x5\x32\x1A"+
+		"\x2\x129\x128\x3\x2\x2\x2\x129\x12A\x3\x2\x2\x2\x12A\x12C\x3\x2\x2\x2"+
+		"\x12B\x12D\x5\x38\x1D\x2\x12C\x12B\x3\x2\x2\x2\x12C\x12D\x3\x2\x2\x2\x12D"+
+		"\x12E\x3\x2\x2\x2\x12E\x12F\x5@!\x2\x12F)\x3\x2\x2\x2\x130\x131\a\t\x2"+
+		"\x2\x131\x133\x5,\x17\x2\x132\x134\x5.\x18\x2\x133\x132\x3\x2\x2\x2\x133"+
+		"\x134\x3\x2\x2\x2\x134\x136\x3\x2\x2\x2\x135\x137\x5\x32\x1A\x2\x136\x135"+
+		"\x3\x2\x2\x2\x136\x137\x3\x2\x2\x2\x137+\x3\x2\x2\x2\x138\x139\aK\x2\x2"+
+		"\x139-\x3\x2\x2\x2\x13A\x13C\a\x18\x2\x2\x13B\x13D\x5\x30\x19\x2\x13C"+
+		"\x13B\x3\x2\x2\x2\x13C\x13D\x3\x2\x2\x2\x13D\x13E\x3\x2\x2\x2\x13E\x13F"+
+		"\a\x19\x2\x2\x13F/\x3\x2\x2\x2\x140\x145\x5\x34\x1B\x2\x141\x142\a-\x2"+
+		"\x2\x142\x144\x5\x34\x1B\x2\x143\x141\x3\x2\x2\x2\x144\x147\x3\x2\x2\x2"+
+		"\x145\x143\x3\x2\x2\x2\x145\x146\x3\x2\x2\x2\x146\x31\x3\x2\x2\x2\x147"+
+		"\x145\x3\x2\x2\x2\x148\x149\a*\x2\x2\x149\x14A\x5\x64\x33\x2\x14A\x33"+
+		"\x3\x2\x2\x2\x14B\x14E\x5\x36\x1C\x2\x14C\x14D\a*\x2\x2\x14D\x14F\x5\x64"+
+		"\x33\x2\x14E\x14C\x3\x2\x2\x2\x14E\x14F\x3\x2\x2\x2\x14F\x153\x3\x2\x2"+
+		"\x2\x150\x154\a)\x2\x2\x151\x152\a\x41\x2\x2\x152\x154\x5\xA6T\x2\x153"+
+		"\x150\x3\x2\x2\x2\x153\x151\x3\x2\x2\x2\x153\x154\x3\x2\x2\x2\x154\x35"+
+		"\x3\x2\x2\x2\x155\x156\aK\x2\x2\x156\x37\x3\x2\x2\x2\x157\x158\a\x41\x2"+
+		"\x2\x158\x15D\x5:\x1E\x2\x159\x15A\a-\x2\x2\x15A\x15C\x5:\x1E\x2\x15B"+
+		"\x159\x3\x2\x2\x2\x15C\x15F\x3\x2\x2\x2\x15D\x15B\x3\x2\x2\x2\x15D\x15E"+
+		"\x3\x2\x2\x2\x15E\x39\x3\x2\x2\x2\x15F\x15D\x3\x2\x2\x2\x160\x162\x5\xA8"+
+		"U\x2\x161\x163\x5<\x1F\x2\x162\x161\x3\x2\x2\x2\x162\x163\x3\x2\x2\x2"+
+		"\x163;\x3\x2\x2\x2\x164\x165\a\x18\x2\x2\x165\x16A\x5\xA8U\x2\x166\x167"+
+		"\a-\x2\x2\x167\x169\x5\xA8U\x2\x168\x166\x3\x2\x2\x2\x169\x16C\x3\x2\x2"+
+		"\x2\x16A\x168\x3\x2\x2\x2\x16A\x16B\x3\x2\x2\x2\x16B\x16D\x3\x2\x2\x2"+
+		"\x16C\x16A\x3\x2\x2\x2\x16D\x16E\a\x19\x2\x2\x16E=\x3\x2\x2\x2\x16F\x172"+
+		"\x5l\x37\x2\x170\x172\x5z>\x2\x171\x16F\x3\x2\x2\x2\x171\x170\x3\x2\x2"+
+		"\x2\x172\x173\x3\x2\x2\x2\x173\x174\a+\x2\x2\x174\x17E\x3\x2\x2\x2\x175"+
+		"\x17E\x5@!\x2\x176\x17E\a+\x2\x2\x177\x17E\x5\x42\"\x2\x178\x17E\x5N("+
+		"\x2\x179\x17E\x5P)\x2\x17A\x17E\x5\x46$\x2\x17B\x17E\x5T+\x2\x17C\x17E"+
+		"\x5V,\x2\x17D\x171\x3\x2\x2\x2\x17D\x175\x3\x2\x2\x2\x17D\x176\x3\x2\x2"+
+		"\x2\x17D\x177\x3\x2\x2\x2\x17D\x178\x3\x2\x2\x2\x17D\x179\x3\x2\x2\x2"+
+		"\x17D\x17A\x3\x2\x2\x2\x17D\x17B\x3\x2\x2\x2\x17D\x17C\x3\x2\x2\x2\x17E"+
+		"?\x3\x2\x2\x2\x17F\x183\a\x1C\x2\x2\x180\x182\x5> \x2\x181\x180\x3\x2"+
+		"\x2\x2\x182\x185\x3\x2\x2\x2\x183\x181\x3\x2\x2\x2\x183\x184\x3\x2\x2"+
+		"\x2\x184\x186\x3\x2\x2\x2\x185\x183\x3\x2\x2\x2\x186\x187\a\x1D\x2\x2"+
+		"\x187\x41\x3\x2\x2\x2\x188\x189\a\xE\x2\x2\x189\x18A\a\x18\x2\x2\x18A"+
+		"\x18B\x5l\x37\x2\x18B\x18C\a\x19\x2\x2\x18C\x18E\x5> \x2\x18D\x18F\x5"+
+		"\x44#\x2\x18E\x18D\x3\x2\x2\x2\x18E\x18F\x3\x2\x2\x2\x18F\x43\x3\x2\x2"+
+		"\x2\x190\x191\a\xF\x2\x2\x191\x192\x5> \x2\x192\x45\x3\x2\x2\x2\x193\x194"+
+		"\a\x14\x2\x2\x194\x195\a\x18\x2\x2\x195\x196\x5l\x37\x2\x196\x197\a\x19"+
+		"\x2\x2\x197\x198\x5H%\x2\x198G\x3\x2\x2\x2\x199\x19E\a\x1C\x2\x2\x19A"+
+		"\x19D\x5J&\x2\x19B\x19D\x5L\'\x2\x19C\x19A\x3\x2\x2\x2\x19C\x19B\x3\x2"+
+		"\x2\x2\x19D\x1A0\x3\x2\x2\x2\x19E\x19C\x3\x2\x2\x2\x19E\x19F\x3\x2\x2"+
+		"\x2\x19F\x1A1\x3\x2\x2\x2\x1A0\x19E\x3\x2\x2\x2\x1A1\x1A2\a\x1D\x2\x2"+
+		"\x1A2I\x3\x2\x2\x2\x1A3\x1A4\a\x15\x2\x2\x1A4\x1A5\x5l\x37\x2\x1A5\x1AB"+
+		"\a*\x2\x2\x1A6\x1AC\x5J&\x2\x1A7\x1A8\x5> \x2\x1A8\x1A9\a\x12\x2\x2\x1A9"+
+		"\x1AA\a+\x2\x2\x1AA\x1AC\x3\x2\x2\x2\x1AB\x1A6\x3\x2\x2\x2\x1AB\x1A7\x3"+
+		"\x2\x2\x2\x1ACK\x3\x2\x2\x2\x1AD\x1AE\a\x16\x2\x2\x1AE\x1AF\a*\x2\x2\x1AF"+
+		"\x1B0\x5> \x2\x1B0\x1B1\a\x12\x2\x2\x1B1\x1B2\a+\x2\x2\x1B2M\x3\x2\x2"+
+		"\x2\x1B3\x1B4\a\x10\x2\x2\x1B4\x1B5\a\x18\x2\x2\x1B5\x1B6\x5l\x37\x2\x1B6"+
+		"\x1B7\a\x19\x2\x2\x1B7\x1B8\x5> \x2\x1B8O\x3\x2\x2\x2\x1B9\x1BA\a\x11"+
+		"\x2\x2\x1BA\x1BC\a\x18\x2\x2\x1BB\x1BD\x5R*\x2\x1BC\x1BB\x3\x2\x2\x2\x1BC"+
+		"\x1BD\x3\x2\x2\x2\x1BD\x1BE\x3\x2\x2\x2\x1BE\x1C0\a+\x2\x2\x1BF\x1C1\x5"+
+		"l\x37\x2\x1C0\x1BF\x3\x2\x2\x2\x1C0\x1C1\x3\x2\x2\x2\x1C1\x1C2\x3\x2\x2"+
+		"\x2\x1C2\x1C4\a+\x2\x2\x1C3\x1C5\x5l\x37\x2\x1C4\x1C3\x3\x2\x2\x2\x1C4"+
+		"\x1C5\x3\x2\x2\x2\x1C5\x1C6\x3\x2\x2\x2\x1C6\x1C7\a\x19\x2\x2\x1C7\x1C8"+
+		"\x5> \x2\x1C8Q\x3\x2\x2\x2\x1C9\x1CC\x5X-\x2\x1CA\x1CC\x5l\x37\x2\x1CB"+
+		"\x1C9\x3\x2\x2\x2\x1CB\x1CA\x3\x2\x2\x2\x1CCS\x3\x2\x2\x2\x1CD\x1CF\a"+
+		"\x17\x2\x2\x1CE\x1D0\x5l\x37\x2\x1CF\x1CE\x3\x2\x2\x2\x1CF\x1D0\x3\x2"+
+		"\x2\x2\x1D0\x1D1\x3\x2\x2\x2\x1D1\x1D2\a+\x2\x2\x1D2U\x3\x2\x2\x2\x1D3"+
+		"\x1D6\x5X-\x2\x1D4\x1D6\x5Z.\x2\x1D5\x1D3\x3\x2\x2\x2\x1D5\x1D4\x3\x2"+
+		"\x2\x2\x1D6\x1D7\x3\x2\x2\x2\x1D7\x1D8\a+\x2\x2\x1D8W\x3\x2\x2\x2\x1D9"+
+		"\x1DA\a\x5\x2\x2\x1DA\x1DB\x5\\/\x2\x1DBY\x3\x2\x2\x2\x1DC\x1DD\a\x6\x2"+
+		"\x2\x1DD\x1DE\x5^\x30\x2\x1DE[\x3\x2\x2\x2\x1DF\x1E2\x5`\x31\x2\x1E0\x1E1"+
+		"\a\x41\x2\x2\x1E1\x1E3\x5l\x37\x2\x1E2\x1E0\x3\x2\x2\x2\x1E2\x1E3\x3\x2"+
+		"\x2\x2\x1E3]\x3\x2\x2\x2\x1E4\x1E5\x5`\x31\x2\x1E5\x1E6\a\x41\x2\x2\x1E6"+
+		"\x1E7\x5l\x37\x2\x1E7_\x3\x2\x2\x2\x1E8\x1EB\x5\x62\x32\x2\x1E9\x1EA\a"+
+		"*\x2\x2\x1EA\x1EC\x5\x64\x33\x2\x1EB\x1E9\x3\x2\x2\x2\x1EB\x1EC\x3\x2"+
+		"\x2\x2\x1EC\x61\x3\x2\x2\x2\x1ED\x1EE\aK\x2\x2\x1EE\x63\x3\x2\x2\x2\x1EF"+
+		"\x1F3\a\f\x2\x2\x1F0\x1F3\x5\x66\x34\x2\x1F1\x1F3\x5h\x35\x2\x1F2\x1EF"+
+		"\x3\x2\x2\x2\x1F2\x1F0\x3\x2\x2\x2\x1F2\x1F1\x3\x2\x2\x2\x1F3\x65\x3\x2"+
+		"\x2\x2\x1F4\x1F7\aK\x2\x2\x1F5\x1F6\a,\x2\x2\x1F6\x1F8\x5\x66\x34\x2\x1F7"+
+		"\x1F5\x3\x2\x2\x2\x1F7\x1F8\x3\x2\x2\x2\x1F8g\x3\x2\x2\x2\x1F9\x1FB\a"+
+		"\x18\x2\x2\x1FA\x1FC\x5j\x36\x2\x1FB\x1FA\x3\x2\x2\x2\x1FB\x1FC\x3\x2"+
+		"\x2\x2\x1FC\x1FD\x3\x2\x2\x2\x1FD\x1FF\a\x1E\x2\x2\x1FE\x200\x5\x64\x33"+
+		"\x2\x1FF\x1FE\x3\x2\x2\x2\x1FF\x200\x3\x2\x2\x2\x200\x201\x3\x2\x2\x2"+
+		"\x201\x202\a\x19\x2\x2\x202i\x3\x2\x2\x2\x203\x208\x5\x64\x33\x2\x204"+
+		"\x205\a-\x2\x2\x205\x207\x5\x64\x33\x2\x206\x204\x3\x2\x2\x2\x207\x20A"+
+		"\x3\x2\x2\x2\x208\x206\x3\x2\x2\x2\x208\x209\x3\x2\x2\x2\x209k\x3\x2\x2"+
+		"\x2\x20A\x208\x3\x2\x2\x2\x20B\x20C\b\x37\x1\x2\x20C\x20D\a\x33\x2\x2"+
+		"\x20D\x22F\x5l\x37\f\x20E\x20F\a\x32\x2\x2\x20F\x22F\x5l\x37\v\x210\x211"+
+		"\a\x31\x2\x2\x211\x22F\x5l\x37\n\x212\x213\a\x18\x2\x2\x213\x214\x5l\x37"+
+		"\x2\x214\x215\a\x19\x2\x2\x215\x22F\x3\x2\x2\x2\x216\x217\x5\x82\x42\x2"+
+		"\x217\x218\x5\x8CG\x2\x218\x22F\x3\x2\x2\x2\x219\x21A\x5\x8CG\x2\x21A"+
+		"\x21B\x5\x84\x43\x2\x21B\x22F\x3\x2\x2\x2\x21C\x21E\x5~@\x2\x21D\x21F"+
+		"\x5\x88\x45\x2\x21E\x21D\x3\x2\x2\x2\x21E\x21F\x3\x2\x2\x2\x21F\x22F\x3"+
+		"\x2\x2\x2\x220\x222\x5\x9AN\x2\x221\x223\x5\x98M\x2\x222\x221\x3\x2\x2"+
+		"\x2\x222\x223\x3\x2\x2\x2\x223\x22F\x3\x2\x2\x2\x224\x226\x5\x9EP\x2\x225"+
+		"\x227\x5\x96L\x2\x226\x225\x3\x2\x2\x2\x226\x227\x3\x2\x2\x2\x227\x22F"+
+		"\x3\x2\x2\x2\x228\x22F\x5|?\x2\x229\x22B\x5\x9CO\x2\x22A\x22C\x5\x98M"+
+		"\x2\x22B\x22A\x3\x2\x2\x2\x22B\x22C\x3\x2\x2\x2\x22C\x22F\x3\x2\x2\x2"+
+		"\x22D\x22F\x5\xA8U\x2\x22E\x20B\x3\x2\x2\x2\x22E\x20E\x3\x2\x2\x2\x22E"+
+		"\x210\x3\x2\x2\x2\x22E\x212\x3\x2\x2\x2\x22E\x216\x3\x2\x2\x2\x22E\x219"+
+		"\x3\x2\x2\x2\x22E\x21C\x3\x2\x2\x2\x22E\x220\x3\x2\x2\x2\x22E\x224\x3"+
+		"\x2\x2\x2\x22E\x228\x3\x2\x2\x2\x22E\x229\x3\x2\x2\x2\x22E\x22D\x3\x2"+
+		"\x2\x2\x22F\x24A\x3\x2\x2\x2\x230\x231\f\t\x2\x2\x231\x232\x5n\x38\x2"+
+		"\x232\x233\x5l\x37\n\x233\x249\x3\x2\x2\x2\x234\x235\f\b\x2\x2\x235\x236"+
+		"\x5p\x39\x2\x236\x237\x5l\x37\t\x237\x249\x3\x2\x2\x2\x238\x239\f\a\x2"+
+		"\x2\x239\x23A\x5r:\x2\x23A\x23B\x5l\x37\b\x23B\x249\x3\x2\x2\x2\x23C\x23D"+
+		"\f\x6\x2\x2\x23D\x23E\x5t;\x2\x23E\x23F\x5l\x37\a\x23F\x249\x3\x2\x2\x2"+
+		"\x240\x241\f\x5\x2\x2\x241\x242\x5v<\x2\x242\x243\x5l\x37\x6\x243\x249"+
+		"\x3\x2\x2\x2\x244\x245\f\x4\x2\x2\x245\x246\x5x=\x2\x246\x247\x5l\x37"+
+		"\x5\x247\x249\x3\x2\x2\x2\x248\x230\x3\x2\x2\x2\x248\x234\x3\x2\x2\x2"+
+		"\x248\x238\x3\x2\x2\x2\x248\x23C\x3\x2\x2\x2\x248\x240\x3\x2\x2\x2\x248"+
+		"\x244\x3\x2\x2\x2\x249\x24C\x3\x2\x2\x2\x24A\x248\x3\x2\x2\x2\x24A\x24B"+
+		"\x3\x2\x2\x2\x24Bm\x3\x2\x2\x2\x24C\x24A\x3\x2\x2\x2\x24D\x24E\t\x2\x2"+
+		"\x2\x24Eo\x3\x2\x2\x2\x24F\x250\t\x3\x2\x2\x250q\x3\x2\x2\x2\x251\x252"+
+		"\t\x4\x2\x2\x252s\x3\x2\x2\x2\x253\x254\a\x38\x2\x2\x254u\x3\x2\x2\x2"+
+		"\x255\x256\t\x5\x2\x2\x256w\x3\x2\x2\x2\x257\x258\t\x6\x2\x2\x258y\x3"+
+		"\x2\x2\x2\x259\x25A\x5\x8CG\x2\x25A\x25D\x5\x86\x44\x2\x25B\x25E\x5l\x37"+
+		"\x2\x25C\x25E\x5z>\x2\x25D\x25B\x3\x2\x2\x2\x25D\x25C\x3\x2\x2\x2\x25E"+
+		"{\x3\x2\x2\x2\x25F\x260\a\b\x2\x2\x260\x261\x5\x66\x34\x2\x261\x262\x5"+
+		"\x88\x45\x2\x262}\x3\x2\x2\x2\x263\x265\x5.\x18\x2\x264\x266\x5\x32\x1A"+
+		"\x2\x265\x264\x3\x2\x2\x2\x265\x266\x3\x2\x2\x2\x266\x267\x3\x2\x2\x2"+
+		"\x267\x268\a\x1F\x2\x2\x268\x269\x5@!\x2\x269\x7F\x3\x2\x2\x2\x26A\x26B"+
+		"\t\a\x2\x2\x26B\x26C\x5l\x37\x2\x26C\x81\x3\x2\x2\x2\x26D\x26E\t\b\x2"+
+		"\x2\x26E\x83\x3\x2\x2\x2\x26F\x270\t\b\x2\x2\x270\x85\x3\x2\x2\x2\x271"+
+		"\x272\t\t\x2\x2\x272\x87\x3\x2\x2\x2\x273\x275\a\x18\x2\x2\x274\x276\x5"+
+		"\x8A\x46\x2\x275\x274\x3\x2\x2\x2\x275\x276\x3\x2\x2\x2\x276\x277\x3\x2"+
+		"\x2\x2\x277\x278\a\x19\x2\x2\x278\x89\x3\x2\x2\x2\x279\x27E\x5l\x37\x2"+
+		"\x27A\x27B\a-\x2\x2\x27B\x27D\x5l\x37\x2\x27C\x27A\x3\x2\x2\x2\x27D\x280"+
+		"\x3\x2\x2\x2\x27E\x27C\x3\x2\x2\x2\x27E\x27F\x3\x2\x2\x2\x27F\x8B\x3\x2"+
+		"\x2\x2\x280\x27E\x3\x2\x2\x2\x281\x283\x5\x9AN\x2\x282\x284\x5\x8EH\x2"+
+		"\x283\x282\x3\x2\x2\x2\x283\x284\x3\x2\x2\x2\x284\x8D\x3\x2\x2\x2\x285"+
+		"\x286\x5\x88\x45\x2\x286\x287\x5\x8EH\x2\x287\x28F\x3\x2\x2\x2\x288\x289"+
+		"\a,\x2\x2\x289\x28F\x5\x8CG\x2\x28A\x28C\x5\x94K\x2\x28B\x28D\x5\x8EH"+
+		"\x2\x28C\x28B\x3\x2\x2\x2\x28C\x28D\x3\x2\x2\x2\x28D\x28F\x3\x2\x2\x2"+
+		"\x28E\x285\x3\x2\x2\x2\x28E\x288\x3\x2\x2\x2\x28E\x28A\x3\x2\x2\x2\x28F"+
+		"\x8F\x3\x2\x2\x2\x290\x291\x5\x88\x45\x2\x291\x91\x3\x2\x2\x2\x292\x293"+
+		"\a,\x2\x2\x293\x294\x5\x9AN\x2\x294\x93\x3\x2\x2\x2\x295\x296\a\x1A\x2"+
+		"\x2\x296\x297\x5l\x37\x2\x297\x298\a\x1B\x2\x2\x298\x95\x3\x2\x2\x2\x299"+
+		"\x29C\x5\x92J\x2\x29A\x29C\x5\x94K\x2\x29B\x299\x3\x2\x2\x2\x29B\x29A"+
+		"\x3\x2\x2\x2\x29C\x29E\x3\x2\x2\x2\x29D\x29F\x5\x98M\x2\x29E\x29D\x3\x2"+
+		"\x2\x2\x29E\x29F\x3\x2\x2\x2\x29F\x97\x3\x2\x2\x2\x2A0\x2A4\x5\x90I\x2"+
+		"\x2A1\x2A4\x5\x92J\x2\x2A2\x2A4\x5\x94K\x2\x2A3\x2A0\x3\x2\x2\x2\x2A3"+
+		"\x2A1\x3\x2\x2\x2\x2A3\x2A2\x3\x2\x2\x2\x2A4\x2A6\x3\x2\x2\x2\x2A5\x2A7"+
+		"\x5\x98M\x2\x2A6\x2A5\x3\x2\x2\x2\x2A6\x2A7\x3\x2\x2\x2\x2A7\x99\x3\x2"+
+		"\x2\x2\x2A8\x2A9\aK\x2\x2\x2A9\x9B\x3\x2\x2\x2\x2AA\x2AC\a\x1A\x2\x2\x2AB"+
+		"\x2AD\x5\x8A\x46\x2\x2AC\x2AB\x3\x2\x2\x2\x2AC\x2AD\x3\x2\x2\x2\x2AD\x2AE"+
+		"\x3\x2\x2\x2\x2AE\x2AF\a\x1B\x2\x2\x2AF\x9D\x3\x2\x2\x2\x2B0\x2B2\a\x1C"+
+		"\x2\x2\x2B1\x2B3\x5\xA0Q\x2\x2B2\x2B1\x3\x2\x2\x2\x2B2\x2B3\x3\x2\x2\x2"+
+		"\x2B3\x2B4\x3\x2\x2\x2\x2B4\x2B5\a\x1D\x2\x2\x2B5\x9F\x3\x2\x2\x2\x2B6"+
+		"\x2BB\x5\xA2R\x2\x2B7\x2B8\a-\x2\x2\x2B8\x2BA\x5\xA2R\x2\x2B9\x2B7\x3"+
+		"\x2\x2\x2\x2BA\x2BD\x3\x2\x2\x2\x2BB\x2B9\x3\x2\x2\x2\x2BB\x2BC\x3\x2"+
+		"\x2\x2\x2BC\xA1\x3\x2\x2\x2\x2BD\x2BB\x3\x2\x2\x2\x2BE\x2BF\x5\xA4S\x2"+
+		"\x2BF\x2C0\a*\x2\x2\x2C0\x2C1\x5l\x37\x2\x2C1\xA3\x3\x2\x2\x2\x2C2\x2C3"+
+		"\aK\x2\x2\x2C3\xA5\x3\x2\x2\x2\x2C4\x2C6\t\x3\x2\x2\x2C5\x2C4\x3\x2\x2"+
+		"\x2\x2C5\x2C6\x3\x2\x2\x2\x2C6\x2C7\x3\x2\x2\x2\x2C7\x2CD\x5\xACW\x2\x2C8"+
+		"\x2CD\a$\x2\x2\x2C9\x2CD\a%\x2\x2\x2CA\x2CD\a&\x2\x2\x2CB\x2CD\x5\xAA"+
+		"V\x2\x2CC\x2C5\x3\x2\x2\x2\x2CC\x2C8\x3\x2\x2\x2\x2CC\x2C9\x3\x2\x2\x2"+
+		"\x2CC\x2CA\x3\x2\x2\x2\x2CC\x2CB\x3\x2\x2\x2\x2CD\xA7\x3\x2\x2\x2\x2CE"+
+		"\x2D4\x5\xACW\x2\x2CF\x2D4\a$\x2\x2\x2D0\x2D4\a%\x2\x2\x2D1\x2D4\a&\x2"+
+		"\x2\x2D2\x2D4\x5\xAAV\x2\x2D3\x2CE\x3\x2\x2\x2\x2D3\x2CF\x3\x2\x2\x2\x2D3"+
+		"\x2D0\x3\x2\x2\x2\x2D3\x2D1\x3\x2\x2\x2\x2D3\x2D2\x3\x2\x2\x2\x2D4\xA9"+
+		"\x3\x2\x2\x2\x2D5\x2D6\a\x3\x2\x2\x2D6\xAB\x3\x2\x2\x2\x2D7\x2DB\x5\xAE"+
+		"X\x2\x2D8\x2DB\x5\xB0Y\x2\x2D9\x2DB\t\n\x2\x2\x2DA\x2D7\x3\x2\x2\x2\x2DA"+
+		"\x2D8\x3\x2\x2\x2\x2DA\x2D9\x3\x2\x2\x2\x2DB\xAD\x3\x2\x2\x2\x2DC\x2DD"+
+		"\a!\x2\x2\x2DD\xAF\x3\x2\x2\x2\x2DE\x2DF\a\"\x2\x2\x2DF\xB1\x3\x2\x2\x2"+
+		"L\xB8\xBA\xC0\xCC\xCE\xD7\xE0\xE9\xEB\xF1\x100\x102\x108\x110\x117\x11B"+
+		"\x120\x126\x129\x12C\x133\x136\x13C\x145\x14E\x153\x15D\x162\x16A\x171"+
+		"\x17D\x183\x18E\x19C\x19E\x1AB\x1BC\x1C0\x1C4\x1CB\x1CF\x1D5\x1E2\x1EB"+
+		"\x1F2\x1F7\x1FB\x1FF\x208\x21E\x222\x226\x22B\x22E\x248\x24A\x25D\x265"+
+		"\x275\x27E\x283\x28C\x28E\x29B\x29E\x2A3\x2A6\x2AC\x2B2\x2BB\x2C5\x2CC"+
+		"\x2D3\x2DA";
 	public static readonly ATN _ATN =
 		new ATNDeserializer().Deserialize(_serializedATN.ToCharArray());
 }

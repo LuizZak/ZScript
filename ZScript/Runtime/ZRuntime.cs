@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ZScript.CodeGeneration;
 
 namespace ZScript.Runtime
 {
@@ -17,6 +13,11 @@ namespace ZScript.Runtime
         private readonly IRuntimeOwner _owner;
 
         /// <summary>
+        /// The list of all functions defined in this ZRuntime instance
+        /// </summary>
+        private FunctionDef[] _functionDefs;
+
+        /// <summary>
         /// Gets the owner of this ZRuntime object
         /// </summary>
         public IRuntimeOwner Owner
@@ -25,11 +26,13 @@ namespace ZScript.Runtime
         }
 
         /// <summary>
-        /// Initializes a new instance of the ZRuntime class with an owner to specify
+        /// Initializes a new instance of the ZRuntime class from the following definition, and with an owner to specify
         /// </summary>
+        /// <param name="definition">The runtime definition object to create this runtime from</param>
         /// <param name="owner">The owner of this ZRuntime</param>
-        public ZRuntime(IRuntimeOwner owner)
+        public ZRuntime(ZRuntimeDefinition definition, IRuntimeOwner owner)
         {
+            _functionDefs = definition.FunctionDefinitions;
             _owner = owner;
         }
     }

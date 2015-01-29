@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript;
 using ZScript.CodeGeneration;
+using ZScript.Runtime;
 
 namespace ZScriptTests
 {
@@ -17,18 +18,31 @@ namespace ZScriptTests
         {
             //const string input = "{ @__trace(args...) funca { __trace(10); } }";
             var reader = new StreamReader(@"C:\Users\Luiz Fernando\Desktop\ZHScript test 2.txt");
-            string input = reader.ReadToEnd();
+            var input = reader.ReadToEnd();
             reader.Close();
 
-            Stopwatch sw = Stopwatch.StartNew();
+            var owner = new TestRuntimeOwner();
 
-            ZScriptGenerator generator = new ZScriptGenerator(input);
+            var sw = Stopwatch.StartNew();
+
+            var generator = new ZScriptGenerator(input);
 
             generator.ParseInputString();
+
+            // Generate the runtime now
+            generator.GenerateRuntime(owner);
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
             Assert.Fail(sw.ElapsedMilliseconds + "");
+        }
+
+        /// <summary>
+        /// Runtime owner used in tests
+        /// </summary>
+        class TestRuntimeOwner : IRuntimeOwner
+        {
+            
         }
     }
 }

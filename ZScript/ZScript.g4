@@ -25,7 +25,6 @@ objectBody : '{' (objectField | objectFunction)* '}';
 objectField : varDecl ';';
 objectFunction : ('override')? 'function' functionDefinition;
 
-
 ////
 //// Blocks
 ////
@@ -57,15 +56,15 @@ functionDefinition : functionName functionArguments? returnType? functionTrigger
 exportDefinition : '@' functionName functionArguments? returnType?;
 
 functionName : IDENT;
-functionArguments : '(' argumentList ')';
-argumentList : (functionArg (',' functionArg)*)?;
+functionArguments : '(' argumentList? ')';
+argumentList : functionArg (',' functionArg)*;
 returnType : ':' type;
-functionArg : argumentName (':' type)? ('...' | ('=' constantAtom))?;
+functionArg : argumentName (':' type)? ('...' | ('=' constant))?;
 argumentName : IDENT;
 
 functionTriggers : '=' functionTrigger (',' functionTrigger)*;
-functionTriggerArgs : '(' constantAtom (',' constantAtom)* ')';
 functionTrigger : constantAtom functionTriggerArgs?;
+functionTriggerArgs : '(' constantAtom (',' constantAtom)* ')';
 
 ////
 //// Statements
@@ -79,7 +78,7 @@ blockStatement : '{' statement* '}';
 
 // If
 ifStatement : 'if' '(' expression ')' statement elseStatement?;
-elseStatement : 'else' (statement);
+elseStatement : 'else' statement;
 
 // Switch
 switchStatement : 'switch' '(' expression ')' switchBlock;
@@ -97,7 +96,6 @@ forInit : varDecl | expression;
 
 // Return statement
 returnStatement : 'return' expression? ';';
-
 
 ////
 //// Value holder declare statements
@@ -122,19 +120,19 @@ typeList : type (',' type)*;
 ////
 //// Expressions
 ////
-primaryExpression : IDENT;
-
 expression:  '(' expression ')'
-          |  primaryExpression
-          |  assignmentExpression
           |  prefixOperator leftValue
           |  leftValue postfixOperator
-          |  closureExpression
-          |  IDENT valueAccess?
-          |  object objectAccess?
+          |  closureExpression funcCallArguments?
+          |  memberName valueAccess?
+          |  objectLiteral objectAccess?
+          |  arrayLiteral valueAccess?
           |  newExpression
-          |  unaryExpression
-          |  arrayDeclaration valueAccess?
+          // Unary expressions
+          |  '-' expression
+          |  '+' expression
+          |  '!' expression
+          // Binary expressions
           |  expression multOp expression
           |  expression additionOp expression
           |  expression bitwiseAndXOrOp expression
@@ -151,7 +149,7 @@ bitwiseOrOp : ('|');
 comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '|' | '<');
 logicalOp : ('&&' | '||');
 
-assignmentExpression: leftValue assignmentOperator expression;
+assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments;
 closureExpression : functionArguments returnType? '=>' blockStatement;
 unaryExpression  : ('-' | '+' | '!') expression;
@@ -161,13 +159,11 @@ postfixOperator : '++' | '--';
 
 assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=';
 
-arrayDeclaration : '[' expressionList? ']';
-
 funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
 
-leftValue : memberName (funcCallArguments leftValueAccess | leftValueAccess)?;
-leftValueAccess : ('.' leftValue?) | (arrayAccess (leftValue | leftValueAccess)?);
+leftValue : memberName leftValueAccess?;
+leftValueAccess : (funcCallArguments leftValueAccess) | ('.' leftValue) | (arrayAccess leftValueAccess?);
 functionCall : funcCallArguments;
 fieldAccess  : '.' memberName;
 arrayAccess : '[' expression ']';
@@ -177,16 +173,18 @@ valueAccess : (functionCall | fieldAccess | arrayAccess) valueAccess?;
 
 memberName : IDENT;
 
-// Values
-object: '{' objectEntryList? '}';
+// Literal values
+arrayLiteral : '[' expressionList? ']';
+objectLiteral: '{' objectEntryList? '}';
 
 objectEntryList: objectEntryDefinition (',' objectEntryDefinition)*;
 objectEntryDefinition: entryName ':' expression;
-entryName : IDENT;
+entryName : IDENT | StringLiteral;
 
 // Atomics
-constantAtom : ('-' | '+')? numericAtom
-             | atom
+constant :  ('-' | '+')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;
+
+constantAtom : numericAtom
              | T_FALSE | T_TRUE | T_NULL
              | stringLiteral;
 
@@ -194,8 +192,7 @@ stringLiteral : StringLiteral;
 StringLiteral : '"' (StringEscape | ~('"'))* '"'
               | '\'' ~('\'')* '\'';
 
-atom: numericAtom;
-numericAtom : hexadecimalNumber | binaryNumber | (FLOAT | INT | BINARY);
+numericAtom : hexadecimalNumber | binaryNumber | (FLOAT | INT);
 hexadecimalNumber : HEX;
 binaryNumber : BINARY;
 
