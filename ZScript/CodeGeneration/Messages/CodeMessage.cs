@@ -1,23 +1,23 @@
 namespace ZScript.CodeGeneration.Messages
 {
     /// <summary>
-    /// Represents a 
+    /// Represents a message that is raised during code analysis
     /// </summary>
     public abstract class CodeMessage
     {
         /// <summary>
-        /// The message
+        /// Gets or sets the message
         /// </summary>
-        public string Message { get; protected set; }
+        public string Message { get; set; }
 
         /// <summary>
-        /// The line the message is relevant at
+        /// Gets or sets the line the message is relevant at
         /// </summary>
-        public int Line { get; protected set; }
+        public int Line { get; set; }
 
         /// <summary>
-        /// The offset in the line the message is relevant at
+        /// Gets or sets the offset in the line the message is relevant at
         /// </summary>
-        public int Position { get; protected set; }
+        public int Position { get; set; }
     }
 }
