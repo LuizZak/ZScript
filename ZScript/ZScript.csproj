@@ -43,24 +43,50 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Tokenizers\Statements\BreakStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\ContinueStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\ForStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\IfStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpToken.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpander.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTargetToken.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\PostfixExpressionTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\FunctionBodyTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\StatementTokenizerContext.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\VariableDeclarationStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\Statements\WhileStatementTokenizer.cs" />
     <Compile Include="Elements\FunctionDef.cs" />
     <Compile Include="CodeGeneration\Messages\CodeMessage.cs" />
+    <Compile Include="Elements\Token.cs" />
+    <Compile Include="Elements\TokenFactory.cs" />
+    <Compile Include="Elements\TokenList.cs" />
+    <Compile Include="Parsing\ValueParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Parser\ZScriptBaseListener.cs" />
-    <Compile Include="Parser\ZScriptLexer.cs" />
-    <Compile Include="Parser\ZScriptListener.cs" />
-    <Compile Include="Parser\ZScriptParser.cs" />
+    <Compile Include="Parsing\ANTLR\ZScriptBaseListener.cs" />
+    <Compile Include="Parsing\ANTLR\ZScriptLexer.cs" />
+    <Compile Include="Parsing\ANTLR\ZScriptListener.cs" />
+    <Compile Include="Parsing\ANTLR\ZScriptParser.cs" />
+    <Compile Include="Runtime\Execution\FunctionVM.cs" />
+    <Compile Include="Runtime\Typing\ITypeOperator.cs" />
+    <Compile Include="Runtime\Execution\VirtualMemory\IMemory.cs" />
+    <Compile Include="Runtime\Execution\VirtualMemory\Memory.cs" />
+    <Compile Include="Runtime\Execution\VirtualMemory\MemoryMapper.cs" />
+    <Compile Include="Runtime\Execution\VmContext.cs" />
     <Compile Include="Runtime\IRuntimeOwner.cs" />
+    <Compile Include="Runtime\Typing\Operators\FloatOperator.cs" />
+    <Compile Include="Runtime\Typing\Operators\IntegerOperator.cs" />
+    <Compile Include="Runtime\Typing\Operators\LongOperator.cs" />
+    <Compile Include="Runtime\Typing\TypeOperationProvider.cs" />
     <Compile Include="Runtime\ZRuntime.cs" />
     <Compile Include="CodeGeneration\Messages\SyntaxError.cs" />
     <Compile Include="CodeGeneration\Messages\Warning.cs" />
-    <Compile Include="CodeGeneration\ZScriptGenerator.cs" />
+    <Compile Include="CodeGeneration\ZRuntimeGenerator.cs" />
     <Compile Include="Runtime\ZRuntimeDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ZScript.g4" />
-    <None Include="Parser\ZScript.tokens" />
-    <None Include="Parser\ZScriptLexer.tokens" />
+    <None Include="Parsing\ANTLR\ZScript.tokens" />
+    <None Include="Parsing\ANTLR\ZScriptLexer.tokens" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

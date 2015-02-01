@@ -5,15 +5,15 @@
  */
 
 grammar ZScript;
-/*
+
 options
 {
-    language=CSharp2;
-}*/
+    language=CSharp;
+}
 
 program: scriptBody;
 
-scriptBody : (variableBlock | functionBlock | objectDefinition | sequenceBlock)*;
+scriptBody : (variableBlock | functionDefinition | exportDefinition | objectDefinition | sequenceBlock)*;
 
 ////
 //// Object Definition
@@ -23,13 +23,12 @@ objectInherit : ':' objectName;
 objectName : IDENT;
 objectBody : '{' (objectField | objectFunction)* '}';
 objectField : varDecl ';';
-objectFunction : ('override')? 'function' functionDefinition;
+objectFunction : ('override')? functionDefinition;
 
 ////
 //// Blocks
 ////
 variableBlock : '[' globalVariable* ']';
-functionBlock : '{' (variableBlock | exportDefinition | functionDefinition)* '}' ;
 
 
 ////
@@ -52,24 +51,21 @@ frameNumber         : INT;
 ////
 //// Function Block
 ////
-functionDefinition : functionName functionArguments? returnType? functionTriggers? blockStatement;
+functionDefinition : 'func' functionName functionArguments? returnType? functionBody;
 exportDefinition : '@' functionName functionArguments? returnType?;
 
 functionName : IDENT;
+functionBody : blockStatement;
 functionArguments : '(' argumentList? ')';
 argumentList : functionArg (',' functionArg)*;
 returnType : ':' type;
-functionArg : argumentName (':' type)? ('...' | ('=' constant))?;
+functionArg : argumentName (':' type)? ('...' | ('=' compileConstant))?;
 argumentName : IDENT;
-
-functionTriggers : '=' functionTrigger (',' functionTrigger)*;
-functionTrigger : constantAtom functionTriggerArgs?;
-functionTriggerArgs : '(' constantAtom (',' constantAtom)* ')';
 
 ////
 //// Statements
 ////
-statement: (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | valueDecl);
+statement: (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDecl);
 blockStatement : '{' statement* '}';
 
 ////
@@ -90,12 +86,16 @@ defaultBlock : 'default' ':' statement 'break' ';';
 whileStatement : 'while' '(' expression ')' statement;
 
 // For
-forStatement
-  : 'for' '(' forInit? ';' expression? ';' expression? ')' statement;
+forStatement : 'for' '(' forInit? ';' forCondition? ';' forIncrement? ')' statement;
 forInit : varDecl | expression;
+forCondition : expression;
+forIncrement : expression;
 
 // Return statement
-returnStatement : 'return' expression? ';';
+returnStatement : 'return' value=expression? ';';
+
+breakStatement : 'break' ';';
+continueStatement : 'continue' ';';
 
 ////
 //// Value holder declare statements
@@ -112,15 +112,17 @@ valueHolderDecl : valueHolderName (':' type)?;
 valueHolderName : IDENT;
 
 // Types
-type : 'object' | typeName | closureType;
+type : 'object' | typeName | closureType | arrayType;
 typeName : IDENT ('.' typeName)?;
 closureType : '(' typeList? '->' type? ')';
+arrayType : '[' type ']';
 typeList : type (',' type)*;
 
 ////
 //// Expressions
 ////
-expression:  '(' expression ')'
+expression:  '(' expression ')' valueAccess?
+          | '(' assignmentExpression ')'
           |  prefixOperator leftValue
           |  leftValue postfixOperator
           |  closureExpression funcCallArguments?
@@ -128,6 +130,7 @@ expression:  '(' expression ')'
           |  objectLiteral objectAccess?
           |  arrayLiteral valueAccess?
           |  newExpression
+          |  '(' type ')' expression
           // Unary expressions
           |  '-' expression
           |  '+' expression
@@ -146,11 +149,12 @@ multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');
 bitwiseAndXOrOp : ('&' | '^');
 bitwiseOrOp : ('|');
-comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '|' | '<');
+comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '<');
 logicalOp : ('&&' | '||');
 
 assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
-newExpression : 'new' typeName funcCallArguments;
+newExpression : 'new' typeName funcCallArguments newExpressionTypeList?;
+newExpressionTypeList : '{' typeList '}';
 closureExpression : functionArguments returnType? '=>' blockStatement;
 unaryExpression  : ('-' | '+' | '!') expression;
 
@@ -163,7 +167,7 @@ funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
 
 leftValue : memberName leftValueAccess?;
-leftValueAccess : (funcCallArguments leftValueAccess) | ('.' leftValue) | (arrayAccess leftValueAccess?);
+leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
 functionCall : funcCallArguments;
 fieldAccess  : '.' memberName;
 arrayAccess : '[' expression ']';
@@ -182,7 +186,7 @@ objectEntryDefinition: entryName ':' expression;
 entryName : IDENT | StringLiteral;
 
 // Atomics
-constant :  ('-' | '+')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;
+compileConstant :  ('-' | '+')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;
 
 constantAtom : numericAtom
              | T_FALSE | T_TRUE | T_NULL
@@ -209,7 +213,7 @@ T_CONST : 'const';
 T_NEW   : 'new';
 
 T_EXPORT : '@';
-T_FUNCTION : 'function';
+T_FUNCTION : 'func';
 T_OVERRIDE : 'override';
 T_OBJECT   : 'object';
 T_SEQUENCE : 'sequence';

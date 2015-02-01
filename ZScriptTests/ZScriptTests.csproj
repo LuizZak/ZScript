@@ -50,6 +50,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpanderTests.cs" />
+    <Compile Include="CodeGeneration\Tokenizers\StatementTokenizerTests.cs" />
+    <Compile Include="Parsing\ValueParserTests.cs" />
+    <Compile Include="Performance\PerformanceTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
+    <Compile Include="TestRuntimeOwner.cs" />
     <Compile Include="ZScriptTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
@@ -6,6 +7,8 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 
 using ZScript.CodeGeneration.Messages;
+using ZScript.CodeGeneration.Tokenizers;
+using ZScript.Elements;
 using ZScript.Runtime;
 
 namespace ZScript.CodeGeneration
@@ -13,7 +16,7 @@ namespace ZScript.CodeGeneration
     /// <summary>
     /// Helper entry point for the ZScript library
     /// </summary>
-    public class ZScriptGenerator
+    public class ZRuntimeGenerator
     {
         /// <summary>
         /// The input string to parse
@@ -64,7 +67,7 @@ namespace ZScript.CodeGeneration
         /// Creates a new instance of the ZScriptGenerator class using a specified string as input
         /// </summary>
         /// <param name="input">The input string containing the code to parse</param>
-        public ZScriptGenerator(string input)
+        public ZRuntimeGenerator(string input)
         {
             _input = input;
         }
@@ -83,10 +86,11 @@ namespace ZScript.CodeGeneration
             _parser = new ZScriptParser(tokens)
             {
                 BuildParseTree = true,
-                ErrorHandler = new BailErrorStrategy(),
-                Interpreter = {PredictionMode = PredictionMode.Sll}
+                //Interpreter = {PredictionMode = PredictionMode.Sll}
             };
 
+            // Reset error listener
+            _errorListener.SyntaxErrors.Clear();
             _parser.AddErrorListener(_errorListener);
 
             try
@@ -96,9 +100,29 @@ namespace ZScript.CodeGeneration
             // Deal with parse exceptions
             catch (ParseCanceledException)
             {
-                _parser.ErrorHandler = new DefaultErrorStrategy();
                 _parser.Interpreter.PredictionMode = PredictionMode.Ll;
+                
+                // Reset error listener
+                _errorListener.SyntaxErrors.Clear();
+
+                _tree = _parser.program();
             }
+        }
+
+        /// <summary>
+        /// Generates a new runtime definition based on the script that was parsed
+        /// </summary>
+        /// <returns>A newly created ZRuntimeDefinition object that can be used to execute the parsed code</returns>
+        public ZRuntimeDefinition GenerateRuntimeDefinition()
+        {
+            var runtimeDefinition = new ZRuntimeDefinition();
+
+            var walker = new ParseTreeWalker();
+            var functionListener = new FunctionDefinitionListener(runtimeDefinition);
+
+            walker.Walk(functionListener, _tree);
+
+            return runtimeDefinition;
         }
 
         /// <summary>
@@ -108,14 +132,7 @@ namespace ZScript.CodeGeneration
         /// <returns>A newly created ZRuntime object that can be used to execute the parsed code</returns>
         public ZRuntime GenerateRuntime(IRuntimeOwner owner)
         {
-            var runtimeDefinition = new ZRuntimeDefinition();
-
-            var walker = new ParseTreeWalker();
-            var functionListener = new FunctionBlockListener(runtimeDefinition);
-            
-            walker.Walk(functionListener, _tree);
-
-            return new ZRuntime(runtimeDefinition, owner);
+            return new ZRuntime(GenerateRuntimeDefinition(), owner);
         }
 
         /// <summary>
@@ -158,36 +175,15 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Listener that binds functions to the hlobal 
+        /// Listener that binds functions to the global scope 
         /// </summary>
-        private class FunctionBlockListener : ZScriptNodeListener
+        private class FunctionDefinitionListener : ZScriptNodeListener
         {
-            /// <summary>
-            /// Whether this function generator is currently traversing a function block
-            /// </summary>
-            private bool inFunctionBlock;
-
             /// <summary>
             /// Initializes a new FunctionNodeListener class instance
             /// </summary>
             /// <param name="runtimeDefinition">The runtime to generate code for</param>
-            public FunctionBlockListener(ZRuntimeDefinition runtimeDefinition) : base(runtimeDefinition) { }
-
-            // EnterFunctionBlock override
-            public override void EnterFunctionBlock(ZScriptParser.FunctionBlockContext context)
-            {
-                base.EnterFunctionBlock(context);
-
-                inFunctionBlock = true;
-            }
-
-            // ExitFunctionBlock override
-            public override void ExitFunctionBlock(ZScriptParser.FunctionBlockContext context)
-            {
-                base.ExitFunctionBlock(context);
-
-                inFunctionBlock = false;
-            }
+            public FunctionDefinitionListener(ZRuntimeDefinition runtimeDefinition) : base(runtimeDefinition) { }
 
             // EnterFunctionDefinition override
             public override void EnterFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
@@ -197,24 +193,18 @@ namespace ZScript.CodeGeneration
                 RuntimeDefinition.AddFunctionDef(GenerateFunctionDef(context));
             }
 
-            public override void ExitFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
-            {
-                base.ExitFunctionDefinition(context);
-            }
-
             /// <summary>
             /// Generates a new function definition using the given context
             /// </summary>
             /// <param name="context">The context to generate the function definition from</param>
             /// <returns>A function definition generated from the given context</returns>
-            public FunctionDef GenerateFunctionDef(ZScriptParser.FunctionDefinitionContext context)
+            private FunctionDef GenerateFunctionDef(ZScriptParser.FunctionDefinitionContext context)
             {
-                FunctionDef definition = new FunctionDef { Name = context.functionName().IDENT().GetText() };
-
-                var state = context.blockStatement();
-
-                // TODO: Find a way to tokenize the statements
-                var statements = state.statement();
+                var tokenizer = new FunctionBodyTokenizer();
+                var definition = new FunctionDef(context.functionName().IDENT().GetText())
+                {
+                    Tokens = tokenizer.TokenizeBody(context.functionBody())
+                };
 
                 return definition;
             }

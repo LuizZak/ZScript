@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZScript", "ZScript\ZScript.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZScriptTests", "ZScriptTests\ZScriptTests.csproj", "{95358B27-D30C-437F-A0A4-4782D46E2520}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandaloneTests", "StandaloneTests\StandaloneTests.csproj", "{7F56D173-FC01-4BF2-B0B7-18557AF27182}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{95358B27-D30C-437F-A0A4-4782D46E2520}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95358B27-D30C-437F-A0A4-4782D46E2520}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95358B27-D30C-437F-A0A4-4782D46E2520}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F56D173-FC01-4BF2-B0B7-18557AF27182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F56D173-FC01-4BF2-B0B7-18557AF27182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F56D173-FC01-4BF2-B0B7-18557AF27182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F56D173-FC01-4BF2-B0B7-18557AF27182}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
