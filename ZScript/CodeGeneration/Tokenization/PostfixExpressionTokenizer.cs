@@ -121,7 +121,6 @@ namespace ZScript.CodeGeneration.Tokenization
 
             _isRootMember = true;
 
-            //_isGetAccess = context.leftValue().leftValueAccess() != null;
             _isGetAccess = true;
             VisitLeftValue(context.leftValue());
 
@@ -172,6 +171,8 @@ namespace ZScript.CodeGeneration.Tokenization
             }
             else if (context.fieldAccess() != null)
             {
+                _isGetAccess = context.leftValueAccess() != null;
+
                 VisitFieldAccess(context.fieldAccess());
 
                 if (context.leftValueAccess() != null)
@@ -181,6 +182,8 @@ namespace ZScript.CodeGeneration.Tokenization
             }
             else if (context.arrayAccess() != null)
             {
+                _isGetAccess = context.leftValueAccess() != null;
+
                 VisitArrayAccess(context.arrayAccess());
 
                 if (context.leftValueAccess() != null)
@@ -305,6 +308,15 @@ namespace ZScript.CodeGeneration.Tokenization
                 if (context.functionCall() != null)
                 {
                     VisitFunctionCall(context.functionCall());
+                }
+            }
+            else if (context.arrayLiteral() != null)
+            {
+                VisitArrayLiteral(context.arrayLiteral());
+
+                if (context.valueAccess() != null)
+                {
+                    VisitMemberAccess(context.valueAccess());
                 }
             }
             else
@@ -480,6 +492,12 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitMemberName(context.memberName());
 
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetMember));
+
+            // Expand the index subscripter in case it is a get access
+            if (_isGetAccess)
+            {
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Get));
+            }
         }
 
         private void VisitArrayAccess(ZScriptParser.ArrayAccessContext context)
@@ -487,6 +505,12 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitExpression(context.expression());
 
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript));
+
+            // Expand the index subscripter in case it is a get access
+            if (_isGetAccess)
+            {
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Get));
+            }
         }
 
         private void VisitFunctionCall(ZScriptParser.FunctionCallContext context)
@@ -498,13 +522,18 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitFunctionCallArguments(ZScriptParser.FuncCallArgumentsContext args)
         {
-            if (args.expressionList() == null)
+            VisitExpressionList(args.expressionList());
+        }
+
+        private void VisitExpressionList(ZScriptParser.ExpressionListContext args)
+        {
+            if (args == null)
             {
                 _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
                 return;
             }
 
-            var argsExps = args.expressionList().expression();
+            var argsExps = args.expression();
 
             int argCount = 0;
             foreach (var argExp in argsExps)
@@ -514,6 +543,19 @@ namespace ZScript.CodeGeneration.Tokenization
             }
 
             _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
+        }
+
+        #endregion
+
+        #region Literals
+
+        private void VisitArrayLiteral(ZScriptParser.ArrayLiteralContext context)
+        {
+            // Collect the expressions
+            VisitExpressionList(context.expressionList());
+
+            // Add the array creation token
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray));
         }
 
         #endregion
