@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using ZScript.Elements;
+using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Execution.Wrappers.Subscripters;
 using ZScript.Runtime.Typing;
 
@@ -440,9 +441,9 @@ namespace ZScript.Runtime.Execution
             object value = PopValueImplicit();
 
             //if (variable is int)
-            {
+            //{
                 //_context.AddressedMemory.SetVariable((int)variable, value);
-            }
+            //}
             //else
             {
                 SetValue(variable, value);
@@ -537,12 +538,13 @@ namespace ZScript.Runtime.Execution
         /// <exception cref="InvalidOperationException">The value on top of the stack cannot be subscripted</exception>
         void PerformGetSubscripter()
         {
-            object value = PopValueImplicit();
+            object index = PopValueImplicit();
+            object target = PopValueImplicit();
 
-            var list = value as IList;
+            var list = target as IList;
             if (list != null)
             {
-                _stack.Push(new ListSubscripter(list));
+                _stack.Push(new IndexedSubscripter(new ListSubscripter(list), index));
                 return;
             }
 
@@ -556,6 +558,9 @@ namespace ZScript.Runtime.Execution
         object PopValueImplicit()
         {
             var obj = _stack.Pop();
+
+            if (obj is IndexedSubscripter)
+                return obj;
 
             var t = obj as Token;
             if (t != null)
@@ -671,6 +676,11 @@ namespace ZScript.Runtime.Execution
             {
                 return _context.AddressedMemory.GetVariable((int)valueContainer);
             }
+            var subscripter = valueContainer as IndexedSubscripter;
+            if (subscripter != null)
+            {
+                return subscripter.Subscripter[subscripter.IndexValue];
+            }
 
             throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value get");
         }
@@ -687,15 +697,21 @@ namespace ZScript.Runtime.Execution
             if (token != null)
             {
                 _context.Memory.SetVariable((string)token.TokenObject, value);
+                return;
             }
-            else if (valueContainer is int)
+            if (valueContainer is int)
             {
                 _context.AddressedMemory.SetVariable((int)valueContainer, value);
+                return;
             }
-            else
+            var subscripter = valueContainer as IndexedSubscripter;
+            if (subscripter != null)
             {
-                throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value set");   
+                subscripter.Subscripter[subscripter.IndexValue] = value;
+                return;
             }
+            
+            throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value set");   
         }
 
         /// <summary>
