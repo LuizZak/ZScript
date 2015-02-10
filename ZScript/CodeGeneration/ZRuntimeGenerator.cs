@@ -186,7 +186,12 @@ namespace ZScript.CodeGeneration
         {
             if (_tree == null)
             {
-                throw new Exception("The ParseInputString method must be called before any generation can be performed");
+                throw new Exception("The ParseInputString method must be called before any generation can be performed.");
+            }
+
+            if (HasErrors)
+            {
+                throw new Exception("A runtime definition cannot be created: Errors detected during code parsing and analysis.");
             }
 
             // Forcefully analyze the program
