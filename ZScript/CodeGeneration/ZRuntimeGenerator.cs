@@ -146,9 +146,9 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Analyzes the program that was parsed and raises warnings and errors for the code
+        /// Analyzes the program that was parsed, collecting definitions and raises warnings and errors for the code
         /// </summary>
-        public DefinitionsCollector AnalyzeProgram()
+        public DefinitionsCollector CollectDefinitions()
         {
             if (_tree == null)
             {
@@ -189,13 +189,13 @@ namespace ZScript.CodeGeneration
                 throw new Exception("The ParseInputString method must be called before any generation can be performed.");
             }
 
+            // Analyze the program
+            var collector = CollectDefinitions();
+
             if (HasErrors)
             {
                 throw new Exception("A runtime definition cannot be created: Errors detected during code parsing and analysis.");
             }
-
-            // Forcefully analyze the program
-            var collector = AnalyzeProgram();
 
             var runtimeDefinition = new ZRuntimeDefinition();
 
