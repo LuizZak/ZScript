@@ -59,6 +59,7 @@
     <Compile Include="Parsing\ConstantAtomParserTests.cs" />
     <Compile Include="Parsing\ValueParserTests.cs" />
     <Compile Include="Performance\PerformanceTests.cs" />
+    <Compile Include="Runtime\ArrayTests.cs" />
     <Compile Include="Runtime\ClosureTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmArrayTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
