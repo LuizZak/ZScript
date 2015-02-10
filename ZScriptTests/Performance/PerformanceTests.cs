@@ -16,7 +16,7 @@ namespace ZScriptTests.Performance
         {
             const string input = "func funca { var a = 0; for(var i = 0; i < 1000000; i++) { a += i; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -32,6 +32,17 @@ namespace ZScriptTests.Performance
             sw.Stop();
 
             Console.Write(sw.ElapsedMilliseconds);
+        }
+
+        /// <summary>
+        /// Creates the default generator to use in tests
+        /// </summary>
+        /// <param name="input">The input string to use in the generator</param>
+        /// <returns>A default runtime generator to use in tests</returns>
+        public ZRuntimeGenerator CreateGenerator(string input)
+        {
+            var gen = new ZRuntimeGenerator(input) { Debug = true };
+            return gen;
         }
     }
 }

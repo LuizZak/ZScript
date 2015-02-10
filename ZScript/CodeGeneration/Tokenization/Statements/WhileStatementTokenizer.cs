@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-
-using ZScript.CodeGeneration.Tokenizers.Helpers;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing While statements
@@ -64,7 +63,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             tokens.AddRange(_context.TokenizeExpression(cond));
 
             // 2 - Conditional jump to End
-            tokens.Add(new JumpToken(_blockEnd, true));
+            tokens.Add(new JumpToken(_blockEnd, true, false));
 
             // 3 - Body loop
             tokens.AddRange(_context.TokenizeStatement(context.statement()));

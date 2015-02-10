@@ -1,6 +1,6 @@
 using ZScript.Elements;
 
-namespace ZScript.CodeGeneration.Tokenizers.Helpers
+namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
     /// <summary>
     /// Represents a jump token
@@ -32,12 +32,19 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
         /// Initializes a new instance of the JumpToken class
         /// </summary>
         /// <param name="targetToken">The target token to jump to</param>
-        /// <param name="conditional">Whether this jump is a conditional jump or not</param>
-        public JumpToken(Token targetToken, bool conditional = false)
+        /// <param name="conditional">
+        /// Whether this jump is a conditional jump or not. Conditional jumps consume the top-most value of the stack as a boolean and jump when that value is equal to true
+        /// </param>
+        /// <param name="conditionToJump">
+        /// Whether the jump (in case it is conditional) should be made if the value at the top is true.
+        /// Setting to false realizes a 'Jump if false' type jump
+        /// </param>
+        public JumpToken(Token targetToken, bool conditional = false, bool conditionToJump = true)
             : base(TokenType.Value, null)
         {
             TargetToken = targetToken;
             Conditional = conditional;
+            ConditionToJump = conditionToJump;
         }
     }
 }

@@ -1,6 +1,6 @@
 using ZScript.Elements;
 
-namespace ZScript.CodeGeneration.Tokenizers.Helpers
+namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
     /// <summary>
     /// Special class that can be used as a target to jump tokens, being removed after being processed

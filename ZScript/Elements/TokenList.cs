@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ZScript.Elements
 {
@@ -42,6 +44,23 @@ namespace ZScript.Elements
 
                 return outS.ToString();
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TokenList class
+        /// </summary>
+        public TokenList()
+        {
+            Tokens = new Token[0];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TokenList class
+        /// </summary>
+        /// <param name="tokens">An enumerable containing the tokens to create</param>
+        public TokenList(IEnumerable<Token> tokens)
+        {
+            Tokens = tokens.ToArray();
         }
     }
 }

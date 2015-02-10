@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using ZScript.CodeGeneration.Tokenizers.Helpers;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Helper class used to aid in the tokenization process of an IF statement
@@ -63,7 +63,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             List<Token> retTokens = _context.TokenizeExpression(context.expression());
 
             // Add the conditional jump token that fires when the expression turns out false
-            var falseJump = new JumpToken(_ifBlockEndTarget, true);
+            var falseJump = new JumpToken(_ifBlockEndTarget, true, false);
             retTokens.Add(falseJump);
 
             // Tokenize the statement body

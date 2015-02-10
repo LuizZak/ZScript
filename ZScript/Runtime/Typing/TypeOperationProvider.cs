@@ -21,7 +21,7 @@ namespace ZScript.Runtime.Typing
         /// <summary>
         /// The operator to use when performing single precision floating-point operations
         /// </summary>
-        private readonly ITypeOperator<float> _floatTypeOperator;
+        private readonly ITypeOperator<double> _doubleTypeOperator;
 
         /// <summary>
         /// Initializes a new instance of the TypeOperationProvider class
@@ -30,7 +30,7 @@ namespace ZScript.Runtime.Typing
         {
             _intTypeOperator = new IntegerOperator();
             _longTypeOperator = new LongOperator();
-            _floatTypeOperator = new FloatOperator();
+            _doubleTypeOperator = new DoubleOperator();
         }
 
         public object Sum(object v1, object v2)
@@ -50,9 +50,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Sum(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Sum((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Sum((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Sum(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Sum(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Sum operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -75,9 +77,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Subtract(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Subtract((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Subtract((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Subtract(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Subtract(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Subtract operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -100,9 +104,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Multiply(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Multiply((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Multiply((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Multiply(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Multiply(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Multiply operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -125,9 +131,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Divide(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Divide((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Divide((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Divide(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Divide(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Divide operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -150,9 +158,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Modulo(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Modulo((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Modulo((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Modulo(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Modulo(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Modulo operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -235,9 +245,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Greater(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Greater((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Greater((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Greater(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Greater(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Greater operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -260,9 +272,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.GreaterOrEquals(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.GreaterOrEquals((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.GreaterOrEquals((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.GreaterOrEquals(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.GreaterOrEquals(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Greater operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -285,9 +299,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Less(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Less((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Less((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Less(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Less(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Less operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -310,9 +326,11 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.LessOrEquals(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.LessOrEquals((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.LessOrEquals((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.LessOrEquals(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.LessOrEquals(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply LessOrEquals operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -320,6 +338,9 @@ namespace ZScript.Runtime.Typing
 
         public new bool Equals(object v1, object v2)
         {
+            if (v1 is bool && v2 is bool)
+                return (bool)v1 && (bool)v2;
+
             var c = BestFitForTypes(v1, v2);
 
             switch (c)
@@ -335,12 +356,35 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Equals(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _floatTypeOperator.Equals((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Equals((float)v1, (float)v2);
                 case NumberClass.Float:
-                    return _floatTypeOperator.Equals(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                case NumberClass.Double:
+                    return _doubleTypeOperator.Equals(Convert.ToSingle(v1), Convert.ToSingle(v2));
             }
 
             throw new Exception("Cannot apply Equals operation on objects of type " + v1.GetType() + " and " + v2.GetType());
+        }
+
+        /// <summary>
+        /// Tries to cast a given number object into either an Int64 (long) value or double precision floating-point value.
+        /// If the method fails to cast the number, the same value is returned
+        /// </summary>
+        /// <param name="numberObject">The boxed number object to cast</param>
+        /// <returns>A boxed long or double number cast from the given number object</returns>
+        public static object TryCastNumber(object numberObject)
+        {
+            var c = NumberClassForNumber(numberObject);
+            if (c == NumberClass.NotANumber)
+            {
+                return numberObject;
+            }
+
+            if (c == NumberClass.ExactDouble || c == NumberClass.ExactFloat ||
+                c == NumberClass.Float || c == NumberClass.Double)
+                return Convert.ChangeType(numberObject, typeof(double));
+
+            return Convert.ChangeType(numberObject, typeof(long));
         }
 
         /// <summary>
@@ -357,12 +401,14 @@ namespace ZScript.Runtime.Typing
                 return NumberClass.ExactLong;
             if (boxedNumber is float)
                 return NumberClass.ExactFloat;
+            if (boxedNumber is double)
+                return NumberClass.ExactDouble;
 
-            if (boxedNumber is short || boxedNumber is ushort)
+            if (boxedNumber is byte || boxedNumber is sbyte || boxedNumber is short || boxedNumber is ushort)
                 return NumberClass.Integer;
             if (boxedNumber is uint)
                 return NumberClass.Long;
-            if (boxedNumber is ulong || boxedNumber is double)
+            if (boxedNumber is ulong)
                 return NumberClass.Float;
 
             if(throwOnError)
@@ -384,15 +430,20 @@ namespace ZScript.Runtime.Typing
 
             if (type1 == NumberClass.ExactFloat && type2 == NumberClass.ExactFloat)
                 return NumberClass.ExactFloat;
+            if (type1 == NumberClass.ExactDouble && type2 == NumberClass.ExactDouble)
+                return NumberClass.ExactDouble;
             if (type1 == NumberClass.ExactLong && type2 == NumberClass.ExactLong)
                 return NumberClass.ExactLong;
             if (type1 == NumberClass.ExactInteger && type2 == NumberClass.ExactInteger)
                 return NumberClass.ExactInteger;
 
-            if (type1 == NumberClass.Float || type2 == NumberClass.Float)
+            if (type1 == NumberClass.Double || type2 == NumberClass.Double || type1 == NumberClass.ExactDouble || type2 == NumberClass.ExactDouble)
+                return NumberClass.Double;
+
+            if (type1 == NumberClass.Float || type2 == NumberClass.Float || type1 == NumberClass.ExactFloat || type2 == NumberClass.ExactFloat)
                 return NumberClass.Float;
 
-            if (type1 == NumberClass.Long || type2 == NumberClass.Long)
+            if (type1 == NumberClass.Long || type2 == NumberClass.Long || type1 == NumberClass.ExactLong || type2 == NumberClass.ExactLong)
                 return NumberClass.Long;
 
             return NumberClass.Integer;
@@ -438,18 +489,22 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public enum NumberClass
         {
-            /// <summary>An Int32 type</summary>
+            /// <summary>A value that can be used as an Int32 type</summary>
             Integer,
             /// <summary>An exact Int32 type</summary>
             ExactInteger,
-            /// <summary>An Int64 type</summary>
+            /// <summary>A value that can be used as an Int64 type</summary>
             Long,
             /// <summary>An exact Int64 type</summary>
             ExactLong,
-            /// <summary>A single precision floating point type</summary>
+            /// <summary>A value that can be used as a single precision floating point type</summary>
             Float,
             /// <summary>An exact single precision floating type</summary>
             ExactFloat,
+            /// <summary>A value that can be used as a double precision floating point type</summary>
+            Double,
+            /// <summary>An exact double precision floating type</summary>
+            ExactDouble,
             /// <summary>A non-number type</summary>
             NotANumber
         }

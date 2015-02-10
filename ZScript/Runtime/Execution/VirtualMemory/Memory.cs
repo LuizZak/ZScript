@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using ZScript.Elements;
+using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution.VirtualMemory
 {
@@ -107,7 +111,6 @@ namespace ZScript.Runtime.Execution.VirtualMemory
             return retMemory;
         }
 
-        /*
         /// <summary>
         /// Creates a Memory block with the given arguments set as memory spaces
         /// </summary>
@@ -115,7 +118,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <param name="byName">Whether the parameters array should be used as a 'by name' argument selector</param>
         /// <param name="arguments">The arguments to use as memory spaces</param>
         /// <returns>A memory block, with the given arguments used as memory spaces</returns>
-        public static Memory CreateMemoryFromArgs(FunctionDef def, bool byName, params object[] arguments)
+        public static Memory CreateMemoryFromArgs(ZFunction def, bool byName, params object[] arguments)
         {
             Memory mem = new Memory();
 
@@ -124,15 +127,25 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                 int i;
                 bool arrayRest = false;
 
+                // Set the default values now
+                foreach (var arg in def.Arguments)
+                {
+                    if (arg.HasValue)
+                    {
+                        mem.SetVariable(arg.Name, arg.DefaultValue);
+                    }
+                }
+
                 // Fetch each variable name from the function definition
                 for (i = 0; i < arguments.Length; i++)
                 {
-                    if (def.Arguments[i].IsArray)
+                    if (def.Arguments[i].IsVariadic)
                     {
                         arrayRest = true;
                         break;
                     }
-                    mem.SetVariable(def.Arguments[i].Ident, arguments[i]);
+
+                    mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(arguments[i]));
                 }
 
                 if (arrayRest)
@@ -151,7 +164,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                             rest.Add(arguments[j]);
                         }
                     }
-                    mem.SetVariable(def.Arguments[i].Ident, rest);
+                    mem.SetVariable(def.Arguments[i].Name, rest);
                 }
             }
             else if (arguments.Length > 1)
@@ -179,6 +192,5 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                 return new ArrayList(this);
             }
         }
-        */
     }
 }

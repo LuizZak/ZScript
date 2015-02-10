@@ -11,9 +11,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestIfCodeGeneration()
         {
-            const string input = "func f() { if(a == 10) { a = 20; } }";
+            const string input = "func f() { var a = 0; if(a == 10) { a = 20; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -27,9 +27,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestIfElseCodeGeneration()
         {
-            const string input = "func f() { if(a == 10) { a = 20; } else { b = 5; } }";
+            const string input = "func f() { var a = 0; var b = 0; if(a == 10) { a = 20; } else { b = 5; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
             generator.ParseInputString();
 
             // Generate the runtime now
@@ -42,8 +42,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestIfElseIfCodeGeneration()
         {
-            const string input = "func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; } else { c = 10; } }";
-            var generator = new ZRuntimeGenerator(input);
+            const string input = "[ a = 0; b = 0; c = 0; ] func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; } else { c = 10; } }";
+            var generator = CreateGenerator(input);
             generator.ParseInputString();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -55,16 +55,16 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.IsFalse(memory.HasVariable("a"));
-            Assert.IsFalse(memory.HasVariable("c"));
+            Assert.AreEqual(0, memory.GetVariable("a"));
+            Assert.AreEqual(0, memory.GetVariable("c"));
             Assert.AreEqual(5, memory.GetVariable("b"), "The statement did not execute as expected");
         }
 
         [TestMethod]
         public void TestNestedIfCodeGeneration()
         {
-            const string input = "func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
-            var generator = new ZRuntimeGenerator(input);
+            const string input = "[ a = 0; b = 0; c = 0; ] func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
+            var generator = CreateGenerator(input);
             generator.ParseInputString();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -77,15 +77,15 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             runtime.CallFunction("f");
 
             Assert.AreEqual(10, memory.GetVariable("a"), "The statement did not execute as expected");
-            Assert.IsFalse(memory.HasVariable("c"));
+            Assert.AreEqual(0, memory.GetVariable("c"));
             Assert.AreEqual(5, memory.GetVariable("b"), "The statement did not execute as expected");
         }
 
         [TestMethod]
         public void TestIfExpressionShortCircuit()
         {
-            const string input = "func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
-            var generator = new ZRuntimeGenerator(input);
+            const string input = "[ a = 0; b = 0; c = 0; ] func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
+            var generator = CreateGenerator(input);
             generator.ParseInputString();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -98,7 +98,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             runtime.CallFunction("f");
 
             Assert.AreEqual(10, memory.GetVariable("a"), "The statement did not execute as expected");
-            Assert.IsFalse(memory.HasVariable("c"));
+            Assert.AreEqual(0, memory.GetVariable("c"));
             Assert.AreEqual(5, memory.GetVariable("b"), "The statement did not execute as expected");
         }
 
@@ -109,9 +109,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForGeneration()
         {
-            const string input = "func f() { for(var i = 0; i < 10; i++) { a = i + 2; } }";
+            const string input = "[ i = 0; a = 0; ] func f() { for(i = 0; i < 10; i++) { a = i + 2; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -129,9 +129,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNoInitForGeneration()
         {
-            const string input = "func f() { i = 0; for(; i < 10; i++) { a = i + 2; } }";
+            const string input = "[ i = 0; a = 0; ] func f() { for(; i < 10; i++) { a = i + 2; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -149,9 +149,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNoConditionForGeneration()
         {
-            const string input = "func f() { for(var i = 0; ; i++) { a = i + 2;  if(i == 9) { i++; break; } } }";
+            const string input = "[ i = 0; a = 0; ] func f() { for(i = 0; ; i++) { a = i + 2;  if(i == 9) { i++; break; } } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -169,9 +169,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForBreakStatement()
         {
-            const string input = "func f() { for(var i = 0; i < 10; i++) { a = i + 2; break; } }";
+            const string input = "[ i = 0; a = 0; ] func f() { for(i = 0; i < 10; i++) { a = i + 2; break; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -189,9 +189,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForContinueStatement()
         {
-            const string input = "func f() { for(var i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
+            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(var i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -204,15 +204,15 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
             Assert.AreEqual(11, runtime.GlobalMemory.GetVariable("a"));
-            Assert.IsFalse(runtime.GlobalMemory.HasVariable("b"));
+            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("b"));
         }
 
         [TestMethod]
         public void TestNestedForStatement()
         {
-            const string input = "func f() { for(var i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
+            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(var i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -225,7 +225,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
             Assert.AreEqual(20, runtime.GlobalMemory.GetVariable("a"));
-            Assert.IsFalse(runtime.GlobalMemory.HasVariable("b"));
+            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("b"));
         }
 
         #endregion
@@ -235,9 +235,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileCodeGeneration()
         {
-            const string input = "func f() { var a = 0; while(a < 10) { a++; } }";
+            const string input = "[ a = 0; ] func f() { while(a < 10) { a++; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -255,9 +255,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileContinueStatement()
         {
-            const string input = "func f() { var a = 0; while(a < 10) { a++; continue; b = 0; } }";
+            const string input = "[ a = 0; ] func f() { while(a < 10) { a++; continue; b = 0; } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -276,9 +276,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileBreakStatement()
         {
-            const string input = "func f() { var a = 0; while(true) { a++; if(a >= 10) { break; } } }";
+            const string input = "[ a = 0; ] func f() { while(true) { a++; if(a >= 10) { break; } } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -296,9 +296,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedWhileStatement()
         {
-            const string input = "func f() { var a = 0; var b = 0; while(a < 10) { a++; while(b / a < 10) { b++; } } }";
+            const string input = "[ a = 0; b = 0; ] func f() { while(a < 10) { a++; while(b / a < 10) { b++; } } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -317,9 +317,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedWhileBreakStatement()
         {
-            const string input = "func f() { var a = 0; var b = 0; while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
+            const string input = "[ a = 0; b = 0; ]func f() { while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = CreateGenerator(input);
 
             generator.ParseInputString();
 
@@ -336,5 +336,118 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         }
 
         #endregion
+
+        #region RETURN statement generation and execution
+
+        [TestMethod]
+        public void TestReturnStatement()
+        {
+            const string input = "func f() { return 10+10; }";
+            var generator = CreateGenerator(input);
+            generator.ParseInputString();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            var ret = runtime.CallFunction("f");
+
+            Assert.AreEqual(20, ret, "The valued return statement did not execute as expected");
+        }
+
+        [TestMethod]
+        public void TestValuelessReturnStatement()
+        {
+            const string input = "func f() { return; }";
+            var generator = CreateGenerator(input);
+            generator.ParseInputString();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            var ret = runtime.CallFunction("f");
+
+            Assert.IsNull(ret, "The valueless return statement did not execute as expected");
+        }
+
+        #endregion
+
+        #region SWITCH statement generation and execution
+
+        [TestMethod]
+        public void TestSwitchStatement()
+        {
+            const string input = "[ a = 5; b = 20; c = null; ] func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
+            var generator = CreateGenerator(input);
+            generator.ParseInputString();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(10, memory.GetVariable("c"), "The statement did not execute as expected");
+        }
+
+        [TestMethod]
+        public void TestDefaultSwitchStatement()
+        {
+            const string input = "[ c = null; d = null; ] func f() { var a = 5; var b = 20; switch(a + b) { case 10: c = 5; break; default: c = 10; break; } switch(a + b) { case 25: d = 10; break; default: d = 5; break; } }";
+            var generator = CreateGenerator(input);
+            generator.ParseInputString();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(10, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.AreEqual(10, memory.GetVariable("d"), "The statement did not execute as expected");
+        }
+
+        [TestMethod]
+        public void TestMultipleCasesSwitchStatement()
+        {
+            const string input = "[ a = 5; b = 20; c; ] func f() { switch(a + b) { case 10: case 25: case 30: c = 10; break; } }";
+            var generator = CreateGenerator(input);
+            generator.ParseInputString();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(10, memory.GetVariable("c"), "The statement did not execute as expected");
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Creates the default generator to use in tests
+        /// </summary>
+        /// <param name="input">The input string to use in the generator</param>
+        /// <returns>A default runtime generator to use in tests</returns>
+        public ZRuntimeGenerator CreateGenerator(string input)
+        {
+            var gen = new ZRuntimeGenerator(input) {Debug = true};
+            return gen;
+        }
     }
 }

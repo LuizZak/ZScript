@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
-namespace ZScript.CodeGeneration.Tokenizers.Helpers
+namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
     /// <summary>
     /// Class responsible for expanding jump tokens into address and instruction tokens
@@ -29,6 +29,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
         public static void ExpandInList(List<Token> tokens, VmInstruction endJumpTargetInstruction)
         {
             BindJumpTargets(tokens, true, endJumpTargetInstruction);
+            RemoveSequentialInterrupts(tokens);
             ExpandJumpTokens(tokens);
         }
 
@@ -207,7 +208,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
 
                         if (valueToken.TokenObject.Equals(!jumpToken.ConditionToJump))
                         {
-                            RemoveJumpInstruction(jumpToken, tokens, true, newTarget);
+                            TryRemoveJumpInstruction(jumpToken, tokens, true, newTarget);
 
                             // Also remove the true constant from the stack
                             if (jumpToken.ConsumesStack)
@@ -224,7 +225,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
                         tokens.Insert(i + 1, newTarget);
 
                         // Transform the jump into an unconditional jump
-                        RemoveJumpInstruction(jumpToken, tokens, true, newTarget);
+                        TryRemoveJumpInstruction(jumpToken, tokens, true, newTarget);
 
                         // Also remove the true constant from the stack
                         if (jumpToken.ConsumesStack)
@@ -236,6 +237,13 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
                         continue;
                     }
                 }
+
+                int nextToken = tokens.IndexOf(jumpToken.TargetToken);
+                if (i + 1 == nextToken && TryRemoveJumpInstruction(jumpToken, tokens))
+                {
+                    i--;
+                    continue;
+                }
                 
                 // If an unconditional jump points at a Return or Interrupt instruction, replace the jump with the instruction itself
                 if (!jumpToken.Conditional &&
@@ -243,7 +251,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
                      jumpToken.TargetToken.Instruction == VmInstruction.Interrupt))
                 {
                     var replaceToken = TokenFactory.CreateInstructionToken(jumpToken.TargetToken.Instruction);
-                    RemoveJumpInstruction(jumpToken, tokens);
+                    TryRemoveJumpInstruction(jumpToken, tokens);
                     tokens.Insert(i, replaceToken);
 
                     // If the previous token is a 'ClearStack', remove it, since clearing a stack before finishing the VM is useless
@@ -264,17 +272,9 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
                         nextJump.ConsumesStack == jumpToken.ConsumesStack &&
                         nextJump.ConditionToJump == jumpToken.ConditionToJump)
                     {
-                        RemoveJumpInstruction(jumpToken, tokens);
+                        TryRemoveJumpInstruction(jumpToken, tokens);
                         i--;
-                        continue;
                     }
-                }
-
-                int nextToken = tokens.IndexOf(jumpToken.TargetToken);
-                if (i + 1 == nextToken)
-                {
-                    RemoveJumpInstruction(jumpToken, tokens);
-                    i--;
                 }
             }
         }
@@ -329,12 +329,37 @@ namespace ZScript.CodeGeneration.Tokenizers.Helpers
         /// <param name="tokens">The list of tokens containing the jump</param>
         /// <param name="newTarget">A new target for jump tokens that aim at the given jump. Leave null to re-target to the jump's current target</param>
         /// <param name="force">Whether to force the removal, even if it is a conditional jump</param>
-        private static void RemoveJumpInstruction(JumpToken jmp, ICollection<Token> tokens, bool force = false, Token newTarget = null)
+        /// <returns>Whether the method successfully removed the jump token</returns>
+        private static bool TryRemoveJumpInstruction(JumpToken jmp, ICollection<Token> tokens, bool force = false, Token newTarget = null)
         {
             if (jmp.Conditional && jmp.ConsumesStack && !force)
-                return;
+                return false;
 
             RemoveToken(jmp, tokens, newTarget ?? jmp.TargetToken);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Removes any multiple trailing Interrupt instructions located at the end of the given list of tokens.
+        /// This operation must be performed before and jump token expansion
+        /// </summary>
+        /// <param name="tokens">The list of tokens to remove the sequential trailing interrupts from</param>
+        private static void RemoveSequentialInterrupts(List<Token> tokens)
+        {
+            if (tokens.Count < 2 || tokens[tokens.Count - 1].Instruction != VmInstruction.Interrupt)
+                return;
+
+            while (tokens[tokens.Count - 2].Instruction != VmInstruction.Interrupt)
+            {
+                if (tokens[tokens.Count - 2].Instruction != VmInstruction.Interrupt)
+                {
+                    break;
+                }
+
+                // Remove the token
+                RemoveToken(tokens[tokens.Count - 2], tokens, tokens[tokens.Count - 1]);
+            }
         }
 
         /// <summary>

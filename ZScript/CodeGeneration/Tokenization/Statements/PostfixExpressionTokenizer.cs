@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using ZScript.CodeGeneration.Tokenizers.Helpers;
+using System.Linq;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing expressions and assignment expressions into lists of individual tokens
@@ -15,7 +16,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         /// <summary>
         /// The list of tokens that were generated in this statement run
         /// </summary>
-        readonly List<Token> _tokens = new List<Token>();
+        private List<Token> _tokens = new List<Token>();
 
         /// <summary>
         /// Stack of short circuit targets, used during processing of short-circuits in the VisitExpressionOperator method
@@ -26,6 +27,16 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         /// The context used to tokenize the statements, in case a different statement appears
         /// </summary>
         private readonly StatementTokenizerContext _context;
+
+        /// <summary>
+        /// Whether the next visit member call is a root call, meaning it will point to a variable
+        /// </summary>
+        private bool _isRootMember = true;
+
+        /// <summary>
+        /// Whether the next visit member call is a get access
+        /// </summary>
+        private bool _isGetAccess = true;
 
         /// <summary>
         /// Initializes a new instance of the IfStatementTokenizer class
@@ -43,13 +54,15 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         /// <returns>A TokenList object generated from the given statament</returns>
         public List<Token> TokenizeStatement(ZScriptParser.StatementContext context)
         {
+            _tokens = new List<Token>();
+
             if (context.expression() != null)
             {
                 TokenizeExpression(context.expression());
             }
             else if (context.assignmentExpression() != null)
             {
-                VisitAssignmentExpression(context.assignmentExpression());
+                TokenizeAssignmentExpression(context.assignmentExpression());
             }
 
             return _tokens;
@@ -62,7 +75,23 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         /// <returns>The list of tokens containing the expression that was tokenized</returns>
         public List<Token> TokenizeExpression(ZScriptParser.ExpressionContext context)
         {
+            _tokens = new List<Token>();
+
             VisitExpression(context);
+
+            return _tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given assignment expression context into a list of tokens
+        /// </summary>
+        /// <param name="context">The context containing the assignment expression to tokenize</param>
+        /// <returns>The list of tokens containing the assignment expression that was tokenized</returns>
+        public List<Token> TokenizeAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        {
+            _tokens = new List<Token>();
+
+            VisitAssignmentExpression(context);
 
             return _tokens;
         }
@@ -74,8 +103,11 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             // Detect compound assignment operations and duplicate the value of the left value
             if (IsCompoundAssignmentOperator(context.assignmentOperator()))
             {
+                _isGetAccess = context.leftValue().leftValueAccess() != null;
                 VisitLeftValue(context.leftValue());
             }
+
+            _isGetAccess = true;
 
             if (context.expression() != null)
             {
@@ -86,6 +118,10 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
                 VisitAssignmentExpression(context.assignmentExpression());
             }
 
+            _isRootMember = true;
+
+            //_isGetAccess = context.leftValue().leftValueAccess() != null;
+            _isGetAccess = true;
             VisitLeftValue(context.leftValue());
 
             VisitAssignmentOperator(context.assignmentOperator());
@@ -116,6 +152,8 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             // leftValue : memberName leftValueAccess?;
             // leftValueAccess : (funcCallArguments leftValueAccess) | ('.' leftValue) | (arrayAccess leftValueAccess?);
             VisitMemberName(context.memberName());
+
+            _isRootMember = false;
 
             if (context.leftValueAccess() != null)
             {
@@ -232,19 +270,22 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             }
             else if (context.prefixOperator() != null)
             {
+                _isGetAccess = context.leftValue().leftValueAccess() != null;
                 VisitLeftValue(context.leftValue());
 
                 VisitPrefixOperation(context.prefixOperator());
             }
             else if (context.postfixOperator() != null)
             {
+                _isGetAccess = context.leftValue().leftValueAccess() != null;
                 VisitLeftValue(context.leftValue());
 
                 VisitPostfixOperation(context.postfixOperator());
             }
-
-            if (context.memberName() != null)
+            else if (context.memberName() != null)
             {
+                _isRootMember = true;
+
                 VisitMemberName(context.memberName());
 
                 if (context.valueAccess() != null)
@@ -256,11 +297,31 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             {
                 VisitConstantAtom(context.constantAtom());
             }
+            else if (context.closureExpression() != null)
+            {
+                VisitClosureExpression(context.closureExpression());
+
+                if (context.functionCall() != null)
+                {
+                    VisitFunctionCall(context.functionCall());
+                }
+            }
+            else
+            {
+                throw new Exception("Unkown expression type encoutered: " + context);
+            }
         }
 
         private void VisitMemberName(ZScriptParser.MemberNameContext context)
         {
-            _tokens.Add(TokenFactory.CreateMemberNameToken(context.IDENT().GetText()));
+            if (_isRootMember)
+            {
+                _tokens.Add(TokenFactory.CreateVariableToken(context.IDENT().GetText(), _isGetAccess));
+            }
+            else
+            {
+                _tokens.Add(TokenFactory.CreateMemberNameToken(context.IDENT().GetText()));
+            }
         }
 
         private void VisitExpressionOperator(ZScriptParser.ExpressionContext context)
@@ -376,10 +437,20 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             }
         }
 
+        private void VisitClosureExpression(ZScriptParser.ClosureExpressionContext context)
+        {
+            // Get the 
+            var closure = _context.Definitions.CollectedBaseScope.Definitions.First(def => def.Context == context);
+
+            _tokens.Add(TokenFactory.CreateVariableToken(closure.Name, true));
+        }
+
         #region Member accessing
 
         private void VisitMemberAccess(ZScriptParser.ValueAccessContext context)
         {
+            _isRootMember = false;
+
             while (true)
             {
                 if (context.functionCall() != null)
@@ -427,14 +498,21 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         private void VisitFunctionCallArguments(ZScriptParser.FuncCallArgumentsContext args)
         {
             if (args.expressionList() == null)
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
                 return;
+            }
 
             var argsExps = args.expressionList().expression();
 
+            int argCount = 0;
             foreach (var argExp in argsExps)
             {
                 VisitExpression(argExp);
+                argCount++;
             }
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
         }
 
         #endregion

@@ -38,8 +38,8 @@
         {
             switch (errorType)
             {
-                case CodeErrorType.AccessUndeclaredVariable:
-                    return "Trying to access undeclared variable";
+                case CodeErrorType.AccessUndeclaredDefinition:
+                    return "Trying to access undeclared definition";
                 default:
                     return "";
             }
@@ -51,9 +51,9 @@
         public enum CodeErrorType
         {
             /// <summary>
-            /// Specifies an error raised when a variable that is undeclared is trying to be accessed
+            /// Specifies an error raised when a definitio that is undeclared is trying to be accessed
             /// </summary>
-            AccessUndeclaredVariable
+            AccessUndeclaredDefinition
         }
     }
 }

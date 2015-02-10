@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using ZScript.CodeGeneration.Tokenizers.Helpers;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing Continue statements
@@ -26,7 +25,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         }
 
         /// <summary>
-        /// Tokenizes a given For loop statement into a list of tokens
+        /// Tokenizes a given Continue statement into a list of tokens
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>

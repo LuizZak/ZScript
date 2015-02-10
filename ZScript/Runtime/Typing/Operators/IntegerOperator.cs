@@ -1,6 +1,4 @@
-﻿using ZScript.Runtime.Execution;
-
-namespace ZScript.Runtime.Typing.Operators
+﻿namespace ZScript.Runtime.Typing.Operators
 {
     /// <summary>
     /// Provides integer type operations

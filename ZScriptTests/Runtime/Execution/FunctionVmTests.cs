@@ -28,7 +28,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Noop)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -51,7 +51,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -74,7 +74,7 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -98,7 +98,7 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -122,7 +122,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -147,7 +147,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -169,7 +169,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -190,7 +190,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -214,7 +214,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -240,7 +240,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -262,7 +262,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -271,6 +271,30 @@ namespace ZScriptTests.Runtime.Execution
             functionVm.Execute();
 
             Assert.AreEqual(5, memory.GetVariable("a"), "The memory should contain the variables that were set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestDuplicateStack()
+        {
+            // Create the set of tokens
+            List<Token> t = new List<Token>
+            {
+                new Token(TokenType.Value, 5),
+                new Token(TokenType.Instruction, null, VmInstruction.Duplicate), // Duplicating the stack should result in two '5's at the top
+                new Token(TokenType.Operator, null, VmInstruction.Add),
+                new Token(TokenType.MemberName, "a"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variables that were set by the instructions");
         }
 
         [TestMethod]
@@ -288,7 +312,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -319,7 +343,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -350,7 +374,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -380,7 +404,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -410,7 +434,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -441,7 +465,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -467,7 +491,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -493,7 +517,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -519,7 +543,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -547,7 +571,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -571,7 +595,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -595,7 +619,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -619,7 +643,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -643,7 +667,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -667,7 +691,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -691,7 +715,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -715,7 +739,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -751,7 +775,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -789,7 +813,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -820,7 +844,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -855,7 +879,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -886,7 +910,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -921,7 +945,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -957,7 +981,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -993,7 +1017,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -1021,7 +1045,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 
@@ -1047,7 +1071,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
 
-            var tokenList = new TokenList { Tokens = t.ToArray() };
+            var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
 

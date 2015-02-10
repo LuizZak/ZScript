@@ -1017,6 +1017,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterStringLiteral([NotNull] ZScriptParser.StringLiteralContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectEntryList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -1076,18 +1088,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitConstantAtom([NotNull] ZScriptParser.ConstantAtomContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterStringLiteral([NotNull] ZScriptParser.StringLiteralContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.numericAtom"/>.
 	/// <para>The default implementation does nothing.</para>

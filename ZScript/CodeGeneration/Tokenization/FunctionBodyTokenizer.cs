@@ -1,17 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using ZScript.CodeGeneration.Tokenizers.Helpers;
-using ZScript.CodeGeneration.Tokenizers.Statements;
+using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
-namespace ZScript.CodeGeneration.Tokenizers
+namespace ZScript.CodeGeneration.Tokenization
 {
     /// <summary>
     /// Class capable of tokenizing a function body from an AST tree into a TokenList
     /// </summary>
     public class FunctionBodyTokenizer
     {
+        /// <summary>
+        /// Whether to print the tokens in the console
+        /// </summary>
+        public bool DebugTokens;
+
+        /// <summary>
+        /// A definition collector containing the definitions that were pre-parsed
+        /// </summary>
+        private readonly DefinitionsCollector _definitions;
+
+        /// <summary>
+        /// Initializes a new instance of the FunctionBodyTokenizer class
+        /// </summary>
+        /// <param name="definitions">A definition collector containing the definitions that were pre-parsed</param>
+        public FunctionBodyTokenizer(DefinitionsCollector definitions)
+        {
+            _definitions = definitions;
+        }
+
         /// <summary>
         /// Tokenizes the contents of the given function body context, coming from a parse tree
         /// </summary>
@@ -21,24 +40,30 @@ namespace ZScript.CodeGeneration.Tokenizers
         {
             var state = context.blockStatement();
 
-            var stc = new StatementTokenizerContext();
+            var stc = new StatementTokenizerContext(_definitions);
             var tokens = stc.TokenizeBlockStatement(state);
 
-            Console.WriteLine("Final token list, before expanding jumps:");
-            PrintTokens(tokens);
-
-            Console.WriteLine("Final token list:");
+            if (DebugTokens)
+            {
+                Console.WriteLine("Final token list, before expanding variables and jumps:");
+                PrintTokens(tokens);
+            }
+            VariableTokenExpander.ExpandInList(tokens);
             JumpTokenExpander.ExpandInList(tokens, VmInstruction.Interrupt);
-            PrintTokens(tokens);
 
-            return new TokenList { Tokens = tokens.ToArray() };
+            if (DebugTokens)
+            {
+                Console.WriteLine("Final token list:");
+                PrintTokens(tokens);
+            }
+
+            return new TokenList(tokens);
         }
 
         private static void PrintTokens(List<Token> tokenList)
         {
             int add = 0;
 
-            int jt = 0;
             foreach (var token in tokenList)
             {
                 Console.Write("{0:0000000}", add++);
@@ -47,7 +72,7 @@ namespace ZScript.CodeGeneration.Tokenizers
                 if (token is JumpToken)
                 {
                     Console.Write("[");
-                    Console.Write(tokenList.IndexOf(((JumpToken)token).TargetToken) + (++jt));
+                    Console.Write(tokenList.IndexOf(((JumpToken)token).TargetToken));
                     Console.WriteLine(" JUMP]");
                     continue;
                 }

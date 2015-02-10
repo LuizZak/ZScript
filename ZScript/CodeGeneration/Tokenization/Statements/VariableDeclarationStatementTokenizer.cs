@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing VAR and LET statements
@@ -54,7 +54,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             if (expression != null)
             {
                 List<Token> tokens = _context.TokenizeExpression(expression);
-                tokens.Add(TokenFactory.CreateMemberNameToken(name));
+                tokens.Add(new VariableToken(name, false));
                 tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
                 return tokens;
@@ -76,7 +76,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             var name = valueHolderDecl.valueHolderName().IDENT().GetText();
 
             List<Token> tokens = _context.TokenizeExpression(expression);
-            tokens.Add(TokenFactory.CreateMemberNameToken(name));
+            tokens.Add(new VariableToken(name, false));
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
             return tokens;

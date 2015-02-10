@@ -6,7 +6,7 @@ namespace ZScript.CodeGeneration.Messages
     public class Warning : CodeMessage
     {
         /// <summary>
-        /// Initializes a new SyntaxError struct
+        /// Initializes a new instance of the Warning class
         /// </summary>
         /// <param name="line">The line the error occurred at</param>
         /// <param name="position">The offset in the line the error occurred at</param>

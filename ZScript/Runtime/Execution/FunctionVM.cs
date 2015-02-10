@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using ZScript.Elements;
@@ -44,7 +45,7 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// The type operations provider for the virtual machine
         /// </summary>
-        private TypeOperationProvider _typeOperationProvider;
+        private readonly TypeOperationProvider _typeOperationProvider;
 
         /// <summary>
         /// Gets a value specifying whether the virtual machine has a return value associated
@@ -67,6 +68,14 @@ namespace ZScript.Runtime.Execution
                 
                 return _returnValue;
             }
+        }
+
+        /// <summary>
+        /// Gets the stack of items being evaluated in this function VM
+        /// </summary>
+        public Stack<Object> Stack
+        {
+            get { return _stack; }
         }
 
         /// <summary>
@@ -108,7 +117,7 @@ namespace ZScript.Runtime.Execution
                             case VmInstruction.Ret:
                                 if (_stack.Count > 0)
                                 {
-                                    _returnValue = _stack.Pop();
+                                    _returnValue = PopValueImplicit();
                                     _hasReturnValue = true;
                                 }
 
@@ -189,8 +198,6 @@ namespace ZScript.Runtime.Execution
                     return;
             }
 
-            //dynamic value1 = PopValueImplicit();
-            //dynamic value2 = PopValueImplicit();
             object value2 = PopValueImplicit();
             object value1 = PopValueImplicit();
 
@@ -210,54 +217,42 @@ namespace ZScript.Runtime.Execution
                     break;
                 // Multiplication and division
                 case VmInstruction.Multiply:
-                    //ret = (value2 * value1);
                     ret = _typeOperationProvider.Multiply(value1, value2);
                     break;
                 case VmInstruction.Divide:
-                    //ret = (value2 / value1);
                     ret = _typeOperationProvider.Divide(value1, value2);
                     break;
                 // Modulo operator
                 case VmInstruction.Modulo:
-                    //ret = (value2 % value1);
                     ret = _typeOperationProvider.Modulo(value1, value2);
                     break;
                 // Bitwise operators
                 case VmInstruction.BitwiseAnd:
-                    //ret = (value2 & value1);
                     ret = _typeOperationProvider.BitwiseAnd(value1, value2);
                     break;
                 case VmInstruction.BitwiseOr:
-                    //ret = (value2 | value1);
                     ret = _typeOperationProvider.BitwiseOr(value1, value2);
                     break;
                 case VmInstruction.BitwiseXOr:
-                    //ret = (value2 ^ value1);
                     ret = _typeOperationProvider.BitwiseXOr(value1, value2);
                     break;
                 // Equality/Inequality checks
                 case VmInstruction.Equals:
-                    //ret = (value2 == value1);
                     ret = _typeOperationProvider.Equals(value1, value2);
                     break;
                 case VmInstruction.Unequals:
-                    //ret = (value2 != value1);
                     ret = !_typeOperationProvider.Equals(value1, value2);
                     break;
                 case VmInstruction.Less:
-                    //ret = (value2 < value1);
                     ret = _typeOperationProvider.Less(value1, value2);
                     break;
                 case VmInstruction.LessOrEquals:
-                    //ret = (value2 <= value1);
                     ret = _typeOperationProvider.LessOrEquals(value1, value2);
                     break;
                 case VmInstruction.Greater:
-                    //ret = (value2 > value1);
                     ret = _typeOperationProvider.Greater(value1, value2);
                     break;
                 case VmInstruction.GreaterOrEquals:
-                    //ret = (value2 >= value1);
                     ret = _typeOperationProvider.GreaterOrEquals(value1, value2);
                     break;
                 case VmInstruction.LogicalAnd:
@@ -286,8 +281,8 @@ namespace ZScript.Runtime.Execution
             var value = GetValue(variable);
             var type = NumberTypeForBoxedNumber(value);
 
-            if(instruction != VmInstruction.IncrementPostfix && instruction != VmInstruction.IncrementPostfix &&
-               instruction != VmInstruction.DecrementPostfix && instruction != VmInstruction.DecrementPostfix)
+            if (instruction != VmInstruction.IncrementPostfix && instruction != VmInstruction.IncrementPrefix &&
+               instruction != VmInstruction.DecrementPostfix && instruction != VmInstruction.DecrementPrefix)
                 throw new ArgumentException("The provided instruction is not a valid increment/decrement instruction");
 
             int changeOnStack = instruction == VmInstruction.IncrementPrefix  ?  1 :
@@ -375,6 +370,16 @@ namespace ZScript.Runtime.Execution
                     PerformSetInstruction();
                     break;
 
+                // Memory get
+                case VmInstruction.GetAtAddress:
+                    PerformGetAtAddressInstruction();
+                    break;
+
+                // Memory set
+                case VmInstruction.SetAtAddress:
+                    PerformSetAtAddressInstruction();
+                    break;
+
                 // Clear Stack
                 case VmInstruction.ClearStack:
                     _stack.Clear();
@@ -387,6 +392,16 @@ namespace ZScript.Runtime.Execution
 
                     _stack.Push(value1);
                     _stack.Push(value2);
+                    break;
+
+                // Duplicate Stack
+                case VmInstruction.Duplicate:
+                    _stack.Push(_stack.Peek());
+                    break;
+
+                // Function call
+                case VmInstruction.Call:
+                    PerformFunctionCall();
                     break;
 
                 default:
@@ -413,8 +428,71 @@ namespace ZScript.Runtime.Execution
             var variable = _stack.Pop();
             object value = PopValueImplicit();
 
+            //if (variable is int)
+            {
+                //_context.AddressedMemory.SetVariable((int)variable, value);
+            }
+            //else
+            {
+                SetValue(variable, value);
+            }
+
+            _stack.Push(value);
+        }
+
+        /// <summary>
+        /// Performs a Get instruction with the value on the top of the stack
+        /// </summary>
+        void PerformGetAtAddressInstruction()
+        {
+            // Pop the variable and value to get
+            var variable = _stack.Pop();
+            //_stack.Push(_context.AddressedMemory.GetVariable((int)variable));
+            _stack.Push(GetValue(variable));
+        }
+
+        /// <summary>
+        /// Performs a Set instruction with the values on the top of the stack
+        /// </summary>
+        void PerformSetAtAddressInstruction()
+        {
+            // Pop the variable and value to set
+            var variable = _stack.Pop();
+            object value = PopValueImplicit();
+
             SetValue(variable, value);
             _stack.Push(value);
+        }
+
+        /// <summary>
+        /// Performs a function call, utilizing the objects on the stack to locate and call the function
+        /// on the current runtime
+        /// </summary>
+        void PerformFunctionCall()
+        {
+            // Pop the argument count
+            int argCount = (int)_stack.Pop();
+
+            // Pop the arguments from the stack
+            ArrayList arguments = new ArrayList();
+
+            for (int i = 0; i < argCount; i++)
+            {
+                arguments.Add(PopValueImplicit());
+            }
+
+            // Pop the function to call
+            var callable = PopCallable();
+
+            var zFunction = callable as ZFunction;
+            if (zFunction != null)
+            {
+                _stack.Push(_context.Runtime.CallFunction(zFunction, arguments.ToArray()));
+            }
+            else
+            {
+                _stack.Push(_context.Runtime.CallFunction((string)callable, arguments));
+            }
         }
 
         /// <summary>
@@ -429,10 +507,80 @@ namespace ZScript.Runtime.Execution
             if (t != null)
             {
                 // Pop the variable and value to get
+                if (!_context.Memory.HasVariable((string)t.TokenObject))
+                {
+                    var f = _context.Runtime.FunctionWithName((string)t.TokenObject);
+
+                    if (f != null)
+                        return f;
+
+                    throw new Exception("Trying to access undefined variable '" + (string)t.TokenObject + "'.");
+                }
+
                 return _context.Memory.GetVariable((string)t.TokenObject);
             }
 
             return obj;
+        }
+
+        /// <summary>
+        /// Pops a callable value from the stack, and if it is a token, implicitly fetch the function from the runtime
+        /// </summary>
+        /// <returns>A callable popped from the stack, and fetched from memory, if needed</returns>
+        object PopCallable()
+        {
+            var obj = _stack.Pop();
+
+            var t = obj as Token;
+            if (t != null)
+            {
+                if (t.TokenObject is ZFunction)
+                {
+                    return t.TokenObject;
+                }
+                var s = t.TokenObject as string;
+                if (s != null)
+                {
+                    var def = _context.Runtime.FunctionWithName(s);
+
+                    if (def == null)
+                    {
+                        var callable = _context.Memory.GetVariable(s);
+                        if (callable == null)
+                        {
+                            throw new Exception("Trying to call undefined callable '" + s + "'");
+                        }
+                        if (!IsCallable(callable))
+                        {
+                            throw new Exception("Trying to call non-callable object type " + callable);
+                        }
+
+                        return callable;
+                    }
+
+                    return def;
+                }
+            }
+            if (obj is ZFunction)
+            {
+                return obj as ZFunction;
+            }
+
+            throw new Exception("Value on top of the stack cannot be called: '" + obj + "'");
+        }
+
+        /// <summary>
+        /// Returns a value specifying whether a given object is a callable object type
+        /// </summary>
+        /// <param name="obj">An object to verify</param>
+        /// <returns>Whether the given object is a callable object type</returns>
+        bool IsCallable(object obj)
+        {
+            // TODO: deal with different callable types (MethodInfo, etc.)
+            if (obj is ZFunction)
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -465,6 +613,10 @@ namespace ZScript.Runtime.Execution
             {
                 return _context.Memory.GetVariable((string)token.TokenObject);
             }
+            if (valueContainer is int)
+            {
+                return _context.AddressedMemory.GetVariable((int)valueContainer);
+            }
 
             throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value get");
         }
@@ -481,6 +633,10 @@ namespace ZScript.Runtime.Execution
             if (token != null)
             {
                 _context.Memory.SetVariable((string)token.TokenObject, value);
+            }
+            else if (valueContainer is int)
+            {
+                _context.AddressedMemory.SetVariable((int)valueContainer, value);
             }
             else
             {
@@ -656,12 +812,19 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         JumpIfFalsePeek,
 
+        /// <summary>Pop A from the stack, and searches in memory a variable with its value, as an integer address</summary>
+        GetAtAddress,
+        /// <summary>Pops A, B from the stack, and set the value of variable at address B to be A</summary>
+        SetAtAddress,
+
         /// <summary>Pop A from the stack, and searches in memory a variable with its value, as a string</summary>
         Get,
         /// <summary>Pops A, B from the stack, and set the value of variable B to be A</summary>
         Set,
         /// <summary>Swaps the two top-most values on the stack</summary>
         Swap,
+        /// <summary>Duplicates the top-most value of the stack, effectively making two copies of the value rest at the top of the stack</summary>
+        Duplicate,
         /// <summary>Clears the current stack of values of the virtual machine</summary>
         ClearStack,
 

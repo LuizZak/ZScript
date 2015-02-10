@@ -59,7 +59,7 @@ functionBody : blockStatement;
 functionArguments : '(' argumentList? ')';
 argumentList : functionArg (',' functionArg)*;
 returnType : ':' type;
-functionArg : argumentName (':' type)? ('...' | ('=' compileConstant))?;
+functionArg : argumentName (':' type)? (variadic='...' | ('=' compileConstant))?;
 argumentName : IDENT;
 
 ////
@@ -78,16 +78,16 @@ elseStatement : 'else' statement;
 
 // Switch
 switchStatement : 'switch' '(' expression ')' switchBlock;
-switchBlock : '{' (caseBlock | defaultBlock)* '}';
-caseBlock : 'case' expression ':' ((caseBlock) | (statement 'break' ';'));
-defaultBlock : 'default' ':' statement 'break' ';';
+switchBlock : '{' caseBlock* defaultBlock? '}';
+caseBlock : 'case' expression ':' statement*;
+defaultBlock : 'default' ':' statement+;
 
 // While
 whileStatement : 'while' '(' expression ')' statement;
 
 // For
 forStatement : 'for' '(' forInit? ';' forCondition? ';' forIncrement? ')' statement;
-forInit : varDecl | expression;
+forInit : varDecl | expression | assignmentExpression;
 forCondition : expression;
 forIncrement : expression;
 
@@ -125,7 +125,7 @@ expression:  '(' expression ')' valueAccess?
           | '(' assignmentExpression ')'
           |  prefixOperator leftValue
           |  leftValue postfixOperator
-          |  closureExpression funcCallArguments?
+          |  closureExpression functionCall?
           |  memberName valueAccess?
           |  objectLiteral objectAccess?
           |  arrayLiteral valueAccess?
@@ -133,7 +133,6 @@ expression:  '(' expression ')' valueAccess?
           |  '(' type ')' expression
           // Unary expressions
           |  '-' expression
-          |  '+' expression
           |  '!' expression
           // Binary expressions
           |  expression multOp expression
@@ -155,7 +154,7 @@ logicalOp : ('&&' | '||');
 assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments newExpressionTypeList?;
 newExpressionTypeList : '{' typeList '}';
-closureExpression : functionArguments returnType? '=>' blockStatement;
+closureExpression : functionArguments returnType? '=>' functionBody;
 unaryExpression  : ('-' | '+' | '!') expression;
 
 prefixOperator : '++' | '--';
@@ -180,27 +179,26 @@ memberName : IDENT;
 // Literal values
 arrayLiteral : '[' expressionList? ']';
 objectLiteral: '{' objectEntryList? '}';
+stringLiteral : StringLiteral;
 
 objectEntryList: objectEntryDefinition (',' objectEntryDefinition)*;
 objectEntryDefinition: entryName ':' expression;
 entryName : IDENT | StringLiteral;
 
 // Atomics
-compileConstant :  ('-' | '+')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;
+compileConstant :  ('-')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;
 
 constantAtom : numericAtom
              | T_FALSE | T_TRUE | T_NULL
              | stringLiteral;
 
-stringLiteral : StringLiteral;
-StringLiteral : '"' (StringEscape | ~('"'))* '"'
-              | '\'' ~('\'')* '\'';
-
 numericAtom : hexadecimalNumber | binaryNumber | (FLOAT | INT);
 hexadecimalNumber : HEX;
 binaryNumber : BINARY;
 
-StringEscape : '\\' ('n' | 'r');
+StringLiteral : '"' (StringEscape | ~('"'))* '"'
+              | '\'' ~('\'')* '\'';
+StringEscape : '\\' ('n' | 'r' | '\\');
 
 ////
 //// Token Definitions
@@ -312,7 +310,7 @@ fragment DoubleQuoteStringChar : ~('\r' | '\n' | '"');
 fragment SingleQuoteStringChar : ~('\r' | '\n' | '\'');
 
 fragment Binary : [01]+;
-fragment Hexadecimal : [0-9a-fA-F]+; 
+fragment Hexadecimal : [0-9a-fA-F]+;
 fragment Decimal : [0-9]+;
 fragment DecimalFraction : '.' Decimal;
 fragment ExponentPart : [eE] Sign Decimal+;

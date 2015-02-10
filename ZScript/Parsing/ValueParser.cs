@@ -9,6 +9,11 @@ namespace ZScript.Parsing
     public static class ValueParser
     {
         /// <summary>
+        /// Global number format info used to convert the numeric values
+        /// </summary>
+        private static readonly NumberFormatInfo Nfi = new NumberFormatInfo { NumberDecimalSeparator = "." };
+
+        /// <summary>
         /// Parses the given string into a number, taking into consideration decimal, hexadecimal (0xXX) and binary (0bXX) notation
         /// </summary>
         /// <param name="num">The number to parse</param>
@@ -29,7 +34,7 @@ namespace ZScript.Parsing
             if (num.StartsWith("0b"))
                 return ParseBinary(num) * mult;
 
-            return float.Parse(num.Replace('.', ',')) * mult;
+            return float.Parse(num, Nfi) * mult;
         }
 
         /// <summary>
@@ -114,11 +119,11 @@ namespace ZScript.Parsing
             {
                 float outFloat;
                 double outDouble;
-                if (float.TryParse(valueString.Replace('.', ','), out outFloat))
+                if (float.TryParse(valueString, NumberStyles.Number, Nfi, out outFloat))
                 {
                     return outFloat;
                 }
-                if (double.TryParse(valueString.Replace('.', ','), out outDouble))
+                if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
                 {
                     return outDouble;
                 }
@@ -217,6 +222,36 @@ namespace ZScript.Parsing
             return int.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
         }
 
+        /// <summary>
+        /// Transforms the given binary number into a decimal number
+        /// </summary>
+        /// <param name="binary">The binary to convert</param>
+        /// <returns>An integer representing the binary number</returns>
+        public static long ParseBinaryLong(string binary)
+        {
+            if (binary.StartsWith("0b"))
+                binary = binary.Substring(2);
+
+            long res = 0;
+            int l = binary.Length;
+            for (int i = 0; i < l; i++)
+            {
+                char c = binary[i];
+
+                switch (c)
+                {
+                    case '0':
+                        break;
+                    case '1':
+                        res |= (uint)(1 << (l - 1 - i));
+                        break;
+                    default:
+                        throw new FormatException("The binary number has invalid characters");
+                }
+            }
+
+            return res;
+        }
         /// <summary>
         /// Transforms the given binary number into a decimal number
         /// </summary>

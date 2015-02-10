@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -17,14 +18,30 @@ namespace ZScript.Runtime
         private readonly IRuntimeOwner _owner;
 
         /// <summary>
+        /// The ZRuntimeDefinition that was used to create this runtime
+        /// </summary>
+        private readonly ZRuntimeDefinition _definition;
+
+        /// <summary>
+        /// Stack of local memories for the currently executing functions.
+        /// Used to enable closure capture
+        /// </summary>
+        private readonly Stack<IMemory<string>> _localMemoriesStack;
+
+        /// <summary>
         /// The list of all functions defined in this ZRuntime instance
         /// </summary>
-        private readonly FunctionDef[] _functionDefs;
+        private readonly ZFunction[] _zFunction;
 
         /// <summary>
         /// The global memory for the runtime
         /// </summary>
         private readonly Memory _globalMemory;
+
+        /// <summary>
+        /// The global memory for the runtime
+        /// </summary>
+        private readonly IntegerMemory _globalAddressedMemory;
 
         /// <summary>
         /// Gets the current global memory for the runtime
@@ -52,13 +69,18 @@ namespace ZScript.Runtime
         /// <param name="owner">The owner of this ZRuntime</param>
         public ZRuntime(ZRuntimeDefinition definition, IRuntimeOwner owner)
         {
-            _functionDefs = definition.FunctionDefinitions;
+            _definition = definition;
+            _zFunction = definition.ZFunctionDefinitions.Concat(definition.ZExportFunctionDefinitions).Concat(definition.ZClosureFunctionDefinitions).ToArray();
+            _localMemoriesStack = new Stack<IMemory<string>>();
             _owner = owner;
             _globalMemory = new Memory();
+            _globalAddressedMemory = new IntegerMemory();
+
+            ExpandGlobalVariables(_definition);
         }
 
         /// <summary>
-        /// Calls a function with a specified name, using the specified functions as arguments.
+        /// Calls a function with a specified name, using an array of objects as arguments.
         /// The method raises an exception when the function call fails for any reason
         /// </summary>
         /// <param name="functionName">The name of the function to execute</param>
@@ -70,10 +92,50 @@ namespace ZScript.Runtime
         {
             var funcDef = FunctionWithName(functionName);
 
+            if(funcDef == null)
+                throw new Exception("Trying to call undefined function '" + functionName + "'");
+
+            return CallFunction(funcDef, arguments);
+        }
+
+        /// <summary>
+        /// Calls a specified function, using an array of objects as arguments.
+        /// The method raises an exception when the function call fails for any reason
+        /// </summary>
+        /// <param name="funcDef">The function to execute</param>
+        /// <param name="arguments">The arguments for the function to execute</param>
+        /// <returns>The return of the function that was called</returns>
+        /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
+        /// <exception cref="Exception">The function call failed</exception>
+        public object CallFunction(ZFunction funcDef, params object[] arguments)
+        {
             if (funcDef == null)
                 return null;
 
-            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(_globalMemory, this));
+            // Export functions are handled separatedly
+            var exportFunction = funcDef as ZExportFunction;
+            if (exportFunction != null)
+            {
+                return _owner.CallFunction(exportFunction, arguments);
+            }
+
+            IMemory<string> localMemory = Memory.CreateMemoryFromArgs(funcDef, true, arguments);
+
+            // Closures must trap the local memory into their own scope
+            if (funcDef.IsClosure)
+            {
+                ((ZClosureFunction)funcDef).CapturedMemory.AddMemory(localMemory);
+
+                localMemory = ((ZClosureFunction)funcDef).CapturedMemory;
+            }
+
+            MemoryMapper mapper = new MemoryMapper();
+            mapper.AddMemory(_globalMemory);
+            mapper.AddMemory(localMemory);
+
+            _localMemoriesStack.Push(localMemory);
+
+            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this));
 
             vm.Execute();
 
@@ -81,6 +143,8 @@ namespace ZScript.Runtime
             {
                 return vm.ReturnValue;
             }
+
+            _localMemoriesStack.Pop();
 
             // Disabling this exception for now because it may interfere with function calls that do not expect a return value anyways
             /*throw new Exception("The function called did not return any value because it did not execute a 'return' statement with a value specified.");*/
@@ -92,16 +156,60 @@ namespace ZScript.Runtime
         /// Fetches a function definition by name on this ZRuntime object, or null, if none was found
         /// </summary>
         /// <param name="functionName">The name of the function to fetch</param>
+        /// <param name="captureClosures">Whether to automatically capture closures when fetching by name</param>
         /// <returns>The function definition with the given name, or null, if none was found</returns>
-        FunctionDef FunctionWithName(string functionName)
+        public ZFunction FunctionWithName(string functionName, bool captureClosures = true)
         {
-            for (int i = 0; i < _functionDefs.Length; i++)
+            foreach (ZFunction func in _zFunction)
             {
-                if (_functionDefs[i].Name == functionName)
-                    return _functionDefs[i];
+                if (func.Name == functionName)
+                {
+                    var closure = func as ZClosureFunction;
+                    if (closure != null && captureClosures)
+                    {
+                        // Capture the memory now
+                        var capturedMemory = new MemoryMapper();
+
+                        if (_localMemoriesStack.Count > 0 && _localMemoriesStack.Peek().GetCount() > 0)
+                        {
+                            capturedMemory.AddMemory(_localMemoriesStack.Peek());
+                        }
+
+                        var newClosure = closure.Clone();
+                        newClosure.CapturedMemory = capturedMemory;
+
+                        return newClosure;
+                    }
+
+                    return func;
+                }
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Expands the global variables contained within a given ZRuntimeDefinition into this ZRuntime object
+        /// </summary>
+        /// <param name="definition">The definition containing the global variables to expand</param>
+        private void ExpandGlobalVariables(ZRuntimeDefinition definition)
+        {
+            var vmContext = new VmContext(_globalMemory, _globalAddressedMemory, this);
+
+            foreach (var vDef in definition.GlobalVariableDefinitions)
+            {
+                if (vDef.HasValue)
+                {
+                    var vm = new FunctionVM(vDef.ExpressionTokens, vmContext);
+                    vm.Execute();
+
+                    _globalMemory.SetVariable(vDef.Name, vm.Stack.Pop());
+                }
+                else
+                {
+                    _globalMemory.SetVariable(vDef.Name, null);
+                }
+            }
         }
     }
 }

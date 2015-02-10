@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr4.Runtime, Version=4.5.0.0, Culture=neutral, PublicKeyToken=e78b2c5abd1fcb3f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\dev\Antlr\Antlr4.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -52,9 +56,13 @@
   <ItemGroup>
     <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpanderTests.cs" />
     <Compile Include="CodeGeneration\Tokenizers\StatementTokenizerTests.cs" />
+    <Compile Include="Parsing\ConstantAtomParserTests.cs" />
     <Compile Include="Parsing\ValueParserTests.cs" />
     <Compile Include="Performance\PerformanceTests.cs" />
+    <Compile Include="Runtime\ClosureTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
+    <Compile Include="Runtime\ExportFunctionTests.cs" />
+    <Compile Include="Runtime\ZRuntimeTests.cs" />
     <Compile Include="TestRuntimeOwner.cs" />
     <Compile Include="ZScriptTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-
-using ZScript.CodeGeneration.Tokenizers.Helpers;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of the tokenizing FOR statements
@@ -90,7 +89,7 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
                 tokens.AddRange(_context.TokenizeExpression(cond.expression()));
 
                 // 5 - Conditional jump to End
-                tokens.Add(new JumpToken(_forBlockEndTarget, true));
+                tokens.Add(new JumpToken(_forBlockEndTarget, true, false));
             }
 
             // 6 - Body loop
@@ -120,9 +119,13 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             {
                 tokens.AddRange(_context.TokenizeVariableDeclaration(init.varDecl()));
             }
-            else
+            else if (init.expression() != null)
             {
                 tokens.AddRange(_context.TokenizeExpression(init.expression()));
+            }
+            else
+            {
+                tokens.AddRange(_context.TokenizeAssignmentExpression(init.assignmentExpression()));
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Runtime.Execution;
 
 namespace ZScript.Elements
@@ -17,10 +18,21 @@ namespace ZScript.Elements
         /// Creates a new token that represents a member name
         /// </summary>
         /// <param name="memberName">A string that represents a member name</param>
-        /// <returns>A Token with the string provided binded in</returns>
+        /// <returns>A Token with the member name provided binded in</returns>
         public static Token CreateMemberNameToken(string memberName)
         {
             return new Token(TokenType.MemberName, memberName, VmInstruction.Noop);
+        }
+
+        /// <summary>
+        /// Creates a new variable token that represents a variable name
+        /// </summary>
+        /// <param name="variableName">A string that represents a variable name</param>
+        /// <param name="isGet">Whether to create the token with a get access</param>
+        /// <returns>A VariableToken with the variable name provided binded in</returns>
+        public static VariableToken CreateVariableToken(string variableName, bool isGet)
+        {
+            return new VariableToken(variableName, isGet);
         }
 
         /// <summary>
@@ -181,7 +193,7 @@ namespace ZScript.Elements
         /// <returns>A Token with a type of TokenType.Value and a null value associated</returns>
         public static Token CreateNullToken()
         {
-            return new Token(TokenType.Value, true, VmInstruction.Noop);
+            return new Token(TokenType.Value, null, VmInstruction.Noop);
         }
     }
 }

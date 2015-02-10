@@ -849,6 +849,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterStringLiteral([NotNull] ZScriptParser.StringLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectEntryList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -898,16 +908,6 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitConstantAtom([NotNull] ZScriptParser.ConstantAtomContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterStringLiteral([NotNull] ZScriptParser.StringLiteralContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.stringLiteral"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.numericAtom"/>.
 	/// </summary>

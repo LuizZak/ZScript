@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
-namespace ZScript.CodeGeneration.Tokenizers.Statements
+namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Tokenizer context, used to help direct tokenization calls to different specialized tokenizers
@@ -22,6 +21,11 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         private readonly Stack<Token> _breakTargetStack = new Stack<Token>();
 
         /// <summary>
+        /// The definitions collector that is expose to the statements tokenizers
+        /// </summary>
+        private readonly DefinitionsCollector _definitions;
+
+        /// <summary>
         /// The current target for continue statements.
         /// May be null, if no targets are currently registered
         /// </summary>
@@ -37,6 +41,23 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         public Token CurrentBreakTarget
         {
             get { return _breakTargetStack.Count == 0 ? null : _breakTargetStack.Peek(); }
+        }
+
+        /// <summary>
+        /// Gets the definitions collector that contains the definitions that were pre-parsed
+        /// </summary>
+        public DefinitionsCollector Definitions
+        {
+            get { return _definitions; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the StatementTokenizerContext class
+        /// </summary>
+        /// <param name="collector">A definitions collector containing definitions that were pre-parsed</param>
+        public StatementTokenizerContext(DefinitionsCollector collector)
+        {
+            _definitions = collector;
         }
 
         /// <summary>
@@ -82,6 +103,10 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             {
                 statementTokens = TokenizeWhileStatement(statement.whileStatement());
             }
+            else if (statement.switchStatement() != null)
+            {
+                statementTokens = TokenizeSwitchStatement(statement.switchStatement());
+            }
             else if (statement.blockStatement() != null)
             {
                 statementTokens = TokenizeBlockStatement(statement.blockStatement());
@@ -98,44 +123,23 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             {
                 statementTokens = TokenizeValueDeclaration(statement.valueDecl());
             }
+            else if (statement.returnStatement() != null)
+            {
+                statementTokens = TokenizeReturnStatement(statement.returnStatement());
+            }
             else if (statement.GetText() == ";")
             {
                 statementTokens = new List<Token>();
             }
             else
             {
-                throw new Exception("Unkown statement that cannot be tokenized: " + statement);
+                throw new Exception("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
             }
 
             return statementTokens;
         }
 
-        /// <summary>
-        /// Tokenizes a given expression statement on this statement tokenizer context
-        /// </summary>
-        /// <param name="statement">The statement containing the expression to tokenize</param>
-        /// <returns>A list of tokens corresponding to the expression statement that was tokenized</returns>
-        public List<Token> TokenizeExpressionStatement(ZScriptParser.StatementContext statement)
-        {
-            //new InfixExpressionPrinter().PrintStatement(statement);
-            //new PostfixExpressionPrinter().PrintStatement(statement);
-
-            var postfixTokenizer = new PostfixExpressionTokenizer(this);
-
-            return postfixTokenizer.TokenizeStatement(statement);
-        }
-
-        /// <summary>
-        /// Tokenizes a given expression on this statement tokenizer context
-        /// </summary>
-        /// <param name="expression">The expression to tokenize</param>
-        /// <returns>A list of tokens corresponding to the expression that was tokenized</returns>
-        public List<Token> TokenizeExpression(ZScriptParser.ExpressionContext expression)
-        {
-            var postfixTokenizer = new PostfixExpressionTokenizer(this);
-
-            return postfixTokenizer.TokenizeExpression(expression);
-        }
+        #region Statements
 
         /// <summary>
         /// Tokenizes a given IF statement on this statement tokenizer context
@@ -171,6 +175,17 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
         }
 
         /// <summary>
+        /// Tokenizes a given SWITCH statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="statement">The statement to tokenize</param>
+        /// <returns>A list of tokens that corresponds to the switch statement</returns>
+        public List<Token> TokenizeSwitchStatement(ZScriptParser.SwitchStatementContext statement)
+        {
+            var tokenizer = new SwitchStatementTokenizer(this);
+            return tokenizer.TokenizeStatement(statement);
+        }
+
+        /// <summary>
         /// Tokenizes a given BREAK statement on this statement tokenizer context
         /// </summary>
         /// <param name="statement">The statement to tokenize</param>
@@ -192,6 +207,58 @@ namespace ZScript.CodeGeneration.Tokenizers.Statements
             ContinueStatementTokenizer tokenizer = new ContinueStatementTokenizer(this);
 
             return tokenizer.TokenizeStatement(statement);
+        }
+
+        /// <summary>
+        /// Tokenizes a given return statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="returnStatement">The statement to tokenize</param>
+        /// <returns>A tokenized version of the given statement</returns>
+        private List<Token> TokenizeReturnStatement(ZScriptParser.ReturnStatementContext returnStatement)
+        {
+            ReturnStatementTokenizer tokenizer = new ReturnStatementTokenizer(this);
+            return tokenizer.TokenizeStatement(returnStatement);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tokenizes a given expression statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="statement">The statement containing the expression to tokenize</param>
+        /// <returns>A list of tokens corresponding to the expression statement that was tokenized</returns>
+        public List<Token> TokenizeExpressionStatement(ZScriptParser.StatementContext statement)
+        {
+            //new InfixExpressionPrinter().PrintStatement(statement);
+            //new PostfixExpressionPrinter().PrintStatement(statement);
+
+            var postfixTokenizer = new PostfixExpressionTokenizer(this);
+
+            return postfixTokenizer.TokenizeStatement(statement);
+        }
+
+        /// <summary>
+        /// Tokenizes a given expression on this statement tokenizer context
+        /// </summary>
+        /// <param name="expression">The expression to tokenize</param>
+        /// <returns>A list of tokens corresponding to the expression that was tokenized</returns>
+        public List<Token> TokenizeExpression(ZScriptParser.ExpressionContext expression)
+        {
+            var postfixTokenizer = new PostfixExpressionTokenizer(this);
+
+            return postfixTokenizer.TokenizeExpression(expression);
+        }
+
+        /// <summary>
+        /// Tokenizes a given assignment expression on this statement tokenizer context
+        /// </summary>
+        /// <param name="expression">The assignment expression to tokenize</param>
+        /// <returns>A list of tokens corresponding to the assignment expression that was tokenized</returns>
+        public List<Token> TokenizeAssignmentExpression(ZScriptParser.AssignmentExpressionContext expression)
+        {
+            var postfixTokenizer = new PostfixExpressionTokenizer(this);
+
+            return postfixTokenizer.TokenizeAssignmentExpression(expression);
         }
 
         /// <summary>
