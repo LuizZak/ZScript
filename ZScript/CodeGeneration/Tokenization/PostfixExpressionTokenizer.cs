@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
 
-namespace ZScript.CodeGeneration.Tokenization.Statements
+namespace ZScript.CodeGeneration.Tokenization
 {
     /// <summary>
     /// Class capable of tokenizing expressions and assignment expressions into lists of individual tokens

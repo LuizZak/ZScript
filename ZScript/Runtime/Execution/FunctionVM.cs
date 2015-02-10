@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using ZScript.Elements;
+using ZScript.Runtime.Execution.Wrappers.Subscripters;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution
@@ -404,6 +405,16 @@ namespace ZScript.Runtime.Execution
                     PerformFunctionCall();
                     break;
 
+                // Array Creation
+                case VmInstruction.CreateArray:
+                    PerformArrayCreation();
+                    break;
+                    
+                // Subscripter fetching
+                case VmInstruction.GetSubscript:
+                    PerformGetSubscripter();
+                    break;
+
                 default:
                     throw new ArgumentException("Unspecified virtual machine instruction '" + instruction + "'. Maybe it's an operation?");
             }
@@ -493,6 +504,49 @@ namespace ZScript.Runtime.Execution
             {
                 _stack.Push(_context.Runtime.CallFunction((string)callable, arguments));
             }
+        }
+
+        /// <summary>
+        /// Performs an array creation using the values on the stack, pushing the created array back into the top of the stack
+        /// </summary>
+        void PerformArrayCreation()
+        {
+            // Pop the argument count
+            int argCount = (int)_stack.Pop();
+
+            // Pop the arguments from the stack
+            ArrayList arguments = new ArrayList();
+
+            for (int i = 0; i < argCount; i++)
+            {
+                arguments.Add(PopValueImplicit());
+            }
+
+            // Reverse the resulting array so the items pushed first appear first
+            arguments.Reverse();
+
+            // Push the array back into the stack
+            _stack.Push(arguments);
+        }
+
+        /// <summary>
+        /// Performs a subscripter-fetch on the object on top of the stack, pushing a resulting ISubcripter back on the stack.
+        /// All types that implement IList can be subscripted by the operation.
+        /// If the value cannot be subscripted, an exception is raised.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The value on top of the stack cannot be subscripted</exception>
+        void PerformGetSubscripter()
+        {
+            object value = PopValueImplicit();
+
+            var list = value as IList;
+            if (list != null)
+            {
+                _stack.Push(new ListSubscripter(list));
+                return;
+            }
+
+            throw new InvalidOperationException("Value on top of the stack cannot be subscripted");
         }
 
         /// <summary>
@@ -827,6 +881,9 @@ namespace ZScript.Runtime.Execution
         Duplicate,
         /// <summary>Clears the current stack of values of the virtual machine</summary>
         ClearStack,
+
+        /// <summary>Creates an array using the values on the stack and pushes the result back into the stack</summary>
+        CreateArray,
 
         /// <summary>Unary negation ('-') instruction</summary>
         UnaryNegate,

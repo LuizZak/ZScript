@@ -66,7 +66,7 @@
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpToken.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTokenExpander.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTargetToken.cs" />
-    <Compile Include="CodeGeneration\Tokenization\Statements\PostfixExpressionTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenization\PostfixExpressionTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\FunctionBodyTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\ReturnStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\StatementTokenizerContext.cs" />
@@ -93,6 +93,9 @@
     <Compile Include="Parsing\ANTLR\ZScriptParser.cs" />
     <Compile Include="Runtime\Execution\FunctionVM.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\IntegerMemory.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripter.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\ISubscripter.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Subscripters\ListSubscripter.cs" />
     <Compile Include="Runtime\Typing\ITypeOperator.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\IMemory.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\Memory.cs" />

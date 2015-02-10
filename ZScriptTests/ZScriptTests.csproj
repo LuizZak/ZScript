@@ -60,7 +60,10 @@
     <Compile Include="Parsing\ValueParserTests.cs" />
     <Compile Include="Performance\PerformanceTests.cs" />
     <Compile Include="Runtime\ClosureTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmArrayTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripterTests.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Subscripters\LstSubscripterTests.cs" />
     <Compile Include="Runtime\ExportFunctionTests.cs" />
     <Compile Include="Runtime\ZRuntimeTests.cs" />
     <Compile Include="TestRuntimeOwner.cs" />
@@ -73,6 +76,7 @@
       <Name>ZScript</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

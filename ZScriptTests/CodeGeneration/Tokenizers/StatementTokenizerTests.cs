@@ -84,7 +84,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestIfExpressionShortCircuit()
         {
-            const string input = "[ a = 0; b = 0; c = 0; ] func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
+            const string input = "[ a = 0; b = 0; c = 0; d = null; ] func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
             var generator = CreateGenerator(input);
             generator.ParseInputString();
 
@@ -255,7 +255,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileContinueStatement()
         {
-            const string input = "[ a = 0; ] func f() { while(a < 10) { a++; continue; b = 0; } }";
+            const string input = "[ a = 0; b = 0; ] func f() { while(a < 10) { a++; continue; b = 10; } }";
 
             var generator = CreateGenerator(input);
 
@@ -270,7 +270,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             runtime.CallFunction("f");
 
             Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
-            Assert.IsFalse(runtime.GlobalMemory.HasVariable("b"));
+            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("b"));
         }
 
         [TestMethod]
