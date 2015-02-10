@@ -141,7 +141,7 @@ expression:  '(' expression ')' valueAccess?
           |  expression bitwiseOrOp expression
           |  expression comparisionOp expression
           |  expression logicalOp expression
-          |  constantAtom
+          |  constantAtom objectAccess?
           ;
 
 multOp : ('*' | '/' | '%');
@@ -183,7 +183,7 @@ stringLiteral : StringLiteral;
 
 objectEntryList: objectEntryDefinition (',' objectEntryDefinition)*;
 objectEntryDefinition: entryName ':' expression;
-entryName : IDENT | StringLiteral;
+entryName : IDENT | stringLiteral;
 
 // Atomics
 compileConstant :  ('-')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;

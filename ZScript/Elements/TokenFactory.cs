@@ -36,7 +36,8 @@ namespace ZScript.Elements
         }
 
         /// <summary>
-        /// Creates a new token with a given string as the content
+        /// Creates a new token with a given string as the content.
+        /// The resulting token will have a TokenType.String associated with it
         /// </summary>
         /// <param name="content">A string to populate the token with</param>
         /// <returns>A Token with the string provided binded in</returns>

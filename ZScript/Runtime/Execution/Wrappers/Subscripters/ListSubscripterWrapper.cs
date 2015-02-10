@@ -6,7 +6,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
     /// <summary>
     /// Object capable of enabling subscription to IList objects
     /// </summary>
-    public class ListSubscripter : ISubscripter
+    public class ListSubscripterWrapper : ISubscripterWrapper
     {
         /// <summary>
         /// The IList being subscripted
@@ -14,7 +14,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         private readonly IList _list;
 
         /// <summary>
-        /// Gets the ArrayList being subscripted by this ListSubscripter
+        /// Gets the IList being subscripted by this ListSubscripter
         /// </summary>
         public IList List
         {
@@ -22,7 +22,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         }
 
         /// <summary>
-        /// Gets or sets an index on the ArrayList being subscripted
+        /// Gets or sets an index on the IList being subscripted
         /// </summary>
         /// <param name="indexer">The index to subscript into the list. This index must be an Int32 or Int64 value</param>
         /// <returns>The object that was in the given index on the underlying list</returns>
@@ -62,7 +62,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// Initializes a new instance of the ListSubscripter class
         /// </summary>
         /// <param name="list">The list to subscript</param>
-        public ListSubscripter(IList list)
+        public ListSubscripterWrapper(IList list)
         {
             _list = list;
         }

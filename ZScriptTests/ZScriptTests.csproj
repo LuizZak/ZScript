@@ -62,10 +62,17 @@
     <Compile Include="Runtime\ArrayTests.cs" />
     <Compile Include="Runtime\ClosureTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmArrayTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmMemberTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmObjectTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmSubscripting.cs" />
     <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripterTests.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\ClassMemberTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\LstSubscripterTests.cs" />
     <Compile Include="Runtime\ExportFunctionTests.cs" />
+    <Compile Include="Runtime\MemberTests.cs" />
+    <Compile Include="Runtime\ObjectLiteralTests.cs" />
+    <Compile Include="Runtime\SubscriptingTests.cs" />
     <Compile Include="Runtime\ZRuntimeTests.cs" />
     <Compile Include="TestRuntimeOwner.cs" />
     <Compile Include="ZScriptTests.cs" />

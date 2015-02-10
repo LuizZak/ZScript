@@ -84,6 +84,7 @@
     <Compile Include="Elements\TokenList.cs" />
     <Compile Include="Elements\ValueHolding\ValueHolder.cs" />
     <Compile Include="Elements\ValueHolding\Variable.cs" />
+    <Compile Include="Elements\ZObject.cs" />
     <Compile Include="Parsing\ConstantAtomParser.cs" />
     <Compile Include="Parsing\ValueParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -93,9 +94,15 @@
     <Compile Include="Parsing\ANTLR\ZScriptParser.cs" />
     <Compile Include="Runtime\Execution\FunctionVM.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\IntegerMemory.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\IMemberWrapper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripter.cs" />
-    <Compile Include="Runtime\Execution\Wrappers\ISubscripter.cs" />
-    <Compile Include="Runtime\Execution\Wrappers\Subscripters\ListSubscripter.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\ISubscripterWrapper.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\IValueHolder.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\ClassMember.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\FieldClassMember.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\PropertyClassMember.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Subscripters\ListSubscripterWrapper.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Subscripters\ProperySubscripterWrapper.cs" />
     <Compile Include="Runtime\Typing\ITypeOperator.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\IMemory.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\Memory.cs" />

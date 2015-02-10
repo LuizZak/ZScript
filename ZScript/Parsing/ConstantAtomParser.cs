@@ -69,7 +69,8 @@ namespace ZScript.Parsing
         }
 
         /// <summary>
-        /// Parses a given string atom, returning a string containing the string's content
+        /// Parses a given string atom, returning a string containing the string's content,
+        /// expanding any escape character and removing the enclosing quotes on the process
         /// </summary>
         /// <param name="context">The context containing the string to parse</param>
         /// <returns>An object that represents the string atom parsed</returns>

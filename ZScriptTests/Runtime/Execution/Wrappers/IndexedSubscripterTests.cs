@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Execution.Wrappers.Subscripters;
@@ -13,6 +13,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
     [TestClass]
     public class IndexedSubscripterTests
     {
+        #region List subscripting
+
         /// <summary>
         /// Tests generation of indexed subscripters
         /// </summary>
@@ -20,12 +22,12 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         public void TestBasicIndexing()
         {
             var array = new ArrayList { 0, 1 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             // ReSharper disable once UnusedVariable
             var indexed = new IndexedSubscripter(subscripter, 10);
 
-            Assert.AreEqual(subscripter, indexed.Subscripter, "The subscripter on the indexer must be the subscripter passed at its constructor");
+            Assert.AreEqual(subscripter, indexed.SubscripterWrapper, "The subscripter on the indexer must be the subscripter passed at its constructor");
             Assert.AreEqual(10, indexed.IndexValue, "The index value on the indexer must be the index value passed at its constructor");
         }
 
@@ -36,7 +38,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         public void TestGetSetValues()
         {
             var array = new ArrayList { 0, 1 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             // ReSharper disable once UnusedVariable
             var indexed = new IndexedSubscripter(subscripter, 0);
@@ -56,10 +58,86 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         public void TestFailedCreation()
         {
             var array = new ArrayList { 0, 1 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             // ReSharper disable once UnusedVariable
             var indexed = new IndexedSubscripter(subscripter, "abc");
+        }
+
+        /// <summary>
+        /// Tests generation of indexed subscripters
+        /// </summary>
+        [TestMethod]
+        public void TestAutoSubscripterCreation()
+        {
+            var array = new ArrayList { 0, 1 };
+
+            // ReSharper disable once UnusedVariable
+            var indexed = IndexedSubscripter.CreateSubscripter(array, 10);
+
+            Assert.AreEqual(10, indexed.IndexValue, "The index value on the indexer must be the index value passed at its constructor");
+        }
+
+        /// <summary>
+        /// Tests generation of indexed subscripters
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Trying to created an indexed subscripter with an invalid subscript value must raise an ArgumentException")]
+        public void TestFailedAutoSubscripterCreation()
+        {
+            var array = new ArrayList { 0, 1 };
+
+            // ReSharper disable once UnusedVariable
+            var indexed = IndexedSubscripter.CreateSubscripter(array, "abc");
+        }
+
+        #endregion
+
+        #region General subscripting
+
+        /// <summary>
+        /// Tests subscripting a string
+        /// </summary>
+        [TestMethod]
+        public void TestStringSubscripting()
+        {
+            const string str = "abc";
+
+            var indexed = IndexedSubscripter.CreateSubscripter(str, 0);
+
+            Assert.AreEqual('a', indexed.GetValue(), "The string subscripter failed to fetch the expected value");
+        }
+
+        /// <summary>
+        /// Tests subscripting a dictionary
+        /// </summary>
+        [TestMethod]
+        public void TestDictionarySubscripting()
+        {
+            var dict = new Dictionary<string, object> { {"abc", 10} };
+
+            var indexed = IndexedSubscripter.CreateSubscripter(dict, "abc");
+
+            Assert.AreEqual(10, indexed.GetValue(), "The dictionary subscripter failed to fetch the expected value");
+
+            indexed.SetValue(5);
+
+            Assert.AreEqual(5, indexed.GetValue(), "The dictionary subscripter failed to set the value correctly");
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests exception raising when trying to subscript objects that do not have subscripting support
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Trying to create a subscripter for a type that does not supports subscripting should raise an exception")]
+        public void TestNonSubscriptableObject()
+        {
+            var obj = new object();
+
+            // ReSharper disable once UnusedVariable
+            var indexed = IndexedSubscripter.CreateSubscripter(obj, 10);
         }
     }
 }

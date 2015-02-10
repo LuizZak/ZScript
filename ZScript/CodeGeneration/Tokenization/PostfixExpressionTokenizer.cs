@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -254,7 +255,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
                     if (context.valueAccess() != null)
                     {
-                        VisitMemberAccess(context.valueAccess());
+                        VisitValueAccess(context.valueAccess());
                     }
                 }
             }
@@ -294,12 +295,17 @@ namespace ZScript.CodeGeneration.Tokenization
 
                 if (context.valueAccess() != null)
                 {
-                    VisitMemberAccess(context.valueAccess());
+                    VisitValueAccess(context.valueAccess());
                 }
             }
             else if (context.constantAtom() != null)
             {
                 VisitConstantAtom(context.constantAtom());
+
+                if (context.objectAccess() != null)
+                {
+                    VisitObjectAccess(context.objectAccess());
+                }
             }
             else if (context.closureExpression() != null)
             {
@@ -316,7 +322,16 @@ namespace ZScript.CodeGeneration.Tokenization
 
                 if (context.valueAccess() != null)
                 {
-                    VisitMemberAccess(context.valueAccess());
+                    VisitValueAccess(context.valueAccess());
+                }
+            }
+            else if (context.objectLiteral() != null)
+            {
+                VisitObjectLiteral(context.objectLiteral());
+
+                if (context.objectAccess() != null)
+                {
+                    VisitObjectAccess(context.objectAccess());
                 }
             }
             else
@@ -460,7 +475,25 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Member accessing
 
-        private void VisitMemberAccess(ZScriptParser.ValueAccessContext context)
+        private void VisitObjectAccess(ZScriptParser.ObjectAccessContext context)
+        {
+            _isRootMember = false;
+
+            if (context.arrayAccess() != null)
+            {
+                VisitArrayAccess(context.arrayAccess());
+            }
+            else if (context.fieldAccess() != null)
+            {
+                VisitFieldAccess(context.fieldAccess());
+            }
+            if (context.valueAccess() != null)
+            {
+                VisitValueAccess(context.valueAccess());
+            }
+        }
+
+        private void VisitValueAccess(ZScriptParser.ValueAccessContext context)
         {
             _isRootMember = false;
 
@@ -525,26 +558,6 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitExpressionList(args.expressionList());
         }
 
-        private void VisitExpressionList(ZScriptParser.ExpressionListContext args)
-        {
-            if (args == null)
-            {
-                _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
-                return;
-            }
-
-            var argsExps = args.expression();
-
-            int argCount = 0;
-            foreach (var argExp in argsExps)
-            {
-                VisitExpression(argExp);
-                argCount++;
-            }
-
-            _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
-        }
-
         #endregion
 
         #region Literals
@@ -558,7 +571,68 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray));
         }
 
+        private void VisitObjectLiteral(ZScriptParser.ObjectLiteralContext context)
+        {
+            VisitObjectEntryList(context.objectEntryList());
+
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateObject));
+        }
+
+        private void VisitObjectEntryList(ZScriptParser.ObjectEntryListContext context)
+        {
+            if (context == null)
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
+                return;
+            }
+
+            var entryDefs = context.objectEntryDefinition();
+
+            int argCount = 0;
+            foreach (var entry in entryDefs)
+            {
+                VisitExpression(entry.expression());
+                VisitEntryName(entry.entryName());
+
+                argCount++;
+            }
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
+        }
+
+        private void VisitEntryName(ZScriptParser.EntryNameContext context)
+        {
+            if (context.IDENT() != null)
+            {
+                _tokens.Add(TokenFactory.CreateStringToken(context.IDENT().GetText()));
+            }
+            else
+            {
+                _tokens.Add(TokenFactory.CreateStringToken(ConstantAtomParser.ParseStringAtom(context.stringLiteral())));
+            }
+        }
+
         #endregion
+
+        private void VisitExpressionList(ZScriptParser.ExpressionListContext context)
+        {
+            if (context == null)
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
+                return;
+            }
+
+            var argsExps = context.expression();
+
+            int argCount = 0;
+            foreach (var argExp in argsExps)
+            {
+                VisitExpression(argExp);
+                argCount++;
+            }
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
+        }
 
         private void VisitConstantAtom(ZScriptParser.ConstantAtomContext context)
         {

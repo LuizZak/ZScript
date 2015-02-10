@@ -19,7 +19,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
         public void TestSubscription()
         {
             var array = new ArrayList { 0, 0, 2, 0 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             Assert.AreEqual(subscripter.List, array, "The list returned by ListSubscripter.List must be the same object passed on its constructor");
 
@@ -39,7 +39,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
         public void TestSubscriptionTypeChecking()
         {
             var array = new ArrayList();
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             Assert.IsTrue(subscripter.CanSubscriptWithIndexType(typeof(int)),
                 "The ListSubscripter must return true when calling CanSubscriptWithIndexType with Int32 types");
@@ -56,7 +56,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
         public void TestGenericSubscription()
         {
             var array = new List<int> { 0, 0, 2, 0 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             subscripter[1] = 1;
             subscripter[(long)3] = 3;
@@ -75,7 +75,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
         public void TestInvalidSubscritionGet()
         {
             var array = new ArrayList { 0, 1, 2, 3 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             // ReSharper disable once UnusedVariable
             var crash = subscripter["invalidIndex"];
@@ -89,7 +89,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
         public void TestInvalidSubscrition()
         {
             var array = new ArrayList { 0, 1, 2, 3 };
-            var subscripter = new ListSubscripter(array);
+            var subscripter = new ListSubscripterWrapper(array);
 
             // ReSharper disable once UnusedVariable
             subscripter["invalidIndex"] = 10;

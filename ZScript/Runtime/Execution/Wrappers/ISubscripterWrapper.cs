@@ -5,7 +5,7 @@ namespace ZScript.Runtime.Execution.Wrappers
     /// <summary>
     /// Interface for objects that wrap a subscript-capable object into a common access point
     /// </summary>
-    public interface ISubscripter
+    public interface ISubscripterWrapper
     {
         /// <summary>
         /// Gets or sets a subscript value on this ISubscripter object

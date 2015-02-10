@@ -1,0 +1,65 @@
+﻿using System;
+using System.Reflection;
+
+namespace ZScript.Runtime.Execution.Wrappers.Members
+{
+    /// <summary>
+    /// Wraps a class member (field or property)
+    /// </summary>
+    public abstract class ClassMember : IMemberWrapper
+    {
+        /// <summary>
+        /// The target for the get/set operations to perform
+        /// </summary>
+        protected readonly object target;
+
+        public abstract string MemberName { get; }
+        public abstract Type MemberType { get; }
+
+        /// <summary>
+        /// Gets the target for the get/set operations to perform
+        /// </summary>
+        public object Target
+        {
+            get { return target; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of ClassMember object
+        /// </summary>
+        /// <param name="target">The target for the get/set operations to perform</param>
+        protected ClassMember(object target)
+        {
+            this.target = target;
+        }
+
+        public abstract void SetValue(object value);
+        public abstract object GetValue();
+
+        /// <summary>
+        /// Returns a ClassMember that wraps a member from a target class.
+        /// The name must point to either a public property or public field.
+        /// If the method fails to find a valid field, an exception is raised
+        /// </summary>
+        /// <param name="target">The target to get the member from</param>
+        /// <param name="memberName">The name of the member to get</param>
+        /// <returns>A ClassMember that wraps the member</returns>
+        /// <exception cref="ArgumentException">The member name provided does not points to a valid visible field or property</exception>
+        public static ClassMember GetMember(object target, string memberName)
+        {
+            FieldInfo field = target.GetType().GetField(memberName);
+            if (field != null)
+            {
+                return new FieldClassMember(target, field);
+            }
+
+            PropertyInfo prop = target.GetType().GetProperty(memberName);
+            if (prop != null)
+            {
+                return new PropertyClassMember(target, prop);
+            }
+
+            throw new ArgumentException("No public member of name '" + memberName + "' found on object of type '" + target.GetType() + "'", "memberName");
+        }
+    }
+}

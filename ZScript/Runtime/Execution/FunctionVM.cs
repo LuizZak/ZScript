@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
-using ZScript.Runtime.Execution.Wrappers.Subscripters;
+using ZScript.Runtime.Execution.Wrappers.Members;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution
@@ -406,7 +406,7 @@ namespace ZScript.Runtime.Execution
                     PerformFunctionCall();
                     break;
 
-                // Array Creation
+                // Array Luteral creation
                 case VmInstruction.CreateArray:
                     PerformArrayCreation();
                     break;
@@ -414,6 +414,16 @@ namespace ZScript.Runtime.Execution
                 // Subscripter fetching
                 case VmInstruction.GetSubscript:
                     PerformGetSubscripter();
+                    break;
+
+                // Field fetching
+                case VmInstruction.GetMember:
+                    PerformGetMember();
+                    break;
+
+                // Object Literal creation
+                case VmInstruction.CreateObject:
+                    PerformObjectCreation();
                     break;
 
                 default:
@@ -531,6 +541,26 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a ZObject creation using the values on the stack, pushing the created object back into the top of the stack
+        /// </summary>
+        void PerformObjectCreation()
+        {
+            // Pop the argument count
+            int argCount = (int)_stack.Pop();
+
+            // Pop the arguments from the stack
+            var obj = new ZObject();
+
+            for (int i = 0; i < argCount; i++)
+            {
+                obj[(string)_stack.Pop()] = PopValueImplicit();
+            }
+
+            // Push the array back into the stack
+            _stack.Push(obj);
+        }
+
+        /// <summary>
         /// Performs a subscripter-fetch on the object on top of the stack, pushing a resulting ISubcripter back on the stack.
         /// All types that implement IList can be subscripted by the operation.
         /// If the value cannot be subscripted, an exception is raised.
@@ -541,14 +571,23 @@ namespace ZScript.Runtime.Execution
             object index = PopValueImplicit();
             object target = PopValueImplicit();
 
-            var list = target as IList;
-            if (list != null)
+            _stack.Push(IndexedSubscripter.CreateSubscripter(target, index));
+        }
+
+        /// <summary>
+        /// Performs a member-fetch on the object on top of the stack, pushing a resulting ClassMember back on the stack
+        /// </summary>
+        void PerformGetMember()
+        {
+            object memberName = _stack.Pop();
+            object target = PopValueImplicit();
+
+            if (memberName is Token)
             {
-                _stack.Push(new IndexedSubscripter(new ListSubscripter(list), index));
-                return;
+                memberName = (string)((Token)memberName).TokenObject;
             }
 
-            throw new InvalidOperationException("Value on top of the stack cannot be subscripted");
+            _stack.Push(ClassMember.GetMember(target, (string)memberName));
         }
 
         /// <summary>
@@ -675,10 +714,10 @@ namespace ZScript.Runtime.Execution
             {
                 return _context.AddressedMemory.GetVariable((int)valueContainer);
             }
-            var subscripter = valueContainer as IndexedSubscripter;
-            if (subscripter != null)
+            var valueHolder = valueContainer as IValueHolder;
+            if (valueHolder != null)
             {
-                return subscripter.Subscripter[subscripter.IndexValue];
+                return valueHolder.GetValue();
             }
 
             throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value get");
@@ -703,10 +742,10 @@ namespace ZScript.Runtime.Execution
                 _context.AddressedMemory.SetVariable((int)valueContainer, value);
                 return;
             }
-            var subscripter = valueContainer as IndexedSubscripter;
-            if (subscripter != null)
+            var valueHolder = valueContainer as IValueHolder;
+            if (valueHolder != null)
             {
-                subscripter.Subscripter[subscripter.IndexValue] = value;
+                valueHolder.SetValue(value);
                 return;
             }
             
@@ -899,6 +938,9 @@ namespace ZScript.Runtime.Execution
 
         /// <summary>Creates an array using the values on the stack and pushes the result back into the stack</summary>
         CreateArray,
+
+        /// <summary>Creates an object using the values on the stack and pushes the result back into the stack</summary>
+        CreateObject,
 
         /// <summary>Unary negation ('-') instruction</summary>
         UnaryNegate,
