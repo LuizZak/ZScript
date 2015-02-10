@@ -557,29 +557,7 @@ namespace ZScript.Runtime.Execution
         /// <returns>A value popped from the stack, and fetched from memory, if needed</returns>
         object PopValueImplicit()
         {
-            var obj = _stack.Pop();
-
-            if (obj is IndexedSubscripter)
-                return obj;
-
-            var t = obj as Token;
-            if (t != null)
-            {
-                // Pop the variable and value to get
-                if (!_context.Memory.HasVariable((string)t.TokenObject))
-                {
-                    var f = _context.Runtime.FunctionWithName((string)t.TokenObject);
-
-                    if (f != null)
-                        return f;
-
-                    throw new Exception("Trying to access undefined variable '" + (string)t.TokenObject + "'.");
-                }
-
-                return _context.Memory.GetVariable((string)t.TokenObject);
-            }
-
-            return obj;
+            return ExpandValue(_stack.Pop());
         }
 
         /// <summary>
@@ -648,12 +626,33 @@ namespace ZScript.Runtime.Execution
         /// <returns>A value peeked from the stack, and fetched from memory, if needed</returns>
         object PeekValueImplicit()
         {
-            var obj = _stack.Peek();
+            return ExpandValue(_stack.Peek());
+        }
+
+        /// <summary>
+        /// Expands a given value, returning an object that the value represents
+        /// </summary>
+        /// <param name="obj">The object to expand</param>
+        /// <returns>The value the object represents</returns>
+        private object ExpandValue(object obj)
+        {
+            if (obj is IndexedSubscripter)
+                return obj;
 
             var t = obj as Token;
             if (t != null)
             {
                 // Pop the variable and value to get
+                if (!_context.Memory.HasVariable((string)t.TokenObject))
+                {
+                    var f = _context.Runtime.FunctionWithName((string)t.TokenObject);
+
+                    if (f != null)
+                        return f;
+
+                    throw new Exception("Trying to access undefined variable '" + (string)t.TokenObject + "'.");
+                }
+
                 return _context.Memory.GetVariable((string)t.TokenObject);
             }
 

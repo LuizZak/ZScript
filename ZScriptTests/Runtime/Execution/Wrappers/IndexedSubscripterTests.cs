@@ -30,6 +30,25 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         }
 
         /// <summary>
+        /// Tests usage of the Get/SetValue methods
+        /// </summary>
+        [TestMethod]
+        public void TestGetSetValues()
+        {
+            var array = new ArrayList { 0, 1 };
+            var subscripter = new ListSubscripter(array);
+
+            // ReSharper disable once UnusedVariable
+            var indexed = new IndexedSubscripter(subscripter, 0);
+
+            Assert.AreEqual(array[0], indexed.GetValue(), "Calling GetValue() should return the value on the index of the array pointed by the IndexedSubscripter");
+
+            indexed.SetValue(1);
+
+            Assert.AreEqual(array[0], indexed.GetValue(), "Calling SetValue() should set the value on the index of the array pointed by the IndexedSubscripter");
+        }
+
+        /// <summary>
         /// Tests exception raising of indexed subscripters
         /// </summary>
         [TestMethod]

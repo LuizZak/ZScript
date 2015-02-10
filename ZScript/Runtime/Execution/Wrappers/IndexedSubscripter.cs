@@ -52,5 +52,23 @@ namespace ZScript.Runtime.Execution.Wrappers
                 throw new ArgumentException("The provided subscripter object cannot subscript to objects of type '" + indexValue.GetType() + "'");
             }
         }
+
+        /// <summary>
+        /// Gets the value at the index of the array pointed by this index subscripter
+        /// </summary>
+        /// <returns>The value pointed by this index subscripter</returns>
+        public object GetValue()
+        {
+            return _subscripter[_indexValue];
+        }
+
+        /// <summary>
+        /// Sets the value at the index of the array pointed by this index subscripter
+        /// </summary>
+        /// <param name="value">The value to set on the index pointed by this index subscripter</param>
+        public void SetValue(object value)
+        {
+            _subscripter[_indexValue] = value;
+        }
     }
 }
