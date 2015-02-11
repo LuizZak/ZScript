@@ -1,5 +1,4 @@
-﻿using System;
-using ZScript.Elements;
+﻿using ZScript.Elements;
 
 namespace ZScript.Runtime
 {

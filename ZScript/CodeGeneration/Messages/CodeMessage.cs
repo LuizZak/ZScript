@@ -20,7 +20,7 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Gets or sets the offset in the line the message is relevant at
         /// </summary>
-        public int Position { get; set; }
+        public int Column { get; set; }
 
         /// <summary>
         /// Gets or sets the context the message is contained at
@@ -36,20 +36,38 @@ namespace ZScript.CodeGeneration.Messages
             {
                 string s = "";
 
-                // If the context is a block statement, navigate until the top-most function definition
+                // Try to roll up until a function definition context
                 RuleContext context = Context;
-                if (context is ZScriptParser.BlockStatementContext)
+                while (context != null)
                 {
-                    while (context.Parent != null && !(context is ZScriptParser.FunctionDefinitionContext))
+                    var fd = context as ZScriptParser.FunctionDefinitionContext;
+                    if (fd != null)
                     {
-                        context = context.Parent;
+                        return "function '" + fd.functionName().IDENT().GetText() + "'";
                     }
-                }
 
-                var fd = context as ZScriptParser.FunctionDefinitionContext;
-                if (fd != null)
-                {
-                    s = "function " + fd.functionName().IDENT().GetText();
+                    var od = context as ZScriptParser.ObjectDefinitionContext;
+                    if (od != null)
+                    {
+                        return "object '" + od.objectName().IDENT().GetText() + "'";
+                    }
+
+                    var sf = context as ZScriptParser.SequenceFrameContext;
+                    if (sf != null)
+                    {
+                        return "sequence '" + ((ZScriptParser.SequenceBlockContext)sf.Parent.Parent).sequenceName().IDENT() + "' frame range " + sf.frameRange().GetText();
+                    }
+
+                    var sb = context as ZScriptParser.SequenceBodyContext;
+                    if (sb != null)
+                    {
+                        return "sequence '" + ((ZScriptParser.SequenceBlockContext)sb.Parent).sequenceName().IDENT() + "'";
+                    }
+
+                    context = context.Parent;
+
+                    if (context == null)
+                        return "";
                 }
 
                 return s;

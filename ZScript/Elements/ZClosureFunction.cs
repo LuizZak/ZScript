@@ -33,7 +33,7 @@ namespace ZScript.Elements
         {
             return new ZClosureFunction(Name, Tokens, Arguments)
             {
-                CapturedMemory = CapturedMemory == null ? new MemoryMapper() : CapturedMemory.Clone()
+                CapturedMemory = CapturedMemory == null ? CapturedMemory : CapturedMemory.Clone()
             };
         }
     }

@@ -16,9 +16,14 @@
         private readonly FunctionArgumentDefinition[] _arguments;
 
         /// <summary>
-        /// The return type for the function
+        /// Gets or sets a value specifying whether this function definition has a return type associated with it
         /// </summary>
-        private readonly TypeDef _returnType;
+        public bool HasReturnType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether this function definition has a void return value
+        /// </summary>
+        public bool IsVoid { get; set; }
 
         /// <summary>
         /// Gets the context containing the function body's statements
@@ -35,6 +40,11 @@
         {
             get { return _arguments; }
         }
+
+        /// <summary>
+        /// Gets or sets the return type for the function
+        /// </summary>
+        public TypeDef ReturnType { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the FunctionDefinition class

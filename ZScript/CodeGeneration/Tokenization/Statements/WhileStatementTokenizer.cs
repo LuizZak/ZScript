@@ -56,10 +56,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             List<Token> tokens = new List<Token>();
 
+            var cond = context.expression();
+
             // 1 - Condition expression
             tokens.Add(_conditionTarget);
 
-            var cond = context.expression();
             tokens.AddRange(_context.TokenizeExpression(cond));
 
             // 2 - Conditional jump to End

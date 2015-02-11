@@ -33,6 +33,11 @@ namespace ZScript.CodeGeneration
         private string _input;
 
         /// <summary>
+        /// The container for error and warning messages
+        /// </summary>
+        private MessageContainer _messageContainer;
+
+        /// <summary>
         /// The error listener for the parsing of the script
         /// </summary>
         private ZScriptErrorListener _errorListener;
@@ -48,16 +53,6 @@ namespace ZScript.CodeGeneration
         private ZScriptParser _parser;
 
         /// <summary>
-        /// The list of code errors raised during the analysis of the program
-        /// </summary>
-        private List<CodeError> _codeErrors;
-
-        /// <summary>
-        /// The list of warnings raised during the analysis of the program
-        /// </summary>
-        private List<Warning> _warnings; 
-
-        /// <summary>
         /// Gets or sets the script string input
         /// </summary>
         public string Input
@@ -71,7 +66,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         public SyntaxError[] SyntaxErrors
         {
-            get { return _errorListener.SyntaxErrors.ToArray(); }
+            get { return _messageContainer.SyntaxErrors; }
         }
 
         /// <summary>
@@ -79,7 +74,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         public bool HasSyntaxErrors
         {
-            get { return _errorListener != null && _errorListener.SyntaxErrors.Count > 0; }
+            get { return _messageContainer.HasSyntaxErrors; }
         }
 
         /// <summary>
@@ -87,7 +82,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         public bool HasCodeErrors
         {
-            get { return _codeErrors.Count > 0; }
+            get { return _messageContainer.HasCodeErrors; }
         }
 
         /// <summary>
@@ -95,7 +90,16 @@ namespace ZScript.CodeGeneration
         /// </summary>
         public bool HasErrors
         {
-            get { return HasSyntaxErrors || HasCodeErrors; }
+            get { return _messageContainer.HasErrors; }
+        }
+
+        /// <summary>
+        /// Gets or sets the message container for this scope analyzer
+        /// </summary>
+        public MessageContainer MessageContainer
+        {
+            get { return _messageContainer; }
+            set { _messageContainer = value; }
         }
 
         /// <summary>
@@ -104,8 +108,8 @@ namespace ZScript.CodeGeneration
         /// <param name="input">The input string containing the code to parse</param>
         public ZRuntimeGenerator(string input)
         {
-            _codeErrors = new List<CodeError>();
             _input = input;
+            _messageContainer = new MessageContainer();
         }
 
         /// <summary>
@@ -113,7 +117,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         public void ParseInputString()
         {
-            _errorListener = new ZScriptErrorListener();
+            _errorListener = new ZScriptErrorListener(_messageContainer);
 
             AntlrInputStream stream = new AntlrInputStream(_input);
             ITokenSource lexer = new ZScriptLexer(stream);
@@ -126,7 +130,7 @@ namespace ZScript.CodeGeneration
             };
 
             // Reset error listener
-            _errorListener.SyntaxErrors.Clear();
+            _messageContainer.ClearSyntaxErrors();
             _parser.AddErrorListener(_errorListener);
 
             try
@@ -139,7 +143,7 @@ namespace ZScript.CodeGeneration
                 _parser.Interpreter.PredictionMode = PredictionMode.Ll;
                 
                 // Reset error listener
-                _errorListener.SyntaxErrors.Clear();
+                _messageContainer.ClearSyntaxErrors();
 
                 _tree = _parser.program();
             }
@@ -155,24 +159,22 @@ namespace ZScript.CodeGeneration
                 throw new Exception("The ParseInputString method must be called before any generation can be performed");
             }
 
-            _codeErrors = new List<CodeError>();
-            _warnings = new List<Warning>();
+            // Clear code errors and warnings that happened in previous definition collections
+            _messageContainer.ClearCodeErrors();
+            _messageContainer.ClearWarnings();
 
             // Analyze the scopes
-            var scopeAnalyzer = new ScopeAnalyzer();
+            var scopeAnalyzer = new ScopeAnalyzer(_messageContainer);
             scopeAnalyzer.AnalyzeProgram(_tree);
 
-            _codeErrors.AddRange(scopeAnalyzer.Errors);
-            _warnings.AddRange(scopeAnalyzer.Warnings);
-
-            foreach (var error in _codeErrors)
+            foreach (var error in _messageContainer.CodeErrors)
             {
-                Console.WriteLine("Error at " + error.ContextName + " at line " + error.Line + " position " + error.Position + ": " + error.Message);
+                Console.WriteLine("Error at " + error.ContextName + " at line " + error.Line + " position " + error.Column + ": " + error.Message);
             }
 
-            foreach (var warning in _warnings)
+            foreach (var warning in _messageContainer.Warnings)
             {
-                Console.WriteLine("Warning at " + warning.ContextName + " at line " + warning.Line + " position " + warning.Position + ": " + warning.Message);
+                Console.WriteLine("Warning at " + warning.ContextName + " at line " + warning.Line + " position " + warning.Column + ": " + warning.Message);
             }
 
             return scopeAnalyzer.DefinitionsCollector;
@@ -261,7 +263,6 @@ namespace ZScript.CodeGeneration
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
         private ZExportFunction[] GenerateExportFunctions(DefinitionsCollector definitions)
         {
-            var tokenizer = new FunctionBodyTokenizer(definitions) { DebugTokens = Debug };
             var funcDefs = definitions.CollectedBaseScope.Definitions.OfType<ExportFunctionDefinition>();
 
             return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Arguments))).ToArray();
@@ -310,16 +311,25 @@ namespace ZScript.CodeGeneration
         private class ZScriptErrorListener : BaseErrorListener
         {
             /// <summary>
-            /// A list of all the syntax errors reported
+            /// The container errors will be reported to
             /// </summary>
-            public readonly List<SyntaxError> SyntaxErrors = new List<SyntaxError>();
+            private readonly MessageContainer _messageContainer;
+
+            /// <summary>
+            /// Initializes a new instance of the ZScriptErrorListener class
+            /// </summary>
+            /// <param name="messageContainer">The container errors will be reported to</param>
+            public ZScriptErrorListener(MessageContainer messageContainer)
+            {
+                _messageContainer = messageContainer;
+            }
 
             // 
             // SintaxError listener
             // 
             public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
             {
-                SyntaxErrors.Add(new SyntaxError(line, charPositionInLine, msg));
+                _messageContainer.RegisterSyntaxError(new SyntaxError(line, charPositionInLine, msg));
             }
         }
     }

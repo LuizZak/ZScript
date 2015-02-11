@@ -1,44 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Antlr4.Runtime;
+using ZScript.CodeGeneration.Analysis.Definitions;
+using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
 
 namespace ZScript.CodeGeneration.Analysis
 {
     /// <summary>
-    /// Class that analyzes expressions and 
+    /// Class that analyzes expressions and returns warnings and errors related to usage of definitions
     /// </summary>
-    public class VariableUsageAnalyzer : ZScriptBaseListener
+    public class DefinitionAnalyzer : ZScriptBaseListener
     {
-        /// <summary>
-        /// A list of all the errors raised during the current analysis
-        /// </summary>
-        private readonly List<CodeError> _errorList = new List<CodeError>();
-
         /// <summary>
         /// The current scope for the definitions
         /// </summary>
-        private DefinitionScope _currentScope;
+        private CodeScope _currentScope;
 
         /// <summary>
-        /// Gets a list of all the errors raised during the current analysis
+        /// The message container that errors will be reported to
         /// </summary>
-        public List<CodeError> CollectedErrors
-        {
-            get { return _errorList; }
-        }
+        private readonly MessageContainer _messageContainer;
 
         /// <summary>
         /// Creates a new instance of the VariableUsageAnalyzer class
         /// </summary>
         /// <param name="scope">The scope to analyzer</param>
-        public VariableUsageAnalyzer(DefinitionScope scope)
+        /// <param name="messageContainer">The message container that errors will be reported to</param>
+        public DefinitionAnalyzer(CodeScope scope, MessageContainer messageContainer)
         {
             _currentScope = scope;
+            _messageContainer = messageContainer;
         }
 
         #region Scope walking
+
+        public override void ExitProgram(ZScriptParser.ProgramContext context)
+        {
+            ExitContextScope();
+        }
 
         // Function definitions have their own scope, containing the parameters
         public override void EnterFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
@@ -63,10 +62,36 @@ namespace ZScript.CodeGeneration.Analysis
 
         public override void EnterObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
         {
+            // Add an usage for the inherited object, if available
+            if (context.objectInherit() != null)
+            {
+                var name = context.objectInherit().objectName().GetText();
+                Definition def = _currentScope.SearchDefinitionByName(name);
+
+                if (!(def is ObjectDefinition))
+                {
+                    _messageContainer.RegisterError(context.Start.Line, context.Start.Column,
+                        "Unkown or invalid definition '" + name + "' to inherit from",
+                        ErrorCode.AccessUndeclaredDefinition);
+                }
+
+                RegisterDefinitionUsage(def, context);
+            }
+
             EnterContextScope(context);
         }
 
         public override void ExitObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
+        {
+            ExitContextScope();
+        }
+
+        public override void EnterObjectBody(ZScriptParser.ObjectBodyContext context)
+        {
+            EnterContextScope(context);
+        }
+
+        public override void ExitObjectBody(ZScriptParser.ObjectBodyContext context)
         {
             ExitContextScope();
         }
@@ -77,6 +102,16 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         public override void ExitSequenceBlock(ZScriptParser.SequenceBlockContext context)
+        {
+            ExitContextScope();
+        }
+
+        public override void EnterSequenceBody(ZScriptParser.SequenceBodyContext context)
+        {
+            EnterContextScope(context);
+        }
+
+        public override void ExitSequenceBody(ZScriptParser.SequenceBodyContext context)
         {
             ExitContextScope();
         }
@@ -112,19 +147,13 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 var name = context.memberName().IDENT().GetText();
 
-                if (!DefinitionNameExists(name))
-                {
-                    RegisterMemberNotFound(context.memberName());
-                }
+                RegisterDefinitionUsage(name, context.memberName());
             }
             if (context.leftValue() != null && context.leftValue().memberName() != null)
             {
                 var name = context.leftValue().memberName().IDENT().GetText();
 
-                if (!DefinitionNameExists(name))
-                {
-                    RegisterMemberNotFound(context.leftValue().memberName());
-                }
+                RegisterDefinitionUsage(name, context.memberName());
             }
         }
 
@@ -135,10 +164,7 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 var name = context.leftValue().memberName().IDENT().GetText();
 
-                if (!DefinitionNameExists(name))
-                {
-                    RegisterMemberNotFound(context.leftValue().memberName());
-                }
+                RegisterDefinitionUsage(name, context.leftValue().memberName());
             }
         }
 
@@ -168,6 +194,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         void ExitContextScope()
         {
+            // Analyze the scope for unused definitions
+            UnusedDefinitionsAnalyzer.Analyze(_currentScope, _messageContainer);
+
             _currentScope = _currentScope.ParentScope;
         }
 
@@ -175,29 +204,36 @@ namespace ZScript.CodeGeneration.Analysis
         /// Gets the current top-most scope
         /// </summary>
         /// <returns>The current top-most scope</returns>
-        DefinitionScope CurrentScope()
+        CodeScope CurrentScope()
         {
             return _currentScope;
         }
 
         /// <summary>
-        /// Returns whether a given definition name is defined in any of the current scopes
+        /// Registers a new definition usage
         /// </summary>
-        /// <param name="definitionName">The definition name to verify</param>
-        /// <returns>Whether a definition with the given name exists</returns>
-        bool DefinitionNameExists(string definitionName)
+        /// <param name="definitionName">The name of the definition that was used</param>
+        /// <param name="context">The context in which the definition was used</param>
+        void RegisterDefinitionUsage(string definitionName, ZScriptParser.MemberNameContext context)
         {
-            var scope = _currentScope;
+            var definition = _currentScope.SearchDefinitionByName(definitionName);
 
-            while (scope != null)
+            if (definition == null)
             {
-                if (scope.Definitions.Any(d => d.Name == definitionName))
-                    return true;
-
-                scope = scope.ParentScope;
+                RegisterMemberNotFound(context);
             }
 
-            return false;
+            _currentScope.AddDefinitionUsage(new DefinitionUsage(definition, context));
+        }
+
+        /// <summary>
+        /// Registers a new definition usage
+        /// </summary>
+        /// <param name="def">The definition that was used</param>
+        /// <param name="context">The context in which the definition was used</param>
+        void RegisterDefinitionUsage(Definition def, ParserRuleContext context)
+        {
+            _currentScope.AddDefinitionUsage(new DefinitionUsage(def, context));
         }
 
         /// <summary>
@@ -206,11 +242,24 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="member">The member containing the name of the variable that was not found</param>
         void RegisterMemberNotFound(ZScriptParser.MemberNameContext member)
         {
-            CodeError error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, CodeError.CodeErrorType.AccessUndeclaredDefinition);
+            CodeError error;
+
+            if (member == null)
+            {
+                error = new CodeError(0, 0, ErrorCode.AccessUndeclaredDefinition);
+                error.Message += " UNKNOWN";
+                error.Context = CurrentScope().Context;
+
+                _messageContainer.RegisterError(error);
+
+                return;
+            }
+            
+            error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, ErrorCode.AccessUndeclaredDefinition);
             error.Message += " '" + member.IDENT().GetText() + "'";
             error.Context = CurrentScope().Context;
 
-            _errorList.Add(error);
+            _messageContainer.RegisterError(error);
         }
     }
 }

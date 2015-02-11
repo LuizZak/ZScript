@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -43,10 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeGeneration\Analysis\DefinitionScope.cs" />
+    <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
+    <Compile Include="CodeGeneration\Analysis\Definitions\UnusedDefinitionsAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Messages\MessageContainer.cs" />
     <Compile Include="CodeGeneration\Elements\ClosureDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\Definition.cs" />
     <Compile Include="CodeGeneration\DefinitionsCollector.cs" />
+    <Compile Include="CodeGeneration\Elements\DefinitionUsage.cs" />
     <Compile Include="CodeGeneration\Elements\ExportFunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\Expression.cs" />
     <Compile Include="CodeGeneration\Elements\FunctionArgumentDefinition.cs" />
@@ -56,7 +60,7 @@
     <Compile Include="CodeGeneration\Elements\ObjectDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\TypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\ValueHolderDefinition.cs" />
-    <Compile Include="CodeGeneration\Analysis\VariableUsageAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Analysis\DefinitionAnalyzer.cs" />
     <Compile Include="CodeGeneration\Messages\CodeError.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\VariableToken.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\VariableTokenExpander.cs" />

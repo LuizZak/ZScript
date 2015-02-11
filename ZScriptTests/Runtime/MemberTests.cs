@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Elements;
 
 namespace ZScriptTests.Runtime

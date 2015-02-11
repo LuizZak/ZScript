@@ -317,7 +317,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedWhileBreakStatement()
         {
-            const string input = "[ a = 0; b = 0; ]func f() { while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
+            const string input = "[ a = 0; b = 0; ] func f() { while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
 
             var generator = CreateGenerator(input);
 

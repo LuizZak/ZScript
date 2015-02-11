@@ -9,11 +9,11 @@ namespace ZScript.CodeGeneration.Messages
         /// Initializes a new instance of the SyntaxError class
         /// </summary>
         /// <param name="line">The line the error occurred at</param>
-        /// <param name="position">The offset in the line the error occurred at</param>
+        /// <param name="column">The offset in the line the error occurred at</param>
         /// <param name="message">The message for the error</param>
-        public SyntaxError(int line, int position, string message)
+        public SyntaxError(int line, int column, string message)
         {
-            Position = position;
+            Column = column;
             Line = line;
             Message = message;
         }

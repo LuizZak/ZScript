@@ -30,5 +30,10 @@ namespace ZScript.CodeGeneration.Elements
         /// Whether this value holder is constant
         /// </summary>
         public bool IsConstant { get; set; }
+
+        /// <summary>
+        /// Whether this value holder is an instance value
+        /// </summary>
+        public bool IsInstanceValue;
     }
 }

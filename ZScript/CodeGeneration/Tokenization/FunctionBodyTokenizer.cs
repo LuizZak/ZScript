@@ -69,11 +69,19 @@ namespace ZScript.CodeGeneration.Tokenization
                 Console.Write("{0:0000000}", add++);
                 Console.Write(": ");
 
-                if (token is JumpToken)
+                var jumpToken = token as JumpToken;
+                if (jumpToken != null)
                 {
                     Console.Write("[");
-                    Console.Write(tokenList.IndexOf(((JumpToken)token).TargetToken));
-                    Console.WriteLine(" JUMP]");
+                    Console.Write(tokenList.IndexOf(jumpToken.TargetToken));
+                    Console.Write(" JUMP");
+                    if (jumpToken.Conditional)
+                    {
+                        Console.Write(jumpToken.ConditionToJump ? "IfTrue" : "IfFalse");
+                        if(!jumpToken.ConsumesStack)
+                            Console.Write("Peek");
+                    }
+                    Console.WriteLine("]");
                     continue;
                 }
                 if (token is JumpTargetToken)

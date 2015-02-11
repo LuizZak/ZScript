@@ -74,7 +74,7 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Gets the stack of items being evaluated in this function VM
         /// </summary>
-        public Stack<Object> Stack
+        public Stack<object> Stack
         {
             get { return _stack; }
         }
@@ -283,7 +283,7 @@ namespace ZScript.Runtime.Execution
             var type = NumberTypeForBoxedNumber(value);
 
             if (instruction != VmInstruction.IncrementPostfix && instruction != VmInstruction.IncrementPrefix &&
-               instruction != VmInstruction.DecrementPostfix && instruction != VmInstruction.DecrementPrefix)
+                instruction != VmInstruction.DecrementPostfix && instruction != VmInstruction.DecrementPrefix)
                 throw new ArgumentException("The provided instruction is not a valid increment/decrement instruction");
 
             int changeOnStack = instruction == VmInstruction.IncrementPrefix  ?  1 :

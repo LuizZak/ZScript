@@ -54,6 +54,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
+    <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpanderTests.cs" />
     <Compile Include="CodeGeneration\Tokenizers\StatementTokenizerTests.cs" />
     <Compile Include="Parsing\ConstantAtomParserTests.cs" />

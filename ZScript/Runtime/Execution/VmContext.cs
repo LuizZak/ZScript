@@ -45,7 +45,7 @@ namespace ZScript.Runtime.Execution
         /// <param name="addressedMemory">The addressed memory for this VM context</param>
         /// <param name="runtime">The current runtime to associate with this VmContext</param>
         public VmContext(IMemory<string> memory, IMemory<int> addressedMemory, ZRuntime runtime)
-            : this(memory, new IntegerMemory(), runtime, (runtime == null ? null : runtime.Owner))
+            : this(memory, addressedMemory, runtime, (runtime == null ? null : runtime.Owner))
         {
 
         }

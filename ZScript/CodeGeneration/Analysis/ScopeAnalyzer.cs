@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Antlr4.Runtime.Tree;
+﻿using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Messages;
 
 namespace ZScript.CodeGeneration.Analysis
@@ -10,14 +9,9 @@ namespace ZScript.CodeGeneration.Analysis
     public class ScopeAnalyzer : ZScriptBaseListener
     {
         /// <summary>
-        /// A list of all the errors raised during the current analysis
+        /// The container for error and warning messages
         /// </summary>
-        private List<CodeError> _errorList = new List<CodeError>();
-
-        /// <summary>
-        /// List of all the warnings raised during analysis
-        /// </summary>
-        private List<Warning> _warningList = new List<Warning>(); 
+        private MessageContainer _messageContainer;
 
         /// <summary>
         /// The current stack of variable scopes
@@ -33,19 +27,22 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Gets an array of all the errors that were found
+        /// Gets or sets the message container for this scope analyzer
         /// </summary>
-        public CodeError[] Errors
+        public MessageContainer MessageContainer
         {
-            get { return _errorList.ToArray(); }
+            get { return _messageContainer; }
+            set { _messageContainer = value; }
         }
 
         /// <summary>
-        /// Gets an array of all the warnings that were raised
+        /// Initializes a new instance of the ScopeAnalyzer class
         /// </summary>
-        public Warning[] Warnings
+        /// <param name="messageContainer">The container that error and warning messages will be reported to</param>
+        public ScopeAnalyzer(MessageContainer messageContainer)
         {
-            get { return _warningList.ToArray(); }
+            _messageContainer = new MessageContainer();
+            _messageContainer = messageContainer;
         }
 
         /// <summary>
@@ -54,26 +51,19 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context of the program to analyze</param>
         public void AnalyzeProgram(ZScriptParser.ProgramContext context)
         {
-            _errorList = new List<CodeError>();
-            _warningList = new List<Warning>();
-
-            _definitionsCollector = new DefinitionsCollector();
-            ParseTreeWalker walker = new ParseTreeWalker();
+            _definitionsCollector = new DefinitionsCollector(_messageContainer);
+            
 
             // Walk twice - the first pass collects definitions, the second pass analyzes bodies
             //_analysisMode = AnalysisMode.DefinitionCollection;
-            DefinitionsCollector collector = new DefinitionsCollector();
-            walker.Walk(collector, context);
-
-            _errorList.AddRange(collector.CollectedErrors);
-            _warningList.AddRange(collector.Warnings);
+            DefinitionsCollector collector = new DefinitionsCollector(_messageContainer);
+            collector.Analyze(context);
 
             _definitionsCollector = collector;
 
-            VariableUsageAnalyzer varAnalyzer = new VariableUsageAnalyzer(_definitionsCollector.CollectedBaseScope);
+            ParseTreeWalker walker = new ParseTreeWalker();
+            DefinitionAnalyzer varAnalyzer = new DefinitionAnalyzer(_definitionsCollector.CollectedBaseScope, _messageContainer);
             walker.Walk(varAnalyzer, context);
-
-            _errorList.AddRange(varAnalyzer.CollectedErrors);
         }
     }
 }

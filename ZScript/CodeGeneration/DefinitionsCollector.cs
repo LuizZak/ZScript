@@ -16,50 +16,29 @@ namespace ZScript.CodeGeneration
     public class DefinitionsCollector : ZScriptBaseListener
     {
         /// <summary>
-        /// A list of all the errors raised during the definition collection
-        /// </summary>
-        private readonly List<CodeError> _errorList = new List<CodeError>();
-
-        /// <summary>
-        /// List of all the warnings raised during analysis
-        /// </summary>
-        private readonly List<Warning> _warningList = new List<Warning>();
-
-        /// <summary>
         /// The count of closures that were created
         /// </summary>
         private int _closuresCount;
 
         /// <summary>
-        /// Gets an array of all the warnings that were raised
+        /// The message container that errors will be reported to
         /// </summary>
-        public Warning[] Warnings
-        {
-            get { return _warningList.ToArray(); }
-        }
-
-        /// <summary>
-        /// Gets a list of all the errors raised during the current analysis
-        /// </summary>
-        public List<CodeError> CollectedErrors
-        {
-            get { return _errorList; }
-        }
+        private readonly MessageContainer _messageContainer;
 
         /// <summary>
         /// The current stack of variable scopes
         /// </summary>
-        private DefinitionScope _baseScope;
+        private CodeScope _baseScope;
 
         /// <summary>
         /// The current scope for the definitions
         /// </summary>
-        private DefinitionScope _currentScope;
+        private CodeScope _currentScope;
 
         /// <summary>
         /// Gets the collected base scope containing the scopes defined
         /// </summary>
-        public DefinitionScope CollectedBaseScope
+        public CodeScope CollectedBaseScope
         {
             get { return _baseScope; }
         }
@@ -67,10 +46,26 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Initializes a new instance of the ScopeCollector class
         /// </summary>
-        public DefinitionsCollector()
+        /// <param name="messageContainer">The message container that errors will be reported to</param>
+        public DefinitionsCollector(MessageContainer messageContainer)
         {
-            _baseScope = new DefinitionScope();
+            _baseScope = new CodeScope();
             _currentScope = _baseScope;
+            _messageContainer = messageContainer;
+        }
+
+        /// <summary>
+        /// Analyzes a given subset of a parser rule context on this definitions collector
+        /// </summary>
+        /// <param name="context">The context to analyze</param>
+        public void Analyze(ParserRuleContext context)
+        {
+            var walker = new ParseTreeWalker();
+            walker.Walk(this, context);
+
+            CodeScopeReachabilityAnalyzer.Analyze(_baseScope);
+            var rsa = new ReturnStatementAnalyzer();
+            rsa.AnalyzeScope(_baseScope, _messageContainer);
         }
 
         #region Scope collection
@@ -80,7 +75,7 @@ namespace ZScript.CodeGeneration
         {
             // Push the default global scope
             //PushScope(context);
-            _currentScope = _baseScope = new DefinitionScope { Context = context };
+            _currentScope = _baseScope = new CodeScope { Context = context };
         }
 
         public override void EnterExportDefinition(ZScriptParser.ExportDefinitionContext context)
@@ -179,6 +174,13 @@ namespace ZScript.CodeGeneration
         public override void EnterObjectBody(ZScriptParser.ObjectBodyContext context)
         {
             DefineHiddenVariable("this");
+
+            PushScope(context);
+        }
+
+        public override void ExitObjectBody(ZScriptParser.ObjectBodyContext context)
+        {
+            PopScope();
         }
 
         public override void EnterSequenceBody(ZScriptParser.SequenceBodyContext context)
@@ -186,6 +188,13 @@ namespace ZScript.CodeGeneration
             DefineHiddenVariable("this");
             DefineHiddenVariable("T");
             DefineHiddenVariable("async");
+
+            PushScope(context);
+        }
+
+        public override void ExitSequenceBody(ZScriptParser.SequenceBodyContext context)
+        {
+            PopScope();
         }
 
         public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
@@ -215,7 +224,7 @@ namespace ZScript.CodeGeneration
         /// <param name="context">A context binded to the scope</param>
         void PushScope(ParserRuleContext context)
         {
-            var newScope = new DefinitionScope { Context = context };
+            var newScope = new CodeScope { Context = context };
 
             _currentScope.AddSubscope(newScope);
             _currentScope = newScope;
@@ -236,6 +245,16 @@ namespace ZScript.CodeGeneration
         bool IsInGlobalScope()
         {
             return _currentScope.Context is ZScriptParser.ProgramContext;
+        }
+
+        /// <summary>
+        /// Returns whether the current scope is an instance (object or sequence) scope
+        /// </summary>
+        /// <returns>A boolean value specifying whether the current scope is instance (object or sequence) scope</returns>
+        bool IsInInstanceScope()
+        {
+            return _currentScope.Context is ZScriptParser.ObjectBodyContext ||
+                   _currentScope.Context is ZScriptParser.SequenceBodyContext;
         }
 
         /// <summary>
@@ -270,12 +289,13 @@ namespace ZScript.CodeGeneration
             {
                 Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
                 Context = variable,
-                ValueExpression = new Expression(variable.variableDeclare().expression())
+                ValueExpression = new Expression(variable.variableDeclare().expression()),
+                IsInstanceValue = IsInInstanceScope()
             };
 
             CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -291,12 +311,13 @@ namespace ZScript.CodeGeneration
                 Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
                 Context = constant,
                 ValueExpression = new Expression(constant.constantDeclare().expression()),
-                IsConstant = true
+                IsConstant = true,
+                IsInstanceValue = IsInInstanceScope()
             };
 
             CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -320,7 +341,7 @@ namespace ZScript.CodeGeneration
 
             CheckCollisions(def, varDecl.valueHolderName().IDENT());
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -333,7 +354,7 @@ namespace ZScript.CodeGeneration
 
             CheckCollisions(def, argument.argumentName().IDENT());
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -346,7 +367,7 @@ namespace ZScript.CodeGeneration
 
             CheckCollisions(def, null);
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -359,7 +380,7 @@ namespace ZScript.CodeGeneration
 
             CheckCollisions(def, exportFunction.functionName().IDENT());
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -381,7 +402,7 @@ namespace ZScript.CodeGeneration
         /// <param name="function">The function to define</param>
         void DefineFunction(FunctionDefinition function)
         {
-            _currentScope.Definitions.Add(function);
+            _currentScope.AddDefinition(function);
         }
 
         /// <summary>
@@ -395,7 +416,7 @@ namespace ZScript.CodeGeneration
             def.Name = ClosureDefinition.ClosureNamePrefix + (_closuresCount++);
 
             // Closures are always defined at the base scope
-            _baseScope.Definitions.Add(def);
+            _baseScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -410,7 +431,7 @@ namespace ZScript.CodeGeneration
                 Context = objectDefinition
             };
 
-            _currentScope.Definitions.Add(def);
+            _currentScope.AddDefinition(def);
         }
 
         /// <summary>
@@ -434,11 +455,11 @@ namespace ZScript.CodeGeneration
 
                 if (node == null)
                 {
-                    RegisterError(0, 0, "Duplicated definition of " + def.Name + " collides with definition " + d);
+                    _messageContainer.RegisterError(0, 0, "Duplicated definition of " + def.Name + " collides with definition " + d);
                 }
                 else
                 {
-                    RegisterError(node, "Duplicated definition of " + def.Name + " collides with definition " + d);
+                    _messageContainer.RegisterError(node, "Duplicated definition of " + def.Name + " collides with definition " + d);
                 }
             }
         }
@@ -463,38 +484,6 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Registers a warning at a context
-        /// </summary>
-        void RegisterWarning(int line, int position, string warningMessage)
-        {
-            _warningList.Add(new Warning(line, position, warningMessage));
-        }
-
-        /// <summary>
-        /// Registers a warning at a context
-        /// </summary>
-        void RegisterWarning(ITerminalNode context, string warningMessage)
-        {
-            _warningList.Add(new Warning(context.Symbol.Line, context.Symbol.Column, warningMessage));
-        }
-
-        /// <summary>
-        /// Registers an error at a context
-        /// </summary>
-        void RegisterError(int line, int position, string warningMessage)
-        {
-            _errorList.Add(new CodeError(line, position, warningMessage));
-        }
-
-        /// <summary>
-        /// Registers an error at a context
-        /// </summary>
-        void RegisterError(ITerminalNode context, string warningMessage)
-        {
-            _errorList.Add(new CodeError(context.Symbol.Line, context.Symbol.Column, warningMessage));
-        }
-
-        /// <summary>
         /// Generator that creates function definitions
         /// </summary>
         private static class FunctionDefinitionGenerator
@@ -506,7 +495,15 @@ namespace ZScript.CodeGeneration
             /// <returns>A function definition generated from the given context</returns>
             public static FunctionDefinition GenerateFunctionDef(ZScriptParser.FunctionDefinitionContext context)
             {
-                return new FunctionDefinition(context.functionName().IDENT().GetText(), context.functionBody(), CollectFunctionArguments(context.functionArguments())) { Context = context };
+                var f = new FunctionDefinition(context.functionName().IDENT().GetText(), context.functionBody(),
+                    CollectFunctionArguments(context.functionArguments()))
+                {
+                    Context = context,
+                    HasReturnType = context.returnType() != null,
+                    IsVoid = (context.returnType() != null && context.returnType().type().GetText() == "void")
+                };
+
+                return f;
             }
 
             /// <summary>
@@ -516,7 +513,15 @@ namespace ZScript.CodeGeneration
             /// <returns>A closure definition generated from the given context</returns>
             public static ClosureDefinition GenerateClosureDef(ZScriptParser.ClosureExpressionContext context)
             {
-                return new ClosureDefinition("", context.functionBody(), CollectFunctionArguments(context.functionArguments())) { Context = context };
+                var c = new ClosureDefinition("", context.functionBody(),
+                    CollectFunctionArguments(context.functionArguments()))
+                {
+                    Context = context,
+                    HasReturnType = context.returnType() != null,
+                    IsVoid = (context.returnType() != null && context.returnType().type().GetText() == "void")
+                };
+
+                return c;
             }
 
             /// <summary>
@@ -526,7 +531,15 @@ namespace ZScript.CodeGeneration
             /// <returns>An export function definition generated from the given context</returns>
             public static ExportFunctionDefinition GenerateExportFunctionDef(ZScriptParser.ExportDefinitionContext context)
             {
-                return new ExportFunctionDefinition(context.functionName().IDENT().GetText(), CollectFunctionArguments(context.functionArguments())) { Context = context };
+                var e = new ExportFunctionDefinition(context.functionName().IDENT().GetText(),
+                    CollectFunctionArguments(context.functionArguments()))
+                {
+                    Context = context,
+                    HasReturnType = context.returnType() != null,
+                    IsVoid = (context.returnType() != null && context.returnType().type().GetText() == "void")
+                };
+
+                return e;
             }
 
             /// <summary>
@@ -566,6 +579,342 @@ namespace ZScript.CodeGeneration
                 }
 
                 return args;
+            }
+        }
+
+        /// <summary>
+        /// Analyzes the reachability of the code scopes
+        /// </summary>
+        private static class CodeScopeReachabilityAnalyzer
+        {
+            /// <summary>
+            /// Analyzes the given scope recursively, updating the reachability of the child scopes
+            /// </summary>
+            /// <param name="scope">The scope to analyze</param>
+            public static void Analyze(CodeScope scope)
+            {
+                if (scope.Context == null || scope.Context.Parent == null)
+                    return;
+
+                scope.IsConditional = IsContextConditioanl(scope.Context.Parent);
+            }
+
+            /// <summary>
+            /// Returns a value specifying whether a given context is conditional
+            /// </summary>
+            /// <param name="context">The context to avaliate the conditionability</param>
+            /// <returns>Whether the given context is conditional</returns>
+            private static bool IsContextConditioanl(RuleContext context)
+            {
+                return context is ZScriptParser.IfStatementContext || context is ZScriptParser.ForStatementContext ||
+                       context is ZScriptParser.CaseBlockContext || context is ZScriptParser.DefaultBlockContext;
+            }
+        }
+
+        /// <summary>
+        /// Analyzes the return statements in the body of a function
+        /// </summary>
+        private class ReturnStatementAnalyzer
+        {
+            /// <summary>
+            /// List of all the return statements of the currently processed function
+            /// </summary>
+            private List<ZScriptParser.ReturnStatementContext> _returnStatements;
+
+            /// <summary>
+            /// The current message container for the analyzer
+            /// </summary>
+            private MessageContainer _messageContainer;
+
+            /// <summary>
+            /// The current function definition being analyzed
+            /// </summary>
+            private FunctionDefinition _currentDefinition;
+
+            /// <summary>
+            /// Analyzes a given scope for functions with mismatching return statements
+            /// </summary>
+            /// <param name="scope">The scope to analyze</param>
+            /// <param name="messageContainer">The container to report the error messages to</param>
+            public void AnalyzeScope(CodeScope scope, MessageContainer messageContainer)
+            {
+                _messageContainer = messageContainer;
+
+                var funcs = scope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
+
+                foreach (var func in funcs)
+                {
+                    // Functions missing bodies are not analyzed
+                    if (func.BodyContext == null)
+                        continue;
+
+                    AnalyzeFunction(func);
+                }
+            }
+
+            /// <summary>
+            /// Analyzes a given function definition
+            /// </summary>
+            /// <param name="func">The function definition to analyze</param>
+            /// <returns>The return statement state for the function</returns>
+            private void AnalyzeFunction(FunctionDefinition func)
+            {
+                var context = func.BodyContext;
+
+                _currentDefinition = func;
+
+                // Check for inconsistent return statement valuation
+                _returnStatements = new List<ZScriptParser.ReturnStatementContext>();
+
+                if (context.blockStatement().statement().Length == 0)
+                {
+                    if (func.HasReturnType && !func.IsVoid)
+                    {
+                        _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                            "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
+                    }
+
+                    return;
+                }
+
+                var block = context.blockStatement();
+                var state = AnalyzeBlockStatement(block);
+
+                if (state == ReturnStatementState.Partial)
+                {
+                    _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                        "Not all code paths of function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
+                }
+                else if (func.HasReturnType && !func.IsVoid && state != ReturnStatementState.Complete)
+                {
+                    _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                        "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
+                }
+
+                // Check inconsistencies on return types
+                if (!func.HasReturnType && _returnStatements.Count > 0)
+                {
+                    ZScriptParser.ReturnStatementContext last = _returnStatements[0];
+                    bool valuedReturn = false;
+                    bool inconsistentReturn = false;
+                    foreach (var rsc in _returnStatements)
+                    {
+                        valuedReturn = valuedReturn || (rsc.expression() != null);
+                        if((last.expression() == null) != (rsc.expression() == null))
+                        {
+                            inconsistentReturn = true;
+                            break;
+                        }
+
+                        last = rsc;
+                    }
+
+                    // Report inconsistent returns
+                    if (inconsistentReturn)
+                    {
+                        _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                                "Function '" + func.Name + "' has inconsistent returns: Some returns are void, some are valued.", ErrorCode.InconsistentReturns, context);
+                    }
+                    // Check for early-returns on functions that have a missing return value
+                    else if (!func.HasReturnType && valuedReturn && state != ReturnStatementState.Complete)
+                    {
+                        _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                                "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, context);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Analyzes a given block statement
+            /// </summary>
+            private ReturnStatementState AnalyzeBlockStatement(ZScriptParser.BlockStatementContext block)
+            {
+                var statements = block.statement();
+
+                if(statements.Length == 0)
+                    return ReturnStatementState.NotPresent;
+
+                var state = ReturnStatementState.DoesNotApply;
+
+                foreach (var stmt in statements)
+                {
+                    var blockState = AnalyzeStatement(stmt);
+
+                    if(blockState == ReturnStatementState.Complete)
+                        return blockState;
+
+                    state = MergeReturnStates(state, blockState);
+                }
+
+                return state;
+            }
+
+            /// <summary>
+            /// Analyzes a given statement context for return statement state
+            /// </summary>
+            private ReturnStatementState AnalyzeStatement(ZScriptParser.StatementContext context)
+            {
+                if(context.returnStatement() != null)
+                    return AnalyzeReturnStatement(context.returnStatement());
+
+                if(context.ifStatement() != null)
+                    return AnalyzeIfStatement(context.ifStatement());
+
+                if(context.switchStatement() != null)
+                    return AnalyzeSwitchStatement(context.switchStatement());
+
+                if(context.whileStatement() != null)
+                    return AnalyzeWhileStatement(context.whileStatement());
+
+                if (context.forStatement() != null)
+                    return AnalyzeForStatement(context.forStatement());
+
+                if(context.blockStatement() != null)
+                    return AnalyzeBlockStatement(context.blockStatement());
+
+                return ReturnStatementState.DoesNotApply;
+            }
+
+            /// <summary>
+            /// Analyzes a given return statement. Always returns ReturnStatementState.Present
+            /// </summary>
+            private ReturnStatementState AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
+            {
+                if (IsCurrentReturnValueVoid())
+                {
+                    if(context.expression() != null)
+                    {
+                        _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
+                    }
+                }
+                else if (_currentDefinition.HasReturnType && context.expression() == null)
+                {
+                    _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
+                }
+
+                _returnStatements.Add(context);
+                return ReturnStatementState.Complete;
+            }
+
+            /// <summary>
+            /// Analyzes a given IF statement context for return statement state
+            /// </summary>
+            private ReturnStatementState AnalyzeIfStatement(ZScriptParser.IfStatementContext context)
+            {
+                // If's are always partial
+                var state = AnalyzeStatement(context.statement());
+
+                var elseStatement = context.elseStatement();
+
+                if (elseStatement == null)
+                {
+                    return state == ReturnStatementState.Partial ? state : ReturnStatementState.NotPresent;
+                }
+
+                state = MergeReturnStates(state, AnalyzeStatement(elseStatement.statement()));
+
+                return state;
+            }
+
+            /// <summary>
+            /// Analyzes a given WHILE statement context for return statement state
+            /// </summary>
+            private ReturnStatementState AnalyzeWhileStatement(ZScriptParser.WhileStatementContext context)
+            {
+                // If's are always partial
+                var state = AnalyzeStatement(context.statement());
+
+                // Loop statements are always partial
+                return state == ReturnStatementState.Partial ? state : ReturnStatementState.NotPresent;
+            }
+
+            /// <summary>
+            /// Analyzes a given FOR statement context for return statement state
+            /// </summary>
+            private ReturnStatementState AnalyzeForStatement(ZScriptParser.ForStatementContext context)
+            {
+                // If's are always partial
+                var state = AnalyzeStatement(context.statement());
+
+                // Loop statements are always partial
+                return state == ReturnStatementState.Partial ? state : ReturnStatementState.NotPresent;
+            }
+
+            /// <summary>
+            /// Analyzes a given IF statement context for return statement state
+            /// </summary>
+            private ReturnStatementState AnalyzeSwitchStatement(ZScriptParser.SwitchStatementContext context)
+            {
+                var block = context.switchBlock();
+                var cases = block.caseBlock();
+                var def = block.defaultBlock();
+
+                var state = ReturnStatementState.DoesNotApply;
+                foreach (var cbc in cases)
+                {
+                    foreach (var statementContext in cbc.statement())
+                    {
+                        state = MergeReturnStates(state, AnalyzeStatement(statementContext));
+                    }
+                }
+
+                if (def != null)
+                {
+                    foreach (var statementContext in def.statement())
+                    {
+                        state = MergeReturnStates(state, AnalyzeStatement(statementContext));
+                    }
+                }
+                else
+                {
+                    return MergeReturnStates(ReturnStatementState.NotPresent, state);
+                }
+
+                return state == ReturnStatementState.DoesNotApply ? ReturnStatementState.NotPresent : state;
+            }
+
+            /// <summary>
+            /// Merges two return statement states
+            /// </summary>
+            private ReturnStatementState MergeReturnStates(ReturnStatementState state1, ReturnStatementState state2)
+            {
+                if (state1 == ReturnStatementState.DoesNotApply)
+                    return state2;
+
+                if (state2 == ReturnStatementState.DoesNotApply)
+                    return state1;
+
+                if(state1 == ReturnStatementState.Complete && state2 == ReturnStatementState.Complete)
+                    return ReturnStatementState.Complete;
+                
+                if(state1 == ReturnStatementState.NotPresent && state2 == ReturnStatementState.NotPresent)
+                    return ReturnStatementState.NotPresent;
+                
+                return ReturnStatementState.Partial;
+            }
+
+            /// <summary>
+            /// Whether the current return value is void
+            /// </summary>
+            /// <returns>Whether the current return value is void</returns>
+            private bool IsCurrentReturnValueVoid()
+            {
+                return _currentDefinition.IsVoid;
+            }
+
+            /// <summary>
+            /// Defines the return statement state for a block statement
+            /// </summary>
+            private enum ReturnStatementState
+            {
+                /// <summary>The state does not apply to the statement</summary>
+                DoesNotApply,
+                /// <summary>A return statement is present in all sub statements</summary>
+                Complete,
+                /// <summary>A return statement is not present in any sub statement</summary>
+                NotPresent,
+                /// <summary>A return statement is partial (or conditional) in one or more of the substatements</summary>
+                Partial
             }
         }
     }

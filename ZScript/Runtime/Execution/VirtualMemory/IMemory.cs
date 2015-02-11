@@ -4,7 +4,7 @@
     /// Interface to be implemented by objects that simmulate memory access
     /// </summary>
     /// <typeparam name="T">The type used to map between the variable and the value</typeparam>
-    public interface IMemory<T>
+    public interface IMemory<in T>
     {
         /// <summary>
         /// Returns whether the given varID exists in the memory
