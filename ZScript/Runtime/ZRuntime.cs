@@ -144,15 +144,16 @@ namespace ZScript.Runtime
             _localMemoriesStack.Push(localMemory);
 
             FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this));
-
             vm.Execute();
+
+            _localMemoriesStack.Pop();
+
+            mapper.Clear();
 
             if (vm.HasReturnValue)
             {
                 return vm.ReturnValue;
             }
-
-            _localMemoriesStack.Pop();
 
             // Disabling this exception for now because it may interfere with function calls that do not expect a return value anyways
             /*throw new Exception("The function called did not return any value because it did not execute a 'return' statement with a value specified.");*/
