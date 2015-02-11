@@ -64,8 +64,11 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         {
             for (int i = _memoryList.Count - 1; i >= 0; i--)
             {
-                if (_memoryList[i].HasVariable(variableName))
-                    return _memoryList[i].GetVariable(variableName);
+                object value;
+                if (_memoryList[i].TryGetVariable(variableName, out value))
+                {
+                    return value;
+                }
             }
 
             return null;
