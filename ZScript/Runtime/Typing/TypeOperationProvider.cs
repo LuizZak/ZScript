@@ -35,7 +35,7 @@ namespace ZScript.Runtime.Typing
 
         public object Sum(object v1, object v2)
         {
-            // Special cases: One of the values is a string object
+            // Special case: One of the values is a string object
             if (v1 is string || v2 is string)
             {
                 return v1.ToString() + v2;

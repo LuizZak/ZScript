@@ -14,5 +14,13 @@ namespace ZScript.Runtime
         /// <param name="parameters">The list of parameters the function was called with</param>
         /// <returns>The return value for the function call</returns>
         object CallFunction(ZExportFunction func, params object[] parameters);
+
+        /// <summary>
+        /// Called by the runtime when a 'new' instruction has been hit
+        /// </summary>
+        /// <param name="typeName">The name of the type trying to be instantiated</param>
+        /// <param name="parameters">The parameters collected from the function call</param>
+        /// <returns>The newly created object</returns>
+        object CreateType(string typeName, params object[] parameters);
     }
 }

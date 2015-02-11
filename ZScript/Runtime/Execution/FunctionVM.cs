@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
-using ZScript.Runtime.Execution.Wrappers.Members;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution
@@ -426,6 +425,11 @@ namespace ZScript.Runtime.Execution
                     PerformObjectCreation();
                     break;
 
+                // New instruction
+                case VmInstruction.New:
+                    PerformNewInstruction();
+                    break;
+
                 default:
                     throw new ArgumentException("Unspecified virtual machine instruction '" + instruction + "'. Maybe it's an operation?");
             }
@@ -561,6 +565,28 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a New instruction using the values on the stack, pushing the created object back into the top of the stack
+        /// </summary>
+        void PerformNewInstruction()
+        {
+            // Pop the argument count
+            int argCount = (int)_stack.Pop();
+
+            // Pop the arguments from the stack
+            ArrayList arguments = new ArrayList();
+
+            for (int i = 0; i < argCount; i++)
+            {
+                arguments.Add(PopValueImplicit());
+            }
+
+            // Pop the type to create
+            var typeName = (string)_stack.Pop();
+
+            _stack.Push(_context.Owner.CreateType(typeName, arguments.ToArray()));
+        }
+        
+        /// <summary>
         /// Performs a subscripter-fetch on the object on top of the stack, pushing a resulting ISubcripter back on the stack.
         /// All types that implement IList can be subscripted by the operation.
         /// If the value cannot be subscripted, an exception is raised.
@@ -587,7 +613,7 @@ namespace ZScript.Runtime.Execution
                 memberName = (string)((Token)memberName).TokenObject;
             }
 
-            _stack.Push(ClassMember.GetMember(target, (string)memberName));
+            _stack.Push(MemberWrapperHelper.CreateMemberWrapper(target, (string)memberName));
         }
 
         /// <summary>
@@ -902,6 +928,8 @@ namespace ZScript.Runtime.Execution
         GetMember,
         /// <summary>Represents an instruction that fetches the subscript of the object on top of the stack</summary>
         GetSubscript,
+        /// <summary>Creates a new instance of a type, using the objects at the stack as parameters for the creation</summary>
+        New,
 
         /// <summary>Jumps to the position specified at the top of the stack</summary>
         Jump,

@@ -15,8 +15,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
 
-            var field = ClassMember.GetMember(target, "Field1");
-            var prop = ClassMember.GetMember(target, "Property1");
+            var field = ClassMember.CreateMemberWrapper(target, "Field1");
+            var prop = ClassMember.CreateMemberWrapper(target, "Property1");
 
             Assert.AreEqual(target, field.Target, "The target of the ClassMember must be the same object passed on the GetMember() method");
 
@@ -31,7 +31,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         public void TestFailingFetchingNonExisting()
         {
             var target = new TestTarget();
-            ClassMember.GetMember(target, "NonExistingMember");
+            ClassMember.CreateMemberWrapper(target, "NonExistingMember");
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         public void TestFailingFetchingPrivate()
         {
             var target = new TestTarget();
-            ClassMember.GetMember(target, "_privateField");
+            ClassMember.CreateMemberWrapper(target, "_privateField");
         }
 
         [TestMethod]
@@ -47,8 +47,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
 
-            var field = ClassMember.GetMember(target, "Field1");
-            var property = ClassMember.GetMember(target, "Property1");
+            var field = ClassMember.CreateMemberWrapper(target, "Field1");
+            var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
             Assert.AreEqual(target.Field1, field.GetValue(), "The value of the field fetched by GetValue() does not matches the value of the target class' field");
             Assert.AreEqual(target.Property1, property.GetValue(), "The value of the property fetched by GetValue() does not matches the value of the target class' property");
@@ -59,8 +59,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
 
-            var field = ClassMember.GetMember(target, "Field1");
-            var property = ClassMember.GetMember(target, "Property1");
+            var field = ClassMember.CreateMemberWrapper(target, "Field1");
+            var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
             field.SetValue(11);
             property.SetValue(12);
@@ -74,8 +74,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
 
-            var field = ClassMember.GetMember(target, "Field1");
-            var property = ClassMember.GetMember(target, "Property1");
+            var field = ClassMember.CreateMemberWrapper(target, "Field1");
+            var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
             Assert.AreEqual(target.Field1.GetType(), field.MemberType,
                 "The type of the field fetched by MemberType does not matches the type of the target class' field");
@@ -88,8 +88,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
 
-            var field = ClassMember.GetMember(target, "Field1");
-            var property = ClassMember.GetMember(target, "Property1");
+            var field = ClassMember.CreateMemberWrapper(target, "Field1");
+            var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
             Assert.AreEqual("Field1", field.MemberName,
                 "The name of the field fetched by MemberName does not matches the name of the target class' field");

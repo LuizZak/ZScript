@@ -278,14 +278,14 @@ namespace ZScript.CodeGeneration.Tokenization
                 _isGetAccess = context.leftValue().leftValueAccess() != null;
                 VisitLeftValue(context.leftValue());
 
-                VisitPrefixOperation(context.prefixOperator());
+                VisitPrefixOperator(context.prefixOperator());
             }
             else if (context.postfixOperator() != null)
             {
                 _isGetAccess = context.leftValue().leftValueAccess() != null;
                 VisitLeftValue(context.leftValue());
 
-                VisitPostfixOperation(context.postfixOperator());
+                VisitPostfixOperator(context.postfixOperator());
             }
             else if (context.memberName() != null)
             {
@@ -332,6 +332,15 @@ namespace ZScript.CodeGeneration.Tokenization
                 if (context.objectAccess() != null)
                 {
                     VisitObjectAccess(context.objectAccess());
+                }
+            }
+            else if (context.newExpression() != null)
+            {
+                VisitNewExpression(context.newExpression());
+
+                if (context.valueAccess() != null)
+                {
+                    VisitValueAccess(context.valueAccess());
                 }
             }
             else
@@ -439,7 +448,7 @@ namespace ZScript.CodeGeneration.Tokenization
             return str;
         }
 
-        private void VisitPrefixOperation(ZScriptParser.PrefixOperatorContext context)
+        private void VisitPrefixOperator(ZScriptParser.PrefixOperatorContext context)
         {
             switch (context.GetText())
             {
@@ -452,7 +461,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitPostfixOperation(ZScriptParser.PostfixOperatorContext context)
+        private void VisitPostfixOperator(ZScriptParser.PostfixOperatorContext context)
         {
             switch (context.GetText())
             {
@@ -471,6 +480,22 @@ namespace ZScript.CodeGeneration.Tokenization
             var closure = _context.Definitions.CollectedBaseScope.Definitions.First(def => def.Context == context);
 
             _tokens.Add(TokenFactory.CreateVariableToken(closure.Name, true));
+        }
+
+        private void VisitNewExpression(ZScriptParser.NewExpressionContext context)
+        {
+            // Consume the type name
+            VisitTypeName(context.typeName());
+
+            // Add the function call
+            VisitFunctionCallArguments(context.funcCallArguments());
+
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.New));
+        }
+
+        private void VisitTypeName(ZScriptParser.TypeNameContext context)
+        {
+            _tokens.Add(TokenFactory.CreateStringToken(context.GetText()));
         }
 
         #region Member accessing

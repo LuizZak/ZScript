@@ -120,6 +120,8 @@ namespace ZScript.CodeGeneration
 
         public override void EnterObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
         {
+            DefineObject(context);
+
             PushScope(context);
         }
 
@@ -189,6 +191,20 @@ namespace ZScript.CodeGeneration
         public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
             DefineClosure(context);
+        }
+
+        public override void EnterObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        {
+            PushScope(context);
+
+            // Add a definition pointing to the base overriden function.
+            // The analysis of whether this is a valid call is done in a separate analysis phase
+            DefineFunction(new FunctionDefinition("base", null, new FunctionArgumentDefinition[0]));
+        }
+
+        public override void ExitObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        {
+            PopScope();
         }
 
         #endregion
@@ -356,7 +372,16 @@ namespace ZScript.CodeGeneration
 
             CheckCollisions(def, function.functionName().IDENT());
 
-            _currentScope.Definitions.Add(def);
+            DefineFunction(def);
+        }
+        
+        /// <summary>
+        /// Defines a new function in the current top-most scope
+        /// </summary>
+        /// <param name="function">The function to define</param>
+        void DefineFunction(FunctionDefinition function)
+        {
+            _currentScope.Definitions.Add(function);
         }
 
         /// <summary>
@@ -374,6 +399,21 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Defines a new object definition in the current top-most scope
+        /// </summary>
+        /// <param name="objectDefinition">The object to define</param>
+        void DefineObject(ZScriptParser.ObjectDefinitionContext objectDefinition)
+        {
+            var def = new ObjectDefinition
+            {
+                Name = objectDefinition.objectName().IDENT().GetText(),
+                Context = objectDefinition
+            };
+
+            _currentScope.Definitions.Add(def);
+        }
+
+        /// <summary>
         /// Checks collisions with the specified definition against the definitions in the available scopes
         /// </summary>
         /// <param name="def">The definition to check</param>
@@ -388,6 +428,10 @@ namespace ZScript.CodeGeneration
                 if (d is ExportFunctionDefinition && !(def is ExportFunctionDefinition))
                     continue;
 
+                // Constructor definition
+                if (d is ObjectDefinition && def is FunctionDefinition && IsContextChildOf(def.Context, d.Context))
+                    continue;
+
                 if (node == null)
                 {
                     RegisterError(0, 0, "Duplicated definition of " + def.Name + " collides with definition " + d);
@@ -397,6 +441,25 @@ namespace ZScript.CodeGeneration
                     RegisterError(node, "Duplicated definition of " + def.Name + " collides with definition " + d);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns whether a rule context is child of another context.
+        /// </summary>
+        /// <param name="context">The context to check</param>
+        /// <param name="parent">The context to check for parenting</param>
+        /// <returns>Whether 'context' is child of 'parent'</returns>
+        bool IsContextChildOf(RuleContext context, RuleContext parent)
+        {
+            while (context != null)
+            {
+                context = context.Parent;
+
+                if (context == parent)
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>

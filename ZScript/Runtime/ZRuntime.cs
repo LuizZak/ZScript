@@ -29,6 +29,11 @@ namespace ZScript.Runtime
         private readonly Stack<IMemory<string>> _localMemoriesStack;
 
         /// <summary>
+        /// Whether the runtime has expanded the global variables yet
+        /// </summary>
+        private bool _expandedGlobals;
+
+        /// <summary>
         /// The list of all functions defined in this ZRuntime instance
         /// </summary>
         private readonly ZFunction[] _zFunction;
@@ -75,8 +80,6 @@ namespace ZScript.Runtime
             _owner = owner;
             _globalMemory = new Memory();
             _globalAddressedMemory = new IntegerMemory();
-
-            ExpandGlobalVariables(_definition);
         }
 
         /// <summary>
@@ -109,6 +112,12 @@ namespace ZScript.Runtime
         /// <exception cref="Exception">The function call failed</exception>
         public object CallFunction(ZFunction funcDef, params object[] arguments)
         {
+            if (!_expandedGlobals)
+            {
+                _expandedGlobals = true;
+                ExpandGlobalVariables(_definition);
+            }
+
             if (funcDef == null)
                 return null;
 

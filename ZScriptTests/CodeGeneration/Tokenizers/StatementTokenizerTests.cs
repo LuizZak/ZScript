@@ -189,7 +189,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForContinueStatement()
         {
-            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(var i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
+            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
 
             var generator = CreateGenerator(input);
 
@@ -210,7 +210,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedForStatement()
         {
-            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(var i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
+            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
 
             var generator = CreateGenerator(input);
 

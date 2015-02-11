@@ -41,16 +41,6 @@ namespace ZScript.CodeGeneration.Analysis
         #region Scope walking
 
         // Function definitions have their own scope, containing the parameters
-        public override void EnterProgram(ZScriptParser.ProgramContext context)
-        {
-            //EnterContextScope(context);
-        }
-
-        public override void ExitProgram(ZScriptParser.ProgramContext context)
-        {
-            //ExitContextScope();
-        }
-
         public override void EnterFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
         {
             EnterContextScope(context);
@@ -97,6 +87,16 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         public override void ExitSequenceFrame(ZScriptParser.SequenceFrameContext context)
+        {
+            ExitContextScope();
+        }
+
+        public override void EnterObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        {
+            EnterContextScope(context);
+        }
+
+        public override void ExitObjectFunction(ZScriptParser.ObjectFunctionContext context)
         {
             ExitContextScope();
         }

@@ -14,7 +14,7 @@ namespace ZScriptTests.Runtime.Execution
     /// Tests subscripting support on the FunctionVm
     /// </summary>
     [TestClass]
-    public class FunctionVmSubscripting
+    public class FunctionVmSubscriptingTests
     {
         #region Array Subscripting
 

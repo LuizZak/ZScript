@@ -129,7 +129,7 @@ expression:  '(' expression ')' valueAccess?
           |  memberName valueAccess?
           |  objectLiteral objectAccess?
           |  arrayLiteral valueAccess?
-          |  newExpression
+          |  newExpression valueAccess?
           |  '(' type ')' expression
           // Unary expressions
           |  '-' expression
@@ -152,8 +152,7 @@ comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '<');
 logicalOp : ('&&' | '||');
 
 assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
-newExpression : 'new' typeName funcCallArguments newExpressionTypeList?;
-newExpressionTypeList : '{' typeList '}';
+newExpression : 'new' typeName funcCallArguments;
 closureExpression : functionArguments returnType? '=>' functionBody;
 unaryExpression  : ('-' | '+' | '!') expression;
 

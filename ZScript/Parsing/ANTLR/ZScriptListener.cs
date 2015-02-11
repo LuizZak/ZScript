@@ -669,16 +669,6 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitNewExpression([NotNull] ZScriptParser.NewExpressionContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.newExpressionTypeList"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterNewExpressionTypeList([NotNull] ZScriptParser.NewExpressionTypeListContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.newExpressionTypeList"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitNewExpressionTypeList([NotNull] ZScriptParser.NewExpressionTypeListContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.closureExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

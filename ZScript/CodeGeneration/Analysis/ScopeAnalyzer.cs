@@ -17,7 +17,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// List of all the warnings raised during analysis
         /// </summary>
-        private readonly List<Warning> _warningList = new List<Warning>(); 
+        private List<Warning> _warningList = new List<Warning>(); 
 
         /// <summary>
         /// The current stack of variable scopes
@@ -55,6 +55,8 @@ namespace ZScript.CodeGeneration.Analysis
         public void AnalyzeProgram(ZScriptParser.ProgramContext context)
         {
             _errorList = new List<CodeError>();
+            _warningList = new List<Warning>();
+
             _definitionsCollector = new DefinitionsCollector();
             ParseTreeWalker walker = new ParseTreeWalker();
 
@@ -63,6 +65,7 @@ namespace ZScript.CodeGeneration.Analysis
             DefinitionsCollector collector = new DefinitionsCollector();
             walker.Walk(collector, context);
 
+            _errorList.AddRange(collector.CollectedErrors);
             _warningList.AddRange(collector.Warnings);
 
             _definitionsCollector = collector;
@@ -72,20 +75,5 @@ namespace ZScript.CodeGeneration.Analysis
 
             _errorList.AddRange(varAnalyzer.CollectedErrors);
         }
-    }
-
-    /// <summary>
-    /// Defines an analysis pass mode for the ScopeAnalyzer class
-    /// </summary>
-    public enum AnalysisMode
-    {
-        /// <summary>
-        /// Specifies that the scope analyzer is collection top-most definitions (functions, global variables, exports, classes, etc)
-        /// </summary>
-        DefinitionCollection,
-        /// <summary>
-        /// Specifies that the scope analyzer is analyzing function bodies
-        /// </summary>
-        FunctionBodyAnalysis
     }
 }

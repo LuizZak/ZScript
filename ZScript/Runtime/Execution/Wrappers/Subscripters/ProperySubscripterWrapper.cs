@@ -61,7 +61,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// <returns>A boolean value specifying whether this ISubscripter value can subscript with the specified value type</returns>
         public bool CanSubscriptWithIndexType(Type type)
         {
-            return _property.GetIndexParameters()[0].ParameterType == type;
+            return _property.GetIndexParameters()[0].ParameterType.IsAssignableFrom(type);
         }
     }
 }

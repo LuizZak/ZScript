@@ -53,6 +53,7 @@
     <Compile Include="CodeGeneration\Elements\FunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\GlobalVariableDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\ScopeAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Elements\ObjectDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\TypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\ValueHolderDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\VariableUsageAnalyzer.cs" />

@@ -801,18 +801,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitNewExpression([NotNull] ZScriptParser.NewExpressionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.newExpressionTypeList"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterNewExpressionTypeList([NotNull] ZScriptParser.NewExpressionTypeListContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.newExpressionTypeList"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitNewExpressionTypeList([NotNull] ZScriptParser.NewExpressionTypeListContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.closureExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

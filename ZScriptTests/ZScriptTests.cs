@@ -66,7 +66,7 @@ namespace ZScriptTests
 
             generator.ParseInputString();
 
-            Console.WriteLine("Parsing time:     " + sw.ElapsedMilliseconds);
+            Console.WriteLine("Parsing time:    " + sw.ElapsedMilliseconds);
 
             long parseT = sw.ElapsedMilliseconds;
 

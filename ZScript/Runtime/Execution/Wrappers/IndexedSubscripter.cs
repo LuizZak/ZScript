@@ -51,7 +51,7 @@ namespace ZScript.Runtime.Execution.Wrappers
 
             if (!_subscripterWrapper.CanSubscriptWithIndexType(indexValue.GetType()))
             {
-                throw new ArgumentException("The provided subscripter object cannot subscript to objects of type '" + indexValue.GetType() + "'");
+                throw new ArgumentException("The provided subscripter object '" + subscripterWrapper + "' cannot subscript to objects of type '" + indexValue.GetType() + "'");
             }
         }
 
@@ -94,6 +94,11 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <returns>A new ISubscripterWrapper that can subscript the target object with the type provided</returns>
         public static ISubscripterWrapper GetSubscripterForObject(object target, Type subscriptType)
         {
+            // target itself is a subscript wrapper
+            var o = target as ISubscripterWrapper;
+            if (o != null)
+                return o;
+
             var list = target as IList;
             if (list != null)
             {

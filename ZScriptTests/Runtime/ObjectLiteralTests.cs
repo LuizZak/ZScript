@@ -90,5 +90,81 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(10, ((ZObject)((ZObject)memory.GetVariable("b"))["a"])["x"], "The VM failed to correctly create the nested dynamic objects");
             Assert.AreEqual(10, ((ZObject)((ZObject)((ZObject)((ZObject)memory.GetVariable("b"))["b"])["y"])["z"])["a"], "The VM failed to correctly create the nested dynamic objects");
         }
+
+        [TestMethod]
+        public void TestObjectSubscript()
+        {
+            const string input = "[ b; ] func funca(){ var a = { x:10 }; b = a['x']; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            // Set the dictionary on memory now
+            runtime.CallFunction("funca");
+
+            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
+        }
+
+        [TestMethod]
+        public void TestNestedObjectSubscript()
+        {
+            const string input = "[ b; ] func funca(){ var a = { x: { x:10 } }; b = a['x']['x']; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            // Set the dictionary on memory now
+            runtime.CallFunction("funca");
+
+            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
+        }
+        
+        [TestMethod]
+        public void TestObjectMemberAccess()
+        {
+            const string input = "[ b; ] func funca(){ var a = { x:10 }; b = a.x; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            // Set the dictionary on memory now
+            runtime.CallFunction("funca");
+
+            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
+        }
+        
+        [TestMethod]
+        public void TestNestedObjectMemberAccess()
+        {
+            const string input = "[ b; ] func funca(){ var a = { x: { x:10 } }; b = a.x.x; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            // Set the dictionary on memory now
+            runtime.CallFunction("funca");
+
+            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
+        }
     }
 }
