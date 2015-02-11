@@ -56,6 +56,20 @@ namespace ZScript.Runtime.Execution.Wrappers
         }
 
         /// <summary>
+        /// Initializes a new instance of the IndexedSubscripter class.
+        /// The constructor raises an exception if the subscripter object cannot be indexed by
+        /// the type of the index object by calling CanSubscriptWithIndexType on the subscripter
+        /// </summary>
+        /// <param name="subscripterWrapper">The subscripter to subscript into</param>
+        /// <param name="indexValue">The index on the subscripter to subscript to</param>
+        /// <exception cref="ArgumentException">The proided subscripter cannot be subscripted with an object of the index's type</exception>
+        private IndexedSubscripter(object indexValue, ISubscripterWrapper subscripterWrapper)
+        {
+            _subscripterWrapper = subscripterWrapper;
+            _indexValue = indexValue;
+        }
+
+        /// <summary>
         /// Gets the value at the index of the array pointed by this index subscripter
         /// </summary>
         /// <returns>The value pointed by this index subscripter</returns>
@@ -82,7 +96,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <returns>A new IndexedSubscripter with the target object and index value binded on</returns>
         public static IndexedSubscripter CreateSubscripter(object target, object indexValue)
         {
-            return new IndexedSubscripter(GetSubscripterForObject(target, indexValue.GetType()), indexValue);
+            return new IndexedSubscripter(indexValue, GetSubscripterForObject(target, indexValue.GetType()));
         }
 
         /// <summary>
