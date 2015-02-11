@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
@@ -13,6 +15,11 @@ namespace ZScript.CodeGeneration
     /// </summary>
     public class DefinitionsCollector : ZScriptBaseListener
     {
+        /// <summary>
+        /// A list of all the errors raised during the definition collection
+        /// </summary>
+        private readonly List<CodeError> _errorList = new List<CodeError>();
+
         /// <summary>
         /// List of all the warnings raised during analysis
         /// </summary>
@@ -29,6 +36,14 @@ namespace ZScript.CodeGeneration
         public Warning[] Warnings
         {
             get { return _warningList.ToArray(); }
+        }
+
+        /// <summary>
+        /// Gets a list of all the errors raised during the current analysis
+        /// </summary>
+        public List<CodeError> CollectedErrors
+        {
+            get { return _errorList; }
         }
 
         /// <summary>
@@ -148,6 +163,12 @@ namespace ZScript.CodeGeneration
                 DefineVariable(context);
         }
 
+        public override void EnterLetDecl(ZScriptParser.LetDeclContext context)
+        {
+            if (!IsInGlobalScope())
+                DefineConstant(context);
+        }
+
         public override void EnterFunctionArg(ZScriptParser.FunctionArgContext context)
         {
             DefineFunctionArgument(context);
@@ -224,7 +245,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Defines a new variable in the current top-most scope
         /// </summary>
-        /// <param name="variable">The name of the variable to define</param>
+        /// <param name="variable">The context containing the variable to define</param>
         void DefineVariable(ZScriptParser.VarDeclContext variable)
         {
             var valueHolderDecl = variable.variableDeclare().valueHolderDecl();
@@ -234,6 +255,27 @@ namespace ZScript.CodeGeneration
                 Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
                 Context = variable,
                 ValueExpression = new Expression(variable.variableDeclare().expression())
+            };
+
+            CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
+
+            _currentScope.Definitions.Add(def);
+        }
+
+        /// <summary>
+        /// Defines a new constant in the current top-most scope
+        /// </summary>
+        /// <param name="constant">The context containing the constant to define</param>
+        void DefineConstant(ZScriptParser.LetDeclContext constant)
+        {
+            var valueHolderDecl = constant.constantDeclare().valueHolderDecl();
+
+            var def = new ValueHolderDefinition
+            {
+                Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
+                Context = constant,
+                ValueExpression = new Expression(constant.constantDeclare().expression()),
+                IsConstant = true
             };
 
             CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
@@ -348,11 +390,11 @@ namespace ZScript.CodeGeneration
 
                 if (node == null)
                 {
-                    RegisterWarning(0, 0, "Duplicated definition of " + def.Name + " collides with definition " + d);
+                    RegisterError(0, 0, "Duplicated definition of " + def.Name + " collides with definition " + d);
                 }
                 else
                 {
-                    RegisterWarning(node, "Duplicated definition of " + def.Name + " collides with definition " + d);
+                    RegisterError(node, "Duplicated definition of " + def.Name + " collides with definition " + d);
                 }
             }
         }
@@ -371,6 +413,22 @@ namespace ZScript.CodeGeneration
         void RegisterWarning(ITerminalNode context, string warningMessage)
         {
             _warningList.Add(new Warning(context.Symbol.Line, context.Symbol.Column, warningMessage));
+        }
+
+        /// <summary>
+        /// Registers an error at a context
+        /// </summary>
+        void RegisterError(int line, int position, string warningMessage)
+        {
+            _errorList.Add(new CodeError(line, position, warningMessage));
+        }
+
+        /// <summary>
+        /// Registers an error at a context
+        /// </summary>
+        void RegisterError(ITerminalNode context, string warningMessage)
+        {
+            _errorList.Add(new CodeError(context.Symbol.Line, context.Symbol.Column, warningMessage));
         }
 
         /// <summary>
