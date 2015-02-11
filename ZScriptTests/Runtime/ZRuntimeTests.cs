@@ -190,6 +190,9 @@ namespace ZScriptTests.Runtime
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
 
+            // Expands the global variables
+            runtime.ExpandGlobalVariables();
+
             Assert.AreEqual(0, memory.GetVariable("a"), "The global variables where not parsed as expected");
             Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
         }

@@ -34,6 +34,29 @@ namespace ZScriptTests.Performance
             Console.Write(sw.ElapsedMilliseconds);
         }
 
+        [TestMethod]
+        public void TestSubscriptPerformance()
+        {
+            const string input = "func funca { var a = [0]; for(var i = 0; i < 10000; i++) { a[0] += i; } }";
+
+            var generator = CreateGenerator(input);
+
+            generator.ParseInputString();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            runtime.CallFunction("funca");
+
+            sw.Stop();
+
+            Console.Write(sw.ElapsedMilliseconds);
+        }
+
         /// <summary>
         /// Creates the default generator to use in tests
         /// </summary>

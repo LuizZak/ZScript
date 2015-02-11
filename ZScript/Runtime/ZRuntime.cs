@@ -114,8 +114,7 @@ namespace ZScript.Runtime
         {
             if (!_expandedGlobals)
             {
-                _expandedGlobals = true;
-                ExpandGlobalVariables(_definition);
+                ExpandGlobalVariables();
             }
 
             if (funcDef == null)
@@ -198,14 +197,18 @@ namespace ZScript.Runtime
         }
 
         /// <summary>
-        /// Expands the global variables contained within a given ZRuntimeDefinition into this ZRuntime object
+        /// Expands the global variables contained within the ZRuntimeDefinition this runtime was created with
         /// </summary>
-        /// <param name="definition">The definition containing the global variables to expand</param>
-        private void ExpandGlobalVariables(ZRuntimeDefinition definition)
+        public void ExpandGlobalVariables()
         {
+            if (_expandedGlobals)
+            {
+                return;
+            }
+
             var vmContext = new VmContext(_globalMemory, _globalAddressedMemory, this);
 
-            foreach (var vDef in definition.GlobalVariableDefinitions)
+            foreach (var vDef in _definition.GlobalVariableDefinitions)
             {
                 if (vDef.HasValue)
                 {
@@ -219,6 +222,8 @@ namespace ZScript.Runtime
                     _globalMemory.SetVariable(vDef.Name, null);
                 }
             }
+
+            _expandedGlobals = true;
         }
     }
 }

@@ -14,6 +14,15 @@
         bool HasVariable(T identifier);
 
         /// <summary>
+        /// Tries to get a variable on this IMemory object, returing a boolean value
+        /// that specifies whether the fetch was successful or not
+        /// </summary>
+        /// <param name="identifier">The identifier of the variable to try to get</param>
+        /// <param name="value">The value that was fetched. Will be null, if the fetch fails</param>
+        /// <returns>Whether the fetch was successful</returns>
+        bool TryGetVariable(T identifier, out object value);
+
+        /// <summary>
         /// Gets the desired variable from the memory
         /// </summary>
         /// <param name="identifier">The variable ID to get the value form</param>

@@ -45,6 +45,18 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         }
 
         /// <summary>
+        /// Tries to get a variable on this Memory object, returing a boolean value
+        /// that specifies whether the fetch was successful or not
+        /// </summary>
+        /// <param name="identifier">The identifier of the variable to try to get</param>
+        /// <param name="value">The value that was fetched. Will be null, if the fetch fails</param>
+        /// <returns>Whether the fetch was successful</returns>
+        public bool TryGetVariable(string identifier, out object value)
+        {
+            return _memory.TryGetValue(identifier, out value);
+        }
+
+        /// <summary>
         /// Sets the desired variable to the given value on the memory
         /// </summary>
         /// <param name="variableName">The variable ID to change</param>

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ZScript.Elements;
 
 namespace ZScriptTests.Runtime
 {
@@ -30,6 +31,28 @@ namespace ZScriptTests.Runtime
             // Assert the correct call was made
             Assert.AreEqual(1, memory.GetVariable("a"), "The member fetch did not occur as expected");
             Assert.AreEqual(3, memory.GetVariable("b"), "The member fetch did not occur as expected");
+        }
+
+        /// <summary>
+        /// Tests compound assignments performed with member accesses
+        /// </summary>
+        [TestMethod]
+        public void TestMemberCompoundAssignment()
+        {
+            const string input = "[ a; ] func funca(){ a = { x:10 }; a.x += 10; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("funca");
+
+            // Assert the correct call was made
+            Assert.AreEqual(20, ((ZObject)memory.GetVariable("a"))["x"], "The member fetch did not occur as expected");
         }
     }
 }

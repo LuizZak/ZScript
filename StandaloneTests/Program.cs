@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+
 using ZScript.CodeGeneration;
+using ZScriptTests.Performance;
 
 namespace StandaloneTests
 {
@@ -8,6 +10,11 @@ namespace StandaloneTests
     {
         static void Main(string[] args)
         {
+            PerformanceTests tests = new PerformanceTests();
+            tests.TestSubscriptPerformance();
+
+            Console.Read();
+
             const string input = "func funca { var a = 0; for(var i = 0; i < 100000; i++) { a += i; } }";
 
             var generator = new ZRuntimeGenerator(input);

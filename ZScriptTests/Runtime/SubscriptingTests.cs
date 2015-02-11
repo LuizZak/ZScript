@@ -23,6 +23,7 @@ namespace ZScriptTests.Runtime
             var generator = ZRuntimeTests.CreateGenerator(input);
             generator.ParseInputString();
             var runtime = generator.GenerateRuntime(owner);
+            runtime.ExpandGlobalVariables();
             var memory = runtime.GlobalMemory;
 
             // Set the dictionary on memory now
@@ -47,6 +48,7 @@ namespace ZScriptTests.Runtime
             var generator = ZRuntimeTests.CreateGenerator(input);
             generator.ParseInputString();
             var runtime = generator.GenerateRuntime(owner);
+            runtime.ExpandGlobalVariables();
             var memory = runtime.GlobalMemory;
 
             // Set the dictionary on memory now
@@ -56,6 +58,32 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             Assert.AreEqual(10, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
+        }
+
+        /// <summary>
+        /// Tests utilizing a subscript with a compound operator
+        /// </summary>
+        [TestMethod]
+        public void TestSubscriptCompoundAssign()
+        {
+            const string input = "[ b; ] func funca(){ b['abc'] += 10; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+            runtime.ExpandGlobalVariables();
+            var memory = runtime.GlobalMemory;
+
+            // Set the dictionary on memory now
+            var dict = new Dictionary<string, object> { { "abc", 10 } };
+            memory.SetVariable("b", dict);
+
+            runtime.CallFunction("funca");
+
+            Assert.AreEqual(20, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
         }
     }
 }

@@ -418,7 +418,7 @@ namespace ZScript.Runtime.Typing
                 return NumberClass.Float;
 
             if(throwOnError)
-                throw new ArgumentException("The provided boxed object is not a valid numberic type", "boxedNumber");
+                throw new ArgumentException("The provided boxed object is not a valid numeric type", "boxedNumber");
 
             return NumberClass.NotANumber;
         }

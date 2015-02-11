@@ -701,14 +701,13 @@ namespace ZScript.Runtime.Execution
         /// <returns>The value the object represents</returns>
         private object ExpandValue(object obj)
         {
-            if (obj is IndexedSubscripter)
-                return obj;
-
             var t = obj as Token;
             if (t != null)
             {
                 // Pop the variable and value to get
-                if (!_context.Memory.HasVariable((string)t.TokenObject))
+                object value;
+
+                if (!_context.Memory.TryGetVariable((string)t.TokenObject, out value))
                 {
                     var f = _context.Runtime.FunctionWithName((string)t.TokenObject);
 
@@ -718,7 +717,12 @@ namespace ZScript.Runtime.Execution
                     throw new Exception("Trying to access undefined variable '" + (string)t.TokenObject + "'.");
                 }
 
-                return _context.Memory.GetVariable((string)t.TokenObject);
+                return value;
+            }
+            var valueHolder = obj as IValueHolder;
+            if (valueHolder != null)
+            {
+                return valueHolder.GetValue();
             }
 
             return obj;

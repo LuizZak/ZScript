@@ -48,6 +48,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ZScriptTests\ZScriptTests.csproj">
+      <Project>{95358b27-d30c-437f-a0a4-4782d46e2520}</Project>
+      <Name>ZScriptTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ZScript\ZScript.csproj">
       <Project>{5130543b-1447-48f2-96a5-c3fa0a018800}</Project>
       <Name>ZScript</Name>
