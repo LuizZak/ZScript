@@ -101,6 +101,8 @@
     <Compile Include="Runtime\Execution\Wrappers\Members\ClassMember.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Members\FieldClassMember.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Members\PropertyClassMember.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\ZObjectMember.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\MemberWrapperHelper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\ListSubscripterWrapper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\ProperySubscripterWrapper.cs" />
     <Compile Include="Runtime\Typing\ITypeOperator.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="Runtime\Typing\Operators\IntegerOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\LongOperator.cs" />
     <Compile Include="Runtime\Typing\TypeOperationProvider.cs" />
+    <Compile Include="Runtime\Typing\TypeProvider.cs" />
     <Compile Include="Runtime\ZRuntime.cs" />
     <Compile Include="CodeGeneration\Messages\SyntaxError.cs" />
     <Compile Include="CodeGeneration\Messages\Warning.cs" />
