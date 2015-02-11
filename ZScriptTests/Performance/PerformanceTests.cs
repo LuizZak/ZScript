@@ -37,7 +37,7 @@ namespace ZScriptTests.Performance
         [TestMethod]
         public void TestSubscriptPerformance()
         {
-            const string input = "func funca { var a = [0]; for(var i = 0; i < 10000; i++) { a[0] += i; } }";
+            const string input = "func funca { var a = [0]; for(var i = 0; i < 1000000; i++) { a[0] += i; } }";
 
             var generator = CreateGenerator(input);
 
