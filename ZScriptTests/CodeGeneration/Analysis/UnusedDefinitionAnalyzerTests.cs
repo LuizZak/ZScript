@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Antlr4.Runtime;
-
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Elements;
@@ -161,23 +159,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
         private static ValueHolderDefinition GenerateDefinition()
         {
             const string input = "var b;";
-            var parser = CreateParser(input);
+            var parser = ZRuntimeTests.CreateParser(input);
 
             return new ValueHolderDefinition { Name = "Test", Context = parser.valueDecl() };
-        }
-
-        /// <summary>
-        /// Creates a new ZScriptParser object from a given string
-        /// </summary>
-        /// <param name="input">The input string to generate the ZScriptParser from</param>
-        /// <returns>A ZScriptParser created from the given string</returns>
-        public static ZScriptParser CreateParser(string input)
-        {
-            AntlrInputStream stream = new AntlrInputStream(input);
-            ITokenSource lexer = new ZScriptLexer(stream);
-            ITokenStream tokens = new CommonTokenStream(lexer);
-
-            return new ZScriptParser(tokens);
         }
     }
 }

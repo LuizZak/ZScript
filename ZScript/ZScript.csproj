@@ -46,6 +46,14 @@
   <ItemGroup>
     <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
     <Compile Include="CodeGeneration\Analysis\Definitions\UnusedDefinitionsAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Analysis\DefinitionTypeAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
+    <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
+    <Compile Include="CodeGeneration\Elements\Typing\CallableTypeDef.cs" />
+    <Compile Include="CodeGeneration\Elements\Typing\IListTypeDef.cs" />
+    <Compile Include="CodeGeneration\Elements\Typing\ListTypeDef.cs" />
+    <Compile Include="CodeGeneration\Elements\Typing\ObjectTypeDef.cs" />
+    <Compile Include="CodeGeneration\Elements\Typing\StringTypeDef.cs" />
     <Compile Include="CodeGeneration\Messages\MessageContainer.cs" />
     <Compile Include="CodeGeneration\Elements\ClosureDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\Definition.cs" />
@@ -58,7 +66,7 @@
     <Compile Include="CodeGeneration\Elements\GlobalVariableDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\ScopeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Elements\ObjectDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\TypeDef.cs" />
+    <Compile Include="CodeGeneration\Elements\Typing\TypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\ValueHolderDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionAnalyzer.cs" />
     <Compile Include="CodeGeneration\Messages\CodeError.cs" />
@@ -110,6 +118,7 @@
     <Compile Include="Runtime\Execution\Wrappers\MemberWrapperHelper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\ListSubscripterWrapper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\ProperySubscripterWrapper.cs" />
+    <Compile Include="Runtime\Typing\BinaryExpressionTypeProvider.cs" />
     <Compile Include="Runtime\Typing\ITypeOperator.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\IMemory.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\Memory.cs" />

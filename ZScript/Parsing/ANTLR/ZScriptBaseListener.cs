@@ -645,6 +645,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitType([NotNull] ZScriptParser.TypeContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.objectType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterObjectType([NotNull] ZScriptParser.ObjectTypeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.objectType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitObjectType([NotNull] ZScriptParser.ObjectTypeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.typeName"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -657,29 +669,29 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTypeName([NotNull] ZScriptParser.TypeNameContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.closureType"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.callableType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterClosureType([NotNull] ZScriptParser.ClosureTypeContext context) { }
+	public virtual void EnterCallableType([NotNull] ZScriptParser.CallableTypeContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.closureType"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.callableType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitClosureType([NotNull] ZScriptParser.ClosureTypeContext context) { }
+	public virtual void ExitCallableType([NotNull] ZScriptParser.CallableTypeContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayType"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.listType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterArrayType([NotNull] ZScriptParser.ArrayTypeContext context) { }
+	public virtual void EnterListType([NotNull] ZScriptParser.ListTypeContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.arrayType"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.listType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitArrayType([NotNull] ZScriptParser.ArrayTypeContext context) { }
+	public virtual void ExitListType([NotNull] ZScriptParser.ListTypeContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.typeList"/>.
 	/// <para>The default implementation does nothing.</para>

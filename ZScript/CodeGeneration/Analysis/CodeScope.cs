@@ -165,6 +165,32 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Gets all the children scopes for this scope recursively, including this scope
+        /// </summary>
+        /// <returns>An enumerable containing the scopes collected</returns>
+        public IEnumerable<CodeScope> GetAllScopesRecursive()
+        {
+            List<CodeScope> scopes = new List<CodeScope>();
+
+            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+
+            scopeQueue.Enqueue(this);
+
+            while (scopeQueue.Count > 0)
+            {
+                var scope = scopeQueue.Dequeue();
+                scopes.Add(scope);
+
+                foreach (var child in scope.ChildrenScopes)
+                {
+                    scopeQueue.Enqueue(child);
+                }
+            }
+
+            return scopes;
+        }
+
+        /// <summary>
         /// Gets all the definition usages defined in this scope and all children scopes
         /// </summary>
         /// <returns>An enumerable containing the definition usages collected</returns>

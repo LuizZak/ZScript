@@ -7,6 +7,7 @@ using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Runtime.Typing;
 
 namespace ZScript.CodeGeneration
 {
@@ -34,6 +35,11 @@ namespace ZScript.CodeGeneration
         /// The current scope for the definitions
         /// </summary>
         private CodeScope _currentScope;
+
+        /// <summary>
+        /// The internal type provider used to generate typing for the definitions
+        /// </summary>
+        private TypeProvider _typeProvider = new TypeProvider();
 
         /// <summary>
         /// Gets the collected base scope containing the scopes defined
@@ -64,8 +70,12 @@ namespace ZScript.CodeGeneration
             walker.Walk(this, context);
 
             CodeScopeReachabilityAnalyzer.Analyze(_baseScope);
+
             var rsa = new ReturnStatementAnalyzer();
             rsa.AnalyzeScope(_baseScope, _messageContainer);
+
+            var expander = new DefinitionTypeAnalyzer(_typeProvider, this, _messageContainer);
+            expander.Expand();
         }
 
         #region Scope collection
@@ -289,9 +299,16 @@ namespace ZScript.CodeGeneration
             {
                 Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
                 Context = variable,
+                HasValue = variable.variableDeclare().expression() != null,
+                HasType = variable.variableDeclare().valueHolderDecl().type() != null,
                 ValueExpression = new Expression(variable.variableDeclare().expression()),
                 IsInstanceValue = IsInInstanceScope()
             };
+
+            if (def.HasType)
+            {
+                def.TypeContext = variable.variableDeclare().valueHolderDecl().type();
+            }
 
             CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
 
@@ -310,10 +327,17 @@ namespace ZScript.CodeGeneration
             {
                 Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
                 Context = constant,
+                HasValue = constant.constantDeclare().expression() != null,
+                HasType = constant.constantDeclare().valueHolderDecl().type() != null,
                 ValueExpression = new Expression(constant.constantDeclare().expression()),
                 IsConstant = true,
                 IsInstanceValue = IsInInstanceScope()
             };
+
+            if (def.HasType)
+            {
+                def.TypeContext = constant.constantDeclare().valueHolderDecl().type();
+            }
 
             CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
 
@@ -331,12 +355,17 @@ namespace ZScript.CodeGeneration
             {
                 Name = varDecl.valueHolderName().IDENT().GetText(),
                 Context = variable,
+                HasType = variable.variableDeclare().valueHolderDecl().type() != null,
                 HasValue = variable.variableDeclare().expression() != null,
             };
 
             if (def.HasValue)
             {
                 def.ValueExpression = new Expression(variable.variableDeclare().expression());
+            }
+            if (def.HasType)
+            {
+                def.TypeContext = variable.variableDeclare().valueHolderDecl().type();
             }
 
             CheckCollisions(def, varDecl.valueHolderName().IDENT());
@@ -350,7 +379,7 @@ namespace ZScript.CodeGeneration
         /// <param name="argument">The argument to define</param>
         void DefineFunctionArgument(ZScriptParser.FunctionArgContext argument)
         {
-            var def = new FunctionArgumentDefinition { Name = argument.argumentName().IDENT().GetText(), Context = argument };
+            var def = FunctionDefinitionGenerator.GenerateFunctionArgumentDef(argument);
 
             CheckCollisions(def, argument.argumentName().IDENT());
 
@@ -500,6 +529,7 @@ namespace ZScript.CodeGeneration
                 {
                     Context = context,
                     HasReturnType = context.returnType() != null,
+                    ReturnTypeContext = context.returnType(),
                     IsVoid = (context.returnType() != null && context.returnType().type().GetText() == "void")
                 };
 
@@ -518,6 +548,7 @@ namespace ZScript.CodeGeneration
                 {
                     Context = context,
                     HasReturnType = context.returnType() != null,
+                    ReturnTypeContext = context.returnType(),
                     IsVoid = (context.returnType() != null && context.returnType().type().GetText() == "void")
                 };
 
@@ -536,10 +567,43 @@ namespace ZScript.CodeGeneration
                 {
                     Context = context,
                     HasReturnType = context.returnType() != null,
+                    ReturnTypeContext = context.returnType(),
                     IsVoid = (context.returnType() != null && context.returnType().type().GetText() == "void")
                 };
 
                 return e;
+            }
+
+            /// <summary>
+            /// Generates a new function argument definition from a given function argument context
+            /// </summary>
+            /// <param name="context">The context containing the function argument to create</param>
+            /// <returns>A FunctionArgumentDefinition for the given context</returns>
+            public static FunctionArgumentDefinition GenerateFunctionArgumentDef(ZScriptParser.FunctionArgContext context)
+            {
+                var a = new FunctionArgumentDefinition
+                {
+                    Name = context.argumentName().IDENT().GetText(),
+                    HasValue = context.compileConstant() != null,
+                    Context = context
+                };
+
+                if (context.type() != null)
+                {
+                    a.HasType = true;
+                    a.TypeContext = context.type();
+                }
+
+                if (context.variadic != null)
+                {
+                    a.IsVariadic = true;
+                }
+                else if (context.compileConstant() != null)
+                {
+                    a.HasValue = true;
+                    a.DefaultValue = context.compileConstant();
+                }
+                return a;
             }
 
             /// <summary>
@@ -558,22 +622,7 @@ namespace ZScript.CodeGeneration
                 int i = 0;
                 foreach (var arg in argList)
                 {
-                    var a = new FunctionArgumentDefinition
-                    {
-                        Name = arg.argumentName().IDENT().GetText(),
-                        HasValue = arg.compileConstant() != null,
-                        Context = arg
-                    };
-
-                    if (arg.variadic != null)
-                    {
-                        a.IsVariadic = true;
-                    }
-                    else if (arg.compileConstant() != null)
-                    {
-                        a.HasValue = true;
-                        a.DefaultValue = arg.compileConstant();
-                    }
+                    var a = GenerateFunctionArgumentDef(arg);
 
                     args[i++] = a;
                 }
@@ -722,6 +771,8 @@ namespace ZScript.CodeGeneration
                                 "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, context);
                     }
                 }
+
+                _currentDefinition.ReturnStatements = _returnStatements;
             }
 
             /// <summary>

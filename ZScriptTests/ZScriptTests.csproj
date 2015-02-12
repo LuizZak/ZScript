@@ -54,6 +54,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolverTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpanderTests.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Runtime\MemberTests.cs" />
     <Compile Include="Runtime\ObjectLiteralTests.cs" />
     <Compile Include="Runtime\SubscriptingTests.cs" />
+    <Compile Include="Runtime\Typing\TypeProviderTests.cs" />
     <Compile Include="Runtime\ZRuntimeTests.cs" />
     <Compile Include="TestRuntimeOwner.cs" />
     <Compile Include="ZScriptTests.cs" />

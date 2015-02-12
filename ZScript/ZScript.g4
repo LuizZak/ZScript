@@ -112,37 +112,38 @@ valueHolderDecl : valueHolderName (':' type)?;
 valueHolderName : IDENT;
 
 // Types
-type : 'object' | typeName | closureType | arrayType;
-typeName : IDENT ('.' typeName)?;
-closureType : '(' typeList? '->' type? ')';
-arrayType : '[' type ']';
-typeList : type (',' type)*;
+type : objectType | typeName | callableType | listType;
+objectType   : 'object';
+typeName     : IDENT ('.' typeName)?;
+callableType : '(' typeList? '->' type? ')';
+listType     : '[' type ']';
+typeList     : type (',' type)*;
 
 ////
 //// Expressions
 ////
 expression:  '(' expression ')' valueAccess?
-          | '(' assignmentExpression ')'
-          |  prefixOperator leftValue
-          |  leftValue postfixOperator
-          |  closureExpression functionCall?
-          |  memberName valueAccess?
-          |  objectLiteral objectAccess?
-          |  arrayLiteral valueAccess?
-          |  newExpression valueAccess?
-          |  '(' type ')' expression
-          // Unary expressions
-          |  '-' expression
-          |  '!' expression
-          // Binary expressions
-          |  expression multOp expression
-          |  expression additionOp expression
-          |  expression bitwiseAndXOrOp expression
-          |  expression bitwiseOrOp expression
-          |  expression comparisionOp expression
-          |  expression logicalOp expression
-          |  constantAtom objectAccess?
-          ;
+           | '(' assignmentExpression ')'
+           |  prefixOperator leftValue
+           |  leftValue postfixOperator
+           |  closureExpression valueAccess?
+           |  memberName valueAccess?
+           |  objectLiteral objectAccess?
+           |  arrayLiteral valueAccess?
+           |  newExpression valueAccess?
+           |  '(' type ')' expression
+           // Unary expressions
+           |  '-' expression
+           |  '!' expression
+           // Binary expressions
+           |  expression multOp expression
+           |  expression additionOp expression
+           |  expression bitwiseAndXOrOp expression
+           |  expression bitwiseOrOp expression
+           |  expression comparisionOp expression
+           |  expression logicalOp expression
+           |  constantAtom objectAccess?
+           ;
 
 multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');

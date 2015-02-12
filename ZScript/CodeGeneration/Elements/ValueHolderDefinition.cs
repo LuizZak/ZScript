@@ -1,3 +1,5 @@
+using ZScript.CodeGeneration.Elements.Typing;
+
 namespace ZScript.CodeGeneration.Elements
 {
     /// <summary>
@@ -25,6 +27,11 @@ namespace ZScript.CodeGeneration.Elements
         /// Gets or sets the type associated with this value holder definition
         /// </summary>
         public TypeDef Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the context for the type of this value holder definition
+        /// </summary>
+        public ZScriptParser.TypeContext TypeContext { get; set; }
 
         /// <summary>
         /// Whether this value holder is constant

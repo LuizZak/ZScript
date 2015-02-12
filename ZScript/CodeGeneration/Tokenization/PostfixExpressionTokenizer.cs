@@ -311,9 +311,9 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 VisitClosureExpression(context.closureExpression());
 
-                if (context.functionCall() != null)
+                if (context.valueAccess() != null)
                 {
-                    VisitFunctionCall(context.functionCall());
+                    VisitValueAccess(context.valueAccess());
                 }
             }
             else if (context.arrayLiteral() != null)

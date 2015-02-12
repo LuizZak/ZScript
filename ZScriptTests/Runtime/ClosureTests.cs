@@ -49,6 +49,17 @@ namespace ZScriptTests.Runtime
             Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
+        [TestMethod]
+        public void TestParseClosureCallSubscript()
+        {
+            const string input = "func f() { var c = (i) => { return 0; }(10)[0]; }";
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var definition = generator.GenerateRuntimeDefinition();
+
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+        }
+
         #endregion
         
         #region Execution tests
@@ -292,6 +303,26 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual((long)4, owner.TraceObjects[3]);
             Assert.AreEqual((long)3, owner.TraceObjects[4]);
             Assert.AreEqual((long)5, owner.TraceObjects[5]);
+        }
+
+        /// <summary>
+        /// Tests utilizing a subscript after a closure call
+        /// </summary>
+        [TestMethod]
+        public void TestClosureCallSubscriptExecution()
+        {
+            const string input = "@__trace(a...) func funca() { __trace((i) => { return [i]; }(1)[0]); }";
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseInputString();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("funca");
+
+            // Assert the correct call was made
+            Assert.AreEqual((long)1, owner.TraceObjects[0]);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Antlr4.Runtime;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration;
 
 namespace ZScriptTests.Runtime
@@ -206,6 +207,20 @@ namespace ZScriptTests.Runtime
         {
             var gen = new ZRuntimeGenerator(input) { Debug = true };
             return gen;
+        }
+
+        /// <summary>
+        /// Creates a new ZScriptParser object from a given string
+        /// </summary>
+        /// <param name="input">The input string to generate the ZScriptParser from</param>
+        /// <returns>A ZScriptParser created from the given string</returns>
+        public static ZScriptParser CreateParser(string input)
+        {
+            AntlrInputStream stream = new AntlrInputStream(input);
+            ITokenSource lexer = new ZScriptLexer(stream);
+            ITokenStream tokens = new CommonTokenStream(lexer);
+
+            return new ZScriptParser(tokens);
         }
     }
 }

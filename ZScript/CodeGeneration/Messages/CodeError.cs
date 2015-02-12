@@ -76,5 +76,16 @@
         ReturningValueOnVoidFunction,
 
         #endregion
+
+        #region Expression analysis errors
+
+        /// <summary>Trying to perform a binary operation with a void type</summary>
+        VoidOnBinaryExpression,
+        /// <summary>Trying to perform a binary operation with non-compatible types</summary>
+        InvalidTypesOnBinaryExpression,
+        /// <summary>Trying to perform an invalid cast</summary>
+        InvalidCast
+
+        #endregion
     }
 }

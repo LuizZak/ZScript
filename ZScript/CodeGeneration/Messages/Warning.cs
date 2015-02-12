@@ -48,6 +48,11 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>A definition is created, but never user</summary>
         UnusedDefinition,
         /// <summary>A definition is created, but its value is only set and never get</summary>
-        DefinitionOnlySet
+        DefinitionOnlySet,
+
+        /// <summary>Trying to access an object that is not a list with subscription</summary>
+        TryingToSubscriptNonList,
+        /// <summary>Trying to call an object that is not a callable</summary>
+        TryingToCallNonCallable
     }
 }
