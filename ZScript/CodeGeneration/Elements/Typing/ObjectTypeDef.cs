@@ -14,10 +14,19 @@
         }
 
         /// <summary>
+        /// Gets the type accepted by the subscript of the ObjectTypeDef
+        /// </summary>
+        public TypeDef SubscriptType
+        {
+            get { return StringType; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ObjectTypeDef class
         /// </summary>
         public ObjectTypeDef() : base("object")
         {
+
         }
     }
 }

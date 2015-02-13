@@ -16,7 +16,7 @@ namespace ZScriptTests.Runtime
         {
             const string input = "@f2(i)";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
             Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
@@ -27,7 +27,7 @@ namespace ZScriptTests.Runtime
         {
             const string input = "@f2(i) func f() { f2(10); }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
             
             Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
@@ -44,7 +44,7 @@ namespace ZScriptTests.Runtime
 
             var owner = new TestRuntimeOwner();
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("f");

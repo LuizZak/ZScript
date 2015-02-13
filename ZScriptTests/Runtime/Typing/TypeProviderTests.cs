@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Elements.Typing;
+using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
 
 namespace ZScriptTests.Runtime.Typing
@@ -72,17 +74,37 @@ namespace ZScriptTests.Runtime.Typing
         /// Tests the FindCommonType method with callable types
         /// </summary>
         [TestMethod]
-        public void TestCallableFindCommonType()
+        public void TestSimpleCallableFindCommonType()
         {
             var provider = new TypeProvider();
 
-            var param1 = provider.IntegerType();
-            var param2 = provider.IntegerType();
+            var param1 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
+            var param2 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
 
             var callable1 = new CallableTypeDef(new [] { param1, param2 }, provider.IntegerType());
             var callable2 = new CallableTypeDef(new [] { param1, param2 }, provider.VoidType());
 
             Assert.AreEqual(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType()), provider.FindCommonType(callable1, callable2),
+                "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
+        }
+        
+        /// <summary>
+        /// Tests the FindCommonType method with callable types, with one of the values containing a default value with the other not
+        /// </summary>
+        [TestMethod]
+        public void TestCallableWithDefaultFindCommonType()
+        {
+            var provider = new TypeProvider();
+
+            var param1 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
+            var param2 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
+
+            var param2_def = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, true, false);
+
+            var callable1 = new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType());
+            var callable2 = new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType());
+
+            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType()), provider.FindCommonType(callable1, callable2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
         }
 
@@ -94,14 +116,57 @@ namespace ZScriptTests.Runtime.Typing
         {
             var provider = new TypeProvider();
 
-            var param1 = provider.IntegerType();
-            var param2 = provider.IntegerType();
+            var param1 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, true, false);
+            var param2 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, true, false);
 
             var array1 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType()));
             var array2 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType()));
 
             Assert.AreEqual(new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType())), provider.FindCommonType(array1, array2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
+        }
+
+        /// <summary>
+        /// Tests failed callable type cast checking by providing callables with different required argument count
+        /// </summary>
+        [TestMethod]
+        public void TestFailedDefaultArgumentClosureTypeImplicitCast()
+        {
+            // Set up the test
+            const string input = "(int->int) (i:int, j:int) => {}";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(provider, container);
+
+            // Perform the parsing
+            var callableType = resolver.ResolveCallableType(parser.callableType());
+            var closureType = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsFalse(provider.CanImplicitCast(closureType, callableType), "Trying to cast callable types with less required parameters than the original should not be allowed");
+        }
+
+        /// <summary>
+        /// Tests successfull callable type cast checking by providing callables with same required argument count
+        /// </summary>
+        [TestMethod]
+        public void TestDefaultArgumentClosureTypeImplicitCast()
+        {
+            // Set up the test
+            const string input = "(int->int) (i:int, j:int=0) => {}";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(provider, container);
+
+            // Perform the parsing
+            var callableType = resolver.ResolveCallableType(parser.callableType());
+            var closureType = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsTrue(provider.CanImplicitCast(closureType, callableType),
+                "Trying to cast callable types with more total parameters, but same required parameters than the original should not be allowed");
         }
     }
 }

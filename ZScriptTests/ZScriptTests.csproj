@@ -57,6 +57,7 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolverTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
+    <Compile Include="CodeGeneration\MultipleSourcesTests.cs" />
     <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpanderTests.cs" />
     <Compile Include="CodeGeneration\Tokenizers\StatementTokenizerTests.cs" />
     <Compile Include="Parsing\ConstantAtomParserTests.cs" />

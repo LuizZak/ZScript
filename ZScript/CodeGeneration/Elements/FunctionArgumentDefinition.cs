@@ -1,4 +1,6 @@
-﻿namespace ZScript.CodeGeneration.Elements
+﻿using ZScript.CodeGeneration.Elements.Typing;
+
+namespace ZScript.CodeGeneration.Elements
 {
     /// <summary>
     /// Specifies a variable definition
@@ -16,5 +18,14 @@
         /// The compile-time constant defining the value for the function argument
         /// </summary>
         public ZScriptParser.CompileConstantContext DefaultValue { get; set; }
+
+        /// <summary>
+        /// Creates an argument information based on the information of this function argument
+        /// </summary>
+        /// <returns>A callble argument information generated from this function argument</returns>
+        public CallableTypeDef.CallableArgumentInfo ToArgumentInfo()
+        {
+            return new CallableTypeDef.CallableArgumentInfo(Type, HasType, HasValue, IsVariadic);
+        }
     }
 }

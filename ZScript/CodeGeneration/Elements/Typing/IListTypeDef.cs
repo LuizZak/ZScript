@@ -9,5 +9,10 @@
         /// Gets the type of items enclosed in this list type
         /// </summary>
         TypeDef EnclosingType { get; }
+
+        /// <summary>
+        /// Gets the type of object that is accepted by the subscripting syntax of the list
+        /// </summary>
+        TypeDef SubscriptType { get; }
     }
 }

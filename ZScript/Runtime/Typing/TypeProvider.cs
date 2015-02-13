@@ -64,7 +64,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>A type that represents a type of list for the given object type</returns>
         public ListTypeDef ListForType(TypeDef type)
         {
-            return new ListTypeDef(type);
+            return new ListTypeDef(type) { SubscriptType = IntegerType() };
         }
 
         /// <summary>
@@ -110,7 +110,22 @@ namespace ZScript.Runtime.Typing
             var ct2 = type2 as CallableTypeDef;
             if (ct1 != null && ct2 != null && ct1.ParameterTypes.Length == ct2.ParameterTypes.Length)
             {
-                var newParams = ct1.ParameterTypes.Select((t, i) => FindCommonType(t, ct2.ParameterTypes[i]));
+                // Mismatched variadic typing should
+                for (int i = 0; i < ct1.ParameterInfos.Length; i++)
+                {
+                    if(ct1.ParameterInfos[i].IsVariadic != ct2.ParameterInfos[i].IsVariadic)
+                        return AnyType();
+                }
+
+                // TODO: Clear this nasty select statement
+                var newParams =
+                    ct1.ParameterInfos.Select(
+                        (t, i) =>
+                            new CallableTypeDef.CallableArgumentInfo(
+                                FindCommonType(t.ArgumentType, ct2.ParameterTypes[i]), true,
+                                t.HasDefault || ct2.ParameterInfos[i].HasDefault,
+                                t.IsVariadic && ct2.ParameterInfos[i].IsVariadic));
+
                 var newReturn = FindCommonType(ct1.ReturnType, ct2.ReturnType);
 
                 return new CallableTypeDef(newParams.ToArray(), newReturn);
@@ -133,7 +148,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         /// <param name="origin">The origin type to cast</param>
         /// <param name="target">The target type to cast</param>
-        /// <returns></returns>
+        /// <returns>Whether the origin type can be explicitly casted to the target type</returns>
         public bool CanExplicitCast(TypeDef origin, TypeDef target)
         {
             // Cannot convert voids
@@ -160,6 +175,10 @@ namespace ZScript.Runtime.Typing
             if ((_binaryExpressionProvider.IsNumeric(origin) || _binaryExpressionProvider.IsLogicType(origin)) && target == StringType())
                 return true;
 
+            // Callables
+            if (origin is CallableTypeDef && target is CallableTypeDef)
+                return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
+
             return false;
         }
 
@@ -168,7 +187,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         /// <param name="origin">The origin type to cast</param>
         /// <param name="target">The target type to cast</param>
-        /// <returns></returns>
+        /// <returns>Whether the origin type can be implicitly casted to the target type</returns>
         public bool CanImplicitCast(TypeDef origin, TypeDef target)
         {
             // Cannot convert voids
@@ -191,7 +210,40 @@ namespace ZScript.Runtime.Typing
             if (origin.IsAny || target.IsAny)
                 return true;
 
+            // Callables
+            if (origin is CallableTypeDef && target is CallableTypeDef)
+                return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
+            
             return false;
+        }
+
+        /// <summary>
+        /// Tests whether two given callable type definitions are compatible
+        /// </summary>
+        /// <param name="origin">The origin type to check</param>
+        /// <param name="target">The target type to check</param>
+        /// <returns>Whether the origin callable type is compatible with the given target callable type</returns>
+        private bool CheckCallableCompatibility(CallableTypeDef origin, CallableTypeDef target)
+        {
+            // Check required argument count
+            if (origin.RequiredCount != target.RequiredCount)
+                return false;
+
+            // Check implicit return type, ignoring void return types on the target
+            // (since the origin return value will never be used, if the target's return value is void)
+            if (!target.ReturnType.IsVoid && !CanImplicitCast(origin.ReturnType, target.ReturnType))
+                return false;
+
+            // Check argument implicit casts
+            int c = Math.Min(origin.RequiredCount, target.RequiredCount);
+            for (int i = 0; i < c; i++)
+            {
+                if (!CanImplicitCast(origin.ParameterTypes[i], target.ParameterTypes[i]))
+                    return false;
+            }
+
+            // Callable types are compatible
+            return true;
         }
 
         /// <summary>

@@ -19,7 +19,7 @@ namespace StandaloneTests
 
             var generator = new ZRuntimeGenerator(input);
 
-            generator.ParseInputString();
+            generator.ParseSources();
 
             // Generate the runtime now
             var runtime = generator.GenerateRuntime(null);

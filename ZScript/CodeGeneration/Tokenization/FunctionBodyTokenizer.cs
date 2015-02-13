@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -18,17 +19,17 @@ namespace ZScript.CodeGeneration.Tokenization
         public bool DebugTokens;
 
         /// <summary>
-        /// A definition collector containing the definitions that were pre-parsed
+        /// A code scope containing the definitions that were pre-parsed
         /// </summary>
-        private readonly DefinitionsCollector _definitions;
+        private readonly CodeScope _scope;
 
         /// <summary>
         /// Initializes a new instance of the FunctionBodyTokenizer class
         /// </summary>
-        /// <param name="definitions">A definition collector containing the definitions that were pre-parsed</param>
-        public FunctionBodyTokenizer(DefinitionsCollector definitions)
+        /// <param name="scope">A code scope containing the definitions that were pre-parsed</param>
+        public FunctionBodyTokenizer(CodeScope scope)
         {
-            _definitions = definitions;
+            _scope = scope;
         }
 
         /// <summary>
@@ -40,7 +41,7 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             var state = context.blockStatement();
 
-            var stc = new StatementTokenizerContext(_definitions);
+            var stc = new StatementTokenizerContext(_scope);
             var tokens = stc.TokenizeBlockStatement(state);
 
             if (DebugTokens)
@@ -60,6 +61,10 @@ namespace ZScript.CodeGeneration.Tokenization
             return new TokenList(tokens);
         }
 
+        /// <summary>
+        /// Prints a given list of tokens into the console
+        /// </summary>
+        /// <param name="tokenList">The list of tokens to print</param>
         private static void PrintTokens(List<Token> tokenList)
         {
             int add = 0;
@@ -73,7 +78,8 @@ namespace ZScript.CodeGeneration.Tokenization
                 if (jumpToken != null)
                 {
                     Console.Write("[");
-                    Console.Write(tokenList.IndexOf(jumpToken.TargetToken));
+                    //Console.Write(tokenList.IndexOf(jumpToken.TargetToken));
+                    Console.Write(OffsetForJump(tokenList, jumpToken));
                     Console.Write(" JUMP");
                     if (jumpToken.Conditional)
                     {
@@ -104,6 +110,17 @@ namespace ZScript.CodeGeneration.Tokenization
                 Console.WriteLine("");
             }
             Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Returns an integer that represents the simulated target offset for a jump at a given index
+        /// </summary>
+        /// <param name="tokenList">The list of tokens to analyze</param>
+        /// <param name="jumpToken">The jump to analyze</param>
+        /// <returns>The index that represents the jump's target after evaluation</returns>
+        private static int OffsetForJump(List<Token> tokenList, JumpToken jumpToken)
+        {
+            return tokenList.IndexOf(jumpToken.TargetToken);
         }
     }
 
@@ -206,9 +223,9 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 Console.Write(" ");
 
-                if (context.funcCallArguments() != null)
+                if (context.functionCall() != null)
                 {
-                    PrintFunctionCallArguments(context.funcCallArguments());
+                    PrintFunctionCall(context.functionCall());
 
                     context = context.leftValueAccess();
                     continue;
@@ -529,9 +546,9 @@ namespace ZScript.CodeGeneration.Tokenization
 
         void PrintLeftValueAccess(ZScriptParser.LeftValueAccessContext context)
         {
-            if (context.funcCallArguments() != null)
+            if (context.functionCall() != null)
             {
-                PrintFunctionCallArguments(context.funcCallArguments());
+                PrintFunctionCall(context.functionCall());
 
                 PrintLeftValueAccess(context.leftValueAccess());
             }

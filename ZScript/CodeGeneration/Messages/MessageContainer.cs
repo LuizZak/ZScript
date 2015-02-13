@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -124,9 +125,17 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Registers an error at a context
         /// </summary>
-        public void RegisterError(ITerminalNode context, string errorMessage)
+        public void RegisterError(ITerminalNode context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
         {
             _errorList.Add(new CodeError(context.Symbol.Line, context.Symbol.Column, errorMessage));
+        }
+
+        /// <summary>
+        /// Registers an error at a context
+        /// </summary>
+        public void RegisterError(ParserRuleContext context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
+        {
+            _errorList.Add(new CodeError(context.Start.Line, context.Start.Column, errorMessage) { ErrorCode = errorCode, Context = context });
         }
 
         /// <summary>
@@ -135,6 +144,16 @@ namespace ZScript.CodeGeneration.Messages
         public void RegisterError(CodeError error)
         {
             _errorList.Add(error);
+        }
+
+        /// <summary>
+        /// Clears all the warnings and errors contained in this message container
+        /// </summary>
+        public void Clear()
+        {
+            _errorList.Clear();
+            _warningList.Clear();
+            _syntaxErrors.Clear();
         }
 
         /// <summary>

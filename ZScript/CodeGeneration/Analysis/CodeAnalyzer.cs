@@ -6,7 +6,7 @@ namespace ZScript.CodeGeneration.Analysis
     /// <summary>
     /// Performs analysis in scopes to guarantee that variables are scoped correctly
     /// </summary>
-    public class ScopeAnalyzer : ZScriptBaseListener
+    public class CodeAnalyzer : ZScriptBaseListener
     {
         /// <summary>
         /// The container for error and warning messages
@@ -39,7 +39,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Initializes a new instance of the ScopeAnalyzer class
         /// </summary>
         /// <param name="messageContainer">The container that error and warning messages will be reported to</param>
-        public ScopeAnalyzer(MessageContainer messageContainer)
+        public CodeAnalyzer(MessageContainer messageContainer)
         {
             _messageContainer = new MessageContainer();
             _messageContainer = messageContainer;
@@ -57,13 +57,9 @@ namespace ZScript.CodeGeneration.Analysis
             // Walk twice - the first pass collects definitions, the second pass analyzes bodies
             //_analysisMode = AnalysisMode.DefinitionCollection;
             DefinitionsCollector collector = new DefinitionsCollector(_messageContainer);
-            collector.Analyze(context);
+            collector.Collect(context);
 
             _definitionsCollector = collector;
-
-            ParseTreeWalker walker = new ParseTreeWalker();
-            DefinitionAnalyzer varAnalyzer = new DefinitionAnalyzer(_definitionsCollector.CollectedBaseScope, _messageContainer);
-            walker.Walk(varAnalyzer, context);
         }
     }
 }

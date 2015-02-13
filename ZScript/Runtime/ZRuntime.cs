@@ -37,7 +37,7 @@ namespace ZScript.Runtime
         /// <summary>
         /// The list of all functions defined in this ZRuntime instance
         /// </summary>
-        private readonly ZFunction[] _zFunction;
+        private readonly ZFunction[] _zFunctions;
 
         /// <summary>
         /// The global memory for the runtime
@@ -76,7 +76,7 @@ namespace ZScript.Runtime
         public ZRuntime(ZRuntimeDefinition definition, IRuntimeOwner owner)
         {
             _definition = definition;
-            _zFunction = definition.ZFunctionDefinitions.Concat(definition.ZExportFunctionDefinitions).Concat(definition.ZClosureFunctionDefinitions).ToArray();
+            _zFunctions = definition.ZFunctionDefinitions.Concat(definition.ZExportFunctionDefinitions).Concat(definition.ZClosureFunctionDefinitions).ToArray();
             _localMemoriesStack = new Stack<IMemory<string>>();
             _owner = owner;
             _globalMemory = new Memory();
@@ -170,7 +170,7 @@ namespace ZScript.Runtime
         /// <returns>The function definition with the given name, or null, if none was found</returns>
         public ZFunction FunctionWithName(string functionName, bool captureClosures = true)
         {
-            foreach (ZFunction func in _zFunction)
+            foreach (ZFunction func in _zFunctions)
             {
                 if (func.Name == functionName)
                 {

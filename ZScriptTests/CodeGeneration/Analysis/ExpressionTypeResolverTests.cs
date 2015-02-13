@@ -1,10 +1,12 @@
 ﻿using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
+
 using ZScriptTests.Runtime;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -235,6 +237,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Subscription/function call argument type resolving
+
+        /// <summary>
+        /// Tests list subscription type checking
+        /// </summary>
+        [TestMethod]
+        public void TestListSubscriptionTypeChecking()
+        {
+            // Set up the test
+            const string input = "[0]['invalid!']; [0][1]; 'string'['invalid!']; 'string'[0]; { x:10 }['valid']; { x:10 }[0];";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
+
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+
+            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+        }
+
+        #endregion
+
         #region Closure type resolving
 
         /// <summary>
@@ -248,7 +277,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = ZRuntimeTests.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
+            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
             var value = parser.closureExpression();
 
@@ -282,6 +311,27 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Compare the result now
             Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[0], "The resolved type did not match the expected type");
             Assert.AreEqual(provider.ListForType(provider.IntegerType()), type.ParameterTypes[1], "The resolved type did not match the expected type");
+            Assert.AreEqual(true, type.ParameterInfos[1].IsVariadic, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests closure type resolving by providing a closure with different total argument count but equal required argument count
+        /// </summary>
+        [TestMethod]
+        public void TestDefaultArgumentClosureTypeDefinition()
+        {
+            // Set up the test
+            const string input = "(a = 10, b:int...) : (int->int) => { return (i:int, j:int=10) => { }; }";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(provider, container);
+
+            // Perform the parsing
+            resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
         }
 
         /// <summary>
@@ -734,6 +784,26 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(3, container.CodeErrors.Count(), "Failed to raise the expected errors");
         }
 
+        /// <summary>
+        /// Tests error raising on closure type resolving by providing an argument type that does not match the default value
+        /// </summary>
+        [TestMethod]
+        public void TestFailedImplicitArgumentCast()
+        {
+            // Set up the test
+            const string input = "(a:bool = 10) => { }";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(provider, container);
+
+            // Perform the parsing
+            resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Errors where detected when not expected");
+        }
+
         #endregion
 
         #region Warning raising
@@ -791,7 +861,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var generator = ZRuntimeTests.CreateGenerator(input);
             var container = generator.MessageContainer;
 
-            generator.ParseInputString();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
@@ -803,12 +872,11 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestRuntimeCallableResolve()
         {
-            const string input = "func funca(a:int...){ var a = ():float => { return 1.0; }; var aa:int = a(); }";
+            const string input = "func funca(a:int...){ var b = ():float => { return 1.0; }; var aa:int = b(); }";
 
             var generator = ZRuntimeTests.CreateGenerator(input);
             var container = generator.MessageContainer;
 
-            generator.ParseInputString();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
@@ -825,7 +893,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var generator = ZRuntimeTests.CreateGenerator(input);
             var container = generator.MessageContainer;
 
-            generator.ParseInputString();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");

@@ -21,7 +21,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { if(true) { return 10; } else { } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
@@ -35,7 +35,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { if(true) { return 10; } else if(true) { } else { return 10; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
@@ -49,7 +49,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { if(true) { return 10; } else if(true) { return 5; } else { return 10; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
@@ -63,7 +63,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { switch(10) { case 10: return 10; case 11: return 11; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
@@ -77,7 +77,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { switch(10) { case 9: break; case 10: case 11: return 11; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
@@ -91,7 +91,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { switch(10) { case 10: return 10; case 11: return 11; default: return 11; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
@@ -105,7 +105,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { switch(10) { case 9: break; case 10: case 11: return 11; default: return 11; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
@@ -119,7 +119,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { if(true) { return; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
@@ -133,7 +133,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { if(true) { return 10; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPathsWithValuedReturn));
@@ -147,7 +147,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { if(true) { return 10; } else { return; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InconsistentReturns));
@@ -161,7 +161,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() : int { return; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingReturnValueOnNonvoid));
@@ -175,7 +175,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() : int { return 10; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
@@ -189,7 +189,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() : void { return 10; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ReturningValueOnVoidFunction));
@@ -203,7 +203,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() : void { return; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
@@ -217,7 +217,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() : void { }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);

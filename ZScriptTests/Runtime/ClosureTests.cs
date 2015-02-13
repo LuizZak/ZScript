@@ -21,7 +21,7 @@ namespace ZScriptTests.Runtime
         {
             const string input = "func f() { var c = (i) => { return 0; }; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
             Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
@@ -32,7 +32,7 @@ namespace ZScriptTests.Runtime
         {
             const string input = "func f() { var c = (i) => { return 0; }(10); }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
             Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
@@ -43,7 +43,7 @@ namespace ZScriptTests.Runtime
         {
             const string input = "[ a = (i) => { return 0; }; ]";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
             Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
@@ -54,7 +54,7 @@ namespace ZScriptTests.Runtime
         {
             const string input = "func f() { var c = (i) => { return 0; }(10)[0]; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
             Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
@@ -76,7 +76,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -97,7 +97,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -119,7 +119,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -140,7 +140,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -161,7 +161,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -183,7 +183,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -204,7 +204,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -220,13 +220,13 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestSimpleClosureInClosure()
         {
-            const string input = "@__trace(a...) func funca() { var a = (i):(int->int) => { var b = i; return (_i):int => { return b + _i; }; }; __trace(a(0)(1)); }";
+            const string input = "@__trace(a...) func funca() { var a = (i):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; __trace(a(0)(1)); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -247,7 +247,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -263,13 +263,13 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestClosureInStoredClosure()
         {
-            const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; var b = a(1); __trace(b(2)); __trace(b(3)); }";
+            const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; var c = a(1); __trace(c(2)); __trace(c(3)); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -291,7 +291,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -316,7 +316,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");
@@ -338,7 +338,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             var sw = Stopwatch.StartNew();
@@ -368,7 +368,7 @@ namespace ZScriptTests.Runtime
             var owner = new TestRuntimeOwner();
 
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("funca");

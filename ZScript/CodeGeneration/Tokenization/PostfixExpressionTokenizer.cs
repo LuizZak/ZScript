@@ -164,9 +164,9 @@ namespace ZScript.CodeGeneration.Tokenization
 
         void VisitLeftValueAccess(ZScriptParser.LeftValueAccessContext context)
         {
-            if (context.funcCallArguments() != null)
+            if (context.functionCall() != null)
             {
-                VisitFunctionCallArguments(context.funcCallArguments());
+                VisitFunctionCall(context.functionCall());
 
                 VisitLeftValueAccess(context.leftValueAccess());
             }
@@ -476,10 +476,10 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
-            // Get the 
-            var closure = _context.Definitions.CollectedBaseScope.Definitions.First(def => def.Context == context);
+            // Get the name of the closure to substitute
+            var closureName = _context.Scope.Definitions.First(def => def.Context == context).Name;
 
-            _tokens.Add(TokenFactory.CreateVariableToken(closure.Name, true));
+            _tokens.Add(TokenFactory.CreateVariableToken(closureName, true));
         }
 
         private void VisitNewExpression(ZScriptParser.NewExpressionContext context)

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration.Elements;
@@ -31,16 +31,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// The context the scope is contained at
         /// </summary>
         public ParserRuleContext Context;
-
-        /// <summary>
-        /// Whether the reachability for this code scope is conditional (an 'if' statement scope, etc.)
-        /// </summary>
-        public bool IsConditional;
-
-        /// <summary>
-        /// Whether the context is reachable from any point in the script
-        /// </summary>
-        public bool IsReachable;
 
         /// <summary>
         /// Gets the parent scope for this scope
@@ -119,7 +109,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition to search</param>
         /// <returns>The definition that was found</returns>
-        public Definition SearchDefinitionByName(string definitionName)
+        public Definition GetDefinitionByName(string definitionName)
         {
             foreach (Definition def in _definitions)
             {
@@ -131,7 +121,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (ParentScope != null)
             {
-                return ParentScope.SearchDefinitionByName(definitionName);
+                return ParentScope.GetDefinitionByName(definitionName);
             }
 
             return null;
@@ -159,6 +149,26 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     scopeQueue.Enqueue(child);
                 }
+            }
+
+            return definitions;
+        }
+
+        /// <summary>
+        /// Gets all definitions reahable in this code scope by name
+        /// </summary>
+        /// <param name="definitionName">The name of the definitions to get</param>
+        /// <returns>An enumerable containing all of the definitions with a given name reachable by this code scope</returns>
+        public IEnumerable<Definition> GetDefinitionsByName(string definitionName)
+        {
+            var scope = this;
+            var definitions = new List<Definition>();
+
+            while (scope != null)
+            {
+                definitions.AddRange(scope.Definitions.Where(d => d.Name == definitionName));
+
+                scope = scope.ParentScope;
             }
 
             return definitions;
@@ -260,7 +270,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The definition to register on this scope</param>
         public void AddDefinition(Definition definition)
         {
-            definition.Scope = this;
             _definitions.Add(definition);
         }
 
@@ -270,7 +279,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="usage">The usage to register on this scope</param>
         public void AddDefinitionUsage(DefinitionUsage usage)
         {
-            usage.Scope = this;
             _usages.Add(usage);
         }
     }

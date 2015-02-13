@@ -66,13 +66,13 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.objectInherit() != null)
             {
                 var name = context.objectInherit().objectName().GetText();
-                Definition def = _currentScope.SearchDefinitionByName(name);
+                Definition def = _currentScope.GetDefinitionByName(name);
 
                 if (!(def is ObjectDefinition))
                 {
                     _messageContainer.RegisterError(context.Start.Line, context.Start.Column,
                         "Unkown or invalid definition '" + name + "' to inherit from",
-                        ErrorCode.AccessUndeclaredDefinition);
+                        ErrorCode.UndeclaredDefinition);
                 }
 
                 RegisterDefinitionUsage(def, context);
@@ -216,7 +216,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context in which the definition was used</param>
         void RegisterDefinitionUsage(string definitionName, ZScriptParser.MemberNameContext context)
         {
-            var definition = _currentScope.SearchDefinitionByName(definitionName);
+            var definition = _currentScope.GetDefinitionByName(definitionName);
 
             if (definition == null)
             {
@@ -246,7 +246,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (member == null)
             {
-                error = new CodeError(0, 0, ErrorCode.AccessUndeclaredDefinition);
+                error = new CodeError(0, 0, ErrorCode.UndeclaredDefinition);
                 error.Message += " UNKNOWN";
                 error.Context = CurrentScope().Context;
 
@@ -255,7 +255,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
             
-            error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, ErrorCode.AccessUndeclaredDefinition);
+            error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, ErrorCode.UndeclaredDefinition);
             error.Message += " '" + member.IDENT().GetText() + "'";
             error.Context = CurrentScope().Context;
 

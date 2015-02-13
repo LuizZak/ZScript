@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ZScript.CodeGeneration.Elements.Typing
+﻿namespace ZScript.CodeGeneration.Elements.Typing
 {
     /// <summary>
     /// Specifies a string primitive type definition
@@ -13,6 +11,14 @@ namespace ZScript.CodeGeneration.Elements.Typing
         public TypeDef EnclosingType
         {
             get { return AnyType; }
+        }
+
+        /// <summary>
+        /// Gets the type of objects accepted by the subscript of the string type
+        /// </summary>
+        public TypeDef SubscriptType
+        {
+            get { return IntegerType; }
         }
 
         /// <summary>

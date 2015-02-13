@@ -20,9 +20,9 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly TypeProvider _typeProvider;
 
         /// <summary>
-        /// The definition collector containing the definitions to expand
+        /// The code scope containing the definitions to expand
         /// </summary>
-        private readonly DefinitionsCollector _definitions;
+        private readonly CodeScope _baseScope;
 
         /// <summary>
         /// The message container to report error messages to
@@ -38,12 +38,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// Initializes a new instance of the DefinitionTypeExpander class
         /// </summary>
         /// <param name="typeProvider">The type provider for resolving types</param>
-        /// <param name="definitions">The definition collector containing the definitions to expand</param>
+        /// <param name="scope">The definition collector containing the definitions to expand</param>
         /// <param name="container">The message container to report error messages to</param>
-        public DefinitionTypeAnalyzer(TypeProvider typeProvider, DefinitionsCollector definitions, MessageContainer container)
+        public DefinitionTypeAnalyzer(TypeProvider typeProvider, CodeScope scope, MessageContainer container)
         {
             _typeProvider = typeProvider;
-            _definitions = definitions;
+            _baseScope = scope;
             _container = container;
 
             _typeResolver = new ExpressionTypeResolver(typeProvider, container, this);
@@ -55,7 +55,7 @@ namespace ZScript.CodeGeneration.Analysis
         public void Expand()
         {
             // Get all definitons
-            var definitions = _definitions.CollectedBaseScope.GetAllDefinitionsRecursive().ToArray();
+            var definitions = _baseScope.GetAllDefinitionsRecursive().ToArray();
 
             // Expand functions first
             foreach (var definition in definitions.OfType<FunctionDefinition>())
@@ -163,33 +163,11 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
         {
             // Search for the inner-most scope that contains the context, and search the definition from there
-            var scopes = _definitions.CollectedBaseScope.GetAllScopesRecursive().ToArray();
-
-            bool found = false;
-            CodeScope scopeForDefinition = null;
-
-            RuleContext p = context;
-            while (p != null)
-            {
-                foreach (var scope in scopes)
-                {
-                    if (p == scope.Context)
-                    {
-                        scopeForDefinition = scope;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                    break;
-
-                p = p.Parent;
-            }
+            var scopeForDefinition = ScopeForContext(context);
 
             if (scopeForDefinition != null)
             {
-                var def = scopeForDefinition.SearchDefinitionByName(definitionName);
+                var def = scopeForDefinition.GetDefinitionByName(definitionName);
 
                 var holderDefinition = def as ValueHolderDefinition;
                 if (holderDefinition != null)
@@ -210,7 +188,47 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            return null;
+            _container.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
+
+            return _typeProvider.AnyType();
+        }
+
+        /// <summary>
+        /// Returns the inner-most scope that contains a given context on the current definitions collector's scopes, or null, if none was found
+        /// </summary>
+        /// <param name="context">The context to search in the scopes</param>
+        /// <returns>The inner-most scope that contains the given context, or null, if none was found</returns>
+        private CodeScope ScopeForContext(ZScriptParser.MemberNameContext context)
+        {
+            var scopes = _baseScope.GetAllScopesRecursive().ToArray();
+
+            bool found = false;
+            CodeScope scopeForDefinition = null;
+
+            RuleContext p = context;
+            while (p != null)
+            {
+                // If the context is a program context, return the base global scope
+                if (p is ZScriptParser.ProgramContext)
+                    return _baseScope;
+
+                foreach (var scope in scopes)
+                {
+                    if (p == scope.Context)
+                    {
+                        scopeForDefinition = scope;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                    break;
+
+                p = p.Parent;
+            }
+
+            return scopeForDefinition;
         }
     }
 }

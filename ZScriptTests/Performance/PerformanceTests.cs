@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ZScript.CodeGeneration;
+
+using ZScriptTests.Runtime;
 
 namespace ZScriptTests.Performance
 {
@@ -14,11 +16,15 @@ namespace ZScriptTests.Performance
         [TestMethod]
         public void TestForLoopPeformance()
         {
-            const string input = "func funca { var a = 0; for(var i = 0; i < 10000; i++) { a += i; } }";
+            // The threshold for the test in milliseconds, based on previous runs.
+            // This value is obviously dependent on the system, and I use it mostly to test in my local machine
+            const long threshold = 300;
 
-            var generator = CreateGenerator(input);
+            const string input = "func funca { var a = 0; for(var i = 0; i < 100000; i++) { a += i; } }";
 
-            generator.ParseInputString();
+            var generator = ZRuntimeTests.CreateGenerator(input);
+
+            generator.ParseSources();
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -31,17 +37,23 @@ namespace ZScriptTests.Performance
 
             sw.Stop();
 
-            Console.Write(sw.ElapsedMilliseconds);
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold  + "ms.");
         }
 
         [TestMethod]
         public void TestSubscriptPerformance()
         {
-            const string input = "func funca { var a = [0]; for(var i = 0; i < 10000; i++) { a[0] += i; f(); } } func f() { return ( ) => { return; }; }";
+            // The threshold for the test in milliseconds, based on previous runs.
+            // This value is obviously dependent on the system, and I use it mostly to test in my local machine
+            const long threshold = 370;
 
-            var generator = CreateGenerator(input);
+            const string input = "func funca { var a = [0]; for(var i = 0; i < 100000; i++) { a[0] += i; } }";
 
-            generator.ParseInputString();
+            var generator = ZRuntimeTests.CreateGenerator(input);
+
+            generator.ParseSources();
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -54,18 +66,9 @@ namespace ZScriptTests.Performance
 
             sw.Stop();
 
-            Console.Write(sw.ElapsedMilliseconds);
-        }
+            Console.WriteLine(sw.ElapsedMilliseconds);
 
-        /// <summary>
-        /// Creates the default generator to use in tests
-        /// </summary>
-        /// <param name="input">The input string to use in the generator</param>
-        /// <returns>A default runtime generator to use in tests</returns>
-        public ZRuntimeGenerator CreateGenerator(string input)
-        {
-            var gen = new ZRuntimeGenerator(input) { Debug = true };
-            return gen;
+            Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
         }
     }
 }

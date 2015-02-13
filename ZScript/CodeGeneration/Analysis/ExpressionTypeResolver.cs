@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Antlr4.Runtime;
+
+using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
@@ -14,6 +17,8 @@ namespace ZScript.CodeGeneration.Analysis
     public partial class ExpressionTypeResolver
     {
         /*
+        assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
+        
         expression: >>   '(' expression ')' valueAccess?
                     >> | '(' assignmentExpression ')'
                     >> |  prefixOperator leftValue
@@ -244,17 +249,9 @@ namespace ZScript.CodeGeneration.Analysis
             // leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
             var type = _typeProvider.AnyType();
 
-            if (context.funcCallArguments() != null)
+            if (context.functionCall() != null)
             {
-                var callableType = leftValue as CallableTypeDef;
-                if (callableType != null)
-                {
-                    type = callableType.ReturnType;
-                }
-                else if (!leftValue.IsAny)
-                {
-                    RegisterFunctionCallWarning(leftValue, context);
-                }
+                ResolveFunctionCall(leftValue, context.functionCall(), ref type);
 
                 return ResolveLeftValueAccess(type, context.leftValueAccess());
             }
@@ -266,15 +263,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.arrayAccess() != null)
             {
-                var listType = leftValue as IListTypeDef;
-                if (listType != null)
-                {
-                    type = listType.EnclosingType;
-                }
-                else if (!leftValue.IsAny)
-                {
-                    RegisterSubscriptWarning(leftValue, context);
-                }
+                ResolveSubscript(leftValue, context.arrayAccess(), ref type);
             }
 
             if (context.leftValueAccess() != null)
@@ -297,42 +286,77 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>A type resolved from the value access</returns>
         public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.ValueAccessContext context)
         {
-            TypeDef resType = _typeProvider.AnyType();
+            var type = _typeProvider.AnyType();
 
             if (context.arrayAccess() != null)
             {
-                var listType = leftValue as IListTypeDef;
-                if (listType != null)
-                {
-                    resType = listType.EnclosingType;
-                }
-                else if (!leftValue.IsAny)
-                {
-                    RegisterSubscriptWarning(leftValue, context);
-                }
+                ResolveSubscript(leftValue, context.arrayAccess(), ref type);
             }
 
             if (context.functionCall() != null)
             {
-                var callableType = leftValue as CallableTypeDef;
-                if (callableType != null)
-                {
-                    resType = callableType.ReturnType;
-                }
-                else if (!leftValue.IsAny)
-                {
-                    RegisterFunctionCallWarning(leftValue, context);
-                }
+                ResolveFunctionCall(leftValue, context.functionCall(), ref type);
             }
 
             // TODO: Deal with field access
 
             if (context.valueAccess() != null)
             {
-                return ResolveValueAccess(resType, context.valueAccess());
+                return ResolveValueAccess(type, context.valueAccess());
             }
 
-            return resType;
+            return type;
+        }
+
+        /// <summary>
+        /// Resolves a function call of a given left value, using the given function call as context.
+        /// This method raises a warning when the value is not an explicitly callable type
+        /// </summary>
+        /// <param name="leftValue">The type of the left value</param>
+        /// <param name="context">The context of the function call</param>
+        /// <param name="resType">The type to update the resulting function call return type to</param>
+        private void ResolveFunctionCall(TypeDef leftValue, ZScriptParser.FunctionCallContext context, ref TypeDef resType)
+        {
+            var callableType = leftValue as CallableTypeDef;
+            if (callableType != null)
+            {
+                resType = callableType.ReturnType;
+            }
+            else if (!leftValue.IsAny)
+            {
+                RegisterFunctionCallWarning(leftValue, context);
+            }
+        }
+
+        /// <summary>
+        /// Resolves subscription of a given left value, using the given array access as context.
+        /// This method raises a warning when the value is not an explicitly subscriptable type
+        /// </summary>
+        /// <param name="leftValue">The type of the value</param>
+        /// <param name="context">The context of the subscription</param>
+        /// <param name="resType">The type to update the resulting subscripting type to</param>
+        private void ResolveSubscript(TypeDef leftValue, ZScriptParser.ArrayAccessContext context, ref TypeDef resType)
+        {
+            // Get the type of object being subscripted
+            var listType = leftValue as IListTypeDef;
+            if (listType != null)
+            {
+                resType = listType.EnclosingType;
+
+                // Check the subscript type
+                var subType = listType.SubscriptType;
+                var accessValue = ResolveExpression(context.expression());
+
+                if (!_typeProvider.CanImplicitCast(accessValue, subType))
+                {
+                    var message = "Subscriptable type " + leftValue + " expects type " + subType + " for subscription but received " + accessValue + ".";
+                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                }
+            }
+            else if (!leftValue.IsAny)
+            {
+                RegisterSubscriptWarning(leftValue, context);
+            }
         }
 
         /// <summary>
@@ -347,15 +371,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.arrayAccess() != null)
             {
-                var listType = leftValue as IListTypeDef;
-                if (listType != null)
-                {
-                    resType = listType.EnclosingType;
-                }
-                else if (!leftValue.IsAny)
-                {
-                    RegisterSubscriptWarning(leftValue, context);
-                }
+                ResolveSubscript(leftValue, context.arrayAccess(), ref resType);
             }
             // TODO: Deal with field access
 
@@ -401,7 +417,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public CallableTypeDef ResolveClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
-            var parameterTypes = new List<TypeDef>();
+            var parameters = new List<FunctionArgumentDefinition>();
             var returnType = TypeDef.AnyType;
 
             // Iterate through each parameter type for the closure
@@ -410,7 +426,12 @@ namespace ZScript.CodeGeneration.Analysis
                 var args = context.functionArguments().argumentList().functionArg();
                 foreach (var arg in args)
                 {
-                    parameterTypes.Add(ResolveFunctionArgument(arg));
+                    var t = FunctionDefinitionGenerator.GenerateFunctionArgumentDef(arg);
+
+                    // Resolve the type, if available
+                    t.Type = ResolveFunctionArgument(arg);
+
+                    parameters.Add(t);
                 }
             }
 
@@ -420,7 +441,7 @@ namespace ZScript.CodeGeneration.Analysis
                 returnType = ResolveType(context.returnType().type());
             }
 
-            return new CallableTypeDef(parameterTypes.ToArray(), returnType);
+            return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType);
         }
 
         /// <summary>
@@ -431,16 +452,30 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveFunctionArgument(ZScriptParser.FunctionArgContext context)
         {
             TypeDef type;
+            TypeDef defaultValueType = null;
+
+            if (context.compileConstant() != null)
+            {
+                // Check default type, instead
+                defaultValueType = ResolveCompileConstant(context.compileConstant());
+            }
 
             // Type provided
             if (context.type() != null)
             {
                 type = ResolveType(context.type());
+
+                // Check default value and parameter value compatibility
+                if (defaultValueType != null && !_typeProvider.CanImplicitCast(type, defaultValueType))
+                {
+                    var message = "Cannot implicitly cast default value type " + defaultValueType + " to expected parameter type " + type;
+                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                }
             }
-            else if(context.compileConstant() != null)
+            else if (defaultValueType != null)
             {
                 // Check default type, instead
-                type = ResolveCompileConstant(context.compileConstant());
+                type = defaultValueType;
             }
             else
             {
@@ -622,15 +657,17 @@ namespace ZScript.CodeGeneration.Analysis
         public CallableTypeDef ResolveCallableType(ZScriptParser.CallableTypeContext context)
         {
             var parameterTypes = new List<TypeDef>();
+            var variadic = new List<bool>();
             var returnType = TypeDef.AnyType;
 
             // Iterate through each parameter type for the closure
-            if (context.typeList() != null)
+            if (context.callableTypeList() != null)
             {
-                var args = context.typeList().type();
+                var args = context.callableTypeList().callableArgType();
                 foreach (var arg in args)
                 {
-                    parameterTypes.Add(ResolveType(arg));
+                    parameterTypes.Add(ResolveType(arg.type()));
+                    variadic.Add(arg.variadic != null);
                 }
             }
 
@@ -640,7 +677,7 @@ namespace ZScript.CodeGeneration.Analysis
                 returnType = ResolveType(context.type());
             }
 
-            return new CallableTypeDef(parameterTypes.ToArray(), returnType);
+            return new CallableTypeDef(parameterTypes.Select((t, i) => new CallableTypeDef.CallableArgumentInfo(t, true, false, variadic[i])).ToArray(), returnType);
         }
 
         #endregion

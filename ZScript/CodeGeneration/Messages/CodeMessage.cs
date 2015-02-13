@@ -67,7 +67,9 @@ namespace ZScript.CodeGeneration.Messages
                     context = context.Parent;
 
                     if (context == null)
+                    {
                         return "";
+                    }
                 }
 
                 return s;

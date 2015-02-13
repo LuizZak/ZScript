@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
@@ -21,9 +22,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         private readonly Stack<Token> _breakTargetStack = new Stack<Token>();
 
         /// <summary>
-        /// The definitions collector that is expose to the statements tokenizers
+        /// The code scope that is expose to the statements tokenizers
         /// </summary>
-        private readonly DefinitionsCollector _definitions;
+        private readonly CodeScope _scope;
 
         /// <summary>
         /// The current target for continue statements.
@@ -44,20 +45,20 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
-        /// Gets the definitions collector that contains the definitions that were pre-parsed
+        /// Gets the code scope that contains the definitions that were pre-parsed
         /// </summary>
-        public DefinitionsCollector Definitions
+        public CodeScope Scope
         {
-            get { return _definitions; }
+            get { return _scope; }
         }
 
         /// <summary>
         /// Initializes a new instance of the StatementTokenizerContext class
         /// </summary>
-        /// <param name="collector">A definitions collector containing definitions that were pre-parsed</param>
-        public StatementTokenizerContext(DefinitionsCollector collector)
+        /// <param name="collector">A code scope containing definitions that were pre-parsed</param>
+        public StatementTokenizerContext(CodeScope collector)
         {
-            _definitions = collector;
+            _scope = collector;
         }
 
         /// <summary>

@@ -105,7 +105,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { var a = 5; var b; var c = b; c = b; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
@@ -119,7 +119,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { var a = 5; var b; var c = a + b; if(c == 10) { a = b.a; } }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
@@ -133,7 +133,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func f() { var a = 5; var b = a; b = 5; b = a; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.DefinitionOnlySet));
@@ -147,7 +147,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "object o { var a; }";
             var generator = ZRuntimeTests.CreateGenerator(input);
-            generator.ParseInputString();
+            generator.ParseSources();
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));

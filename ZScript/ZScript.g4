@@ -113,11 +113,42 @@ valueHolderName : IDENT;
 
 // Types
 type : objectType | typeName | callableType | listType;
-objectType   : 'object';
-typeName     : IDENT ('.' typeName)?;
-callableType : '(' typeList? '->' type? ')';
-listType     : '[' type ']';
-typeList     : type (',' type)*;
+objectType       : 'object';
+typeName         : primitiveType | IDENT ('.' typeName)?;
+primitiveType    : T_INT | T_FLOAT | T_VOID | T_ANY | T_STRING | T_BOOL;
+callableType     : '(' callableTypeList? '->' type? ')';
+listType         : '[' type ']';
+callableTypeList : callableArgType (',' callableArgType)*;
+callableArgType  : type variadic='...'?;
+
+/*
+////
+//// Expressions
+////
+expression:  '(' expression ')'
+           |  expression valueAccess?
+           | '(' assignmentExpression ')'
+           |  prefixOperator leftValue
+           |  leftValue postfixOperator
+           |  '(' type ')' expression
+           // Unary expressions
+           |  '-' expression
+           |  '!' expression
+           // Binary expressions
+           |  expression multOp expression
+           |  expression additionOp expression
+           |  expression bitwiseAndXOrOp expression
+           |  expression bitwiseOrOp expression
+           |  expression comparisionOp expression
+           |  expression logicalOp expression
+           |  newExpression
+           |  closureExpression
+           |  objectLiteral
+           |  memberName
+           |  arrayLiteral
+           |  constantAtom
+           ;
+*/
 
 ////
 //// Expressions
@@ -145,6 +176,7 @@ expression:  '(' expression ')' valueAccess?
            |  constantAtom objectAccess?
            ;
 
+
 multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');
 bitwiseAndXOrOp : ('&' | '^');
@@ -166,7 +198,7 @@ funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
 
 leftValue : memberName leftValueAccess?;
-leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
+leftValueAccess : (functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
 functionCall : funcCallArguments;
 fieldAccess  : '.' memberName;
 arrayAccess : '[' expression ']';
@@ -204,17 +236,17 @@ StringEscape : '\\' ('n' | 'r' | '\\');
 //// Token Definitions
 ////
 
-// Statements
-T_VAR   : 'var';
-T_LET   : 'let';
-T_CONST : 'const';
-T_NEW   : 'new';
-
 T_EXPORT : '@';
 T_FUNCTION : 'func';
 T_OVERRIDE : 'override';
 T_OBJECT   : 'object';
 T_SEQUENCE : 'sequence';
+
+// Statements
+T_VAR   : 'var';
+T_LET   : 'let';
+T_CONST : 'const';
+T_NEW   : 'new';
 
 T_IF       : 'if';
 T_ELSE     : 'else';
@@ -241,6 +273,14 @@ T_RIGHT_CURLY : '}';
 
 T_CLOSURE_RETURN : '->';
 T_CLOSURE_CALL : '=>';
+
+// Primitive types
+T_INT    : 'int';
+T_FLOAT  : 'float';
+T_VOID   : 'void';
+T_ANY    : 'any';
+T_STRING : 'string';
+T_BOOL   : 'bool';
 
 // Atoms
 INT     : Decimal;

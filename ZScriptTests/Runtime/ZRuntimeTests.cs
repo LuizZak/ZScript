@@ -18,10 +18,9 @@ namespace ZScriptTests.Runtime
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
             const string input = "[ a = true; c = false; b = null; d = null; ] func f() { a = a && (c && b > 0) && d; }";
 
-            var generator = new ZRuntimeGenerator(input);
-            generator.Debug = true;
+            var generator = CreateGenerator(input);
 
-            generator.ParseInputString();
+            generator.ParseSources();
             Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
@@ -39,10 +38,9 @@ namespace ZScriptTests.Runtime
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
             const string input = "[ a = true; c = true; b = null; d = null; ] func f() { a = c || (b || d); }";
 
-            var generator = new ZRuntimeGenerator(input);
-            generator.Debug = true;
+            var generator = CreateGenerator(input);
 
-            generator.ParseInputString();
+            generator.ParseSources();
             Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
@@ -65,7 +63,7 @@ namespace ZScriptTests.Runtime
             const string input = "func f1(a:int) { return a; }";
             var generator = CreateGenerator(input);
             generator.Debug = true;
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
@@ -88,9 +86,8 @@ namespace ZScriptTests.Runtime
         {
             const string input = "func f1(a:int, b:int = 0) { return a + b; }";
             var generator = CreateGenerator(input);
-            generator.Debug = true;
 
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
@@ -115,7 +112,7 @@ namespace ZScriptTests.Runtime
             var generator = CreateGenerator(input);
             generator.Debug = true;
 
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
@@ -137,7 +134,7 @@ namespace ZScriptTests.Runtime
             const string input = "func f1() { return f2(5); } func f2(a:int) { return a; }";
             var generator = CreateGenerator(input);
             generator.Debug = true;
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
@@ -160,7 +157,7 @@ namespace ZScriptTests.Runtime
             const string input = "func f1(a:int) { if(a >= 5) { return 0; } return f1(a + 1) + 1; }";
             var generator = CreateGenerator(input);
             generator.Debug = true;
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
@@ -182,7 +179,7 @@ namespace ZScriptTests.Runtime
             const string input = "[ a = 0; b = null; ]";
             var generator = CreateGenerator(input);
             generator.Debug = true;
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 

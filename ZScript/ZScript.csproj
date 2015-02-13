@@ -54,6 +54,7 @@
     <Compile Include="CodeGeneration\Elements\Typing\ListTypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\Typing\ObjectTypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\Typing\StringTypeDef.cs" />
+    <Compile Include="CodeGeneration\FunctionDefinitionGenerator.cs" />
     <Compile Include="CodeGeneration\Messages\MessageContainer.cs" />
     <Compile Include="CodeGeneration\Elements\ClosureDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\Definition.cs" />
@@ -64,12 +65,14 @@
     <Compile Include="CodeGeneration\Elements\FunctionArgumentDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\FunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\GlobalVariableDefinition.cs" />
-    <Compile Include="CodeGeneration\Analysis\ScopeAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Analysis\CodeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Elements\ObjectDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\Typing\TypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\ValueHolderDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionAnalyzer.cs" />
     <Compile Include="CodeGeneration\Messages\CodeError.cs" />
+    <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Sourcing\SourceProvider.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\VariableToken.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\VariableTokenExpander.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\BreakStatementTokenizer.cs" />
@@ -86,6 +89,10 @@
     <Compile Include="CodeGeneration\Tokenization\Statements\SwitchStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\VariableDeclarationStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\WhileStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Sourcing\ZScriptDefinitionsSource.cs" />
+    <Compile Include="CodeGeneration\Sourcing\ZScriptFileSource.cs" />
+    <Compile Include="CodeGeneration\Sourcing\ZScriptStringSource.cs" />
+    <Compile Include="CodeGeneration\ZScriptSyntaxErrorListener.cs" />
     <Compile Include="Elements\ValueHolding\FunctionArgument.cs" />
     <Compile Include="Elements\ValueHolding\GlobalVariable.cs" />
     <Compile Include="Elements\ZClosureFunction.cs" />

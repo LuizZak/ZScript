@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using ZScript.CodeGeneration;
+using ZScriptTests.Runtime;
 
 namespace ZScriptTests
 {
@@ -13,24 +14,65 @@ namespace ZScriptTests
     [TestClass]
     public class ZScriptTests
     {
+        /// <summary>
+        /// Test mostly used to test expression token generation
+        /// </summary>
         [TestMethod]
         public void TestExpressionCodeGeneration()
         {
-            const string input = "[ a; ] func f() { a = ((a = c) && b); (a == 10 || c > 10) && (b()); a && false; (a == 10) && (b()); (a == 10 && c > 10) || (b()); a = a && (c && b > 0) && a; (a+(5+5).a)[0]; a.b(1 + 5); a[i].get[1] = 0; a[i].get[0]; a = 5 * (2 + a()) - 5; gameFPS = toFloat(1000 / level.MainEngine.Game.TargetElapsedTime.TotalMilliseconds); a++; a.a++; a[0].a++; a = b++ - 5; a = 0; a = b = c; b += 1; b += (b = 1); a = b + (c = 0) * 1; a = b + (c += 2) * 1; a[i] = 0; a[i][1 + 1] = 0; a[i][1 + 1] += 0; a[i][1 + 1] *= 0; a.get(); a[i].get(); a[i].get()[0] = 0; 5 + a(5,-6); -6; 5 + ((1 + 2) * 4) - 3; a5*(a(10*5 + 7 * ((7+5)*7), 5 + a(5, -6))[0]); elevatorDisplayLights[i].X = 273 + toInt((_floor / 21.0) * 17); enArray[i].AIEnabled = false; }";
+            const string input = "[ a; b; c; d; i; gameFPS; toFloat; a5; elevatorDisplayLights; toInt; _floor; enArray; level; ]" +
+                                 "func f()" +
+                                 "{" +
+                                 "  a = ((a = c) && b);" +
+                                 "  (a == 10 || c > 10) && (b());" +
+                                 "  a && false;" +
+                                 "  (a == 10) && (b());" +
+                                 "  (a == 10 && c > 10) || (b());" +
+                                 "  a = a && (c && b > 0) && a;" +
+                                 "  (a+(5+5).a)[0];" +
+                                 "  a.b(1 + 5);" +
+                                 "  a[i].get[1] = 0;" +
+                                 "  a[i].get[0];" +
+                                 "  a = 5 * (2 + a()) - 5;" +
+                                 "  gameFPS = toFloat(1000 / level.MainEngine.Game.TargetElapsedTime.TotalMilliseconds);" +
+                                 "  a++;" +
+                                 "  a.a++;" +
+                                 "  a[0].a++;" +
+                                 "  a = b++ - 5;" +
+                                 "  a = 0;" +
+                                 "  a = b = c;" +
+                                 "  b += 1;" +
+                                 "  b += (b = 1);" +
+                                 "  a = b + (c = 0) * 1;" +
+                                 "  a = b + (c += 2) * 1;" +
+                                 "  a[i] = 0;" +
+                                 "  a[i][1 + 1] = 0;" +
+                                 "  a[i][1 + 1] += 0;" +
+                                 "  a[i][1 + 1] *= 0;" +
+                                 "  a.get();" +
+                                 "  a[i].get();" +
+                                 "  a[i].get()[0] = 0;" +
+                                 "  5 + a(5,-6);" +
+                                 "  -6;" +
+                                 "  5 + ((1 + 2) * 4) - 3;" +
+                                 "  a5*(a(10*5 + 7 * ((7+5)*7), 5 + a(5, -6))[0]);" +
+                                 "  elevatorDisplayLights[i].X = 273 + toInt((_floor / 21.0) * 17);" +
+                                 "  enArray[i].AIEnabled = false;" +
+                                 "}";
 
             var owner = new TestRuntimeOwner();
 
             var sw = Stopwatch.StartNew();
 
-            var generator = new ZRuntimeGenerator(input) { Debug = true };
-            generator.ParseInputString();
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseSources();
 
             // Generate the runtime now
             generator.GenerateRuntime(owner);
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Console.WriteLine(sw.ElapsedMilliseconds + "");
 
-            Assert.Fail(sw.ElapsedMilliseconds + "");
+            Assert.IsFalse(generator.HasSyntaxErrors);
         }
 
         [TestMethod]
@@ -38,9 +80,9 @@ namespace ZScriptTests
         {
             const string input = "[ a = 0; ] func f() { a = 10; }";
             var owner = new TestRuntimeOwner();
-            var generator = new ZRuntimeGenerator(input);
+            var generator = ZRuntimeTests.CreateGenerator(input);
 
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
@@ -60,11 +102,11 @@ namespace ZScriptTests
             var input = reader.ReadToEnd();
             reader.Close();
 
-            var generator = new ZRuntimeGenerator(input);
+            var generator = ZRuntimeTests.CreateGenerator(input);
 
             var sw = Stopwatch.StartNew();
 
-            generator.ParseInputString();
+            generator.ParseSources();
 
             Console.WriteLine("Parsing time:    " + sw.ElapsedMilliseconds);
 

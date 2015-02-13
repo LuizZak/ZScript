@@ -21,6 +21,11 @@ namespace ZScript.CodeGeneration.Elements.Typing
         }
 
         /// <summary>
+        /// Gets or sets the type of object accepted by the subscript of the list
+        /// </summary>
+        public TypeDef SubscriptType { get; set; }
+
+        /// <summary>
         /// Initializes a new isntance of the ListTypeDef class
         /// </summary>
         /// <param name="enclosingType">The type of items in this list type</param>

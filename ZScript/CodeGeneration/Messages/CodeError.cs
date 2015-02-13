@@ -44,7 +44,7 @@
         {
             switch (errorType)
             {
-                case ErrorCode.AccessUndeclaredDefinition:
+                case ErrorCode.UndeclaredDefinition:
                     return "Trying to access undeclared definition";
                 default:
                     return "";
@@ -59,8 +59,10 @@
     {
         /// <summary>An undefined error</summary>
         Undefined,
-        /// <summary>Specifies an error raised when a definitio that is undeclared is trying to be accessed</summary>
-        AccessUndeclaredDefinition,
+        /// <summary>Specifies an error raised when a definition that is undeclared is trying to be accessed</summary>
+        UndeclaredDefinition,
+        /// <summary>Specifies an error raised when a definition is found with the same name of another definition in the same reachable scope</summary>
+        DuplicatedDefinition,
 
         #region Return statement analysis errors
 
@@ -84,7 +86,7 @@
         /// <summary>Trying to perform a binary operation with non-compatible types</summary>
         InvalidTypesOnBinaryExpression,
         /// <summary>Trying to perform an invalid cast</summary>
-        InvalidCast
+        InvalidCast,
 
         #endregion
     }

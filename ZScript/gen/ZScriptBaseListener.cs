@@ -669,6 +669,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTypeName([NotNull] ZScriptParser.TypeNameContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.primitiveType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPrimitiveType([NotNull] ZScriptParser.PrimitiveTypeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.primitiveType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPrimitiveType([NotNull] ZScriptParser.PrimitiveTypeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.callableType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -693,17 +705,29 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitListType([NotNull] ZScriptParser.ListTypeContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.typeList"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.callableTypeList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterTypeList([NotNull] ZScriptParser.TypeListContext context) { }
+	public virtual void EnterCallableTypeList([NotNull] ZScriptParser.CallableTypeListContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.typeList"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.callableTypeList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitTypeList([NotNull] ZScriptParser.TypeListContext context) { }
+	public virtual void ExitCallableTypeList([NotNull] ZScriptParser.CallableTypeListContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.callableArgType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterCallableArgType([NotNull] ZScriptParser.CallableArgTypeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.callableArgType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitCallableArgType([NotNull] ZScriptParser.CallableArgTypeContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
