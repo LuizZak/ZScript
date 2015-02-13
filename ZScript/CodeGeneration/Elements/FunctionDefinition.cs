@@ -104,9 +104,9 @@ namespace ZScript.CodeGeneration.Elements
         /// <summary>
         /// Recreates the callable definition for this function
         /// </summary>
-        void RecreateCallableDefinition()
+        public void RecreateCallableDefinition()
         {
-            _callableTypeDef = new CallableTypeDef(_arguments.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.AnyType);
+            _callableTypeDef = new CallableTypeDef(_arguments.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.AnyType, HasReturnType);
         }
     }
 }

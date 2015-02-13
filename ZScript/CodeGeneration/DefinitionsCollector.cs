@@ -195,6 +195,12 @@ namespace ZScript.CodeGeneration
         public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
             DefineClosure(context);
+            PushScope(context);
+        }
+
+        public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
+        {
+            PopScope();
         }
 
         public override void EnterObjectFunction(ZScriptParser.ObjectFunctionContext context)
@@ -348,7 +354,10 @@ namespace ZScript.CodeGeneration
 
             CheckCollisions(def, argument.argumentName().IDENT());
 
-            _currentScope.AddDefinition(def);
+            // Try to find the definition in the current function definition for the argument, and store that instead
+            var funcDef = (FunctionDefinition)_baseScope.GetDefinitionByContextRecursive(_currentScope.Context);
+
+            _currentScope.AddDefinition(funcDef.Arguments.First(a => a.Context == argument));
         }
 
         /// <summary>

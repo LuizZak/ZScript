@@ -2,6 +2,7 @@
 using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
+using ZScript.Runtime.Execution;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -46,11 +47,6 @@ namespace ZScript.CodeGeneration.Analysis
 
             var type1 = ResolveExpression(expressions[0]);
             var type2 = ResolveExpression(expressions[1]);
-
-            if (type1.IsAny || type2.IsAny)
-            {
-                return _typeProvider.AnyType();
-            }
             
             // Register an error when trying to perform an operation with a void value
             if (type1.IsVoid || type2.IsVoid)
@@ -67,10 +63,17 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             var instruction = TokenFactory.InstructionForOperator(str);
+
+            // Arithmetic instructions with any operands propagate anys
+            if ((type1.IsAny || type2.IsAny) && IsArithmetic(instruction))
+            {
+                return _typeProvider.AnyType();
+            }
+
             if (!_typeProvider.BinaryExpressionProvider.CanPerformOperation(instruction, type1, type2))
             {
-                var message = "Cannot perform " + instruction + " with objects of type " + type1 + " and " + type2;
-                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, message, ErrorCode.InvalidTypesOnBinaryExpression, context);
+                var message = "Cannot perform " + instruction + " operation on values of type " + type1 + " and " + type2;
+                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, message, ErrorCode.InvalidTypesOnOperation, context);
 
                 return _typeProvider.AnyType();
             }
@@ -114,6 +117,18 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             return str;
+        }
+
+        /// <summary>
+        /// Returns whether a given instruction represents an arithmetic instruction
+        /// </summary>
+        /// <param name="instruction">The instruction to check</param>
+        /// <returns>Whether the instruction is an arithmetic instruction</returns>
+        private bool IsArithmetic(VmInstruction instruction)
+        {
+            return instruction == VmInstruction.Multiply || instruction == VmInstruction.Divide ||
+                   instruction == VmInstruction.Modulo || instruction == VmInstruction.Add ||
+                   instruction == VmInstruction.Subtract;
         }
     }
 }

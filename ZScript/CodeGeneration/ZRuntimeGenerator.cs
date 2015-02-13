@@ -109,6 +109,14 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Gets the internal type provider used to generate typing for the definitions
+        /// </summary>
+        public TypeProvider TypeProvider
+        {
+            get { return _typeProvider; }
+        }
+
+        /// <summary>
         /// Creates a new instance of the ZScriptGenerator class using a specified string as input
         /// </summary>
         public ZRuntimeGenerator()

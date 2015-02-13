@@ -33,6 +33,8 @@ namespace ZScript.CodeGeneration.Elements.Typing
             : base("list")
         {
             _enclosingType = enclosingType;
+            // Default the subscript to integer
+            SubscriptType = IntegerType;
         }
 
         /// <summary>

@@ -136,6 +136,16 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
+        public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
+        {
+            EnterContextScope(context);
+        }
+
+        public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
+        {
+            ExitContextScope();
+        }
+
         #endregion
 
         #region Definition checking

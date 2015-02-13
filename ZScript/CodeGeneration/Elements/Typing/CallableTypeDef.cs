@@ -10,19 +10,29 @@ namespace ZScript.CodeGeneration.Elements.Typing
     public class CallableTypeDef : TypeDef, IEquatable<CallableTypeDef>
     {
         /// <summary>
-        /// The types for the parameter of this callable type deifinition
+        /// The types for the parameter of this callable type definition
         /// </summary>
         private readonly TypeDef[] _parameterTypes;
 
         /// <summary>
         /// The information for the parameters of this callable type definition
         /// </summary>
-        private readonly CallableArgumentInfo[] _parameterInfos;
+        private readonly CallableParameterInfo[] _parameterInfos;
 
         /// <summary>
         /// The return type for this callable
         /// </summary>
         private readonly TypeDef _returnType;
+
+        /// <summary>
+        /// Whether any of the arguments for this callable type definition is variadic
+        /// </summary>
+        private readonly bool _hasVariadic;
+
+        /// <summary>
+        /// The count of parameters that are required to perform the call
+        /// </summary>
+        private readonly int _requiredCount;
 
         /// <summary>
         /// Gets the types for the parameters of this callable type definition
@@ -35,7 +45,7 @@ namespace ZScript.CodeGeneration.Elements.Typing
         /// <summary>
         /// Gets the information for the parameters of this callable type definition
         /// </summary>
-        public CallableArgumentInfo[] ParameterInfos
+        public CallableParameterInfo[] ParameterInfos
         {
             get { return _parameterInfos; }
         }
@@ -43,20 +53,24 @@ namespace ZScript.CodeGeneration.Elements.Typing
         /// <summary>
         /// Gets the count of arguments required by this callable type definition
         /// </summary>
-        public int RequiredCount
+        public int RequiredArgumentsCount
         {
-            get
-            {
-                int c = 0;
-                for (int i = 0; i < _parameterInfos.Length; i++)
-                {
-                    if (!_parameterInfos[i].HasDefault)
-                        c++;
-                }
-
-                return c;
-            }
+            get { return _requiredCount; }
         }
+
+        /// <summary>
+        /// Gets the total count of arguments accepted by this callable type definition.
+        /// If there is at least one variadic argument, the value returned is int.MaxValue
+        /// </summary>
+        public int MaximumArgumentsCount
+        {
+            get { return _hasVariadic ? int.MaxValue : _parameterInfos.Length; }
+        }
+
+        /// <summary>
+        /// Gets a value specifying whether a return type has been provided
+        /// </summary>
+        public bool HasReturnType { get; private set; }
 
         /// <summary>
         /// Gets the return type for this callable
@@ -71,28 +85,25 @@ namespace ZScript.CodeGeneration.Elements.Typing
         /// </summary>
         /// <param name="parameterInfos">The type for the callable's parameter</param>
         /// <param name="returnType">The return type for this callable type definition</param>
-        public CallableTypeDef(CallableArgumentInfo[] parameterInfos, TypeDef returnType)
+        /// <param name="hasReturnType">Whether a return type was provided for this callable</param>
+        public CallableTypeDef(CallableParameterInfo[] parameterInfos, TypeDef returnType, bool hasReturnType)
             : base("callable")
         {
             _parameterInfos = parameterInfos;
-            _parameterTypes = parameterInfos.Select(i => i.ArgumentType).ToArray();
+            _parameterTypes = parameterInfos.Select(i => i.ParameterType).ToArray();
+
+            _hasVariadic = _parameterInfos.Any(i => i.IsVariadic);
 
             _returnType = returnType;
-        }
+            HasReturnType = hasReturnType;
 
-        /*
-        /// <summary>
-        /// Initializes a new instance of the CallableTypeDef
-        /// </summary>
-        /// <param name="parameterTypes">The type for the parameters of this callable type definition</param>
-        /// <param name="returnType">The return type for this callable type definition</param>
-        public CallableTypeDef(TypeDef[] parameterTypes, TypeDef returnType)
-            : base("callable")
-        {
-            _parameterTypes = parameterTypes;
-            _returnType = returnType;
+            // Count the numer of parameters required
+            foreach (var pInfo in _parameterInfos)
+            {
+                if (!pInfo.HasDefault && !pInfo.IsVariadic)
+                    _requiredCount++;
+            }
         }
-        */
 
         /// <summary>
         /// Gets a string representation of this CallableTypeDEf
@@ -113,7 +124,7 @@ namespace ZScript.CodeGeneration.Elements.Typing
                 }
                 first = false;
 
-                builder.Append(info.ArgumentType);
+                builder.Append(info.ParameterType);
 
                 if (info.HasDefault)
                     builder.Append("*");
@@ -172,40 +183,53 @@ namespace ZScript.CodeGeneration.Elements.Typing
         #endregion
 
         /// <summary>
-        /// Encapsulates information about a callable argument's typing
+        /// Encapsulates information about a callable parameter's typing
         /// </summary>
-        public class CallableArgumentInfo : IEquatable<CallableArgumentInfo>
+        public class CallableParameterInfo : IEquatable<CallableParameterInfo>
         {
             /// <summary>
-            /// The type for this argument
+            /// The type for this parameter
             /// </summary>
-            private readonly TypeDef _argumentType;
+            private readonly TypeDef _parameterType;
 
             /// <summary>
-            /// Whether this argument is variadic in nature, allowing acceptance of any number of arguments
+            /// The raw parameter type, ignoring the variadic modifier
+            /// </summary>
+            private readonly TypeDef _rawParameterType;
+
+            /// <summary>
+            /// Whether this parameter is variadic in nature, allowing acceptance of any number of arguments
             /// </summary>
             private readonly bool _isVariadic;
 
             /// <summary>
-            /// Whether the type for this argument was provided
+            /// Whether the type for this parameter was provided
             /// </summary>
             private readonly bool _hasType;
 
             /// <summary>
-            /// Whether the argument has a default value associated with it
+            /// Whether the parameter has a default value associated with it
             /// </summary>
             private readonly bool _hasDefault;
 
             /// <summary>
-            /// Gets the type for this argument
+            /// Gets the type for this parameter
             /// </summary>
-            public TypeDef ArgumentType
+            public TypeDef ParameterType
             {
-                get { return _argumentType; }
+                get { return _parameterType; }
             }
 
             /// <summary>
-            /// Whether the argument is variadic in nature, allowing acceptance of any number of arguments
+            /// Gets the raw parameter type, ignoring the variadic modifier
+            /// </summary>
+            public TypeDef RawParameterType
+            {
+                get { return _rawParameterType; }
+            }
+
+            /// <summary>
+            /// Gets a value specifying whether the parameter is variadic in nature, allowing acceptance of any number of arguments
             /// </summary>
             public bool IsVariadic
             {
@@ -213,7 +237,7 @@ namespace ZScript.CodeGeneration.Elements.Typing
             }
 
             /// <summary>
-            /// Whether the type for the argument was provided
+            /// Gets a value specifying whether the type for the parameter was provided
             /// </summary>
             public bool HasType
             {
@@ -221,7 +245,7 @@ namespace ZScript.CodeGeneration.Elements.Typing
             }
 
             /// <summary>
-            /// Gets a value specifying whether the argument has a default value associated with it
+            /// Gets a value specifying whether the parameter has a default value associated with it
             /// </summary>
             public bool HasDefault
             {
@@ -229,27 +253,28 @@ namespace ZScript.CodeGeneration.Elements.Typing
             }
 
             /// <summary>
-            /// Initializes a new instance of the CallableArgumentInfo class
+            /// Initializes a new instance of the CallableParameterInfo class
             /// </summary>
-            /// <param name="argumentType">The type of the argument</param>
-            /// <param name="hasType">Whether this argument has a type associated with it by the script source</param>
-            /// <param name="hasDefault">Whether this argument has a default value</param>
-            /// <param name="isVariadic">Whether this argument is variadic in nature</param>
-            public CallableArgumentInfo(TypeDef argumentType, bool hasType, bool hasDefault, bool isVariadic)
+            /// <param name="parameterType">The type of the parameter</param>
+            /// <param name="hasType">Whether this parameter has a type associated with it by the script source</param>
+            /// <param name="hasDefault">Whether this parameter has a default value</param>
+            /// <param name="isVariadic">Whether this parameter is variadic in nature</param>
+            public CallableParameterInfo(TypeDef parameterType, bool hasType, bool hasDefault, bool isVariadic)
             {
-                _argumentType = argumentType;
+                _parameterType = parameterType;
                 _hasType = hasType;
                 _hasDefault = hasDefault;
                 _isVariadic = isVariadic;
+                _rawParameterType = _parameterType == null ? null : _isVariadic ? ((ListTypeDef)_parameterType).EnclosingType : _parameterType;
             }
 
             #region Equality members
 
-            public bool Equals(CallableArgumentInfo other)
+            public bool Equals(CallableParameterInfo other)
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return Equals(_argumentType, other._argumentType) && _isVariadic.Equals(other._isVariadic) && _hasType.Equals(other._hasType) && _hasDefault.Equals(other._hasDefault);
+                return Equals(_parameterType, other._parameterType) && _isVariadic.Equals(other._isVariadic) && _hasType.Equals(other._hasType) && _hasDefault.Equals(other._hasDefault);
             }
 
             public override bool Equals(object obj)
@@ -257,14 +282,14 @@ namespace ZScript.CodeGeneration.Elements.Typing
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 if (obj.GetType() != GetType()) return false;
-                return Equals((CallableArgumentInfo)obj);
+                return Equals((CallableParameterInfo)obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    var hashCode = (_argumentType != null ? _argumentType.GetHashCode() : 0);
+                    var hashCode = (_parameterType != null ? _parameterType.GetHashCode() : 0);
                     hashCode = (hashCode * 397) ^ _isVariadic.GetHashCode();
                     hashCode = (hashCode * 397) ^ _hasType.GetHashCode();
                     hashCode = (hashCode * 397) ^ _hasDefault.GetHashCode();
@@ -272,12 +297,12 @@ namespace ZScript.CodeGeneration.Elements.Typing
                 }
             }
 
-            public static bool operator==(CallableArgumentInfo left, CallableArgumentInfo right)
+            public static bool operator==(CallableParameterInfo left, CallableParameterInfo right)
             {
                 return Equals(left, right);
             }
 
-            public static bool operator!=(CallableArgumentInfo left, CallableArgumentInfo right)
+            public static bool operator!=(CallableParameterInfo left, CallableParameterInfo right)
             {
                 return !Equals(left, right);
             }

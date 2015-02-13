@@ -164,8 +164,7 @@ expression:  '(' expression ')' valueAccess?
            |  newExpression valueAccess?
            |  '(' type ')' expression
            // Unary expressions
-           |  '-' expression
-           |  '!' expression
+           |  unaryOperator expression
            // Binary expressions
            |  expression multOp expression
            |  expression additionOp expression
@@ -187,11 +186,11 @@ logicalOp : ('&&' | '||');
 assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments;
 closureExpression : functionArguments returnType? '=>' functionBody;
-unaryExpression  : ('-' | '+' | '!') expression;
 
 prefixOperator : '++' | '--';
 postfixOperator : '++' | '--';
 
+unaryOperator : '-' | '!';
 assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=';
 
 funcCallArguments : '(' expressionList? ')';

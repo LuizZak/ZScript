@@ -7,6 +7,9 @@ using Antlr4.Runtime;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
+using ZScript.CodeGeneration.Tokenization;
+using ZScript.Elements;
+using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.CodeGeneration.Analysis
@@ -16,33 +19,6 @@ namespace ZScript.CodeGeneration.Analysis
     /// </summary>
     public partial class ExpressionTypeResolver
     {
-        /*
-        assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
-        
-        expression: >>   '(' expression ')' valueAccess?
-                    >> | '(' assignmentExpression ')'
-                    >> |  prefixOperator leftValue
-                    >> |  leftValue postfixOperator
-                    >> |  closureExpression valueAccess?
-                    >> |  memberName valueAccess?
-                    >> |  objectLiteral objectAccess?
-                    >> |  arrayLiteral valueAccess?
-                    >> |  newExpression valueAccess?
-                    >> |  '(' type ')' expression
-                       // Unary expressions
-                       |  '-' expression
-                       |  '!' expression
-                       // Binary expressions
-                    >> |  expression multOp expression
-                    >> |  expression additionOp expression
-                    >> |  expression bitwiseAndXOrOp expression
-                    >> |  expression bitwiseOrOp expression
-                    >> |  expression comparisionOp expression
-                    >> |  expression logicalOp expression
-                    >> |  constantAtom objectAccess?
-                       ;
-        */
-
         /// <summary>
         /// The type provider using when resolving the type of the expressions
         /// </summary>
@@ -59,6 +35,16 @@ namespace ZScript.CodeGeneration.Analysis
         public IDefinitionTypeProvider DefinitionTypeProvider { get; set; }
 
         /// <summary>
+        /// Gets or sets the closure expected type notifying
+        /// </summary>
+        public IClosureExpectedTypeNotifier ClosureExpectedTypeNotifier { get; set; }
+
+        /// <summary>
+        /// Gets or sets a type that specifies an expected type when dealing with function arguments and assignment operations, used mostly to infer types to closures
+        /// </summary>
+        public TypeDef ExpectedType { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the ExpressionTypeResolver class
         /// </summary>
         /// <param name="typeProvider">The type provider using when resolving the type of the expressions</param>
@@ -72,6 +58,56 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Returns a TypeDef describing the type for a given assignment expression context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The type for the context</returns>
+        public TypeDef ResolveAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        {
+            TypeDef variableType = ResolveLeftValue(context.leftValue());
+            TypeDef valueType;
+
+            // Find the type of the expression
+            if (context.expression() != null)
+            {
+                // Push expected type
+                ExpectedType = context.expression().closureExpression() != null ? variableType : null;
+
+                valueType = ResolveExpression(context.expression());
+
+                ExpectedType = null;
+            }
+            else
+            {
+                valueType = ResolveAssignmentExpression(context.assignmentExpression());
+            }
+
+            // Get the operator
+            if (!PostfixExpressionTokenizer.IsCompoundAssignmentOperator(context.assignmentOperator()))
+            {
+                // Check the type matching
+                if (!_typeProvider.CanImplicitCast(valueType, variableType))
+                {
+                    var message = "Cannot assign value of type " + valueType + " to variable of type " + variableType;
+                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                }
+            }
+            else
+            {
+                var op = context.assignmentOperator().GetText()[0].ToString();
+                var inst = TokenFactory.InstructionForOperator(op);
+
+                if (!_typeProvider.BinaryExpressionProvider.CanPerformOperation(inst, variableType, valueType))
+                {
+                    var message = "Cannot perform " + inst + " operation on values of type " + variableType + " and " + valueType;
+                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                }
+            }
+
+            return variableType;
+        }
+
+        /// <summary>
         /// Returns a TypeDef describing the type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
@@ -80,6 +116,10 @@ namespace ZScript.CodeGeneration.Analysis
         {
             TypeDef retType = null;
 
+            if (context.assignmentExpression() != null)
+            {
+                return ResolveAssignmentExpression(context.assignmentExpression());
+            }
             if (context.closureExpression() != null)
             {
                 retType = ResolveClosureExpression(context.closureExpression());
@@ -105,7 +145,14 @@ namespace ZScript.CodeGeneration.Analysis
             // Parenthesized expression
             if (context.expression().Length == 1)
             {
-                retType = ResolveExpression(context.expression()[0]);
+                if (context.unaryOperator() != null)
+                {
+                    retType = ResolveUnaryExpression(context);
+                }
+                else
+                {
+                    retType = ResolveExpression(context.expression()[0]);
+                }
             }
 
             // Member name
@@ -168,7 +215,7 @@ namespace ZScript.CodeGeneration.Analysis
             return _typeProvider.TypeNamed(typeName);
         }
 
-        #region Prefix and Postfix
+        #region Prefix, Postfix and Unary
 
         /// <summary>
         /// Resolves a prefix expression type contained within a given expression context
@@ -204,6 +251,39 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             return leftValueType;
+        }
+
+        /// <summary>
+        /// Resolves an unary expression type contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context containing the unary operation to evaluate</param>
+        /// <returns>A type resolved from the context</returns>
+        public TypeDef ResolveUnaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            var unary = context.unaryOperator();
+            var expType = ResolveExpression(context.expression()[0]);
+
+            VmInstruction inst;
+
+            switch (unary.GetText())
+            {
+                case "-":
+                    inst = VmInstruction.ArithmeticNegate;
+                    break;
+                case "!":
+                    inst = VmInstruction.LogicalNegate;
+                    break;
+                default:
+                    throw new Exception("Unrecognized unary operator " + unary.GetText());
+            }
+
+            if (_typeProvider.BinaryExpressionProvider.CanUnary(expType, inst))
+                return _typeProvider.BinaryExpressionProvider.TypeForUnary(expType, inst);
+
+            var message = "Cannot apply " + inst + " to value of type " + expType;
+            _messageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
+
+            return _typeProvider.AnyType();
         }
 
         #endregion
@@ -256,7 +336,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return ResolveLeftValueAccess(type, context.leftValueAccess());
             }
             // TODO: Deal with field accesses
-            if (context.fieldAccess() == null)
+            if (context.fieldAccess() != null)
             {
                 
             }
@@ -320,12 +400,84 @@ namespace ZScript.CodeGeneration.Analysis
             var callableType = leftValue as CallableTypeDef;
             if (callableType != null)
             {
+                // Analyze type of the parameters
+                ResolveFunctionCallArguments(callableType, context.funcCallArguments());
+
                 resType = callableType.ReturnType;
             }
             else if (!leftValue.IsAny)
             {
                 RegisterFunctionCallWarning(leftValue, context);
             }
+        }
+
+        /// <summary>
+        /// Returns an array of types that describe the type of the arguments contained within a given function call arguments context
+        /// </summary>
+        /// <param name="callableType">A callable type used to verify the argument types correctly</param>
+        /// <param name="context">The context containing the function call arguments</param>
+        /// <returns>An array of types related to the function call</returns>
+        public TypeDef[] ResolveFunctionCallArguments(CallableTypeDef callableType, ZScriptParser.FuncCallArgumentsContext context)
+        {
+            // Collect the list of arguments
+            var argTypes = new List<TypeDef>();
+
+            // TODO: Move argument type checking inside the argument collecting loop so we can effectively use the _expectedTypeStack stack here
+            if (context.expressionList() != null)
+            {
+                int argCount = context.expressionList().expression().Length;
+
+                // Whether the count of arguments is mismatched of the expected argument count
+                bool mismatchedCount = false;
+
+                // Verify argument count
+                if (argCount < callableType.RequiredArgumentsCount)
+                {
+                    var message = "Trying to pass " + argTypes.Count + " arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
+                    _messageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
+                    mismatchedCount = true;
+                }
+                if (argCount > callableType.MaximumArgumentsCount)
+                {
+                    var message = "Trying to pass " + argTypes.Count + " arguments to callable that accepts at most " + callableType.MaximumArgumentsCount;
+                    _messageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
+                    mismatchedCount = true;
+                }
+
+
+                int ci = 0;
+                var curArgInfo = callableType.ParameterInfos[ci];
+                foreach (var exp in context.expressionList().expression())
+                {
+                    // Set expected type
+                    if(!mismatchedCount && exp.closureExpression() != null)
+                        ExpectedType = curArgInfo.RawParameterType;
+
+                    var argType = ResolveExpression(exp);
+                    argTypes.Add(argType);
+
+                    // Clear expected type
+                    ExpectedType = null;
+
+                    if (mismatchedCount)
+                        continue;
+
+                    // Match the argument types
+                    if (!_typeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
+                    {
+                        var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
+                        _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    }
+
+                    // Jump to the next callable argument information
+                    if (!curArgInfo.IsVariadic && ci < callableType.ParameterInfos.Length - 1)
+                    {
+                        curArgInfo = callableType.ParameterInfos[++ci];
+                    }
+                }
+            }
+
+            return argTypes.ToArray();
         }
 
         /// <summary>
@@ -419,6 +571,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var parameters = new List<FunctionArgumentDefinition>();
             var returnType = TypeDef.AnyType;
+            var hasReturnType = context.returnType() != null;
 
             // Iterate through each parameter type for the closure
             if(context.functionArguments().argumentList() != null)
@@ -436,12 +589,18 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Check return type now
-            if (context.returnType() != null)
+            if (hasReturnType)
             {
                 returnType = ResolveType(context.returnType().type());
             }
 
-            return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType);
+            // Notify closure expected types
+            if (ClosureExpectedTypeNotifier != null && ExpectedType != null)
+            {
+                ClosureExpectedTypeNotifier.ClosureTypeMatched(context, ExpectedType);
+            }
+
+            return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType, hasReturnType);
         }
 
         /// <summary>
@@ -556,7 +715,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.T_NULL() != null)
             {
-                return _typeProvider.NullType();
+                return _typeProvider.AnyType();
             }
 
             throw new Exception("Cannot resolve type for constant atom " + context);
@@ -583,7 +742,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.T_NULL() != null)
             {
-                return _typeProvider.NullType();
+                return _typeProvider.AnyType();
             }
 
             throw new Exception("Cannot resolve type for compie time constant " + context);
@@ -659,6 +818,7 @@ namespace ZScript.CodeGeneration.Analysis
             var parameterTypes = new List<TypeDef>();
             var variadic = new List<bool>();
             var returnType = TypeDef.AnyType;
+            var hasReturnType = context.type() != null;
 
             // Iterate through each parameter type for the closure
             if (context.callableTypeList() != null)
@@ -672,12 +832,12 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Check return type now
-            if (context.type() != null)
+            if (hasReturnType)
             {
                 returnType = ResolveType(context.type());
             }
 
-            return new CallableTypeDef(parameterTypes.Select((t, i) => new CallableTypeDef.CallableArgumentInfo(t, true, false, variadic[i])).ToArray(), returnType);
+            return new CallableTypeDef(parameterTypes.Select((t, i) => new CallableTypeDef.CallableParameterInfo(t, true, false, variadic[i])).ToArray(), returnType, hasReturnType);
         }
 
         #endregion
@@ -721,5 +881,19 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definitionName">The name of the definition to get</param>
         /// <returns>The type for the given definition</returns>
         TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName);
+    }
+
+    /// <summary>
+    /// Interface to be implemented by objects that want to be notified when closures are
+    /// matched to an expected type (from an assignment expression, or function call argument)
+    /// </summary>
+    public interface IClosureExpectedTypeNotifier
+    {
+        /// <summary>
+        /// Notifies that a closure context has been matched with an expected type
+        /// </summary>
+        /// <param name="context">The context containing the closure</param>
+        /// <param name="expectedType">The expected type for the closure</param>
+        void ClosureTypeMatched(ZScriptParser.ClosureExpressionContext context, TypeDef expectedType);
     }
 }

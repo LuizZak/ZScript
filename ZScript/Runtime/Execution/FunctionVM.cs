@@ -191,7 +191,7 @@ namespace ZScript.Runtime.Execution
                 case VmInstruction.DecrementPostfix:
                     PerformIncrementDecrement(instruction);
                     return;
-                case VmInstruction.UnaryNegate:
+                case VmInstruction.ArithmeticNegate:
                     _stack.Push(-(dynamic)PopValueImplicit());
                     return;
                 case VmInstruction.LogicalNegate:
@@ -975,7 +975,7 @@ namespace ZScript.Runtime.Execution
         CreateObject,
 
         /// <summary>Unary negation ('-') instruction</summary>
-        UnaryNegate,
+        ArithmeticNegate,
         /// <summary>Logical negation ('!') instruction</summary>
         LogicalNegate
     }

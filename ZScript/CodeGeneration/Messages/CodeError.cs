@@ -84,9 +84,13 @@
         /// <summary>Trying to perform a binary operation with a void type</summary>
         VoidOnBinaryExpression,
         /// <summary>Trying to perform a binary operation with non-compatible types</summary>
-        InvalidTypesOnBinaryExpression,
+        InvalidTypesOnOperation,
         /// <summary>Trying to perform an invalid cast</summary>
         InvalidCast,
+        /// <summary>Trying to provide less arguments than a callable requires</summary>
+        TooFewArguments,
+        /// <summary>Trying to provide more arguments than a callable accepts</summary>
+        TooManyArguments
 
         #endregion
     }

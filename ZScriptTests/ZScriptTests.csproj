@@ -54,6 +54,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Analysis\DefinitionTypeAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolverTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />

@@ -1040,7 +1040,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.MemberName, "a"),
                 new Token(TokenType.Instruction, null, VmInstruction.Set),
                 new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.UnaryNegate),
+                new Token(TokenType.Operator, null, VmInstruction.ArithmeticNegate),
                 new Token(TokenType.MemberName, "a"),
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };

@@ -23,6 +23,11 @@ namespace ZScript.CodeGeneration.Elements.Typing
         private readonly bool _isVoid;
 
         /// <summary>
+        /// Whether this type definition represents a native type
+        /// </summary>
+        private readonly bool _isNative;
+
+        /// <summary>
         /// Gets the name for this type
         /// </summary>
         public string Name { get { return _name; } }
@@ -44,14 +49,24 @@ namespace ZScript.CodeGeneration.Elements.Typing
         }
 
         /// <summary>
+        /// Gets a value specifying whether this type definition represents a native type
+        /// </summary>
+        public bool IsNative
+        {
+            get { return _isNative; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the TypeDef class
         /// </summary>
         /// <param name="name">The name for the type</param>
-        public TypeDef(string name)
+        /// <param name="native">Whether this type represents a native type</param>
+        public TypeDef(string name, bool native = false)
         {
             _name = name;
             _isAny = name == "any";
             _isVoid = name == "void";
+            _isNative = native;
         }
 
         /// <summary>
@@ -74,7 +89,7 @@ namespace ZScript.CodeGeneration.Elements.Typing
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return _isVoid.Equals(other._isVoid) && _isAny.Equals(other._isAny) && string.Equals(_name, other._name);
+            return _isVoid.Equals(other._isVoid) && _isAny.Equals(other._isAny) && string.Equals(_name, other._name) && _isNative.Equals(other._isNative);
         }
 
         /// <summary>
@@ -100,6 +115,7 @@ namespace ZScript.CodeGeneration.Elements.Typing
             {
                 var hashCode = _isVoid.GetHashCode();
                 hashCode = (hashCode * 397) ^ _isAny.GetHashCode();
+                hashCode = (hashCode * 397) ^ _isNative.GetHashCode();
                 hashCode = (hashCode * 397) ^ (_name != null ? _name.GetHashCode() : 0);
                 return hashCode;
             }

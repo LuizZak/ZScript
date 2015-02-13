@@ -128,6 +128,54 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Searches a definition by context in this, and all children scopes recursively.
+        /// If no definitions with the given context is found, null is returned instead
+        /// </summary>
+        /// <param name="context">The context of the definition to search</param>
+        /// <returns>The definition that was found</returns>
+        public Definition GetDefinitionByContextRecursive(RuleContext context)
+        {
+            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+
+            scopeQueue.Enqueue(this);
+
+            while (scopeQueue.Count > 0)
+            {
+                var scope = scopeQueue.Dequeue();
+                var def = scope.Definitions.FirstOrDefault(d => d.Context == context);
+                if(def != null)
+                    return def;
+
+                foreach (var child in scope.ChildrenScopes)
+                {
+                    scopeQueue.Enqueue(child);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns all of the definitions reachable by this scope that are of a given type
+        /// </summary>
+        /// <typeparam name="T">The type of the definitions to search for</typeparam>
+        /// <returns>An enumerable containing all of the definitions of the given type</returns>
+        public IEnumerable<T> GetDefinitionsByType<T>() where T : Definition
+        {
+            var scope = this;
+            var definitions = new List<T>();
+
+            while (scope != null)
+            {
+                definitions.AddRange(scope.Definitions.OfType<T>());
+
+                scope = scope.ParentScope;
+            }
+
+            return definitions;
+        }
+
+        /// <summary>
         /// Gets all the definitions defined in this scope and all children scopes
         /// </summary>
         /// <returns>An enumerable containing the definitions collected</returns>

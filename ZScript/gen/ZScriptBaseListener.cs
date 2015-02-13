@@ -849,18 +849,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitClosureExpression([NotNull] ZScriptParser.ClosureExpressionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.unaryExpression"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterUnaryExpression([NotNull] ZScriptParser.UnaryExpressionContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.unaryExpression"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitUnaryExpression([NotNull] ZScriptParser.UnaryExpressionContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.prefixOperator"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -884,6 +872,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPostfixOperator([NotNull] ZScriptParser.PostfixOperatorContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.unaryOperator"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnaryOperator([NotNull] ZScriptParser.UnaryOperatorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.unaryOperator"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnaryOperator([NotNull] ZScriptParser.UnaryOperatorContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.assignmentOperator"/>.
 	/// <para>The default implementation does nothing.</para>

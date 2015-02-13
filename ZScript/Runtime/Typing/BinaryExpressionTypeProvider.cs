@@ -317,6 +317,42 @@ namespace ZScript.Runtime.Typing
 
         #endregion
 
+        #region Prefix, postfix and unary
+
+        /// <summary>
+        /// Returns whether the given type can have a prefix operator applied to it
+        /// </summary>
+        public bool CanPrefix(TypeDef type)
+        {
+            return IsNumeric(type);
+        }
+
+        /// <summary>
+        /// Returns whether the given type can have a postfix operator applied to it
+        /// </summary>
+        public bool CanPostfix(TypeDef type)
+        {
+            return IsNumeric(type);
+        }
+
+        /// <summary>
+        /// Returns whether the given type can have an unary operator specified by a given VmInstruction applied to it
+        /// </summary>
+        public bool CanUnary(TypeDef type, VmInstruction instruction)
+        {
+            switch (instruction)
+            {
+                case VmInstruction.LogicalNegate:
+                    return IsLogicType(type);
+                case VmInstruction.ArithmeticNegate:
+                    return IsNumeric(type);
+            }
+
+            return false;
+        }
+
+        #endregion
+
         #endregion
 
         #region Type resolving methods
@@ -469,6 +505,42 @@ namespace ZScript.Runtime.Typing
 
         #endregion
 
+        #region Prefix, postfix and unary
+
+        /// <summary>
+        /// Returns whether the given type can have a prefix operator applied to it
+        /// </summary>
+        public TypeDef TypeForPrefix(TypeDef type)
+        {
+            return type;
+        }
+
+        /// <summary>
+        /// Returns whether the given type can have a postfix operator applied to it
+        /// </summary>
+        public TypeDef TypeForPostfix(TypeDef type)
+        {
+            return type;
+        }
+
+        /// <summary>
+        /// Returns whether the given type can have an unary operator specified by a given VmInstruction applied to it
+        /// </summary>
+        public TypeDef TypeForUnary(TypeDef type, VmInstruction instruction)
+        {
+            switch (instruction)
+            {
+                case VmInstruction.LogicalNegate:
+                    return _boolType;
+                case VmInstruction.ArithmeticNegate:
+                    return type;
+            }
+
+            throw new Exception("Instruction does not represents an unary operation: " + instruction);
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -478,7 +550,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>true if the type represents an integer or floating-point number, false otherwise</returns>
         public bool IsNumeric(TypeDef type)
         {
-            return type == _intType || type == _floatType;
+            return type == _intType || type == _floatType || type.IsAny;
         }
 
         /// <summary>
@@ -488,7 +560,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>true if the type represents a boolean, false otherwise</returns>
         public bool IsLogicType(TypeDef type)
         {
-            return type == _boolType;
+            return type == _boolType || type.IsAny;
         }
     }
 }

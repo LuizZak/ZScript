@@ -23,9 +23,9 @@ namespace ZScript.CodeGeneration.Elements
         /// Creates an argument information based on the information of this function argument
         /// </summary>
         /// <returns>A callble argument information generated from this function argument</returns>
-        public CallableTypeDef.CallableArgumentInfo ToArgumentInfo()
+        public CallableTypeDef.CallableParameterInfo ToArgumentInfo()
         {
-            return new CallableTypeDef.CallableArgumentInfo(Type, HasType, HasValue, IsVariadic);
+            return new CallableTypeDef.CallableParameterInfo(Type, HasType, HasValue, IsVariadic);
         }
     }
 }

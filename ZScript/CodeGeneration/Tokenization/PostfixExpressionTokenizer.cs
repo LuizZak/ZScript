@@ -194,35 +194,6 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        /// <summary>
-        /// Returns whether a given assignment operatored stored within an AssignmentOperatorContext is a compound assignment operator.
-        /// Compound assignments are used when a variable should have an arithmetic operation performed between its value and the expression value
-        /// before the result can then be assigned back to the variable.
-        /// </summary>
-        /// <param name="context">The context that contains the assignment operator</param>
-        /// <returns>Whether the given assignment operator is a compound assignment operator</returns>
-        bool IsCompoundAssignmentOperator(ZScriptParser.AssignmentOperatorContext context)
-        {
-            return context.GetText() != "=";
-        }
-
-        /// <summary>
-        /// Returns the underlying arithmetic operator from a provided compound assignment operator.
-        /// If the operator is not an assignment operator, null is returned
-        /// </summary>
-        /// <param name="context">The context that contains the assignment operator to get the token for</param>
-        /// <returns>The underlying arithmetic operator from a provided compound assignment operator</returns>
-        Token OperatorForCompound(ZScriptParser.AssignmentOperatorContext context)
-        {
-            if (!IsCompoundAssignmentOperator(context))
-            {
-                return null;
-            }
-
-            // Return the first character of the operator
-            return TokenFactory.CreateOperatorToken(context.GetText()[0].ToString());
-        }
-
         #endregion
 
         #region Expression
@@ -233,16 +204,16 @@ namespace ZScript.CodeGeneration.Tokenization
             if (context.expression().Length == 1)
             {
                 // Maybe we matched an unary operator?
-                if (context.ChildCount == 2)
+                if (context.unaryOperator() != null)
                 {
                     VisitExpression(context.expression(0));
 
-                    var txt = context.GetChild(0).GetText();
+                    var txt = context.unaryOperator().GetText();
 
                     switch (txt)
                     {
                         case "-":
-                            _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.UnaryNegate));
+                            _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.ArithmeticNegate));
                             break;
                         case "!":
                             _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.LogicalNegate));
@@ -700,5 +671,34 @@ namespace ZScript.CodeGeneration.Tokenization
         }
 
         #endregion
+
+        /// <summary>
+        /// Returns whether a given assignment operatored stored within an AssignmentOperatorContext is a compound assignment operator.
+        /// Compound assignments are used when a variable should have an arithmetic operation performed between its value and the expression value
+        /// before the result can then be assigned back to the variable.
+        /// </summary>
+        /// <param name="context">The context that contains the assignment operator</param>
+        /// <returns>Whether the given assignment operator is a compound assignment operator</returns>
+        public static bool IsCompoundAssignmentOperator(ZScriptParser.AssignmentOperatorContext context)
+        {
+            return context.GetText() != "=";
+        }
+
+        /// <summary>
+        /// Returns the underlying arithmetic operator from a provided compound assignment operator.
+        /// If the operator is not an assignment operator, null is returned
+        /// </summary>
+        /// <param name="context">The context that contains the assignment operator to get the token for</param>
+        /// <returns>The underlying arithmetic operator from a provided compound assignment operator</returns>
+        public static Token OperatorForCompound(ZScriptParser.AssignmentOperatorContext context)
+        {
+            if (!IsCompoundAssignmentOperator(context))
+            {
+                return null;
+            }
+
+            // Return the first character of the operator
+            return TokenFactory.CreateOperatorToken(context.GetText()[0].ToString());
+        }
     }
 }

@@ -709,16 +709,6 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitClosureExpression([NotNull] ZScriptParser.ClosureExpressionContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.unaryExpression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterUnaryExpression([NotNull] ZScriptParser.UnaryExpressionContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.unaryExpression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitUnaryExpression([NotNull] ZScriptParser.UnaryExpressionContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.prefixOperator"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -738,6 +728,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitPostfixOperator([NotNull] ZScriptParser.PostfixOperatorContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.unaryOperator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnaryOperator([NotNull] ZScriptParser.UnaryOperatorContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.unaryOperator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnaryOperator([NotNull] ZScriptParser.UnaryOperatorContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.assignmentOperator"/>.
 	/// </summary>

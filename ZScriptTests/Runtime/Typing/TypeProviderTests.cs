@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
@@ -78,13 +78,13 @@ namespace ZScriptTests.Runtime.Typing
         {
             var provider = new TypeProvider();
 
-            var param1 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
-            var param2 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
+            var param1 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, false, false);
+            var param2 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, false, false);
 
-            var callable1 = new CallableTypeDef(new [] { param1, param2 }, provider.IntegerType());
-            var callable2 = new CallableTypeDef(new [] { param1, param2 }, provider.VoidType());
+            var callable1 = new CallableTypeDef(new [] { param1, param2 }, provider.IntegerType(), true);
+            var callable2 = new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true);
 
-            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType()), provider.FindCommonType(callable1, callable2),
+            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
         }
         
@@ -96,15 +96,15 @@ namespace ZScriptTests.Runtime.Typing
         {
             var provider = new TypeProvider();
 
-            var param1 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
-            var param2 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, false, false);
+            var param1 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, false, false);
+            var param2 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, false, false);
 
-            var param2_def = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, true, false);
+            var param2_def = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, true, false);
 
-            var callable1 = new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType());
-            var callable2 = new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType());
+            var callable1 = new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType(), true);
+            var callable2 = new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType(), true);
 
-            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType()), provider.FindCommonType(callable1, callable2),
+            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
         }
 
@@ -116,13 +116,13 @@ namespace ZScriptTests.Runtime.Typing
         {
             var provider = new TypeProvider();
 
-            var param1 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, true, false);
-            var param2 = new CallableTypeDef.CallableArgumentInfo(provider.IntegerType(), true, true, false);
+            var param1 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, true, false);
+            var param2 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, true, false);
 
-            var array1 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType()));
-            var array2 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType()));
+            var array1 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType(), true));
+            var array2 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true));
 
-            Assert.AreEqual(new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType())), provider.FindCommonType(array1, array2),
+            Assert.AreEqual(new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true)), provider.FindCommonType(array1, array2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
         }
 

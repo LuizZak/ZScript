@@ -52,9 +52,11 @@ namespace ZScript.Runtime.Typing
                     return BooleanType();
                 case "string":
                     return StringType();
+                case "object":
+                    return ObjectType();
             }
 
-            return new TypeDef(typeName);
+            return new TypeDef(typeName, true);
         }
 
         /// <summary>
@@ -121,14 +123,36 @@ namespace ZScript.Runtime.Typing
                 var newParams =
                     ct1.ParameterInfos.Select(
                         (t, i) =>
-                            new CallableTypeDef.CallableArgumentInfo(
-                                FindCommonType(t.ArgumentType, ct2.ParameterTypes[i]), true,
+                        {
+                            var pt1 = t.ParameterType ?? ct2.ParameterTypes[i] ?? TypeDef.AnyType;
+                            var pt2 = ct2.ParameterTypes[i] ?? t.ParameterType ?? TypeDef.AnyType;
+
+                            return new CallableTypeDef.CallableParameterInfo(
+                                FindCommonType(pt1, pt2), true,
                                 t.HasDefault || ct2.ParameterInfos[i].HasDefault,
-                                t.IsVariadic && ct2.ParameterInfos[i].IsVariadic));
+                                t.IsVariadic && ct2.ParameterInfos[i].IsVariadic);
+                        });
 
-                var newReturn = FindCommonType(ct1.ReturnType, ct2.ReturnType);
+                TypeDef newReturn = null;
 
-                return new CallableTypeDef(newParams.ToArray(), newReturn);
+                // Deal with return type providing
+                if (ct1.HasReturnType && ct2.HasReturnType)
+                {
+                    var rt1 = ct1.ReturnType ?? ct2.ReturnType ?? TypeDef.AnyType;
+                    var rt2 = ct2.ReturnType ?? ct1.ReturnType ?? TypeDef.AnyType;
+
+                    newReturn = FindCommonType(rt1, rt2);
+                }
+                else if (ct1.HasReturnType)
+                {
+                    newReturn = ct1.ReturnType ?? TypeDef.AnyType;
+                }
+                else if (ct2.HasReturnType)
+                {
+                    newReturn = ct2.ReturnType ?? TypeDef.AnyType;
+                }
+
+                return new CallableTypeDef(newParams.ToArray(), newReturn ?? AnyType(), newReturn != null);
             }
 
             // Inferring lists
@@ -179,6 +203,10 @@ namespace ZScript.Runtime.Typing
             if (origin is CallableTypeDef && target is CallableTypeDef)
                 return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
 
+            // TODO: Check native typing, somehow
+            if (origin.IsNative && target.IsNative)
+                return true;
+
             return false;
         }
 
@@ -214,6 +242,10 @@ namespace ZScript.Runtime.Typing
             if (origin is CallableTypeDef && target is CallableTypeDef)
                 return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
             
+            // TODO: Check native typing, somehow
+            if (origin.IsNative && target.IsNative)
+                return true;
+
             return false;
         }
 
@@ -226,7 +258,7 @@ namespace ZScript.Runtime.Typing
         private bool CheckCallableCompatibility(CallableTypeDef origin, CallableTypeDef target)
         {
             // Check required argument count
-            if (origin.RequiredCount != target.RequiredCount)
+            if (origin.RequiredArgumentsCount != target.RequiredArgumentsCount)
                 return false;
 
             // Check implicit return type, ignoring void return types on the target
@@ -235,7 +267,7 @@ namespace ZScript.Runtime.Typing
                 return false;
 
             // Check argument implicit casts
-            int c = Math.Min(origin.RequiredCount, target.RequiredCount);
+            int c = Math.Min(origin.RequiredArgumentsCount, target.RequiredArgumentsCount);
             for (int i = 0; i < c; i++)
             {
                 if (!CanImplicitCast(origin.ParameterTypes[i], target.ParameterTypes[i]))
