@@ -119,26 +119,26 @@ namespace ZScriptTests.Parsing
         [TestMethod]
         public void TestParseNumberBoxed()
         {
-            Assert.AreEqual(1, ValueParser.ParseNumberBoxed("1"), "Wrong unboxed number");
-            Assert.AreEqual(1, ValueParser.ParseNumberBoxed("0b1"), "Wrong unboxed number");
-            Assert.AreEqual(1, ValueParser.ParseNumberBoxed("0x1"), "Wrong unboxed number");
-            Assert.AreEqual(1.0f, ValueParser.ParseNumberBoxed("1.0"), "Wrong unboxed number");
+            Assert.AreEqual((long)1, ValueParser.ParseNumberBoxed("1"), "Wrong unboxed number");
+            Assert.AreEqual((long)1, ValueParser.ParseNumberBoxed("0b1"), "Wrong unboxed number");
+            Assert.AreEqual((long)1, ValueParser.ParseNumberBoxed("0x1"), "Wrong unboxed number");
+            Assert.AreEqual(1.0, ValueParser.ParseNumberBoxed("1.0"), "Wrong unboxed number");
 
-            Assert.AreEqual(-1, ValueParser.ParseNumberBoxed("-1"), "Wrong unboxed number");
-            Assert.AreEqual(-1, ValueParser.ParseNumberBoxed("-0b1"), "Wrong unboxed number");
-            Assert.AreEqual(-1, ValueParser.ParseNumberBoxed("-0x1"), "Wrong unboxed number");
-            Assert.AreEqual(-1.0f, ValueParser.ParseNumberBoxed("-1.0"), "Wrong unboxed number");
+            Assert.AreEqual((long)-1, ValueParser.ParseNumberBoxed("-1"), "Wrong unboxed number");
+            Assert.AreEqual((long)-1, ValueParser.ParseNumberBoxed("-0b1"), "Wrong unboxed number");
+            Assert.AreEqual((long)-1, ValueParser.ParseNumberBoxed("-0x1"), "Wrong unboxed number");
+            Assert.AreEqual(-1.0, ValueParser.ParseNumberBoxed("-1.0"), "Wrong unboxed number");
 
             // Test value Wrapping
 
             // Uint wrapping
-            Assert.AreEqual(4059231220, ValueParser.ParseNumberBoxed("4059231220"), "Wrong unboxed number");
+            Assert.AreEqual((long)4059231220, ValueParser.ParseNumberBoxed("4059231220"), "Wrong unboxed number");
             // Long wrapping
             Assert.AreEqual(40592312200, ValueParser.ParseNumberBoxed("40592312200"), "Wrong unboxed number");
             // Negative Long wrapping
             Assert.AreEqual(-40592312200, ValueParser.ParseNumberBoxed("-40592312200"), "Wrong unboxed number");
             // ULong wrapping
-            Assert.AreEqual(11922972036854775807, ValueParser.ParseNumberBoxed("11922972036854775807"), "Wrong unboxed number");
+            Assert.AreEqual((double)11922972036854775807, ValueParser.ParseNumberBoxed("11922972036854775807"), "Wrong unboxed number");
             // Double wrapping
             Assert.AreEqual(1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("1192297203685477580711922972036854775807.0"), "Wrong unboxed number");
             // Negative double wrapping

@@ -89,13 +89,7 @@ namespace ZScript.Parsing
                     mult = -1;
                 }
 
-                uint value = ParseHexUint(valueString);
-                if (value > int.MaxValue)
-                {
-                    return value * mult;
-                }
-
-                return (int)value * mult;
+                return ParseHexLong(valueString) * mult;
             }
             if (valueString.StartsWith("0b") || valueString.StartsWith("-0b"))
             {
@@ -106,23 +100,12 @@ namespace ZScript.Parsing
                     mult = -1;
                 }
 
-                uint value = ParseBinaryUint(valueString);
-                if (value > int.MaxValue)
-                {
-                    return value * mult;
-                }
-
-                return (int)value * mult;
+                return ParseBinaryLong(valueString) * mult;
             }
 
             if (valueString.IndexOf('.') > 0)
             {
-                float outFloat;
                 double outDouble;
-                if (float.TryParse(valueString, NumberStyles.Number, Nfi, out outFloat))
-                {
-                    return outFloat;
-                }
                 if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
                 {
                     return outDouble;
@@ -132,25 +115,17 @@ namespace ZScript.Parsing
             }
 
             long outLong;
-            ulong outULong;
             if (long.TryParse(valueString, out outLong))
             {
-                // Downgrade to uint32
-                if (outLong >= int.MaxValue && outLong < uint.MaxValue)
-                {
-                    return (uint)outLong;
-                }
-                // Dowgrade to int32
-                if (outLong < int.MaxValue && outLong > int.MinValue)
-                {
-                    return (int)outLong;
-                }
-
                 return outLong;
             }
-            if (ulong.TryParse(valueString, out outULong))
+            else
             {
-                return outULong;
+                double outDouble;
+                if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
+                {
+                    return outDouble;
+                }
             }
 
             return null;
@@ -210,48 +185,6 @@ namespace ZScript.Parsing
 
             return res;
         }
-
-        /// <summary>
-        /// Transforms the given hexadecimal number into a decimal number
-        /// </summary>
-        /// <param name="hex">The hexadecimal to convert</param>
-        /// <returns>An integer representing the hexadecimal number</returns>
-        public static int ParseHex(string hex)
-        {
-            // Remove '0x' leading
-            return int.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
-        }
-
-        /// <summary>
-        /// Transforms the given binary number into a decimal number
-        /// </summary>
-        /// <param name="binary">The binary to convert</param>
-        /// <returns>An integer representing the binary number</returns>
-        public static long ParseBinaryLong(string binary)
-        {
-            if (binary.StartsWith("0b"))
-                binary = binary.Substring(2);
-
-            long res = 0;
-            int l = binary.Length;
-            for (int i = 0; i < l; i++)
-            {
-                char c = binary[i];
-
-                switch (c)
-                {
-                    case '0':
-                        break;
-                    case '1':
-                        res |= (uint)(1 << (l - 1 - i));
-                        break;
-                    default:
-                        throw new FormatException("The binary number has invalid characters");
-                }
-            }
-
-            return res;
-        }
         /// <summary>
         /// Transforms the given binary number into a decimal number
         /// </summary>
@@ -283,6 +216,47 @@ namespace ZScript.Parsing
             return res;
         }
         /// <summary>
+        /// Transforms the given binary number into a decimal number
+        /// </summary>
+        /// <param name="binary">The binary to convert</param>
+        /// <returns>An integer representing the binary number</returns>
+        public static long ParseBinaryLong(string binary)
+        {
+            if (binary.StartsWith("0b"))
+                binary = binary.Substring(2);
+
+            long res = 0;
+            int l = binary.Length;
+            for (int i = 0; i < l; i++)
+            {
+                char c = binary[i];
+
+                switch (c)
+                {
+                    case '0':
+                        break;
+                    case '1':
+                        res |= (uint)(1 << (l - 1 - i));
+                        break;
+                    default:
+                        throw new FormatException("The binary number has invalid characters");
+                }
+            }
+
+            return res;
+        }
+
+        /// <summary>
+        /// Transforms the given hexadecimal number into a decimal number
+        /// </summary>
+        /// <param name="hex">The hexadecimal to convert</param>
+        /// <returns>An integer representing the hexadecimal number</returns>
+        public static int ParseHex(string hex)
+        {
+            // Remove '0x' leading
+            return int.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
+        }
+        /// <summary>
         /// Transforms the given hexadecimal number into a decimal number
         /// </summary>
         /// <param name="hex">The hexadecimal to convert</param>
@@ -291,6 +265,16 @@ namespace ZScript.Parsing
         {
             // Remove '0x' leading
             return uint.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
+        }
+        /// <summary>
+        /// Transforms the given hexadecimal number into a decimal number
+        /// </summary>
+        /// <param name="hex">The hexadecimal to convert</param>
+        /// <returns>An integer representing the hexadecimal number</returns>
+        public static long ParseHexLong(string hex)
+        {
+            // Remove '0x' leading
+            return long.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
         }
     }
 }

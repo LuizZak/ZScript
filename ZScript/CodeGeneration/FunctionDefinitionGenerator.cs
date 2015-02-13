@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ZScript.CodeGeneration.Elements;
 
 namespace ZScript.CodeGeneration
@@ -33,8 +34,18 @@ namespace ZScript.CodeGeneration
         /// <returns>A closure definition generated from the given context</returns>
         public static ClosureDefinition GenerateClosureDef(ZScriptParser.ClosureExpressionContext context)
         {
-            var c = new ClosureDefinition("", context.functionBody(),
-                CollectFunctionArguments(context.functionArguments()))
+            var args = new FunctionArgumentDefinition[0];
+
+            if (context.functionArg() != null)
+            {
+                args = new[] { GenerateFunctionArgumentDef(context.functionArg()) };
+            }
+            else if (context.functionArguments() != null)
+            {
+                args = CollectFunctionArguments(context.functionArguments());
+            }
+
+            var c = new ClosureDefinition("", context.functionBody(), args)
             {
                 Context = context,
                 HasReturnType = context.returnType() != null,

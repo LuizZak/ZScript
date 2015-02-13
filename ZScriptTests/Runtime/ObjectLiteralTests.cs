@@ -44,9 +44,9 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10, ((ZObject)memory.GetVariable("b"))["x"], "The VM failed to correctly create the dynamic object");
-            Assert.AreEqual(11, ((ZObject)memory.GetVariable("b"))["abc"], "The VM failed to correctly create the dynamic object");
-            Assert.AreEqual(12, ((ZObject)memory.GetVariable("b"))["string with spaces"], "The VM failed to correctly create the dynamic object");
+            Assert.AreEqual((long)10, ((ZObject)memory.GetVariable("b"))["x"], "The VM failed to correctly create the dynamic object");
+            Assert.AreEqual((long)11, ((ZObject)memory.GetVariable("b"))["abc"], "The VM failed to correctly create the dynamic object");
+            Assert.AreEqual((long)12, ((ZObject)memory.GetVariable("b"))["string with spaces"], "The VM failed to correctly create the dynamic object");
         }
 
         [TestMethod]
@@ -65,8 +65,8 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(15, ((ZObject)memory.GetVariable("b"))["x"], "The VM failed to correctly create the dynamic object");
-            Assert.AreEqual(40, ((ZObject)memory.GetVariable("b"))["y"], "The VM failed to correctly create the dynamic object");
+            Assert.AreEqual((long)15, ((ZObject)memory.GetVariable("b"))["x"], "The VM failed to correctly create the dynamic object");
+            Assert.AreEqual((long)40, ((ZObject)memory.GetVariable("b"))["y"], "The VM failed to correctly create the dynamic object");
         }
         
         [TestMethod]
@@ -87,8 +87,8 @@ namespace ZScriptTests.Runtime
 
             // TODO: Deal with this absurd nesting of ZObject casts
             Assert.IsInstanceOfType(((ZObject)memory.GetVariable("b"))["a"], typeof(ZObject), "The VM failed to correctly create the nested dynamic objects");
-            Assert.AreEqual(10, ((ZObject)((ZObject)memory.GetVariable("b"))["a"])["x"], "The VM failed to correctly create the nested dynamic objects");
-            Assert.AreEqual(10, ((ZObject)((ZObject)((ZObject)((ZObject)memory.GetVariable("b"))["b"])["y"])["z"])["a"], "The VM failed to correctly create the nested dynamic objects");
+            Assert.AreEqual((long)10, ((ZObject)((ZObject)memory.GetVariable("b"))["a"])["x"], "The VM failed to correctly create the nested dynamic objects");
+            Assert.AreEqual((long)10, ((ZObject)((ZObject)((ZObject)((ZObject)memory.GetVariable("b"))["b"])["y"])["z"])["a"], "The VM failed to correctly create the nested dynamic objects");
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
+            Assert.AreEqual((long)10, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
+            Assert.AreEqual((long)10, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
         }
         
         [TestMethod]
@@ -145,7 +145,7 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
+            Assert.AreEqual((long)10, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
         }
         
         [TestMethod]
@@ -164,7 +164,7 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
+            Assert.AreEqual((long)10, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
         }
     }
 }

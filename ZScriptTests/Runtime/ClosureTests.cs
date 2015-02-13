@@ -28,6 +28,17 @@ namespace ZScriptTests.Runtime
         }
 
         [TestMethod]
+        public void TestParseSingleParameteredClosure()
+        {
+            const string input = "func f() { var c = i => { return 0; }; }";
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseSources();
+            var definition = generator.GenerateRuntimeDefinition();
+
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+        }
+
+        [TestMethod]
         public void TestParseClosureCall()
         {
             const string input = "func f() { var c = (i) => { return 0; }(10); }";
@@ -82,7 +93,28 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(0, owner.TraceObjects[0]);
+            Assert.AreEqual((long)0, owner.TraceObjects[0]);
+        }
+
+        /// <summary>
+        /// Tests parsing a closure and calling it in the script
+        /// </summary>
+        [TestMethod]
+        public void TestSingleParameteredClosureCall()
+        {
+            const string input = "@__trace(a...) func funca(){ var a = i => { __trace(i); }; a(1); }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("funca");
+
+            // Assert the correct call was made
+            Assert.AreEqual((long)1, owner.TraceObjects[0]);
         }
 
         /// <summary>
@@ -103,8 +135,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(0, owner.TraceObjects[0]);
-            Assert.AreEqual(1, owner.TraceObjects[1]);
+            Assert.AreEqual((long)0, owner.TraceObjects[0]);
+            Assert.AreEqual((long)1, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -146,7 +178,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(0, owner.TraceObjects[0]);
+            Assert.AreEqual((long)0, owner.TraceObjects[0]);
         }
         
         /// <summary>
@@ -167,8 +199,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(10, owner.TraceObjects[0]);
-            Assert.AreEqual(11, owner.TraceObjects[1]);
+            Assert.AreEqual((long)10, owner.TraceObjects[0]);
+            Assert.AreEqual((long)11, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -189,7 +221,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(10, owner.TraceObjects[0]);
+            Assert.AreEqual((long)10, owner.TraceObjects[0]);
         }
 
         /// <summary>

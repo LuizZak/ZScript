@@ -158,7 +158,7 @@ namespace ZScriptTests.CodeGeneration
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "Cross reference of functions failed to be executed properly");
+            Assert.AreEqual((long)10, memory.GetVariable("a"), "Cross reference of functions failed to be executed properly");
         }
 
         [TestMethod]
@@ -179,8 +179,8 @@ namespace ZScriptTests.CodeGeneration
             runtime.CallFunction("f1");
             runtime.CallFunction("f2");
 
-            Assert.AreEqual(30, memory.GetVariable("a"), "Cross reference of functions failed to be executed properly");
-            Assert.AreEqual(50, memory.GetVariable("b"), "Cross reference of functions failed to be executed properly");
+            Assert.AreEqual((long)30, memory.GetVariable("a"), "Cross reference of functions failed to be executed properly");
+            Assert.AreEqual((long)50, memory.GetVariable("b"), "Cross reference of functions failed to be executed properly");
         }
 
         #endregion

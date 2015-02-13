@@ -122,7 +122,7 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1");
 
-            Assert.AreEqual(10, ret, "The statement did not execute as expected");
+            Assert.AreEqual((long)10, ret, "The statement did not execute as expected");
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1", 0);
 
-            Assert.AreEqual(5, ret, "The statement did not execute as expected");
+            Assert.AreEqual((long)5, ret, "The statement did not execute as expected");
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace ZScriptTests.Runtime
             // Expands the global variables
             runtime.ExpandGlobalVariables();
 
-            Assert.AreEqual(0, memory.GetVariable("a"), "The global variables where not parsed as expected");
+            Assert.AreEqual((long)0, memory.GetVariable("a"), "The global variables where not parsed as expected");
             Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
         }
 

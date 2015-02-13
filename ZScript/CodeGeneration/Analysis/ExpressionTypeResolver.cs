@@ -574,7 +574,16 @@ namespace ZScript.CodeGeneration.Analysis
             var hasReturnType = context.returnType() != null;
 
             // Iterate through each parameter type for the closure
-            if(context.functionArguments().argumentList() != null)
+            if (context.functionArg() != null)
+            {
+                var t = FunctionDefinitionGenerator.GenerateFunctionArgumentDef(context.functionArg());
+
+                // Resolve the type, if available
+                t.Type = ResolveFunctionArgument(context.functionArg());
+
+                parameters.Add(t);
+            }
+            else if(context.functionArguments().argumentList() != null)
             {
                 var args = context.functionArguments().argumentList().functionArg();
                 foreach (var arg in args)

@@ -49,8 +49,8 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, owner.TraceObjects[0], "The export function was not called correctly");
-            Assert.AreEqual(11, owner.TraceObjects[1], "The export function was not called correctly");
+            Assert.AreEqual((long)10, owner.TraceObjects[0], "The export function was not called correctly");
+            Assert.AreEqual((long)11, owner.TraceObjects[1], "The export function was not called correctly");
         }
 
         #endregion

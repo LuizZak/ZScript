@@ -56,9 +56,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(0, memory.GetVariable("a"));
-            Assert.AreEqual(0, memory.GetVariable("c"));
-            Assert.AreEqual(5, memory.GetVariable("b"), "The statement did not execute as expected");
+            Assert.AreEqual((long)0, memory.GetVariable("a"));
+            Assert.AreEqual((long)0, memory.GetVariable("c"));
+            Assert.AreEqual((long)5, memory.GetVariable("b"), "The statement did not execute as expected");
         }
 
         [TestMethod]
@@ -77,9 +77,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The statement did not execute as expected");
-            Assert.AreEqual(0, memory.GetVariable("c"));
-            Assert.AreEqual(5, memory.GetVariable("b"), "The statement did not execute as expected");
+            Assert.AreEqual((long)10, memory.GetVariable("a"), "The statement did not execute as expected");
+            Assert.AreEqual((long)0, memory.GetVariable("c"));
+            Assert.AreEqual((long)5, memory.GetVariable("b"), "The statement did not execute as expected");
         }
 
         [TestMethod]
@@ -98,9 +98,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The statement did not execute as expected");
-            Assert.AreEqual(0, memory.GetVariable("c"));
-            Assert.AreEqual(5, memory.GetVariable("b"), "The statement did not execute as expected");
+            Assert.AreEqual((long)10, memory.GetVariable("a"), "The statement did not execute as expected");
+            Assert.AreEqual((long)0, memory.GetVariable("c"));
+            Assert.AreEqual((long)5, memory.GetVariable("b"), "The statement did not execute as expected");
         }
 
         #endregion
@@ -123,8 +123,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual((long)11, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
@@ -143,8 +143,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual((long)11, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
@@ -163,8 +163,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual((long)11, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
@@ -183,8 +183,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(2, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)0, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual((long)2, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
@@ -203,9 +203,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual((long)11, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)0, runtime.GlobalMemory.GetVariable("b"));
         }
 
         [TestMethod]
@@ -224,9 +224,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(20, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual((long)20, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)0, runtime.GlobalMemory.GetVariable("b"));
         }
 
         #endregion
@@ -250,7 +250,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
@@ -270,8 +270,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(0, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)0, runtime.GlobalMemory.GetVariable("b"));
         }
 
         [TestMethod]
@@ -291,7 +291,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
@@ -311,8 +311,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(100, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)100, runtime.GlobalMemory.GetVariable("b"));
         }
 
         [TestMethod]
@@ -332,8 +332,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(16, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)16, runtime.GlobalMemory.GetVariable("b"));
         }
 
         #endregion
@@ -355,7 +355,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             var ret = runtime.CallFunction("f");
 
-            Assert.AreEqual(20, ret, "The valued return statement did not execute as expected");
+            Assert.AreEqual((long)20, ret, "The valued return statement did not execute as expected");
         }
 
         [TestMethod]
@@ -396,7 +396,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.AreEqual((long)10, memory.GetVariable("c"), "The statement did not execute as expected");
         }
 
         [TestMethod]
@@ -415,8 +415,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, memory.GetVariable("c"), "The statement did not execute as expected");
-            Assert.AreEqual(10, memory.GetVariable("d"), "The statement did not execute as expected");
+            Assert.AreEqual((long)10, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.AreEqual((long)10, memory.GetVariable("d"), "The statement did not execute as expected");
         }
 
         [TestMethod]
@@ -435,7 +435,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.AreEqual((long)10, memory.GetVariable("c"), "The statement did not execute as expected");
         }
 
         #endregion

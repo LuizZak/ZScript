@@ -185,7 +185,7 @@ logicalOp : ('&&' | '||');
 
 assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments;
-closureExpression : functionArguments returnType? '=>' functionBody;
+closureExpression : (functionArg | functionArguments) returnType? '=>' functionBody;
 
 prefixOperator : '++' | '--';
 postfixOperator : '++' | '--';

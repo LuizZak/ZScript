@@ -92,7 +92,7 @@ namespace ZScriptTests
             runtime.CallFunction("f");
 
             Assert.IsTrue(runtime.GlobalMemory.HasVariable("a"), "The variable 'a' should be globally visible after being set by a function that was called through the Runtime");
-            Assert.AreEqual(10, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
         }
 
         [TestMethod]
