@@ -102,30 +102,52 @@ namespace ZScript.CodeGeneration.Tokenization
 
         void VisitAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
         {
-            // Detect compound assignment operations and duplicate the value of the left value
             if (IsCompoundAssignmentOperator(context.assignmentOperator()))
             {
+                // Detect compound assignment operations and duplicate the value of the left value
                 _isGetAccess = context.leftValue().leftValueAccess() != null;
                 VisitLeftValue(context.leftValue());
+
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+
+                _isGetAccess = true;
+
+                if (context.expression() != null)
+                {
+                    VisitExpression(context.expression());
+                }
+                else if (context.assignmentExpression() != null)
+                {
+                    VisitAssignmentExpression(context.assignmentExpression());
+                }
+
+                _isRootMember = true;
+
+                _isGetAccess = true;
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Swap));
+
+                VisitAssignmentOperator(context.assignmentOperator());
             }
-
-            _isGetAccess = true;
-
-            if (context.expression() != null)
+            else
             {
-                VisitExpression(context.expression());
+                _isGetAccess = true;
+
+                if (context.expression() != null)
+                {
+                    VisitExpression(context.expression());
+                }
+                else if (context.assignmentExpression() != null)
+                {
+                    VisitAssignmentExpression(context.assignmentExpression());
+                }
+
+                _isRootMember = true;
+
+                _isGetAccess = true;
+                VisitLeftValue(context.leftValue());
+
+                VisitAssignmentOperator(context.assignmentOperator());
             }
-            else if (context.assignmentExpression() != null)
-            {
-                VisitAssignmentExpression(context.assignmentExpression());
-            }
-
-            _isRootMember = true;
-
-            _isGetAccess = true;
-            VisitLeftValue(context.leftValue());
-
-            VisitAssignmentOperator(context.assignmentOperator());
         }
 
         void VisitAssignmentOperator(ZScriptParser.AssignmentOperatorContext context)
