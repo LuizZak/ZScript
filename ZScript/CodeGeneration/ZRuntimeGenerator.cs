@@ -11,6 +11,7 @@ using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Sourcing;
 using ZScript.CodeGeneration.Tokenization;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Elements.ValueHolding;
@@ -275,6 +276,14 @@ namespace ZScript.CodeGeneration
             runtimeDefinition.AddExportFunctionDefs(GenerateExportFunctions(scope));
             runtimeDefinition.AddClosurenDefs(GenerateClosures(scope));
 
+            // Expand the definitions in all of the list now
+            var expander = new VariableTokenExpander(runtimeDefinition.GetFunctions(), scope);
+            foreach (var function in runtimeDefinition.GetFunctions())
+            {
+                if (function.Tokens != null)
+                    expander.ExpandInList(function.Tokens);
+            }
+            
             return runtimeDefinition;
         }
 

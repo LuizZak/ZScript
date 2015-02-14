@@ -1,4 +1,5 @@
-﻿using ZScript.Elements;
+﻿using ZScript.CodeGeneration.Elements;
+using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
@@ -11,6 +12,16 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// The name of the variable this token is referring to
         /// </summary>
         public string VariableName;
+
+        /// <summary>
+        /// Whether this variable token is pointing at a global (variable or function) definition
+        /// </summary>
+        public bool GlobalDefinition;
+
+        /// <summary>
+        /// The definition this variable token is pointing at
+        /// </summary>
+        public Definition PointingDefinition;
 
         /// <summary>
         /// Whether the variable is currently being get

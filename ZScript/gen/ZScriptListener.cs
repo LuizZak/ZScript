@@ -299,6 +299,46 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitArgumentName([NotNull] ZScriptParser.ArgumentNameContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAlias"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeAlias([NotNull] ZScriptParser.TypeAliasContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.typeAlias"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeAlias([NotNull] ZScriptParser.TypeAliasContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAliasBody"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeAliasBody([NotNull] ZScriptParser.TypeAliasBodyContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.typeAliasBody"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeAliasBody([NotNull] ZScriptParser.TypeAliasBodyContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAliasVariable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeAliasVariable([NotNull] ZScriptParser.TypeAliasVariableContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.typeAliasVariable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeAliasVariable([NotNull] ZScriptParser.TypeAliasVariableContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAliasFunction"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeAliasFunction([NotNull] ZScriptParser.TypeAliasFunctionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.typeAliasFunction"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeAliasFunction([NotNull] ZScriptParser.TypeAliasFunctionContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -558,6 +598,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitTypeName([NotNull] ZScriptParser.TypeNameContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.complexTypeName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterComplexTypeName([NotNull] ZScriptParser.ComplexTypeNameContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.complexTypeName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitComplexTypeName([NotNull] ZScriptParser.ComplexTypeNameContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.primitiveType"/>.
 	/// </summary>

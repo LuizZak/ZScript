@@ -13,7 +13,7 @@ options
 
 program: scriptBody;
 
-scriptBody : (variableBlock | functionDefinition | exportDefinition | objectDefinition | sequenceBlock)*;
+scriptBody : (variableBlock | functionDefinition | exportDefinition | objectDefinition | sequenceBlock | typeAlias)*;
 
 ////
 //// Object Definition
@@ -29,7 +29,6 @@ objectFunction : ('override')? functionDefinition;
 //// Blocks
 ////
 variableBlock : '[' globalVariable* ']';
-
 
 ////
 //// Variable Block
@@ -49,7 +48,7 @@ frameRangeElement   : '+'? frameNumber ('-' frameNumber)?;
 frameNumber         : INT;
 
 ////
-//// Function Block
+//// Function definition
 ////
 functionDefinition : 'func' functionName functionArguments? returnType? functionBody;
 exportDefinition : '@' functionName functionArguments? returnType?;
@@ -63,9 +62,17 @@ functionArg : argumentName (':' type)? (variadic='...' | ('=' compileConstant))?
 argumentName : IDENT;
 
 ////
+//// Type alias
+////
+typeAlias : 'typeAlias' complexTypeName ':' stringLiteral (';' | typeAliasBody);
+typeAliasBody : '{' (typeAliasVariable | typeAliasFunction ';')* '}';
+typeAliasVariable : valueDecl;
+typeAliasFunction : 'func' functionName functionArguments? returnType;
+
+////
 //// Statements
 ////
-statement: (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDecl);
+statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDecl);
 blockStatement : '{' statement* '}';
 
 ////
@@ -114,7 +121,8 @@ valueHolderName : IDENT;
 // Types
 type : objectType | typeName | callableType | listType;
 objectType       : 'object';
-typeName         : primitiveType | IDENT ('.' typeName)?;
+typeName         : primitiveType | complexTypeName;
+complexTypeName  : IDENT ('.' IDENT)*;
 primitiveType    : T_INT | T_FLOAT | T_VOID | T_ANY | T_STRING | T_BOOL;
 callableType     : '(' callableTypeList? '->' type? ')';
 listType         : '[' type ']';

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
 using ZScript.Elements;
 using ZScript.Elements.ValueHolding;
 
@@ -139,6 +139,17 @@ namespace ZScript.Runtime
         public void AddGlobalVariables(IEnumerable<GlobalVariable> definition)
         {
             _globalVariableDefinitions.AddRange(definition);
+        }
+
+        /// <summary>
+        /// Returns an array containing all of the ZFunctions defined in this ZRuntimeDefinition.
+        /// The order of the representation of the functions is importante, since it is liked to the address described
+        /// in the global function references in the VM tokens
+        /// </summary>
+        /// <returns>An array containing all of the ZFunctions defined in this ZRuntimeDefinition</returns>
+        public ZFunction[] GetFunctions()
+        {
+            return _functionDefinitions.Concat(_exportFunctionDefinitions).Concat(_closureDefinitions).ToArray();
         }
     }
 

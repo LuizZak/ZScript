@@ -35,6 +35,11 @@ namespace ZScript.Runtime
         private bool _expandedGlobals;
 
         /// <summary>
+        /// The index at the functions array closures start
+        /// </summary>
+        private int _closuresStart;
+
+        /// <summary>
         /// The list of all functions defined in this ZRuntime instance
         /// </summary>
         private readonly ZFunction[] _zFunctions;
@@ -76,11 +81,13 @@ namespace ZScript.Runtime
         public ZRuntime(ZRuntimeDefinition definition, IRuntimeOwner owner)
         {
             _definition = definition;
-            _zFunctions = definition.ZFunctionDefinitions.Concat(definition.ZExportFunctionDefinitions).Concat(definition.ZClosureFunctionDefinitions).ToArray();
+            _zFunctions = definition.GetFunctions();
             _localMemoriesStack = new Stack<IMemory<string>>();
             _owner = owner;
             _globalMemory = new Memory();
             _globalAddressedMemory = new IntegerMemory();
+
+            _closuresStart = definition.ZFunctionDefinitions.Length + definition.ZExportFunctionDefinitions.Length;
         }
 
         /// <summary>
@@ -177,18 +184,7 @@ namespace ZScript.Runtime
                     var closure = func as ZClosureFunction;
                     if (closure != null && captureClosures)
                     {
-                        // Capture the memory now
-                        var capturedMemory = new MemoryMapper();
-
-                        if (_localMemoriesStack.Count > 0 && _localMemoriesStack.Peek().GetCount() > 0)
-                        {
-                            capturedMemory.AddMemory(_localMemoriesStack.Peek());
-                        }
-
-                        var newClosure = closure.Clone();
-                        newClosure.CapturedMemory = capturedMemory;
-
-                        return newClosure;
+                        return CaptureClosure(closure);
                     }
 
                     return func;
@@ -196,6 +192,45 @@ namespace ZScript.Runtime
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Captures a given closure on the currently executed context.
+        /// The returned closure is a shallow clone of the passed closure, with the captured memory copied from the current top of the local memory stack
+        /// </summary>
+        /// <param name="closure">The closure to capture</param>
+        /// <returns>A closure that represents the captured losure</returns>
+        private ZClosureFunction CaptureClosure(ZClosureFunction closure)
+        {
+            // Capture the memory now
+            var capturedMemory = new MemoryMapper();
+
+            if (_localMemoriesStack.Count > 0 && _localMemoriesStack.Peek().GetCount() > 0)
+            {
+                capturedMemory.AddMemory(_localMemoriesStack.Peek());
+            }
+
+            var newClosure = closure.Clone();
+            newClosure.CapturedMemory = capturedMemory;
+
+            return newClosure;
+        }
+
+        /// <summary>
+        /// Returns a ZFunction contained at a given index on this ZRuntime
+        /// </summary>
+        /// <param name="index">The index of the function to get</param>
+        /// <returns>A ZFunction contained at the given index</returns>
+        public ZFunction FunctionAtIndex(int index)
+        {
+            var func = _zFunctions[index];
+
+            if (index >= _closuresStart)
+            {
+                return CaptureClosure(func as ZClosureFunction);
+            }
+
+            return func;
         }
 
         /// <summary>

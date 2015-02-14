@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -1083,5 +1084,196 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         #endregion
+
+        #region Manual memory addressing
+
+        /// <summary>
+        /// Tests addressing of memory via manual indexing
+        /// </summary>
+        [TestMethod]
+        public void TestNamedVariableFetching()
+        {
+            /*
+                0000000: 0
+                0000001: i
+                0000002: Set
+                0000003: 7
+                0000004: Jump
+                0000005: i
+                0000006: IncrementPostfix
+                0000007: i
+                0000008: 100000
+                0000009: Less
+                0000010: 14
+                0000011: JumpIfFalse
+                0000012: 5
+                0000013: Jump
+                0000014: Interrupt
+            */
+
+            // Create the set of tokens
+            List<Token> t = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(7),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateBoxedValueToken(100000),
+                TokenFactory.CreateOperatorToken(VmInstruction.Less),
+                TokenFactory.CreateBoxedValueToken(14),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            functionVm.Execute();
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            //Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        /// <summary>
+        /// Tests addressing of memory via manual indexing
+        /// </summary>
+        [TestMethod]
+        public void TestManualAddressing()
+        {
+            /*
+                0000000: 0
+                0000001: i
+                0000002: Set
+                0000003: 7
+                0000004: Jump
+                0000005: i
+                0000006: IncrementPostfix
+                0000007: i
+                0000008: GAA
+                0000009: 100000
+                0000010: Less
+                0000011: 15
+                0000012: JumpIfFalse
+                0000013: 5
+                0000014: Jump
+                0000015: Interrupt
+            */
+
+            // Create the set of tokens
+            List<Token> t = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.SetAtAddress),
+                TokenFactory.CreateBoxedValueToken(7),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetAtAddress),
+                TokenFactory.CreateBoxedValueToken(100000),
+                TokenFactory.CreateOperatorToken(VmInstruction.Less),
+                TokenFactory.CreateBoxedValueToken(15),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, new LocalAddressed(12), null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            functionVm.Execute();
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            //Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        #endregion
+
+        class LocalAddressed : IMemory<int>
+        {
+            /// <summary>
+            /// Array of memory addresses available
+            /// </summary>
+            private readonly object[] _memory;
+
+            private readonly int _count;
+
+            public LocalAddressed(int count)
+            {
+                _count = count;
+                _memory = new object[_count];
+
+                for (int i = 0; i < _count; i++)
+                {
+                    _memory[i] = null;
+                }
+            }
+
+            public bool HasVariable(int identifier)
+            {
+                return _count < identifier;
+            }
+
+            public bool TryGetVariable(int identifier, out object value)
+            {
+                if (!HasVariable(identifier))
+                {
+                    value = null;
+                    return false;
+                }
+
+                value = GetVariable(identifier);
+                return true;
+            }
+
+            public object GetVariable(int identifier)
+            {
+                return _memory[identifier];
+            }
+
+            public void SetVariable(int identifier, object value)
+            {
+                _memory[identifier] = value;
+            }
+
+            public void Clear()
+            {
+                for (int i = 0; i < _count; i++)
+                {
+                    _memory[i] = null;
+                }
+            }
+
+            public int GetCount()
+            {
+                return _count;
+            }
+        }
     }
 }

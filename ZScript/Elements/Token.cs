@@ -77,6 +77,10 @@ namespace ZScript.Elements
         /// <summary>
         /// Specifies a token that contains an instruction that can be executed by a VM
         /// </summary>
-        Instruction
+        Instruction,
+        /// <summary>
+        /// Specifies a token that is pointing to a global function, by address
+        /// </summary>
+        GlobalFunction
     }
 }

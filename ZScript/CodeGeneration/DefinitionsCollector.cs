@@ -198,6 +198,11 @@ namespace ZScript.CodeGeneration
             PushScope(context);
         }
 
+        public override void EnterTypeAlias(ZScriptParser.TypeAliasContext context)
+        {
+            
+        }
+
         public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
             PopScope();
@@ -433,6 +438,17 @@ namespace ZScript.CodeGeneration
                 Name = objectDefinition.objectName().IDENT().GetText(),
                 Context = objectDefinition
             };
+
+            _currentScope.AddDefinition(def);
+        }
+
+        /// <summary>
+        /// Defines a new type alias definition in the current top-most scope
+        /// </summary>
+        /// <param name="typeAlias">The type alias to define</param>
+        void DefineTypeAlias(ZScriptParser.TypeAliasContext typeAlias)
+        {
+            var def = TypeAliasDefinitionGenerator.GenerateTypeAlias(typeAlias);
 
             _currentScope.AddDefinition(def);
         }

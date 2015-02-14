@@ -54,7 +54,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             if (expression != null)
             {
                 List<Token> tokens = _context.TokenizeExpression(expression);
-                tokens.Add(new VariableToken(name, false));
+                tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
                 tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
                 return tokens;
@@ -76,7 +76,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             var name = valueHolderDecl.valueHolderName().IDENT().GetText();
 
             List<Token> tokens = _context.TokenizeExpression(expression);
-            tokens.Add(new VariableToken(name, false));
+            tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
             return tokens;

@@ -145,8 +145,9 @@ namespace ZScriptTests.CodeGeneration
         public void TestCrossSourceFunctionExecution()
         {
             var generator = new ZRuntimeGenerator();
+            generator.Debug = true;
 
-            var source1 = new ZScriptStringSource("[ a;] func f1() { f2(); }");
+            var source1 = new ZScriptStringSource("[ a; ] func f1() { f2(); }");
             var source2 = new ZScriptStringSource("func f2() { a = 10; }");
 
             // Add a few sources

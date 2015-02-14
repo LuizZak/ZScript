@@ -70,5 +70,34 @@ namespace ZScriptTests.Performance
 
             Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
         }
+
+        [TestMethod]
+        public void TestFunctionCallPerformance()
+        {
+            // The threshold for the test in milliseconds, based on previous runs.
+            // This value is obviously dependent on the system, and I use it mostly to test in my local machine
+            const long threshold = 400;
+
+            const string input = "func funca { for(var i = 0; i < 100000; i++) { funcb(); } } func funcb { }";
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            runtime.CallFunction("funca");
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
+        }
     }
 }

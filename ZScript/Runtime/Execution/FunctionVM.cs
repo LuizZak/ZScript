@@ -167,6 +167,9 @@ namespace ZScript.Runtime.Execution
                     case TokenType.MemberName:
                         _stack.Push(token);
                         break;
+                    case TokenType.GlobalFunction:
+                        _stack.Push(_context.Runtime.FunctionAtIndex((int)token.TokenObject));
+                        break;
                     default:
                         _stack.Push(token.TokenObject);
                         break;
@@ -473,8 +476,7 @@ namespace ZScript.Runtime.Execution
         {
             // Pop the variable and value to get
             var variable = _stack.Pop();
-            //_stack.Push(_context.AddressedMemory.GetVariable((int)variable));
-            _stack.Push(GetValue(variable));
+            _stack.Push(_context.AddressedMemory.GetVariable((int)variable));
         }
 
         /// <summary>
@@ -486,7 +488,7 @@ namespace ZScript.Runtime.Execution
             var variable = _stack.Pop();
             object value = PopValueImplicit();
 
-            SetValue(variable, value);
+            _context.AddressedMemory.SetVariable((int)variable, value);
             _stack.Push(value);
         }
 

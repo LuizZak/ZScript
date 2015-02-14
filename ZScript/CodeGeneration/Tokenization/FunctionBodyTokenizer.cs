@@ -49,7 +49,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 Console.WriteLine("Final token list, before expanding variables and jumps:");
                 PrintTokens(tokens);
             }
-            VariableTokenExpander.ExpandInList(tokens);
+
             JumpTokenExpander.ExpandInList(tokens, VmInstruction.Interrupt);
 
             if (DebugTokens)

@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 using ZScript.CodeGeneration;
 using ZScriptTests.Performance;
+using ZScriptTests.Runtime.Execution;
 
 namespace StandaloneTests
 {
@@ -10,7 +11,22 @@ namespace StandaloneTests
     {
         static void Main(string[] args)
         {
+            FunctionVmTests ftests = new FunctionVmTests();
+
+            ftests.TestManualAddressing();
+
+            Console.Read();
+
+            ftests.TestNamedVariableFetching();
+
+            Console.Read();
+
             PerformanceTests tests = new PerformanceTests();
+
+            tests.TestFunctionCallPerformance();
+
+            Console.Read();
+
             tests.TestSubscriptPerformance();
 
             Console.Read();

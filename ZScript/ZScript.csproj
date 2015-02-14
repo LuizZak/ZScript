@@ -49,6 +49,7 @@
     <Compile Include="CodeGeneration\Analysis\DefinitionTypeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
+    <Compile Include="CodeGeneration\Elements\TypeAliasDefinition.cs" />
     <Compile Include="CodeGeneration\Elements\Typing\CallableTypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\Typing\IListTypeDef.cs" />
     <Compile Include="CodeGeneration\Elements\Typing\ListTypeDef.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="CodeGeneration\Sourcing\ZScriptDefinitionsSource.cs" />
     <Compile Include="CodeGeneration\Sourcing\ZScriptFileSource.cs" />
     <Compile Include="CodeGeneration\Sourcing\ZScriptStringSource.cs" />
+    <Compile Include="CodeGeneration\TypeAliasDefinitionGenerator.cs" />
     <Compile Include="CodeGeneration\ZScriptSyntaxErrorListener.cs" />
     <Compile Include="Elements\ValueHolding\FunctionArgument.cs" />
     <Compile Include="Elements\ValueHolding\GlobalVariable.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="Runtime\Typing\Operators\FloatOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\IntegerOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\LongOperator.cs" />
+    <Compile Include="Runtime\Typing\TypeFactory.cs" />
     <Compile Include="Runtime\Typing\TypeOperationProvider.cs" />
     <Compile Include="Runtime\Typing\TypeProvider.cs" />
     <Compile Include="Runtime\ZRuntime.cs" />
