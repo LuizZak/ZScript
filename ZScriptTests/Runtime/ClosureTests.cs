@@ -30,8 +30,6 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParseSingleParameteredClosure()
         {
-            // TODO: See how we can re-implement single parametered closures with no return type provided (I liked my single parametered returntypeless closures...)
-
             const string input = "func f() { var c = (i) : int => { return 0; }; }";
             var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();

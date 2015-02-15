@@ -155,10 +155,12 @@ namespace ZScript.CodeGeneration.Analysis
                     definition.Arguments[i].Type = newType.ParameterInfos[i].ParameterType;
                 }
 
-                definition.HasReturnType = true;
-                // Don't update the return type if the new type is void: this may cause errors during return type analysis
-                if(newType.ReturnType != _typeProvider.VoidType())
+                // Don't update the return type if the closure has a return type and new type is void: this may cause errors during return type analysis
+                if (!definition.HasReturnType || newType.ReturnType != _typeProvider.VoidType())
+                {
                     definition.ReturnType = newType.ReturnType;
+                    definition.HasReturnType = true;
+                }
             }
 
             // Now expand the closure like a normal function
@@ -417,15 +419,29 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 if (context.expression() != null)
                 {
-                    _typeResolver.ResolveExpression(context.expression());
-
-                    _constantResolver.ExpandConstants(context.expression());
-
-                    //Console.WriteLine("Type for expression: " + context.expression().EvaluatedType);
+                    AnalyzeExpression(context.expression());
                 }
                 else if (context.assignmentExpression() != null)
                 {
                     AnalyzeAssignmentExpression(context.assignmentExpression());
+                }
+            }
+
+            /// <summary>
+            /// Analyzes a given expression, making sure the expression is correct and valid
+            /// </summary>
+            /// <param name="context">The context containig the expression to analyze</param>
+            private void AnalyzeExpression(ZScriptParser.ExpressionContext context)
+            {
+                _typeResolver.ResolveExpression(context);
+
+                _constantResolver.ExpandConstants(context);
+
+                // Check if a left value is trying to be modified
+                if (context.leftValue() != null)
+                {
+                    var message = "Cannot modify value of constant value " + context.leftValue().GetText();
+                    _typeResolver.MessageContainer.RegisterError(context, message, ErrorCode.ModifyingConstant);
                 }
             }
 
@@ -442,11 +458,9 @@ namespace ZScript.CodeGeneration.Analysis
                 // Check if the left value is not a constant
                 if (context.leftValue().IsConstant)
                 {
-                    var message = "Cannot assign to constant expression " + context.leftValue().GetText();
-                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.AssigningToConstant);
+                    var message = "Cannot reassign constant value " + context.leftValue().GetText();
+                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.ModifyingConstant);
                 }
-
-                //Console.WriteLine("Type for assignment expression: " + context.assignmentExpression().EvaluatedType);
             }
 
             // 

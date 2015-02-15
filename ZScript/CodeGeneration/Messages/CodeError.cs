@@ -109,8 +109,8 @@
         /// <summary>Case label has constant value that is already defined in a previous case label of a switch statement</summary>
         RepeatedCaseLabelValue,
 
-        /// <summary>Trying to assign a value to a constant declaration</summary>
-        AssigningToConstant
+        /// <summary>Trying to modify the value of a constant declaration, either through assignment or through postfix/prefix operators</summary>
+        ModifyingConstant
 
         #endregion
     }

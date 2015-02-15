@@ -21,7 +21,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestClosureTypeInferringFunctionArg()
         {
-            const string input = "func f() { var a = f2((i) => { return 0; }); } func f2(a:(int->int)) { }";
+            const string input = "func f() { var a = f2(i => { return 0; }); } func f2(a:(int->int)) { }";
             var generator = TestUtils.CreateGenerator(input);
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
@@ -84,7 +84,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #region Statement analysis
 
-        #region Assignment statement analysis
+        #region General expression statement analysis
 
         /// <summary>
         /// Tests raising errors when trying to assign values to constant local variables
@@ -99,7 +99,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.AssigningToConstant), "Failed to raise expected errors");
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.AssigningToConstant), "Failed to raise expected errors");
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
         }
 
         /// <summary>
@@ -132,6 +132,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ValuelessConstantDeclaration), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests raising errors when trying to increment/decrement the contents of a constant value
+        /// </summary>
+        [TestMethod]
+        public void TestIncrementDecrementConstantValue()
+        {
+            // Set up the test
+            const string input = "func f() { let a = 0; a++; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
         }
 
         #endregion
