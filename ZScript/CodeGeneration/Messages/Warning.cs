@@ -8,7 +8,7 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Gets or sets the warning code for this warning
         /// </summary>
-        public WarningCode Code { get; set; }
+        public WarningCode WarningCode { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the Warning class
@@ -28,13 +28,13 @@ namespace ZScript.CodeGeneration.Messages
         /// <param name="line">The line the error occurred at</param>
         /// <param name="column">The offset in the line the error occurred at</param>
         /// <param name="message">The message for the error</param>
-        /// <param name="code">The code for the warning</param>
-        public Warning(int line, int column, string message, WarningCode code)
+        /// <param name="warningCode">The code for the warning</param>
+        public Warning(int line, int column, string message, WarningCode warningCode)
         {
             Column = column;
             Line = line;
             Message = message;
-            Code = code;
+            WarningCode = warningCode;
         }
     }
 

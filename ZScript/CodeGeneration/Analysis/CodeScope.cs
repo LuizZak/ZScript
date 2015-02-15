@@ -134,6 +134,31 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Searches a definition with a given type by name in this, and all parent scopes recursively.
+        /// If no definitions with the given name are found, null is returned instead
+        /// </summary>
+        /// <param name="definitionName">The name of the definition to search</param>
+        /// <returns>The definition that was found</returns>
+        public T GetDefinitionByName<T>(string definitionName) where T : Definition
+        {
+            foreach (var definition in _definitions)
+            {
+                var def = definition as T;
+                if (def != null && def.Name == definitionName)
+                {
+                    return def;
+                }
+            }
+
+            if (ParentScope != null)
+            {
+                return ParentScope.GetDefinitionByName<T>(definitionName);
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Searches a definition by context in this, and all children scopes recursively.
         /// If no definitions with the given context is found, null is returned instead
         /// </summary>

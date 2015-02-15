@@ -30,7 +30,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.Analyze(scope, messages);
 
-            Assert.AreEqual(1, messages.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.AnalyzeRecursive(scope, messages);
 
-            Assert.AreEqual(1, messages.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.Analyze(scope, messages);
 
-            Assert.AreEqual(0, messages.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(0, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.Analyze(scope, messages);
 
-            Assert.AreEqual(0, messages.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(0, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.DefinitionOnlySet));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.DefinitionOnlySet));
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.Code == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>

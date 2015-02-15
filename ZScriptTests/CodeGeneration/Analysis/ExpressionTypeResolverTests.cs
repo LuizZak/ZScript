@@ -1034,7 +1034,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.Code == WarningCode.TryingToSubscriptNonList));
+            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToSubscriptNonList));
         }
 
         /// <summary>
@@ -1053,7 +1053,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.Code == WarningCode.TryingToCallNonCallable));
+            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
         }
 
         #endregion

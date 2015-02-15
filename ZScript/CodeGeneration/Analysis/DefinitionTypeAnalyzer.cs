@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
@@ -455,24 +456,157 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // 
-            // EnterForStatement override
+            // EnterSwitchStatement override
+            // 
+            public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
+            {
+                var explorer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver);
+                explorer.Process();
+            }
+
+            // 
+            // EnterForInit override
+            // 
+            public override void EnterForInit(ZScriptParser.ForInitContext context)
+            {
+                // For loops can ommit the init expression
+                if (context.expression() == null)
+                    return;
+
+                _typeResolver.ResolveExpression(context.expression());
+                _constantResolver.ExpandConstants(context.expression());
+            }
+
+            // 
+            // EnterForCondition override
             // 
             public override void EnterForCondition(ZScriptParser.ForConditionContext context)
             {
-                // For loops can ommit the condition
+                // For loops can ommit the condition expression
                 if (context.expression() == null)
                     return;
 
                 var provider = _typeResolver.TypeProvider;
 
                 // Check if expression has a boolean type
-                if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
+                var conditionType = _typeResolver.ResolveExpression(context.expression());
+
+                if (!provider.CanImplicitCast(conditionType, provider.BooleanType()))
                 {
                     const string message = "Expression on for condition must be boolean";
                     _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
                 }
 
                 _constantResolver.ExpandConstants(context.expression());
+            }
+
+            // 
+            // EnterForIncrement override
+            // 
+            public override void EnterForIncrement(ZScriptParser.ForIncrementContext context)
+            {
+                // For loops can ommit the increment expression
+                if (context.expression() == null)
+                    return;
+
+                _typeResolver.ResolveExpression(context.expression());
+                _constantResolver.ExpandConstants(context.expression());
+            }
+        }
+
+        /// <summary>
+        /// Helper class that helps with type and integrity analysis of switch blocks
+        /// </summary>
+        class SwitchCaseAnalyzer : ZScriptBaseListener
+        {
+            /// <summary>
+            /// The type resolver to use when resolving the expressions
+            /// </summary>
+            private readonly ExpressionTypeResolver _typeResolver;
+
+            /// <summary>
+            /// The constant resolver to use when pre-evaluating constants
+            /// </summary>
+            private readonly ExpressionConstantResolver _constantResolver;
+
+            /// <summary>
+            /// The context for the switch statement to analyze
+            /// </summary>
+            private readonly ZScriptParser.SwitchStatementContext _context;
+
+            /// <summary>
+            /// Type definition for the current switch's condition, used to check conditions on the switch's case blocks
+            /// </summary>
+            private TypeDef _switchType;
+
+            /// <summary>
+            /// List of case blocks that where processed
+            /// </summary>
+            private readonly List<ZScriptParser.CaseBlockContext> _processedCases;
+
+            /// <summary>
+            /// Initializes a new instance of the SwitchCaseExplorer class
+            /// </summary>
+            /// <param name="context">The context containig the switch block to process</param>
+            /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
+            /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
+            public SwitchCaseAnalyzer(ZScriptParser.SwitchStatementContext context, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            {
+                _context = context;
+                _typeResolver = typeResolver;
+                _constantResolver = constantResolver;
+                _processedCases = new List<ZScriptParser.CaseBlockContext>();
+            }
+
+            /// <summary>
+            /// Processes the current switch statement
+            /// </summary>
+            public void Process()
+            {
+                // Expand switch statement's expression
+                var type = _typeResolver.ResolveExpression(_context.expression());
+                _constantResolver.ExpandConstants(_context.expression());
+
+                // Push the type of the switch statement into the switch type stack so the EnterCaseBlock can utilize the value
+                _switchType = type;
+
+                ParseTreeWalker walker = new ParseTreeWalker();
+                walker.Walk(this, _context);
+            }
+
+            // 
+            // EnterCaseBlock override
+            // 
+            public override void EnterCaseBlock(ZScriptParser.CaseBlockContext context)
+            {
+                // Expand case's check expression
+                var caseType = _typeResolver.ResolveExpression(context.expression());
+                _constantResolver.ExpandConstants(context.expression());
+
+                // Verify case type against the current switch's expression type
+                if (!_typeResolver.TypeProvider.CanImplicitCast(caseType, _switchType))
+                {
+                    const string message = "Expression on case label does not matches the expression provided on the switch block";
+                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
+
+                    _processedCases.Add(context);
+
+                    return;
+                }
+
+                // Verify case against existing cases
+                foreach (var prevCase in _processedCases)
+                {
+                    // Check the constants in the cases and raise an error about duplicated case statements
+                    if (prevCase.expression().IsConstant && context.expression().IsConstant &&
+                        prevCase.expression().ConstantValue.Equals(context.expression().ConstantValue))
+                    {
+                        const string message = "Repeated entry of constant-valued case on switch block";
+                        _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.RepeatedCaseLabelValue);
+                    }
+                }
+
+                _processedCases.Add(context);
             }
         }
     }

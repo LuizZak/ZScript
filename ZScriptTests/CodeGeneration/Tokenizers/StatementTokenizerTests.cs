@@ -379,6 +379,27 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         }
 
         [TestMethod]
+        public void TestExpressionInitForGeneration()
+        {
+            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(f2(); i < 10; i++) { a = i + 2; } } func f2() { b = 10; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.AreEqual(11L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("b"));
+        }
+
+        [TestMethod]
         public void TestNoInitForGeneration()
         {
             const string input = "[ i = 0; a = 0; ] func f() { for(; i < 10; i++) { a = i + 2; } }";
@@ -764,29 +785,29 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestMismatchedBreakStatementError()
         {
-            const string input = "[ a = 5; b = 20; c = null; ] func f() { break; }";
+            const string input = "func f() { break; }";
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
 
-            // Collect definitions now
-            generator.CollectDefinitions();
+            // Generate a runtime to force processing of function tokens
+            generator.GenerateRuntimeDefinition();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
-            Assert.AreEqual(0, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForBreakStatement), "Faild to raise expected errors");
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForBreakStatement), "Faild to raise expected errors");
         }
 
         [TestMethod]
         public void TestMismatchedContinueStatementError()
         {
-            const string input = "[ a = 5; b = 20; c = null; ] func f() { continue; }";
+            const string input = "func f() { continue; }";
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
 
-            // Collect definitions now
-            generator.CollectDefinitions();
+            // Generate a runtime to force processing of function tokens
+            generator.GenerateRuntimeDefinition();
 
             Assert.IsFalse(generator.HasSyntaxErrors);
-            Assert.AreEqual(0, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForContinueStatement), "Faild to raise expected errors");
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForContinueStatement), "Faild to raise expected errors");
         }
 
         #endregion

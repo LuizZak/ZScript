@@ -237,10 +237,6 @@ namespace ZScript.CodeGeneration
             var typeExpander = new DefinitionTypeAnalyzer(_typeProvider, completeScope, _messageContainer);
             typeExpander.Expand();
 
-            // Expand the constants now
-            // TODO: Decide how to interface this class cleanly like the DefinitionTypeAnalyzer
-            //var constantExpander = new ExpressionConstantResolver(new BinaryExpressionTypeProvider(_typeProvider), new TypeOperationProvider());
-
             AnalyzeCollisions(completeScope);
 
             return completeScope;

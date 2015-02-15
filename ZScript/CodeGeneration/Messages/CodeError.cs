@@ -103,6 +103,9 @@
         /// <summary>Continue statement not inside a for/while statement context</summary>
         NoTargetForContinueStatement,
 
+        /// <summary>Case label has constant value that is already defined in a previous case label of a switch statement</summary>
+        RepeatedCaseLabelValue,
+
         #endregion
     }
 }
