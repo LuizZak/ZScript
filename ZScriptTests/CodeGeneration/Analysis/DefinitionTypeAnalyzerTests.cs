@@ -250,6 +250,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected warnings");
         }
 
+        /// <summary>
+        /// Tests checking a switch's case labels against complete constant cases that never match the switch expression
+        /// </summary>
+        [TestMethod]
+        public void TestNonMatchingConstantSwitchStatement()
+        {
+            // Set up the test
+            const string input = "func f() { switch(10) { case 11: break; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected warnings");
+        }
+
         #endregion
 
         #endregion

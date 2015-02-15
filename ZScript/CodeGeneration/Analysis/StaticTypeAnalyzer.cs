@@ -533,7 +533,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// <summary>
             /// The context for the switch statement to analyze
             /// </summary>
-            private readonly ZScriptParser.SwitchStatementContext _context;
+            private readonly ZScriptParser.SwitchStatementContext _switchContext;
 
             /// <summary>
             /// Type definition for the current switch's condition, used to check conditions on the switch's case blocks
@@ -548,12 +548,12 @@ namespace ZScript.CodeGeneration.Analysis
             /// <summary>
             /// Initializes a new instance of the SwitchCaseExplorer class
             /// </summary>
-            /// <param name="context">The context containig the switch block to process</param>
+            /// <param name="switchContext">The context containig the switch block to process</param>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            public SwitchCaseAnalyzer(ZScriptParser.SwitchStatementContext context, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            public SwitchCaseAnalyzer(ZScriptParser.SwitchStatementContext switchContext, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
             {
-                _context = context;
+                _switchContext = switchContext;
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
                 _processedCases = new List<ZScriptParser.CaseBlockContext>();
@@ -565,14 +565,57 @@ namespace ZScript.CodeGeneration.Analysis
             public void Process()
             {
                 // Expand switch statement's expression
-                var type = _typeResolver.ResolveExpression(_context.expression());
-                _constantResolver.ExpandConstants(_context.expression());
+                var type = _typeResolver.ResolveExpression(_switchContext.expression());
+                _constantResolver.ExpandConstants(_switchContext.expression());
 
                 // Push the type of the switch statement into the switch type stack so the EnterCaseBlock can utilize the value
                 _switchType = type;
 
                 ParseTreeWalker walker = new ParseTreeWalker();
-                walker.Walk(this, _context);
+                walker.Walk(this, _switchContext);
+                
+                AnalyzeConstantSwitch();
+            }
+
+            /// <summary>
+            /// Verifes the cases processed, and check for constants in both case and switch expression evaluation, raising warnings when
+            /// either the switch is constant and matches a constant case label, or a constant switch matches none of the constant case labels
+            /// </summary>
+            private void AnalyzeConstantSwitch()
+            {
+                if (!_switchContext.expression().IsConstant)
+                    return;
+
+                // Whether the switch matches another constant case
+                bool matched = false;
+                // Whether all of the cases are constant values
+                bool allConstant = true;
+
+                foreach (var caseContext in _processedCases)
+                {
+                    if (!caseContext.expression().IsConstant)
+                    {
+                        allConstant = false;
+                        continue;
+                    }
+
+                    if (caseContext.expression().ConstantValue.Equals(_switchContext.expression().ConstantValue))
+                    {
+                        const string message = "Constant case label that always matches constant switch expression";
+                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message,
+                            WarningCode.ConstantSwitchExpression);
+
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (!matched && allConstant)
+                {
+                    const string message = "Constant switch statement that matches no case never executes";
+                    _typeResolver.MessageContainer.RegisterWarning(_switchContext.expression(), message,
+                        WarningCode.ConstantSwitchExpression);
+                }
             }
 
             // 

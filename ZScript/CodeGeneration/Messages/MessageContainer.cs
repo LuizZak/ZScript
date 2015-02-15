@@ -101,6 +101,14 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Registers a warning at a context
         /// </summary>
+        public void RegisterWarning(ParserRuleContext context, string warningMessage, WarningCode code)
+        {
+            _warningList.Add(new Warning(context.Start.Line, context.Start.Column, warningMessage, code) { Context = context });
+        }
+
+        /// <summary>
+        /// Registers a warning at a context
+        /// </summary>
         public void RegisterWarning(ITerminalNode context, string warningMessage)
         {
             _warningList.Add(new Warning(context.Symbol.Line, context.Symbol.Column, warningMessage));
