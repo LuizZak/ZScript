@@ -10,10 +10,10 @@ using ZScriptTests.Utils;
 namespace ZScriptTests.CodeGeneration.Analysis
 {
     /// <summary>
-    /// Tests the functionality of the definition type analyzer
+    /// Tests the functionality of the static type analyzer
     /// </summary>
     [TestClass]
-    public class DefinitionTypeAnalyzerTests
+    public class StaticTypeAnalyzerTests
     {
         /// <summary>
         /// Tests inferring of types in a closure definition that is contained within a function argument
