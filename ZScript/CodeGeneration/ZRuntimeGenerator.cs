@@ -211,10 +211,10 @@ namespace ZScript.CodeGeneration
                 if (source.Definitions == null)
                 {
                     // Analyze the code of the scope
-                    var codeAnalyzer = new CodeAnalyzer(_messageContainer);
-                    codeAnalyzer.AnalyzeProgram(source.Tree);
+                    var collector = new DefinitionsCollector(_messageContainer);
+                    collector.Collect(source.Tree);
 
-                    source.Definitions = codeAnalyzer.DefinitionsCollector;
+                    source.Definitions = collector;
                 }
 
                 // Merge scopes

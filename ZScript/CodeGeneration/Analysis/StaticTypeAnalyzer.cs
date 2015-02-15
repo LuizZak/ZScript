@@ -438,7 +438,7 @@ namespace ZScript.CodeGeneration.Analysis
                 _constantResolver.ExpandConstants(context);
 
                 // Check if a left value is trying to be modified
-                if (context.leftValue() != null)
+                if (context.leftValue() != null && context.leftValue().IsConstant)
                 {
                     var message = "Cannot modify value of constant value " + context.leftValue().GetText();
                     _typeResolver.MessageContainer.RegisterError(context, message, ErrorCode.ModifyingConstant);

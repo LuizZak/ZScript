@@ -1,5 +1,4 @@
-﻿using Antlr4.Runtime.Tree;
-using ZScript.CodeGeneration.Messages;
+﻿using ZScript.CodeGeneration.Messages;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -55,7 +54,6 @@ namespace ZScript.CodeGeneration.Analysis
             
 
             // Walk twice - the first pass collects definitions, the second pass analyzes bodies
-            //_analysisMode = AnalysisMode.DefinitionCollection;
             DefinitionsCollector collector = new DefinitionsCollector(_messageContainer);
             collector.Collect(context);
 
