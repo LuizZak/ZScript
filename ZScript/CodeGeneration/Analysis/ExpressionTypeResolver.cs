@@ -5,12 +5,12 @@ using System.Linq;
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration.Elements;
-using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -38,6 +38,22 @@ namespace ZScript.CodeGeneration.Analysis
         /// Gets or sets the closure expected type notifying
         /// </summary>
         public IClosureExpectedTypeNotifier ClosureExpectedTypeNotifier { get; set; }
+
+        /// <summary>
+        /// Gets the type provider using when resolving the type of the expressions
+        /// </summary>
+        public TypeProvider TypeProvider
+        {
+            get { return _typeProvider; }
+        }
+
+        /// <summary>
+        /// Gets the container to report error messages to
+        /// </summary>
+        public MessageContainer MessageContainer
+        {
+            get { return _messageContainer; }
+        }
 
         /// <summary>
         /// Gets or sets a type that specifies an expected type when dealing with function arguments and assignment operations, used mostly to infer types to closures
@@ -104,6 +120,8 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
+            context.EvaluatedType = variableType;
+
             return variableType;
         }
 
@@ -118,7 +136,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.assignmentExpression() != null)
             {
-                return ResolveAssignmentExpression(context.assignmentExpression());
+                retType = ResolveAssignmentExpression(context.assignmentExpression());
             }
             if (context.closureExpression() != null)
             {
@@ -137,10 +155,15 @@ namespace ZScript.CodeGeneration.Analysis
                 retType = ResolveConstantAtom(context.constantAtom());
             }
 
+            // Ternary expression
+            if (context.expression().Length == 3)
+            {
+                retType = ResolveTernaryExpression(context);
+            }
             // Binary expression
             if (context.expression().Length == 2)
             {
-                return ResolveBinaryExpression(context);
+                retType = ResolveBinaryExpression(context);
             }
             // Parenthesized expression
             if (context.expression().Length == 1)
@@ -151,7 +174,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else
                 {
-                    retType = ResolveExpression(context.expression()[0]);
+                    retType = ResolveExpression(context.expression(0));
                 }
             }
 
@@ -176,29 +199,31 @@ namespace ZScript.CodeGeneration.Analysis
             // If the closure is being called, return the return type of the closure instead
             if (context.valueAccess() != null)
             {
-                return ResolveValueAccess(retType, context.valueAccess());
+                retType = ResolveValueAccess(retType, context.valueAccess());
             }
 
             // If the closure is being called, return the return type of the closure instead
             if (context.objectAccess() != null)
             {
-                return ResolveObjectAccess(retType, context.objectAccess());
+                retType = ResolveObjectAccess(retType, context.objectAccess());
             }
 
             // Prefix operator
             if (context.prefixOperator() != null)
             {
-                return ResolvePrefixExpression(context);
+                retType = ResolvePrefixExpression(context);
             }
 
             // Postfix operator
             if (context.postfixOperator() != null)
             {
-                return ResolvePostfixExpression(context);
+                retType = ResolvePostfixExpression(context);
             }
 
             if(retType == null)
                 throw new Exception("Cannot resolve type of expression '" + context.GetText() + "'");
+
+            context.EvaluatedType = retType;
 
             return retType;
         }
@@ -208,7 +233,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the new expression</param>
         /// <returns>The type for the new expression</returns>
-        private TypeDef ResolveNewExpression(ZScriptParser.NewExpressionContext context)
+        public TypeDef ResolveNewExpression(ZScriptParser.NewExpressionContext context)
         {
             var typeName = context.typeName().GetText();
 
@@ -288,6 +313,34 @@ namespace ZScript.CodeGeneration.Analysis
 
         #endregion
 
+        #region Ternary
+
+        /// <summary>
+        /// Resolves a ternary expression contained within a given expression context.
+        /// The resolved expression is the most common super type of the left and right expressions of the ternary operation
+        /// </summary>
+        /// <param name="context">The context containing the ternary expression to resolve</param>
+        /// <returns>The type definition for the expressions of the ternary</returns>
+        public TypeDef ResolveTernaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            // Conditional expression
+            var condExp = ResolveExpression(context.expression(0));
+
+            if (!_typeProvider.CanImplicitCast(condExp, _typeProvider.BooleanType()))
+            {
+                const string message = "Expected boolean type opeartion on tearnary condition";
+                _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+            }
+
+            // Find type of expressions on both sides
+            var type1 = ResolveExpression(context.expression(1));
+            var type2 = ResolveExpression(context.expression(2));
+
+            return _typeProvider.FindCommonType(type1, type2);
+        }
+
+        #endregion
+
         #region Left value resolving
 
         /// <summary>
@@ -315,6 +368,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the left value</returns>
         public TypeDef ResolveMemberName(ZScriptParser.MemberNameContext context)
         {
+            if(DefinitionTypeProvider == null)
+                throw new Exception("No definition type provider was provided when constructing this ExpressionTypeResolver. No member name can be resolved to type!");
+
             return DefinitionTypeProvider.TypeForDefinition(context, context.IDENT().GetText());
         }
 

@@ -198,12 +198,18 @@ namespace ZScript.CodeGeneration
             PushScope(context);
         }
 
-        public override void EnterTypeAlias(ZScriptParser.TypeAliasContext context)
+        public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
-            
+            PopScope();
         }
 
-        public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
+        public override void EnterTypeAlias(ZScriptParser.TypeAliasContext context)
+        {
+            DefineTypeAlias(context);
+            PushScope(context);
+        }
+
+        public override void ExitTypeAlias(ZScriptParser.TypeAliasContext context)
         {
             PopScope();
         }
@@ -450,7 +456,7 @@ namespace ZScript.CodeGeneration
         {
             var def = TypeAliasDefinitionGenerator.GenerateTypeAlias(typeAlias);
 
-            _currentScope.AddDefinition(def);
+            _currentScope.AddTypeAliasDefinition(def);
         }
 
         /// <summary>

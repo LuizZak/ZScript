@@ -14,7 +14,7 @@ namespace ZScript.CodeGeneration
         /// <returns>A type alias definition generated from the given type alias context</returns>
         public static TypeAliasDefinition GenerateTypeAlias(ZScriptParser.TypeAliasContext context)
         {
-            TypeAliasDefinition definition = new TypeAliasDefinition();
+            TypeAliasDefinition definition = new TypeAliasDefinition { Name = context.typeAliasName().GetText() };
 
             return definition;
         }

@@ -1,4 +1,4 @@
-using ZScript.CodeGeneration.Elements.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Elements
 {

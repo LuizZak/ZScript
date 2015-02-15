@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
@@ -33,7 +34,8 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         {
             if (_context.CurrentBreakTarget == null)
             {
-                throw new Exception("Break statement has no target");
+                _context.MessageContainer.RegisterError(context, "Break statement has no target", ErrorCode.NoTargetForBreakStatement);
+                return new List<Token>();
             }
 
             return new List<Token> { new JumpToken(_context.CurrentBreakTarget) };

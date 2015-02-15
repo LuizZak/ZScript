@@ -31,10 +31,11 @@ namespace ZScript.Elements
         /// <returns>A shallow copy of this ZClosureFunction object</returns>
         public ZClosureFunction Clone()
         {
-            return new ZClosureFunction(Name, Tokens, Arguments)
-            {
-                CapturedMemory = CapturedMemory == null ? CapturedMemory : CapturedMemory.Clone()
-            };
+            var clone = (ZClosureFunction)MemberwiseClone();
+
+            clone.CapturedMemory = CapturedMemory == null ? null : CapturedMemory.Clone();
+
+            return clone;
         }
     }
 }

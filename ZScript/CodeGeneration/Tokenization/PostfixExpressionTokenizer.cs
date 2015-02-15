@@ -7,6 +7,7 @@ using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization
 {
@@ -225,42 +226,15 @@ namespace ZScript.CodeGeneration.Tokenization
             // Print the other side of the tree first
             if (context.expression().Length == 1)
             {
-                // Maybe we matched an unary operator?
-                if (context.unaryOperator() != null)
-                {
-                    VisitExpression(context.expression(0));
-
-                    var txt = context.unaryOperator().GetText();
-
-                    switch (txt)
-                    {
-                        case "-":
-                            _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.ArithmeticNegate));
-                            break;
-                        case "!":
-                            _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.LogicalNegate));
-                            break;
-                    }
-                }
-                else
-                {
-                    VisitExpression(context.expression(0));
-
-                    if (context.valueAccess() != null)
-                    {
-                        VisitValueAccess(context.valueAccess());
-                    }
-                }
+                VisitUnaryExpression(context);
             }
-            else if (context.expression().Length >= 2)
+            else if (context.expression().Length == 2)
             {
-                VisitExpression(context.expression(0));
-
-                ProcessLogicalOperator(context);
-
-                VisitExpression(context.expression(1));
-
-                VisitExpressionOperator(context);
+                VisitBinaryExpression(context);
+            }
+            else if (context.expression().Length == 3)
+            {
+                VisitTernaryExpression(context);
             }
             else if (context.assignmentExpression() != null)
             {
@@ -338,7 +312,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
             else
             {
-                throw new Exception("Unkown expression type encoutered: " + context);
+                throw new Exception("Unkown expression type encoutered: " + context.GetText());
             }
         }
 
@@ -352,93 +326,6 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 _tokens.Add(TokenFactory.CreateMemberNameToken(context.IDENT().GetText()));
             }
-        }
-
-        private void VisitExpressionOperator(ZScriptParser.ExpressionContext context)
-        {
-            var str = OperatorOnExpression(context);
-            var t = TokenFactory.CreateOperatorToken(str);
-
-            _tokens.Add(t);
-
-            if (t.Instruction == VmInstruction.LogicalAnd || t.Instruction == VmInstruction.LogicalOr)
-            {
-                // If the token is a logical And or Or, deal with special jumps by inserting a jump target
-                var jump = _shortCircuitJumps.Pop();
-                var target = new JumpTargetToken();
-
-                jump.TargetToken = target;
-                _tokens.Add(target);
-            }
-        }
-
-        /// <summary>
-        /// Processes the logical operator at a given expression context, dealing with logical shortcircuiting
-        /// </summary>
-        /// <param name="context">The context conaining the jump to perform</param>
-        private void ProcessLogicalOperator(ZScriptParser.ExpressionContext context)
-        {
-            var str = OperatorOnExpression(context);
-
-            if (string.IsNullOrEmpty(str))
-                return;
-
-            var inst = TokenFactory.InstructionForOperator(str);
-            JumpToken jumpToken;
-
-            // Create a conditional peek jump for logical operators
-            switch (inst)
-            {
-                case VmInstruction.LogicalAnd:
-                    jumpToken = new JumpToken(null, true) { ConditionToJump = false, ConsumesStack = false };
-                    break;
-                case VmInstruction.LogicalOr:
-                    jumpToken = new JumpToken(null, true) { ConditionToJump = true, ConsumesStack = false };
-                    break;
-                default:
-                    return;
-            }
-
-            _tokens.Add(jumpToken);
-            _shortCircuitJumps.Push(jumpToken);
-        }
-
-        /// <summary>
-        /// Returns the arithmetic or logical operator on a given expression context.
-        /// Returns an empty string if no operator is found
-        /// </summary>
-        /// <param name="context">The context containing the operator</param>
-        /// <returns>The string that represents the operator</returns>
-        private static string OperatorOnExpression(ZScriptParser.ExpressionContext context)
-        {
-            var str = "";
-
-            if (context.multOp() != null)
-            {
-                str = context.multOp().GetText();
-            }
-            else if (context.additionOp() != null)
-            {
-                str = context.additionOp().GetText();
-            }
-            else if (context.bitwiseAndXOrOp() != null)
-            {
-                str = context.bitwiseAndXOrOp().GetText();
-            }
-            else if (context.bitwiseOrOp() != null)
-            {
-                str = context.bitwiseOrOp().GetText();
-            }
-            else if (context.comparisionOp() != null)
-            {
-                str = context.comparisionOp().GetText();
-            }
-            else if (context.logicalOp() != null)
-            {
-                str = context.logicalOp().GetText();
-            }
-
-            return str;
         }
 
         private void VisitPrefixOperator(ZScriptParser.PrefixOperatorContext context)
@@ -470,6 +357,7 @@ namespace ZScript.CodeGeneration.Tokenization
         private void VisitClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
             // Get the name of the closure to substitute
+            // TODO: Abstract this reference to an interface so we can decouple the StatementTokenizerContext class from the expression tokenizer
             var closureName = _context.Scope.Definitions.First(def => def.Context == context).Name;
 
             _tokens.Add(TokenFactory.CreateVariableToken(closureName, true));
@@ -490,6 +378,125 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             _tokens.Add(TokenFactory.CreateStringToken(context.GetText()));
         }
+
+        #region Ternary, binary, unary
+
+        private void VisitUnaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            // Maybe we matched an unary operator?
+            if (context.unaryOperator() != null)
+            {
+                VisitExpression(context.expression(0));
+
+                var txt = context.unaryOperator().GetText();
+
+                switch (txt)
+                {
+                    case "-":
+                        _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.ArithmeticNegate));
+                        break;
+                    case "!":
+                        _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.LogicalNegate));
+                        break;
+                }
+            }
+            else
+            {
+                VisitExpression(context.expression(0));
+
+                if (context.valueAccess() != null)
+                {
+                    VisitValueAccess(context.valueAccess());
+                }
+            }
+        }
+
+        private void VisitBinaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            VisitExpression(context.expression(0));
+
+            ProcessLogicalOperator(context);
+
+            VisitExpression(context.expression(1));
+
+            VisitExpressionOperator(context);
+        }
+
+        private void VisitTernaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            // Pre-create the jump target token
+            var endT = new JumpTargetToken();
+            var falseT = new JumpTargetToken();
+
+            // 1 - Add the ternary condition
+            VisitExpression(context.expression(0));
+            // 2 - Add the jump token
+            _tokens.Add(new JumpToken(falseT, true, false));
+
+            // 3 - Add the left side expression
+            VisitExpression(context.expression(1));
+            // 4 - Add another jump token pointing to the end of the expression
+            _tokens.Add(new JumpToken(endT));
+
+            // 5 - Add the false jump target
+            _tokens.Add(falseT);
+            // 6 - Add the right side expression
+            VisitExpression(context.expression(2));
+
+            // 7 - Append the jump target token
+            _tokens.Add(endT);
+        }
+
+        private void VisitExpressionOperator(ZScriptParser.ExpressionContext context)
+        {
+            var str = ExpressionUtils.OperatorOnExpression(context);
+            var t = TokenFactory.CreateOperatorToken(str);
+
+            _tokens.Add(t);
+
+            if (t.Instruction == VmInstruction.LogicalAnd || t.Instruction == VmInstruction.LogicalOr)
+            {
+                // If the token is a logical And or Or, deal with special jumps by inserting a jump target
+                var jump = _shortCircuitJumps.Pop();
+                var target = new JumpTargetToken();
+
+                jump.TargetToken = target;
+                _tokens.Add(target);
+            }
+        }
+
+        /// <summary>
+        /// Processes the logical operator at a given expression context, dealing with logical shortcircuiting
+        /// </summary>
+        /// <param name="context">The context conaining the jump to perform</param>
+        private void ProcessLogicalOperator(ZScriptParser.ExpressionContext context)
+        {
+            var str = ExpressionUtils.OperatorOnExpression(context);
+
+            if (string.IsNullOrEmpty(str))
+                return;
+
+            var inst = TokenFactory.InstructionForOperator(str);
+            JumpToken jumpToken;
+
+            // Create a conditional peek jump for logical operators
+            switch (inst)
+            {
+                case VmInstruction.LogicalAnd:
+                    jumpToken = new JumpToken(null, true, false, false);
+                    break;
+                case VmInstruction.LogicalOr:
+                    jumpToken = new JumpToken(null, true, true, false);
+                    break;
+                default:
+                    return;
+            }
+
+            _tokens.Add(jumpToken);
+            _shortCircuitJumps.Push(jumpToken);
+        }
+
+        #endregion
 
         #region Member accessing
 

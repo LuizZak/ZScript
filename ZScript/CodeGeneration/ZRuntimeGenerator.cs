@@ -305,13 +305,7 @@ namespace ZScript.CodeGeneration
         /// <returns>true if the generator requires parsing, false otherwise</returns>
         private bool RequiresParsing()
         {
-            foreach (var source in _sourceProvider.Sources)
-            {
-                if (source.ParseRequired)
-                    return true;
-            }
-
-            return false;
+            return _sourceProvider.Sources.Any(source => source.ParseRequired);
         }
 
         /// <summary>
@@ -321,7 +315,7 @@ namespace ZScript.CodeGeneration
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
         private ZFunction[] GenerateFunctions(CodeScope scope)
         {
-            var tokenizer = new FunctionBodyTokenizer(scope) { DebugTokens = Debug };
+            var tokenizer = new FunctionBodyTokenizer(scope, _messageContainer) { DebugTokens = Debug };
             var funcDefs = scope.Definitions.OfType<FunctionDefinition>().Where(t => !(t is ExportFunctionDefinition) && !(t is ClosureDefinition) );
 
             return
@@ -339,7 +333,7 @@ namespace ZScript.CodeGeneration
         /// <returns>An array containing ZClosureFunction available at the top-level scope</returns>
         private ZClosureFunction[] GenerateClosures(CodeScope scope)
         {
-            var tokenizer = new FunctionBodyTokenizer(scope) { DebugTokens = Debug };
+            var tokenizer = new FunctionBodyTokenizer(scope, _messageContainer) { DebugTokens = Debug };
             var funcDefs = scope.Definitions.OfType<ClosureDefinition>();
 
             return
@@ -369,7 +363,7 @@ namespace ZScript.CodeGeneration
         /// <returns>An array containing GlobalVariables available at the top-level scope</returns>
         private GlobalVariable[] GenerateGlobalVariables(CodeScope scope)
         {
-            var tokenizer = new StatementTokenizerContext(scope);
+            var tokenizer = new StatementTokenizerContext(scope, _messageContainer);
             var varDefs = scope.Definitions.OfType<GlobalVariableDefinition>();
 
             return

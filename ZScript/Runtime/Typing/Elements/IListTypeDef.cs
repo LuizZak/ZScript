@@ -1,4 +1,4 @@
-﻿namespace ZScript.CodeGeneration.Elements.Typing
+﻿namespace ZScript.Runtime.Typing.Elements
 {
     /// <summary>
     /// Interface to be implemented by types that enclose other values and can be subscripted like arrays

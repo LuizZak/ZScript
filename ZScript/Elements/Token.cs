@@ -6,7 +6,7 @@ namespace ZScript.Elements
     /// <summary>
     /// Defines a single token for a virtual machine
     /// </summary>
-    public class Token
+    public class Token : IEquatable<Token>
     {
         /// <summary>
         /// The type of this token
@@ -47,6 +47,47 @@ namespace ZScript.Elements
             TokenObject = tokenObject;
             Instruction = instruction;
         }
+
+        #region Equality members
+
+        public bool Equals(Token other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (other.GetType() != GetType()) return false;
+            return Type == other.Type && Equals(TokenObject, other.TokenObject) && Instruction == other.Instruction;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Token)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int)Type;
+                hashCode = (hashCode * 397) ^ (TokenObject != null ? TokenObject.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int)Instruction;
+                return hashCode;
+            }
+        }
+
+        public static bool operator==(Token left, Token right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator!=(Token left, Token right)
+        {
+            return !Equals(left, right);
+        }
+
+        #endregion
     }
 
     /// <summary>

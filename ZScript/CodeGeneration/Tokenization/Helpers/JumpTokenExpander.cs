@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
@@ -74,7 +75,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 foreach (Token t in tokens)
                 {
                     var jumpToken = t as JumpToken;
-                    if (jumpToken != null && jumpToken.TargetToken == token)
+                    if (jumpToken != null && ReferenceEquals(jumpToken.TargetToken, token))
                     {
                         jumpToken.TargetToken = newTarget; // Token next to the target token
                         hasSource = true;
@@ -130,7 +131,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     continue;
                 
                 // Find address of jump
-                int address = tokens.IndexOf(jumpToken.TargetToken);
+                int address = OffsetForJump(tokens, jumpToken);
                 if(address == -1)
                     throw new Exception("A jump token has a target that is not contained within the same token list");
 
@@ -141,7 +142,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 {
                     // If this jump token is unconditional, just point the other token to this token's target
                     var token = t as JumpToken;
-                    if (token != null && token.TargetToken == jumpToken)
+                    if (token != null && ReferenceEquals(token.TargetToken, jumpToken))
                     {
                         token.TargetToken = newToken;
                     }
@@ -158,7 +159,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         // ReSharper disable once UnusedParameter.Local
         static void AnalyzeJump(JumpToken jumpToken)
         {
-            if (jumpToken.TargetToken == jumpToken)
+            if (ReferenceEquals(jumpToken.TargetToken, jumpToken))
                 throw new Exception("Jump instruction is pointing at itself!");
 
             if (jumpToken.TargetToken == null)
@@ -183,7 +184,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 foreach (Token t in tokens)
                 {
                     var otherJump = t as JumpToken;
-                    if (otherJump == null || otherJump.TargetToken != jumpToken)
+                    if (otherJump == null || !ReferenceEquals(otherJump.TargetToken, jumpToken))
                         continue;
 
                     OptimizeJumpRelationship(jumpToken, otherJump, tokens);
@@ -206,6 +207,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     {
                         var newTarget = tokens[i + 1];
 
+                        // Compare the condition with the token object which might be a constant boolean value
                         if (valueToken.TokenObject.Equals(!jumpToken.ConditionToJump))
                         {
                             TryRemoveJumpInstruction(jumpToken, tokens, true, newTarget);
@@ -238,7 +240,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     }
                 }
 
-                int nextToken = tokens.IndexOf(jumpToken.TargetToken);
+                int nextToken = OffsetForJump(tokens, jumpToken);
                 if (i + 1 == nextToken && TryRemoveJumpInstruction(jumpToken, tokens))
                 {
                     i--;
@@ -291,7 +293,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             if (!pointedJump.Conditional)
             {
                 // Cyclic references of jumps
-                if (!pointingJump.Conditional && pointedJump.TargetToken == pointingJump)
+                if (!pointingJump.Conditional && ReferenceEquals(pointedJump.TargetToken, pointingJump))
                 {
                     throw new Exception("Two inconditional jumps pointing at each other generates infinite loops");
                 }
@@ -312,7 +314,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
                 // Point the jump forward, because if the jumps have different conditions,
                 // the second jump will always fail when comming from the first
-                int pointedJumpIndex = owningList.IndexOf(pointedJump);
+                int pointedJumpIndex = owningList.IndexOfReference(pointedJump);
                 if (pointedJumpIndex < owningList.Count - 2)
                 {
                     pointingJump.TargetToken = owningList[pointedJumpIndex + 1];
@@ -330,7 +332,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="newTarget">A new target for jump tokens that aim at the given jump. Leave null to re-target to the jump's current target</param>
         /// <param name="force">Whether to force the removal, even if it is a conditional jump</param>
         /// <returns>Whether the method successfully removed the jump token</returns>
-        private static bool TryRemoveJumpInstruction(JumpToken jmp, ICollection<Token> tokens, bool force = false, Token newTarget = null)
+        private static bool TryRemoveJumpInstruction(JumpToken jmp, IList<Token> tokens, bool force = false, Token newTarget = null)
         {
             if (jmp.Conditional && jmp.ConsumesStack && !force)
                 return false;
@@ -368,7 +370,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="token">The token to remove</param>
         /// <param name="tokens">The list of tokens to remove the token from</param>
         /// <param name="newTarget">A new target for jump instructions that may be pointing to it</param>
-        private static void RemoveToken(Token token, ICollection<Token> tokens, Token newTarget)
+        private static void RemoveToken(Token token, IList<Token> tokens, Token newTarget)
         {
             // Iterate again the jump tokens, now fixing the address of the token pointing
             foreach (Token t in tokens)
@@ -377,13 +379,28 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 if (j == null)
                     continue;
 
-                if (j.TargetToken == token)
+                if (ReferenceEquals(j.TargetToken, token))
                 {
                     j.TargetToken = newTarget;
                 }
             }
 
-            tokens.Remove(token);
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if(ReferenceEquals(tokens[i], token))
+                    tokens.RemoveAt(i);
+            }
+        }
+
+        /// <summary>
+        /// Returns an integer that represents the simulated target offset for a jump at a given index
+        /// </summary>
+        /// <param name="tokenList">The list of tokens to analyze</param>
+        /// <param name="jumpToken">The jump to analyze</param>
+        /// <returns>The index that represents the jump's target after evaluation</returns>
+        public static int OffsetForJump(List<Token> tokenList, JumpToken jumpToken)
+        {
+            return tokenList.IndexOfReference(jumpToken.TargetToken);
         }
 
         /// <summary>

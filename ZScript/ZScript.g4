@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 
+// Grammar configuration
 grammar ZScript;
 
 options
@@ -64,10 +65,12 @@ argumentName : IDENT;
 ////
 //// Type alias
 ////
-typeAlias : 'typeAlias' complexTypeName ':' stringLiteral (';' | typeAliasBody);
+typeAlias : 'typeAlias' typeAliasName typeAliasInherit? ':' stringLiteral (';' | typeAliasBody);
 typeAliasBody : '{' (typeAliasVariable | typeAliasFunction ';')* '}';
 typeAliasVariable : valueDecl;
 typeAliasFunction : 'func' functionName functionArguments? returnType;
+typeAliasName     : complexTypeName;
+typeAliasInherit  : '<-' typeAliasName;
 
 ////
 //// Statements
@@ -176,20 +179,24 @@ expression:  '(' expression ')' valueAccess?
            // Binary expressions
            |  expression multOp expression
            |  expression additionOp expression
-           |  expression bitwiseAndXOrOp expression
+           |  expression bitwiseAndOp expression
+           |  expression bitwiseXOrOp expression
            |  expression bitwiseOrOp expression
            |  expression comparisionOp expression
-           |  expression logicalOp expression
+           |  expression logicalAnd expression
+           |  expression logicalOr expression
            |  constantAtom objectAccess?
+           |  <assoc=right>expression '?' expression ':' expression
            ;
-
 
 multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');
-bitwiseAndXOrOp : ('&' | '^');
+bitwiseAndOp : ('&' | '^');
+bitwiseXOrOp : ('^');
 bitwiseOrOp : ('|');
 comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '<');
-logicalOp : ('&&' | '||');
+logicalAnd : '&&';
+logicalOr  : '||';
 
 assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments;

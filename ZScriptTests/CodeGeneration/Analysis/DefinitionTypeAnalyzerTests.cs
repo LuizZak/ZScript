@@ -3,6 +3,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Runtime;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -75,6 +76,54 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
+        }
+
+        /// <summary>
+        /// Tests checking condition expressions on if statements
+        /// </summary>
+        [TestMethod]
+        public void TestIfStatementTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { if(false) { } if(10) { } }";
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests checking condition expressions on while statements
+        /// </summary>
+        [TestMethod]
+        public void TestWhileStatementTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { while(true) { } while(10) { } }";
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests checking condition expressions on for statements
+        /// </summary>
+        [TestMethod]
+        public void TestForStatementTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { for(var i = 0; i < 5; i++) { } for(var i = 0; i + 5; i++) { } }";
+
+            var generator = ZRuntimeTests.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
         }
     }
 }

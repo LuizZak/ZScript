@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
@@ -85,7 +86,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             }
             else
             {
-                retTokens.Remove(jumpToEnd);
+                retTokens.RemoveReference(jumpToEnd);
             }
 
             return retTokens;

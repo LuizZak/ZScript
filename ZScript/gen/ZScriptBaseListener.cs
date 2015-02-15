@@ -405,6 +405,30 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTypeAliasFunction([NotNull] ZScriptParser.TypeAliasFunctionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAliasName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeAliasName([NotNull] ZScriptParser.TypeAliasNameContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.typeAliasName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeAliasName([NotNull] ZScriptParser.TypeAliasNameContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAliasInherit"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeAliasInherit([NotNull] ZScriptParser.TypeAliasInheritContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.typeAliasInherit"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeAliasInherit([NotNull] ZScriptParser.TypeAliasInheritContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -825,17 +849,29 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAdditionOp([NotNull] ZScriptParser.AdditionOpContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseAndXOrOp"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseAndOp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterBitwiseAndXOrOp([NotNull] ZScriptParser.BitwiseAndXOrOpContext context) { }
+	public virtual void EnterBitwiseAndOp([NotNull] ZScriptParser.BitwiseAndOpContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.bitwiseAndXOrOp"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.bitwiseAndOp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitBitwiseAndXOrOp([NotNull] ZScriptParser.BitwiseAndXOrOpContext context) { }
+	public virtual void ExitBitwiseAndOp([NotNull] ZScriptParser.BitwiseAndOpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseXOrOp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBitwiseXOrOp([NotNull] ZScriptParser.BitwiseXOrOpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.bitwiseXOrOp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBitwiseXOrOp([NotNull] ZScriptParser.BitwiseXOrOpContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseOrOp"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -861,17 +897,29 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitComparisionOp([NotNull] ZScriptParser.ComparisionOpContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.logicalOp"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.logicalAnd"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterLogicalOp([NotNull] ZScriptParser.LogicalOpContext context) { }
+	public virtual void EnterLogicalAnd([NotNull] ZScriptParser.LogicalAndContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.logicalOp"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.logicalAnd"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitLogicalOp([NotNull] ZScriptParser.LogicalOpContext context) { }
+	public virtual void ExitLogicalAnd([NotNull] ZScriptParser.LogicalAndContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.logicalOr"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLogicalOr([NotNull] ZScriptParser.LogicalOrContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.logicalOr"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLogicalOr([NotNull] ZScriptParser.LogicalOrContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.assignmentExpression"/>.
 	/// <para>The default implementation does nothing.</para>

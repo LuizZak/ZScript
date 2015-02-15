@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
+
 using ZScript.CodeGeneration.Analysis;
+using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization
 {
@@ -24,12 +26,19 @@ namespace ZScript.CodeGeneration.Tokenization
         private readonly CodeScope _scope;
 
         /// <summary>
+        /// The message container to report errors and warnings to
+        /// </summary>
+        private readonly MessageContainer _container;
+
+        /// <summary>
         /// Initializes a new instance of the FunctionBodyTokenizer class
         /// </summary>
         /// <param name="scope">A code scope containing the definitions that were pre-parsed</param>
-        public FunctionBodyTokenizer(CodeScope scope)
+        /// <param name="container">A message container to report errors and warnings to</param>
+        public FunctionBodyTokenizer(CodeScope scope, MessageContainer container)
         {
             _scope = scope;
+            _container = container;
         }
 
         /// <summary>
@@ -41,13 +50,13 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             var state = context.blockStatement();
 
-            var stc = new StatementTokenizerContext(_scope);
+            var stc = new StatementTokenizerContext(_scope, _container);
             var tokens = stc.TokenizeBlockStatement(state);
 
             if (DebugTokens)
             {
                 Console.WriteLine("Final token list, before expanding variables and jumps:");
-                PrintTokens(tokens);
+                TokenUtils.PrintTokens(tokens);
             }
 
             JumpTokenExpander.ExpandInList(tokens, VmInstruction.Interrupt);
@@ -55,75 +64,14 @@ namespace ZScript.CodeGeneration.Tokenization
             if (DebugTokens)
             {
                 Console.WriteLine("Final token list:");
-                PrintTokens(tokens);
+                TokenUtils.PrintTokens(tokens);
             }
 
             return new TokenList(tokens);
         }
-
-        /// <summary>
-        /// Prints a given list of tokens into the console
-        /// </summary>
-        /// <param name="tokenList">The list of tokens to print</param>
-        private static void PrintTokens(List<Token> tokenList)
-        {
-            int add = 0;
-
-            foreach (var token in tokenList)
-            {
-                Console.Write("{0:0000000}", add++);
-                Console.Write(": ");
-
-                var jumpToken = token as JumpToken;
-                if (jumpToken != null)
-                {
-                    Console.Write("[");
-                    //Console.Write(tokenList.IndexOf(jumpToken.TargetToken));
-                    Console.Write(OffsetForJump(tokenList, jumpToken));
-                    Console.Write(" JUMP");
-                    if (jumpToken.Conditional)
-                    {
-                        Console.Write(jumpToken.ConditionToJump ? "IfTrue" : "IfFalse");
-                        if(!jumpToken.ConsumesStack)
-                            Console.Write("Peek");
-                    }
-                    Console.WriteLine("]");
-                    continue;
-                }
-                if (token is JumpTargetToken)
-                {
-                    Console.WriteLine("JUMP_TARGET ");
-                    continue;
-                }
-
-                switch (token.Type)
-                {
-                    case TokenType.Operator:
-                    case TokenType.Instruction:
-                        Console.Write(token.Instruction);
-                        break;
-                    default:
-                        Console.Write(token.TokenObject);
-                        break;
-                }
-
-                Console.WriteLine("");
-            }
-            Console.WriteLine();
-        }
-
-        /// <summary>
-        /// Returns an integer that represents the simulated target offset for a jump at a given index
-        /// </summary>
-        /// <param name="tokenList">The list of tokens to analyze</param>
-        /// <param name="jumpToken">The jump to analyze</param>
-        /// <returns>The index that represents the jump's target after evaluation</returns>
-        private static int OffsetForJump(List<Token> tokenList, JumpToken jumpToken)
-        {
-            return tokenList.IndexOf(jumpToken.TargetToken);
-        }
     }
 
+    /*
     class PostfixExpressionPrinter : ZScriptBaseListener
     {
         public void PrintStatement(ZScriptParser.StatementContext context)
@@ -191,18 +139,18 @@ namespace ZScript.CodeGeneration.Tokenization
             Console.Write("SET");
 
             // Assignment operators
-            /*
-            T_EQUALS : '=';
-            T_PLUS_EQUALS : '+=';
-            T_MINUS_EQUALS : '-=';
-            T_TIMES_EQUALS : '*=';
-            T_DIV_EQUALS : '/=';
-            T_MOD_EQUALS : '%=';
-            T_XOR_EQUALS : '^=';
-            T_AND_EQUALS : '&=';
-            T_TILDE_EQUALS : '~=';
-            T_OR_EQUALS : '|=';
-            */
+            
+            // T_EQUALS : '=';
+            // T_PLUS_EQUALS : '+=';
+            // T_MINUS_EQUALS : '-=';
+            // T_TIMES_EQUALS : '*=';
+            // T_DIV_EQUALS : '/=';
+            // T_MOD_EQUALS : '%=';
+            // T_XOR_EQUALS : '^=';
+            // T_AND_EQUALS : '&=';
+            // T_TILDE_EQUALS : '~=';
+            // T_OR_EQUALS : '|=';
+            
         }
 
         void PrintLeftValue(ZScriptParser.LeftValueContext context)
@@ -280,18 +228,18 @@ namespace ZScript.CodeGeneration.Tokenization
                 return null;
             }
             // Assignment operators
-            /*
-            T_EQUALS : '=';
-            T_PLUS_EQUALS : '+=';
-            T_MINUS_EQUALS : '-=';
-            T_TIMES_EQUALS : '*=';
-            T_DIV_EQUALS : '/=';
-            T_MOD_EQUALS : '%=';
-            T_XOR_EQUALS : '^=';
-            T_AND_EQUALS : '&=';
-            T_TILDE_EQUALS : '~=';
-            T_OR_EQUALS : '|=';
-            */
+            
+            // T_EQUALS : '=';
+            // T_PLUS_EQUALS : '+=';
+            // T_MINUS_EQUALS : '-=';
+            // T_TIMES_EQUALS : '*=';
+            // T_DIV_EQUALS : '/=';
+            // T_MOD_EQUALS : '%=';
+            // T_XOR_EQUALS : '^=';
+            // T_AND_EQUALS : '&=';
+            // T_TILDE_EQUALS : '~=';
+            // T_OR_EQUALS : '|=';
+            
             // Return the first character of the operator
             return context.GetText()[0].ToString();
         }
@@ -773,4 +721,5 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
     }
+    */
 }

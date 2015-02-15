@@ -76,6 +76,8 @@
         MissingReturnValueOnNonvoid,
         /// <summary>A return statement contains a value in a void function</summary>
         ReturningValueOnVoidFunction,
+        /// <summary>A function contains a valued return statement, but has a void return type</summary>
+        MissingReturnTypeOnFunction,
 
         #endregion
 
@@ -90,7 +92,16 @@
         /// <summary>Trying to provide less arguments than a callable requires</summary>
         TooFewArguments,
         /// <summary>Trying to provide more arguments than a callable accepts</summary>
-        TooManyArguments
+        TooManyArguments,
+
+        #endregion
+
+        #region Statement analysis errors
+
+        /// <summary>Break statement not inside a for/while/switch statement context</summary>
+        NoTargetForBreakStatement,
+        /// <summary>Continue statement not inside a for/while statement context</summary>
+        NoTargetForContinueStatement,
 
         #endregion
     }

@@ -11,6 +11,7 @@
     <AssemblyName>ZScript</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>215d62b8</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,27 +50,29 @@
     <Compile Include="CodeGeneration\Analysis\DefinitionTypeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
-    <Compile Include="CodeGeneration\Elements\TypeAliasDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\Typing\CallableTypeDef.cs" />
-    <Compile Include="CodeGeneration\Elements\Typing\IListTypeDef.cs" />
-    <Compile Include="CodeGeneration\Elements\Typing\ListTypeDef.cs" />
-    <Compile Include="CodeGeneration\Elements\Typing\ObjectTypeDef.cs" />
-    <Compile Include="CodeGeneration\Elements\Typing\StringTypeDef.cs" />
+    <Compile Include="CodeGeneration\Definitions\TypeAliasDefinition.cs" />
+    <Compile Include="CodeGeneration\Analysis\ExpressionTreeAnalyzer.cs" />
+    <Compile Include="Parsing\ANTLRExtend\ParserExtensions.cs" />
+    <Compile Include="Runtime\Typing\Elements\CallableTypeDef.cs" />
+    <Compile Include="Runtime\Typing\Elements\IListTypeDef.cs" />
+    <Compile Include="Runtime\Typing\Elements\ListTypeDef.cs" />
+    <Compile Include="Runtime\Typing\Elements\ObjectTypeDef.cs" />
+    <Compile Include="Runtime\Typing\Elements\StringTypeDef.cs" />
     <Compile Include="CodeGeneration\FunctionDefinitionGenerator.cs" />
     <Compile Include="CodeGeneration\Messages\MessageContainer.cs" />
-    <Compile Include="CodeGeneration\Elements\ClosureDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\Definition.cs" />
+    <Compile Include="CodeGeneration\Definitions\ClosureDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\Definition.cs" />
     <Compile Include="CodeGeneration\DefinitionsCollector.cs" />
-    <Compile Include="CodeGeneration\Elements\DefinitionUsage.cs" />
-    <Compile Include="CodeGeneration\Elements\ExportFunctionDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\Expression.cs" />
-    <Compile Include="CodeGeneration\Elements\FunctionArgumentDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\FunctionDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\GlobalVariableDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\DefinitionUsage.cs" />
+    <Compile Include="CodeGeneration\Definitions\ExportFunctionDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\Expression.cs" />
+    <Compile Include="CodeGeneration\Definitions\FunctionArgumentDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\FunctionDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\GlobalVariableDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeAnalyzer.cs" />
-    <Compile Include="CodeGeneration\Elements\ObjectDefinition.cs" />
-    <Compile Include="CodeGeneration\Elements\Typing\TypeDef.cs" />
-    <Compile Include="CodeGeneration\Elements\ValueHolderDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\ObjectDefinition.cs" />
+    <Compile Include="Runtime\Typing\Elements\TypeDef.cs" />
+    <Compile Include="CodeGeneration\Definitions\ValueHolderDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionAnalyzer.cs" />
     <Compile Include="CodeGeneration\Messages\CodeError.cs" />
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzer.cs" />
@@ -146,6 +149,9 @@
     <Compile Include="CodeGeneration\Messages\Warning.cs" />
     <Compile Include="CodeGeneration\ZRuntimeGenerator.cs" />
     <Compile Include="Runtime\ZRuntimeDefinition.cs" />
+    <Compile Include="Utils\ExpressionUtils.cs" />
+    <Compile Include="Utils\ListUtils.cs" />
+    <Compile Include="Utils\TokenUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ZScript.g4" />

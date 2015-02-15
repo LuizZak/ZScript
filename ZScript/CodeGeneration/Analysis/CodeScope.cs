@@ -29,6 +29,11 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly List<DefinitionUsage> _usages = new List<DefinitionUsage>();
 
         /// <summary>
+        /// List of type aliases registered on this code scope
+        /// </summary>
+        private readonly List<TypeAliasDefinition> _typeAlias = new List<TypeAliasDefinition>(); 
+
+        /// <summary>
         /// The context the scope is contained at
         /// </summary>
         public ParserRuleContext Context;
@@ -329,6 +334,15 @@ namespace ZScript.CodeGeneration.Analysis
         public void AddDefinitionUsage(DefinitionUsage usage)
         {
             _usages.Add(usage);
+        }
+
+        /// <summary>
+        /// Adds a new type alias to this code scope
+        /// </summary>
+        /// <param name="typeAlias">The type alias to add to this scope</param>
+        public void AddTypeAliasDefinition(TypeAliasDefinition typeAlias)
+        {
+            _typeAlias.Add(typeAlias);
         }
     }
 }

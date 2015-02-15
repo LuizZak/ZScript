@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Analysis;
-using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
-
+using ZScript.Runtime.Typing.Elements;
 using ZScriptTests.Runtime;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -715,6 +713,35 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Ternary type resolving
+
+        /// <summary>
+        /// Tests ternary expression type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestTernaryResolving()
+        {
+            // Set up the test
+            const string input = "i == i ? 0 : 1; i == i ? [0] : [true]; ";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(provider, new MessageContainer(), new TestDefinitionTypeProvider());
+
+            var value1 = parser.statement().expression();
+            var value2 = parser.statement().expression();
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(value1);
+            var type2 = resolver.ResolveExpression(value2);
+
+            // Compare the result now
+            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.AnyType()), type2, "The resolved type did not match the expected type");
+        }
+
+        #endregion
+
         #region Error raising
 
         /// <summary>
@@ -963,7 +990,27 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Perform the parsing
             resolver.ResolveClosureExpression(parser.closureExpression());
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Errors where detected when not expected");
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+        }
+
+        /// <summary>
+        /// Tests failed ternary expression type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestFailedTernaryOperation()
+        {
+            // Set up the test
+            const string input = "10 ? 0 : 1;";
+
+            var parser = ZRuntimeTests.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+
+            // Perform the parsing
+            resolver.ResolveExpression(parser.statement().expression());
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
         }
 
         #endregion

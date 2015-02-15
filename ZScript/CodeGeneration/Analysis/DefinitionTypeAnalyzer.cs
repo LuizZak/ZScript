@@ -6,9 +6,9 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
 using ZScript.CodeGeneration.Elements;
-using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -127,7 +127,8 @@ namespace ZScript.CodeGeneration.Analysis
 
             foreach (var definition in definitions)
             {
-                traverser.Traverse(definition.Context);
+                if(definition.Context != null)
+                    traverser.Traverse(definition.Context);
             }
         }
 
@@ -140,6 +141,12 @@ namespace ZScript.CodeGeneration.Analysis
             // Find the context the closure was defined in
             var definedContext = (ZScriptParser.ClosureExpressionContext)definition.Context;
             var contextType = FindExpectedTypeForClosure(definedContext);
+
+            // Get the parameter types
+            foreach (var argumentDefinition in definition.Arguments)
+            {
+                ExpandFunctionArgument(argumentDefinition);
+            }
 
             // Use the type to define the type of the closure
             var newType = _typeProvider.FindCommonType(definition.CallableTypeDef, contextType) as CallableTypeDef;
@@ -170,6 +177,9 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ExpandValueHolderDefinition(valueDef);
             }
+
+            // Re-create the callable definition for the closure
+            definition.RecreateCallableDefinition();
         }
 
         /// <summary>
@@ -411,10 +421,63 @@ namespace ZScript.CodeGeneration.Analysis
                 if (context.expression() != null)
                 {
                     _typeResolver.ResolveExpression(context.expression());
+
+                    Console.WriteLine("Type for expression: " + context.expression().EvaluatedType);
                 }
                 else if (context.assignmentExpression() != null)
                 {
                     _typeResolver.ResolveAssignmentExpression(context.assignmentExpression());
+
+                    Console.WriteLine("Type for assignment expression: " + context.assignmentExpression().EvaluatedType);
+                }
+            }
+
+            // 
+            // EnterIfStatement override
+            // 
+            public override void EnterIfStatement(ZScriptParser.IfStatementContext context)
+            {
+                var provider = _typeResolver.TypeProvider;
+
+                // Check if expression has a boolean type
+                if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
+                {
+                    const string message = "Expression on if condition must be boolean";
+                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
+                }
+            }
+
+            // 
+            // EnterWhileStatement override
+            // 
+            public override void EnterWhileStatement(ZScriptParser.WhileStatementContext context)
+            {
+                var provider = _typeResolver.TypeProvider;
+
+                // Check if expression has a boolean type
+                if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
+                {
+                    const string message = "Expression on while condition must be boolean";
+                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
+                }
+            }
+
+            // 
+            // EnterForStatement override
+            // 
+            public override void EnterForCondition(ZScriptParser.ForConditionContext context)
+            {
+                // For loops can ommit the condition
+                if (context.expression() == null)
+                    return;
+
+                var provider = _typeResolver.TypeProvider;
+
+                // Check if expression has a boolean type
+                if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
+                {
+                    const string message = "Expression on for condition must be boolean";
+                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
                 }
             }
         }

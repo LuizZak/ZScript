@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ZScript.CodeGeneration.Analysis;
+using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
@@ -25,6 +26,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// The code scope that is expose to the statements tokenizers
         /// </summary>
         private readonly CodeScope _scope;
+
+        /// <summary>
+        /// The message container to report errors and warnings to
+        /// </summary>
+        private readonly MessageContainer _messageContainer;
 
         /// <summary>
         /// The current target for continue statements.
@@ -53,12 +59,22 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
+        /// The message container to report errors and warnings to
+        /// </summary>
+        public MessageContainer MessageContainer
+        {
+            get { return _messageContainer; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the StatementTokenizerContext class
         /// </summary>
-        /// <param name="collector">A code scope containing definitions that were pre-parsed</param>
-        public StatementTokenizerContext(CodeScope collector)
+        /// <param name="scope">A code scope containing definitions that were pre-parsed</param>
+        /// <param name="messageContainer">A message container to report errors and warnings to</param>
+        public StatementTokenizerContext(CodeScope scope, MessageContainer messageContainer)
         {
-            _scope = collector;
+            _scope = scope;
+            _messageContainer = messageContainer;
         }
 
         /// <summary>

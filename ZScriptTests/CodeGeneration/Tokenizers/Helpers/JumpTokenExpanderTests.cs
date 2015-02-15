@@ -175,7 +175,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
         [TestMethod]
         public void TestImmediatePeekingJumpExpanding()
         {
-            var jump1 = new JumpToken(null, true) { ConsumesStack = false };
+            var jump1 = new JumpToken(null, true, true, false);
 
             List<Token> tokens = new List<Token>
             {
@@ -235,10 +235,10 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 jump2,
-                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateBoxedValueToken(11),
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
-                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateBoxedValueToken(12),
                 TokenFactory.CreateMemberNameToken("c"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
@@ -258,8 +258,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
         [TestMethod]
         public void TestChainedPeekJumpExpanding()
         {
-            var jump1 = new JumpToken(null, true) { ConditionToJump = true, ConsumesStack = false };
-            var jump2 = new JumpToken(null, true) { ConditionToJump = true, ConsumesStack = false };
+            var jump1 = new JumpToken(null, true, true, false);
+            var jump2 = new JumpToken(null, true, true, false);
 
             List<Token> tokens = new List<Token>
             {
@@ -293,8 +293,8 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
         [TestMethod]
         public void TestChainedUnequalPeekJumpExpanding()
         {
-            var jump1 = new JumpToken(null, true) { ConditionToJump = false, ConsumesStack = false };
-            var jump2 = new JumpToken(null, true) { ConditionToJump = true, ConsumesStack = false };
+            var jump1 = new JumpToken(null, true, false, false);
+            var jump2 = new JumpToken(null, true, true, false);
 
             List<Token> tokens = new List<Token>
             {
@@ -378,7 +378,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
         public void TestAlwaysFalseConditionalJumpOptimization()
         {
             var target = TokenFactory.CreateInstructionToken(VmInstruction.Ret);
-            var jump1 = new JumpToken(target, true) { ConditionToJump = false };
+            var jump1 = new JumpToken(target, true, false);
 
             List<Token> tokens = new List<Token>
             {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Analysis;
-using ZScript.CodeGeneration.Elements.Typing;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScriptTests.Runtime.Typing
 {

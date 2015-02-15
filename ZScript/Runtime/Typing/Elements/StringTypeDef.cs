@@ -1,4 +1,4 @@
-﻿namespace ZScript.CodeGeneration.Elements.Typing
+﻿namespace ZScript.Runtime.Typing.Elements
 {
     /// <summary>
     /// Specifies a string primitive type definition

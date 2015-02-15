@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ZScript.CodeGeneration.Elements.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Elements
 {
@@ -106,7 +106,7 @@ namespace ZScript.CodeGeneration.Elements
         /// </summary>
         public void RecreateCallableDefinition()
         {
-            _callableTypeDef = new CallableTypeDef(_arguments.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.AnyType, HasReturnType);
+            _callableTypeDef = new CallableTypeDef(_arguments.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.VoidType, HasReturnType);
         }
     }
 }
