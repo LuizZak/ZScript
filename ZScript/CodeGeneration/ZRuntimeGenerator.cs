@@ -234,7 +234,7 @@ namespace ZScript.CodeGeneration
             returnAnalyzer.AnalyzeScope(completeScope, _messageContainer);
 
             // Expand the definitions contained within the collector
-            var typeExpander = new DefinitionTypeAnalyzer(_typeProvider, completeScope, _messageContainer);
+            var typeExpander = new StaticTypeAnalyzer(_typeProvider, completeScope, _messageContainer);
             typeExpander.Expand();
 
             AnalyzeCollisions(completeScope);

@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
     <Compile Include="CodeGeneration\Analysis\Definitions\UnusedDefinitionsAnalyzer.cs" />
-    <Compile Include="CodeGeneration\Analysis\DefinitionTypeAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Analysis\StaticTypeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />

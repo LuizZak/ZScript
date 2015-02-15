@@ -15,7 +15,7 @@ namespace ZScript.CodeGeneration.Analysis
     /// <summary>
     /// Analyzes and expands the types of definitions
     /// </summary>
-    public class DefinitionTypeAnalyzer : IDefinitionTypeProvider
+    public class StaticTypeAnalyzer : IDefinitionTypeProvider
     {
         /// <summary>
         /// The type provider for resolving types
@@ -43,7 +43,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="typeProvider">The type provider for resolving types</param>
         /// <param name="scope">The definition collector containing the definitions to expand</param>
         /// <param name="container">The message container to report error messages to</param>
-        public DefinitionTypeAnalyzer(TypeProvider typeProvider, CodeScope scope, MessageContainer container)
+        public StaticTypeAnalyzer(TypeProvider typeProvider, CodeScope scope, MessageContainer container)
         {
             _typeProvider = typeProvider;
             _baseScope = scope;
@@ -107,17 +107,18 @@ namespace ZScript.CodeGeneration.Analysis
                 AnalyzeReturns(definition);
             }
 
-            ProcessExpressions();
+            ProcessExpressions(_baseScope);
         }
 
         /// <summary>
         /// Performs deeper analysis of types by exploring expression nodes and deriving their types, as well as pre-evaluating any constants
         /// </summary>
-        private void ProcessExpressions()
+        /// <param name="scope">The code scope to process expressions on</param>
+        private void ProcessExpressions(CodeScope scope)
         {
             var resolver = new ExpressionConstantResolver(new BinaryExpressionTypeProvider(_typeProvider), new TypeOperationProvider());
             var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver);
-            var definitions = _baseScope.Definitions;
+            var definitions = scope.Definitions;
 
             foreach (var definition in definitions)
             {
