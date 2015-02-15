@@ -301,21 +301,32 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 var def = scopeForDefinition.GetDefinitionByName(definitionName);
 
+                // Bind the definition to the member name
+                context.Definition = def;
+
                 var holderDefinition = def as ValueHolderDefinition;
                 if (holderDefinition != null)
                 {
+                    context.IsConstant = holderDefinition.IsConstant;
+
                     return holderDefinition.Type ?? TypeDef.AnyType;
                 }
 
                 var funcDef = def as FunctionDefinition;
                 if (funcDef != null)
                 {
+                    // Functions cannot be reassigned
+                    context.IsConstant = true;
+
                     return funcDef.CallableTypeDef;
                 }
 
                 var objDef = def as ObjectDefinition;
                 if (objDef != null)
                 {
+                    // Object definitions cannot be reassigned
+                    context.IsConstant = true;
+
                     return TypeDef.AnyType;
                 }
             }
@@ -414,12 +425,28 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else if (context.assignmentExpression() != null)
                 {
-                    _typeResolver.ResolveAssignmentExpression(context.assignmentExpression());
-
-                    _constantResolver.ExpandConstants(context.assignmentExpression());
-
-                    //Console.WriteLine("Type for assignment expression: " + context.assignmentExpression().EvaluatedType);
+                    AnalyzeAssignmentExpression(context.assignmentExpression());
                 }
+            }
+
+            /// <summary>
+            /// Analyzes a given assignment expression, making sure the assignment is correct and valid
+            /// </summary>
+            /// <param name="context">The context containig the assignment expression to analyze</param>
+            private void AnalyzeAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+            {
+                _typeResolver.ResolveAssignmentExpression(context);
+
+                _constantResolver.ExpandConstants(context);
+
+                // Check if the left value is not a constant
+                if (context.leftValue().IsConstant)
+                {
+                    var message = "Cannot assign to constant expression " + context.leftValue().GetText();
+                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.AssigningToConstant);
+                }
+
+                //Console.WriteLine("Type for assignment expression: " + context.assignmentExpression().EvaluatedType);
             }
 
             // 

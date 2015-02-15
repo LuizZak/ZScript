@@ -34,7 +34,7 @@ variableBlock : '[' globalVariable* ']';
 ////
 //// Variable Block
 ////
-globalVariable : 'const'? variableDeclare ';';
+globalVariable : T_CONST? variableDeclare ';';
 
 ////
 //// Sequence Block
@@ -119,7 +119,7 @@ variableDeclare : valueHolderDecl ('=' expression)?;
 constantDeclare : valueHolderDecl '=' expression;
 valueHolderDecl : valueHolderName (':' type)?;
 
-valueHolderName : IDENT;
+valueHolderName : memberName;
 
 // Types
 type : objectType | typeName | callableType | listType;

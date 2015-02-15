@@ -84,6 +84,58 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #region Statement analysis
 
+        #region Assignment statement analysis
+
+        /// <summary>
+        /// Tests raising errors when trying to assign values to constant local variables
+        /// </summary>
+        [TestMethod]
+        public void TestConstantLocalVariableAssignmentCheck()
+        {
+            // Set up the test
+            const string input = "func f() { let a = 0; a = 1; a += 0; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.AssigningToConstant), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests raising errors when trying to assign values to constant global variables
+        /// </summary>
+        [TestMethod]
+        public void TestConstantGlobalVariableAssignmentCheck()
+        {
+            // Set up the test
+            const string input = "[ const b = 0; ] func f() { b = null; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.AssigningToConstant), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests raising errors when creating global constants with no starting value
+        /// </summary>
+        [TestMethod]
+        public void TestValuelessGlobalConstantDefinition()
+        {
+            // Set up the test
+            const string input = "[ const b; ]";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ValuelessConstantDeclaration), "Failed to raise expected errors");
+        }
+
+        #endregion
+
         #region If statement analysis
 
         /// <summary>
@@ -120,6 +172,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region While statement analysis
+
         /// <summary>
         /// Tests checking condition expressions on while statements
         /// </summary>
@@ -135,6 +189,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
         }
+
+        #endregion
 
         #region For statement analysis
 

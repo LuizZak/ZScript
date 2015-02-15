@@ -279,7 +279,7 @@ namespace ZScript.CodeGeneration
 
             var def = new ValueHolderDefinition
             {
-                Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
+                Name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText(),
                 Context = variable,
                 HasValue = variable.variableDeclare().expression() != null,
                 HasType = variable.variableDeclare().valueHolderDecl().type() != null,
@@ -292,7 +292,7 @@ namespace ZScript.CodeGeneration
                 def.TypeContext = variable.variableDeclare().valueHolderDecl().type();
             }
 
-            CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
+            CheckCollisions(def, valueHolderDecl.valueHolderName().memberName().IDENT());
 
             _currentScope.AddDefinition(def);
         }
@@ -307,7 +307,7 @@ namespace ZScript.CodeGeneration
 
             var def = new ValueHolderDefinition
             {
-                Name = valueHolderDecl.valueHolderName().IDENT().GetText(),
+                Name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText(),
                 Context = constant,
                 HasValue = constant.constantDeclare().expression() != null,
                 HasType = constant.constantDeclare().valueHolderDecl().type() != null,
@@ -321,7 +321,7 @@ namespace ZScript.CodeGeneration
                 def.TypeContext = constant.constantDeclare().valueHolderDecl().type();
             }
 
-            CheckCollisions(def, valueHolderDecl.valueHolderName().IDENT());
+            CheckCollisions(def, valueHolderDecl.valueHolderName().memberName().IDENT());
 
             _currentScope.AddDefinition(def);
         }
@@ -335,22 +335,27 @@ namespace ZScript.CodeGeneration
             var varDecl = variable.variableDeclare().valueHolderDecl();
             var def = new GlobalVariableDefinition
             {
-                Name = varDecl.valueHolderName().IDENT().GetText(),
+                Name = varDecl.valueHolderName().memberName().IDENT().GetText(),
                 Context = variable,
                 HasType = variable.variableDeclare().valueHolderDecl().type() != null,
                 HasValue = variable.variableDeclare().expression() != null,
+                IsConstant = variable.T_CONST() != null
             };
 
             if (def.HasValue)
             {
                 def.ValueExpression = new Expression(variable.variableDeclare().expression());
             }
+            else if (def.IsConstant)
+            {
+                _messageContainer.RegisterError(variable, "Constants require a value to be assigned on declaration", ErrorCode.ValuelessConstantDeclaration);
+            }
             if (def.HasType)
             {
                 def.TypeContext = variable.variableDeclare().valueHolderDecl().type();
             }
 
-            CheckCollisions(def, varDecl.valueHolderName().IDENT());
+            CheckCollisions(def, varDecl.valueHolderName().memberName().IDENT());
 
             _currentScope.AddDefinition(def);
         }

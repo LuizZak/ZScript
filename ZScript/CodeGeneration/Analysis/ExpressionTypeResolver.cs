@@ -345,12 +345,18 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the left value</returns>
         public TypeDef ResolveLeftValue(ZScriptParser.LeftValueContext context)
         {
-            var type = ResolveMemberName(context.memberName());
+            var memberName = context.memberName();
+            var type = ResolveMemberName(memberName);
+
+            context.IsConstant = memberName.IsConstant;
 
             // Evaluate the access
             if (context.leftValueAccess() != null)
             {
                 type = ResolveLeftValueAccess(type, context.leftValueAccess());
+
+                // Disable constant checking when making accesses
+                context.IsConstant = false;
             }
 
             return type;

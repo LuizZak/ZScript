@@ -1,4 +1,5 @@
-﻿using ZScript.Runtime.Typing.Elements;
+﻿using ZScript.CodeGeneration.Elements;
+using ZScript.Runtime.Typing.Elements;
 
 public partial class ZScriptParser
 {
@@ -61,5 +62,37 @@ public partial class ZScriptParser
         /// The type that was inferred to this ClosureExpressionContext while being processed by an ExpressionTypeResolver
         /// </summary>
         public TypeDef InferredType { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the MemberNameContext for binding it to definitions
+    /// </summary>
+    partial class MemberNameContext
+    {
+        /// <summary>
+        /// Gets or sets the definition this member name context is pointing at
+        /// </summary>
+        public Definition Definition { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the member name is pointing to a constant value holder
+        /// </summary>
+        public bool IsConstant { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether this member name context points to an existing definition
+        /// </summary>
+        public bool HasDefinition { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions fo the LeftValueContext for providing information about the value it is pointing at
+    /// </summary>
+    partial class LeftValueContext
+    {
+        /// <summary>
+        /// Gets or sets a value specifying whether the left value is pointing to a constant value holder
+        /// </summary>
+        public bool IsConstant { get; set; }
     }
 }

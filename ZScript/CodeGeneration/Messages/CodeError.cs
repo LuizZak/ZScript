@@ -64,6 +64,9 @@
         /// <summary>Specifies an error raised when a definition is found with the same name of another definition in the same reachable scope</summary>
         DuplicatedDefinition,
 
+        /// <summary>Specifies an error raised when a constant definition has no starting value assigned to it</summary>
+        ValuelessConstantDeclaration,
+
         #region Return statement analysis errors
 
         /// <summary>Some returns on a function have values, some do not</summary>
@@ -105,6 +108,9 @@
 
         /// <summary>Case label has constant value that is already defined in a previous case label of a switch statement</summary>
         RepeatedCaseLabelValue,
+
+        /// <summary>Trying to assign a value to a constant declaration</summary>
+        AssigningToConstant
 
         #endregion
     }

@@ -48,7 +48,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             var valueHolderDecl = context.variableDeclare().valueHolderDecl();
 
             var expression = context.variableDeclare().expression();
-            var name = valueHolderDecl.valueHolderName().IDENT().GetText();
+            var name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText();
 
             if (expression != null)
             {
@@ -72,7 +72,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             var valueHolderDecl = context.constantDeclare().valueHolderDecl();
 
             var expression = context.constantDeclare().expression();
-            var name = valueHolderDecl.valueHolderName().IDENT().GetText();
+            var name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText();
 
             IntermediateTokenList tokens = _context.TokenizeExpression(expression);
             tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
