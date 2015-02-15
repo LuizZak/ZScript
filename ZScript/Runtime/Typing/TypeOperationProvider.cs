@@ -56,11 +56,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Sum(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
+                    return _doubleTypeOperator.Sum((double)v1, (double)v2);
                 case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Sum((float)v1, (float)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Sum(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Sum(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Sum operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -83,11 +84,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Subtract(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Subtract((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Subtract((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Subtract(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Subtract(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Subtract operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -110,11 +112,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Multiply(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
+                    return _doubleTypeOperator.Multiply((double)v1, (double)v2);
                 case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Multiply((float)v1, (float)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Multiply(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Multiply(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Multiply operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -137,11 +140,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Divide(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
+                    return _doubleTypeOperator.Divide((double)v1, (double)v2);
                 case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Divide((float)v1, (float)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Divide(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Divide(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Divide operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -164,11 +168,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Modulo(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
+                    return _doubleTypeOperator.Modulo((double)v1, (double)v2);
                 case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Modulo((float)v1, (float)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Modulo(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Modulo(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Modulo operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -251,11 +256,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Greater(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Greater((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Greater((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Greater(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Greater(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Greater operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -278,11 +284,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.GreaterOrEquals(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.GreaterOrEquals((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.GreaterOrEquals((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.GreaterOrEquals(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.GreaterOrEquals(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Greater operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -305,11 +312,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Less(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Less((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Less((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.Less(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.Less(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply Less operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -332,11 +340,12 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.LessOrEquals(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.LessOrEquals((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.LessOrEquals((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
-                    return _doubleTypeOperator.LessOrEquals(Convert.ToSingle(v1), Convert.ToSingle(v2));
+                    return _doubleTypeOperator.LessOrEquals(Convert.ToDouble(v1), Convert.ToDouble(v2));
             }
 
             throw new Exception("Cannot apply LessOrEquals operation on objects of type " + v1.GetType() + " and " + v2.GetType());
@@ -370,6 +379,42 @@ namespace ZScript.Runtime.Typing
             }
 
             throw new Exception("Cannot apply Equals operation on objects of type " + v1.GetType() + " and " + v2.GetType());
+        }
+
+        public object ArithmeticNegate(object v1)
+        {
+            var c = NumberClassForNumber(v1);
+
+            switch (c)
+            {
+                case NumberClass.ExactInteger:
+                    return _intTypeOperator.ArithmeticNegate((int)v1);
+                case NumberClass.Integer:
+                    return _intTypeOperator.ArithmeticNegate(Convert.ToInt32(v1));
+
+                case NumberClass.ExactLong:
+                    return _longTypeOperator.ArithmeticNegate((long)v1);
+                case NumberClass.Long:
+                    return _longTypeOperator.ArithmeticNegate(Convert.ToInt64(v1));
+
+                case NumberClass.ExactFloat:
+                    return _doubleTypeOperator.ArithmeticNegate((float)v1);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.ArithmeticNegate((double)v1);
+                case NumberClass.Float:
+                case NumberClass.Double:
+                    return _doubleTypeOperator.ArithmeticNegate(Convert.ToDouble(v1));
+            }
+
+            throw new Exception("Cannot apply ArithmeticNegate operation on objects of type " + v1.GetType());
+        }
+
+        public object LogicalNegate(object v1)
+        {
+            if (v1 is bool)
+                return !(bool)v1;
+
+            throw new Exception("Cannot apply LogicalNegate operation on objects of type " + v1.GetType());
         }
 
         /// <summary>

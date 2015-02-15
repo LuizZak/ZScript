@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Runtime;
+using TestUtils = ZScriptTests.Utils.TestUtils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
@@ -20,7 +21,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestIfMissingReturnPaths()
         {
             const string input = "func f() { if(true) { return 10; } else { } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -34,7 +35,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestComplexIfMissingReturnPaths()
         {
             const string input = "func f() { if(true) { return 10; } else if(true) { } else { return 10; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -47,8 +48,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingIfReturnPaths()
         {
-            const string input = "func f() { if(true) { return 10; } else if(true) { return 5; } else { return 10; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            const string input = "func f() : int { if(true) { return 10; } else if(true) { return 5; } else { return 10; } }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -62,7 +63,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestSwitchMissingReturnPaths()
         {
             const string input = "func f() { switch(10) { case 10: return 10; case 11: return 11; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -76,7 +77,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestSwitchFallthroughMissingReturnPaths()
         {
             const string input = "func f() { switch(10) { case 9: break; case 10: case 11: return 11; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -89,8 +90,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingSwitchReturnPaths()
         {
-            const string input = "func f() { switch(10) { case 10: return 10; case 11: return 11; default: return 11; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            const string input = "func f() : int { switch(10) { case 10: return 10; case 11: return 11; default: return 11; } }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -103,8 +104,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingSwitchFallthroughReturnPaths()
         {
-            const string input = "func f() { switch(10) { case 9: break; case 10: case 11: return 11; default: return 11; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            const string input = "func f() : int { switch(10) { case 9: break; case 10: case 11: return 11; default: return 11; } }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -118,7 +119,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestWorkingEarlyReturns()
         {
             const string input = "func f() { if(true) { return; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -132,7 +133,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestFailedEarlyReturns()
         {
             const string input = "func f() { if(true) { return 10; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -146,7 +147,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestInconsistentReturns()
         {
             const string input = "func f() { if(true) { return 10; } else { return; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -160,7 +161,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestMissingReturnsOnNonVoid()
         {
             const string input = "func f() : int { return; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -174,7 +175,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestValidValuedReturn()
         {
             const string input = "func f() : int { return 10; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -188,7 +189,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestReturnValueOnVoid()
         {
             const string input = "func f() : void { return 10; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -202,7 +203,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestValidVoidReturn()
         {
             const string input = "func f() : void { return; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -216,7 +217,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestEmptyVoidFunction()
         {
             const string input = "func f() : void { }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 

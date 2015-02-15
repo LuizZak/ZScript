@@ -1,6 +1,4 @@
-﻿using Antlr4.Runtime;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ZScript.CodeGeneration;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ZScriptTests.Runtime
 {
@@ -18,7 +16,7 @@ namespace ZScriptTests.Runtime
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
             const string input = "[ a = true; c = false; b:int = null; d:bool = null; ] func f() { a = a && (c && b > 0) && d; }";
 
-            var generator = CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -38,7 +36,7 @@ namespace ZScriptTests.Runtime
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
             const string input = "[ a = true; c = true; b:bool = null; d:bool = null; ] func f() { a = c || (b || d); }";
 
-            var generator = CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -60,8 +58,8 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParameteredFunctionCall()
         {
-            const string input = "func f1(a:int) { return a; }";
-            var generator = CreateGenerator(input);
+            const string input = "func f1(a:int) : int { return a; }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -84,8 +82,8 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParameteredDefaultValueFunctionCall()
         {
-            const string input = "func f1(a:int, b:int = 0) { return a + b; }";
-            var generator = CreateGenerator(input);
+            const string input = "func f1(a:int, b:int = 0) : int { return a + b; }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 
@@ -108,8 +106,8 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestInnerFunctionCall()
         {
-            const string input = "func f1() { return f2(); } func f2() { return 10; }";
-            var generator = CreateGenerator(input);
+            const string input = "func f1() : int { return f2(); } func f2() : int { return 10; }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.Debug = true;
 
             generator.ParseSources();
@@ -131,8 +129,8 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParameteredInnerFunctionCall()
         {
-            const string input = "func f1() { return f2(5); } func f2(a:int) { return a; }";
-            var generator = CreateGenerator(input);
+            const string input = "func f1() : int { return f2(5); } func f2(a:int) : int { return a; }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -154,8 +152,8 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestRecursiveFunctionCall()
         {
-            const string input = "func f1(a:int) { if(a >= 5) { return 0; } return f1(a + 1) + 1; }";
-            var generator = CreateGenerator(input);
+            const string input = "func f1(a:int) : int { if(a >= 5) { return 0; } return f1(a + 1) + 1; }";
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -177,7 +175,7 @@ namespace ZScriptTests.Runtime
         public void TestGlobalVariables()
         {
             const string input = "[ a = 0; b = null; ]";
-            var generator = CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -193,31 +191,6 @@ namespace ZScriptTests.Runtime
 
             Assert.AreEqual((long)0, memory.GetVariable("a"), "The global variables where not parsed as expected");
             Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
-        }
-
-        /// <summary>
-        /// Creates the default generator to use in tests
-        /// </summary>
-        /// <param name="input">The input string to use in the generator</param>
-        /// <returns>A default runtime generator to use in tests</returns>
-        public static ZRuntimeGenerator CreateGenerator(string input)
-        {
-            var gen = new ZRuntimeGenerator(input) { Debug = true };
-            return gen;
-        }
-
-        /// <summary>
-        /// Creates a new ZScriptParser object from a given string
-        /// </summary>
-        /// <param name="input">The input string to generate the ZScriptParser from</param>
-        /// <returns>A ZScriptParser created from the given string</returns>
-        public static ZScriptParser CreateParser(string input)
-        {
-            AntlrInputStream stream = new AntlrInputStream(input);
-            ITokenSource lexer = new ZScriptLexer(stream);
-            ITokenStream tokens = new CommonTokenStream(lexer);
-
-            return new ZScriptParser(tokens);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace ZScript.Runtime
         /// <summary>
         /// The index at the functions array closures start
         /// </summary>
-        private int _closuresStart;
+        private readonly int _closuresStart;
 
         /// <summary>
         /// The list of all functions defined in this ZRuntime instance

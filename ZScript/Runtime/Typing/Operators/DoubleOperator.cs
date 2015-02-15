@@ -71,5 +71,10 @@ namespace ZScript.Runtime.Typing.Operators
         {
             return v1.Equals(v2);
         }
+
+        public double ArithmeticNegate(double v1)
+        {
+            return -v1;
+        }
     }
 }

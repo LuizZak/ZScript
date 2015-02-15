@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
@@ -48,6 +49,26 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             Conditional = conditional;
             ConditionToJump = conditionToJump;
             ConsumesStack = consumesStack;
+        }
+
+        /// <summary>
+        /// Returns a string representation of this token object
+        /// </summary>
+        /// <returns>A string representation of this token object</returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.Append("{ JumpToken type:" + Type);
+            builder.Append(", value:'" + TokenObject + "'");
+            builder.Append(", instruction:" + Instruction);
+            builder.Append(", target:" + TargetToken);
+            builder.Append(", conditional:" + Conditional + "");
+            builder.Append(", conditionToJump:" + ConditionToJump + "");
+            builder.Append(", consumesStack:" + ConsumesStack + "");
+            builder.Append(" }");
+
+            return builder.ToString();
         }
 
         #region Equality members

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
@@ -231,7 +232,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="returnStatement">The statement to tokenize</param>
         /// <returns>A tokenized version of the given statement</returns>
-        private List<Token> TokenizeReturnStatement(ZScriptParser.ReturnStatementContext returnStatement)
+        public List<Token> TokenizeReturnStatement(ZScriptParser.ReturnStatementContext returnStatement)
         {
             ReturnStatementTokenizer tokenizer = new ReturnStatementTokenizer(this);
             return tokenizer.TokenizeStatement(returnStatement);

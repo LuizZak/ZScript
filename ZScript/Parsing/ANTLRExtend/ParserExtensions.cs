@@ -33,7 +33,7 @@ public partial class ZScriptParser
         /// <summary>
         /// Gets or sets the value for the evaluated constant for this expression context
         /// </summary>
-        public object EvaluatedConstant { get; set; }
+        public object ConstantValue { get; set; }
 
         /// <summary>
         /// Gets or sets the evaluated type associated with this expression context
@@ -50,5 +50,16 @@ public partial class ZScriptParser
         /// Gets or sets the evaluated type associated with this assignment expression context
         /// </summary>
         public TypeDef EvaluatedType { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the ClosureExpressionContext for type inferring helping
+    /// </summary>
+    partial class ClosureExpressionContext
+    {
+        /// <summary>
+        /// The type that was inferred to this ClosureExpressionContext while being processed by an ExpressionTypeResolver
+        /// </summary>
+        public TypeDef InferredType { get; set; }
     }
 }

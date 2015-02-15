@@ -99,6 +99,31 @@ namespace ZScript.CodeGeneration.Tokenization
             return _tokens;
         }
 
+        /// <summary>
+        /// Visits an expression context that contains a constant value pre-evaluated within it.
+        /// This method throws an exception if the context does not contains a pre-evaluated constant
+        /// </summary>
+        /// <param name="context">The context containing the expression with the constant expanded within it</param>
+        /// <exception cref="Exception">The context does not contains a pre-evaluated constant value</exception>
+        void VisitExpressionWithConstant(ZScriptParser.ExpressionContext context)
+        {
+            // Verify constant values
+            if (!context.IsConstant)
+            {
+                throw new Exception("Trying to visit an expression that has no constant pre-evaluated within it");
+            }
+
+            var s = context.ConstantValue as string;
+            if (s != null)
+            {
+                _tokens.Add(TokenFactory.CreateStringToken(s));
+            }
+            else
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(context.ConstantValue));
+            }
+        }
+
         #region Assignment Expression
 
         void VisitAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
@@ -223,6 +248,13 @@ namespace ZScript.CodeGeneration.Tokenization
 
         void VisitExpression(ZScriptParser.ExpressionContext context)
         {
+            // Verify constant values
+            if (context.IsConstant && context.IsConstantPrimitive)
+            {
+                VisitExpressionWithConstant(context);
+                return;
+            }
+
             // Print the other side of the tree first
             if (context.expression().Length == 1)
             {

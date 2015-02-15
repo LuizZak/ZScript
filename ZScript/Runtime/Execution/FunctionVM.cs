@@ -195,10 +195,10 @@ namespace ZScript.Runtime.Execution
                     PerformIncrementDecrement(instruction);
                     return;
                 case VmInstruction.ArithmeticNegate:
-                    _stack.Push(-(dynamic)PopValueImplicit());
+                    _stack.Push(_typeOperationProvider.ArithmeticNegate(PopValueImplicit()));
                     return;
                 case VmInstruction.LogicalNegate:
-                    _stack.Push(!(dynamic)PopValueImplicit());
+                    _stack.Push(_typeOperationProvider.LogicalNegate(PopValueImplicit()));
                     return;
             }
 
@@ -212,11 +212,9 @@ namespace ZScript.Runtime.Execution
             {
                 // Sum and subtraction
                 case VmInstruction.Add:
-                    //ret = (value2 + value1);
                     ret = _typeOperationProvider.Sum(value1, value2);
                     break;
                 case VmInstruction.Subtract:
-                    //ret = (value2 - value1);
                     ret = _typeOperationProvider.Subtract(value1, value2);
                     break;
                 // Multiplication and division

@@ -222,7 +222,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                             continue;
                         }
 
-                        newTarget = new JumpToken(newTarget);
+                        newTarget = new JumpToken(jumpToken.TargetToken);
 
                         tokens.Insert(i + 1, newTarget);
 

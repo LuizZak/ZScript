@@ -151,6 +151,36 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Returns the VmInstruction associated with a given unary operator string.
+        /// Throws an exception if not valid and if the throwOnError parameter is set to true, otherwise, returns VmInstruction.Noop
+        /// </summary>
+        /// <param name="operatorString">The string containing the unary operator</param>
+        /// <param name="throwOnError">Whether to raise an exception, if the operator is not valid</param>
+        /// <returns>A VmInstruction associated with the unary operator, or VmInstruction.Noop, if the operator is not valid and throwOnError is not found</returns>
+        /// <exception cref="ArgumentException">The operator string provided was not recognized</exception>
+        public static VmInstruction InstructionForUnaryOperator(string operatorString, bool throwOnError = true)
+        {
+            VmInstruction inst;
+
+            switch (operatorString)
+            {
+                case "-":
+                    inst = VmInstruction.ArithmeticNegate;
+                    break;
+                case "!":
+                    inst = VmInstruction.LogicalNegate;
+                    break;
+
+                default:
+                    if (throwOnError)
+                        throw new ArgumentException("Unkown operator '" + operatorString + "' does not map to any known VM instruction.");
+                    inst = VmInstruction.Noop;
+                    break;
+            }
+            return inst;
+        }
+
+        /// <summary>
         /// Creates a new instruction token based on a given VM instruction
         /// </summary>
         /// <param name="instruction">A VM instruction to create the token with</param>

@@ -17,7 +17,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -36,7 +36,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -57,7 +57,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -77,7 +77,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -99,7 +99,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -118,7 +118,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -137,7 +137,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -156,7 +156,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;

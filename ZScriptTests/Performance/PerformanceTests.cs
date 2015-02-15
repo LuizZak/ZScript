@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScriptTests.Runtime;
+using TestUtils = ZScriptTests.Utils.TestUtils;
 
 namespace ZScriptTests.Performance
 {
@@ -22,7 +23,7 @@ namespace ZScriptTests.Performance
 
             const string input = "func funca { var a = 0; for(var i = 0; i < 100000; i++) { a += i; } }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 
@@ -51,7 +52,7 @@ namespace ZScriptTests.Performance
 
             const string input = "func funca { var a = [0]; for(var i = 0; i < 100000; i++) { a[0] += i; } }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 
@@ -80,7 +81,7 @@ namespace ZScriptTests.Performance
 
             const string input = "func funca { for(var i = 0; i < 100000; i++) { funcb(); } } func funcb { }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 

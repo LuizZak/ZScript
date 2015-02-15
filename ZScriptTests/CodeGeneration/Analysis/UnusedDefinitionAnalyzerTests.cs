@@ -6,6 +6,7 @@ using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Runtime;
+using TestUtils = ZScriptTests.Utils.TestUtils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
@@ -104,7 +105,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestParseUnusedReporting()
         {
             const string input = "func f() { var a = 5; var b; var c = b; c = b; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -118,7 +119,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestParsedUnusedNonReporting()
         {
             const string input = "func f() { var a = 5; var b; var c = a + b; if(c == 10) { a = b.a; } }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -132,7 +133,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestParseOnlySetReporting()
         {
             const string input = "func f() { var a = 5; var b = a; b = 5; b = a; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -146,7 +147,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestUnusedObjectReporting()
         {
             const string input = "object o { var a; }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -159,7 +160,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         private static ValueHolderDefinition GenerateDefinition()
         {
             const string input = "var b;";
-            var parser = ZRuntimeTests.CreateParser(input);
+            var parser = Utils.TestUtils.CreateParser(input);
 
             return new ValueHolderDefinition { Name = "Test", Context = parser.valueDecl() };
         }

@@ -4,6 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScriptTests.Runtime;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
 {
@@ -398,6 +400,44 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
 
             // Now verify the results
             Assert.AreEqual(0, tokens.Count(t => t.Instruction == VmInstruction.JumpIfFalse), "Jumps that are detected to never happen should be removed completely");
+        }
+
+        [TestMethod]
+        public void TestConstantFalseJumpOptimization()
+        {
+            var target = new JumpTargetToken();
+            var jump1 = new JumpToken(target, true, false);
+
+            var tokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(false),
+                jump1,
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                target,
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            // Expand the jumps
+            JumpTokenExpander.ExpandInList(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(tokens, expectedTokens, "The jump expander failed to produce the expected results");
         }
     }
 }

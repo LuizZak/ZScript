@@ -48,6 +48,15 @@ namespace ZScript.Elements
             Instruction = instruction;
         }
 
+        /// <summary>
+        /// Returns a string representation of this token object
+        /// </summary>
+        /// <returns>A string representation of this token object</returns>
+        public override string ToString()
+        {
+            return "{ Token type:" + Type + ", value:'" + TokenObject + "', instruction:" + Instruction + " }";
+        }
+
         #region Equality members
 
         public bool Equals(Token other)

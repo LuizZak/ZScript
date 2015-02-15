@@ -9,6 +9,38 @@ namespace StandaloneTests
 {
     class Program
     {
+        unsafe public static void swap(int* a, int* b)
+        {
+            int c = *a;
+            *a = *b;
+            *b = c;
+        }
+
+        unsafe static void TestMove()
+        {
+            Stopwatch sw = new Stopwatch();
+
+            // 
+            const int iter = 100000000;
+            Console.WriteLine(iter + " iterations");
+            Console.WriteLine("===");
+            Console.WriteLine("swap()");
+
+            sw.Restart();
+            for (int i = 0; i < iter; i++)
+            {
+                int a = 3;
+                int b = 4;
+
+                swap(&a, &b);
+            }
+            sw.Stop();
+
+            Console.WriteLine("Time: " + ((float)sw.ElapsedTicks / Stopwatch.Frequency * 1000) + "ms\n");
+
+            Console.Read();
+        }
+
         static void TestThing()
         {
             Stopwatch sw = new Stopwatch();
@@ -96,7 +128,8 @@ namespace StandaloneTests
 
         static void Main(string[] args)
         {
-            TestThing();
+            //TestThing();
+            TestMove();
 
             return;
 

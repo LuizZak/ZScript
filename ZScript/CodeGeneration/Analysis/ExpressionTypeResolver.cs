@@ -35,11 +35,6 @@ namespace ZScript.CodeGeneration.Analysis
         public IDefinitionTypeProvider DefinitionTypeProvider { get; set; }
 
         /// <summary>
-        /// Gets or sets the closure expected type notifying
-        /// </summary>
-        public IClosureExpectedTypeNotifier ClosureExpectedTypeNotifier { get; set; }
-
-        /// <summary>
         /// Gets the type provider using when resolving the type of the expressions
         /// </summary>
         public TypeProvider TypeProvider
@@ -659,11 +654,8 @@ namespace ZScript.CodeGeneration.Analysis
                 returnType = ResolveType(context.returnType().type());
             }
 
-            // Notify closure expected types
-            if (ClosureExpectedTypeNotifier != null && ExpectedType != null)
-            {
-                ClosureExpectedTypeNotifier.ClosureTypeMatched(context, ExpectedType);
-            }
+            // Update type inferring
+            context.InferredType = ExpectedType;
 
             return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType, hasReturnType);
         }

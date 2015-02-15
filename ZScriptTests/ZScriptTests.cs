@@ -5,6 +5,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScriptTests.Runtime;
+using TestUtils = ZScriptTests.Utils.TestUtils;
 
 namespace ZScriptTests
 {
@@ -64,7 +65,7 @@ namespace ZScriptTests
 
             var sw = Stopwatch.StartNew();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
             // Generate the runtime now
@@ -80,7 +81,7 @@ namespace ZScriptTests
         {
             const string input = "[ a = 0; ] func f() { a = 10; }";
             var owner = new TestRuntimeOwner();
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 
@@ -102,7 +103,7 @@ namespace ZScriptTests
             var input = reader.ReadToEnd();
             reader.Close();
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
 
             var sw = Stopwatch.StartNew();
 

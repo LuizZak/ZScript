@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Runtime;
+using TestUtils = ZScriptTests.Utils.TestUtils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
@@ -21,7 +22,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestClosureTypeInferringFunctionArg()
         {
             const string input = "func f() { var a = f2((i) => { return 0; }); } func f2(a:(int->int)) { }";
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
 
@@ -39,13 +40,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "@trace(args...) func f1() { trace(0); }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
         }
 
+        /*
+         * What was this test trying to achieve?
         /// <summary>
         /// Tests callable argument type checking
         /// </summary>
@@ -61,6 +64,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
         }
+        */
         
         /// <summary>
         /// Tests function definition argument type checking
@@ -71,7 +75,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "func inventoryItemCount(_player : Player = null, itemID : int = 0) : any { return _player.CurrentInventory.GetItemNum(itemID); } func hasInventoryItem(_player : Player = null, itemID : int = 0) : any { return inventoryItemCount(_player, itemID) > 0; }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
@@ -87,7 +91,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "func f() { if(false) { } if(10) { } }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
@@ -103,7 +107,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "func f() { while(true) { } while(10) { } }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
@@ -119,7 +123,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "func f() { for(var i = 0; i < 5; i++) { } for(var i = 0; i + 5; i++) { } }";
 
-            var generator = ZRuntimeTests.CreateGenerator(input);
+            var generator = Utils.TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 

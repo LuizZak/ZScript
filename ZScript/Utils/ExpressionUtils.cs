@@ -3,7 +3,7 @@
     public class ExpressionUtils
     {
         /// <summary>
-        /// Returns the arithmetic or logical operator on a given expression context.
+        /// Returns the unary, arithmetic or logical operator on a given expression context.
         /// Returns an empty string if no operator is found
         /// </summary>
         /// <param name="context">The context containing the operator</param>
@@ -43,6 +43,10 @@
             else if (context.logicalOr() != null)
             {
                 str = context.logicalOr().GetText();
+            }
+            else if (context.unaryOperator() != null)
+            {
+                str = context.unaryOperator().GetText();
             }
 
             return str;

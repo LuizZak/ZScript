@@ -135,7 +135,7 @@ namespace ZScriptTests.Runtime.Typing
             // Set up the test
             const string input = "(int->int) (i:int, j:int) => {}";
 
-            var parser = ZRuntimeTests.CreateParser(input);
+            var parser = Utils.TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -156,7 +156,7 @@ namespace ZScriptTests.Runtime.Typing
             // Set up the test
             const string input = "(int->int) (i:int, j:int=0) => {}";
 
-            var parser = ZRuntimeTests.CreateParser(input);
+            var parser = Utils.TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);

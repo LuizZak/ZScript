@@ -34,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime, Version=4.5.0.0, Culture=neutral, PublicKeyToken=e78b2c5abd1fcb3f, processorArchitecture=MSIL">
@@ -56,6 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CodeGeneration\Analysis\DefinitionTypeAnalyzerTests.cs" />
+    <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolverTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolverTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="Runtime\Typing\TypeProviderTests.cs" />
     <Compile Include="Runtime\ZRuntimeTests.cs" />
     <Compile Include="TestRuntimeOwner.cs" />
+    <Compile Include="Utils\TestUtils.cs" />
     <Compile Include="ZScriptTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -57,5 +57,9 @@
         /// <summary>Returns whether v1 equals to v2</summary>
         /// <returns>The result of the operation</returns>
         bool Equals(T v1, T v2);
+
+        /// <summary>Returns an arithmetic negation of a given value</summary>
+        /// <returns>The given value, negated arithmetically</returns>
+        T ArithmeticNegate(T v1);
     }
 }

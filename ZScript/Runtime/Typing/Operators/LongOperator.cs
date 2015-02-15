@@ -69,5 +69,10 @@
         {
             return v1 == v2;
         }
+
+        public long ArithmeticNegate(long v1)
+        {
+            return -v1;
+        }
     }
 }

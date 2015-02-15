@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
@@ -15,7 +14,7 @@ namespace ZScript.CodeGeneration.Analysis
     /// <summary>
     /// Analyzes and expands the types of definitions
     /// </summary>
-    public class DefinitionTypeAnalyzer : IDefinitionTypeProvider, IClosureExpectedTypeNotifier
+    public class DefinitionTypeAnalyzer : IDefinitionTypeProvider
     {
         /// <summary>
         /// The type provider for resolving types
@@ -38,11 +37,6 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly ExpressionTypeResolver _typeResolver;
 
         /// <summary>
-        /// List of structs that bundle closures with expected types for later analysis
-        /// </summary>
-        private readonly List<ClosureExpectedType> _closureExpectedTypes;
-
-        /// <summary>
         /// Initializes a new instance of the DefinitionTypeExpander class
         /// </summary>
         /// <param name="typeProvider">The type provider for resolving types</param>
@@ -55,8 +49,6 @@ namespace ZScript.CodeGeneration.Analysis
             _container = container;
 
             _typeResolver = new ExpressionTypeResolver(typeProvider, container, this);
-            _typeResolver.ClosureExpectedTypeNotifier = this;
-            _closureExpectedTypes = new List<ClosureExpectedType>();
         }
 
         /// <summary>
@@ -114,15 +106,16 @@ namespace ZScript.CodeGeneration.Analysis
                 AnalyzeReturns(definition);
             }
 
-            AnalyzeExpressions();
+            ProcessExpressions();
         }
 
         /// <summary>
-        /// Performs deeper analysis of types by exploring expression nodes
+        /// Performs deeper analysis of types by exploring expression nodes and deriving their types, as well as pre-evaluating any constants
         /// </summary>
-        private void AnalyzeExpressions()
+        private void ProcessExpressions()
         {
-            var traverser = new ExpressionStatementsTraverser(_typeResolver);
+            var resolver = new ExpressionConstantResolver(new BinaryExpressionTypeProvider(_typeProvider), new TypeOperationProvider());
+            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver);
             var definitions = _baseScope.Definitions;
 
             foreach (var definition in definitions)
@@ -190,16 +183,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>A type definition that states the expected type for the closure in its defining context</returns>
         private TypeDef FindExpectedTypeForClosure(ZScriptParser.ClosureExpressionContext closureContext)
         {
-            // TODO: Finish closure type searching
-
             // Search closures registered on expected type closures list
-            foreach (var cet in _closureExpectedTypes)
-            {
-                if (cet.ClosureContext == closureContext)
-                    return cet.ExpectedType;
-            }
-            
-            return _typeProvider.AnyType();
+            return closureContext.InferredType ?? _typeProvider.AnyType();
         }
 
         /// <summary>
@@ -376,14 +361,6 @@ namespace ZScript.CodeGeneration.Analysis
             return scopeForDefinition;
         }
 
-        // 
-        // IClosureExpectedTypeNotifier.ClosureTypeMatched implementation
-        // 
-        public void ClosureTypeMatched(ZScriptParser.ClosureExpressionContext context, TypeDef expectedType)
-        {
-            _closureExpectedTypes.Add(new ClosureExpectedType(context, expectedType));
-        }
-
         /// <summary>
         /// Traverses expressions, performing type checks on them
         /// </summary>
@@ -395,12 +372,19 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly ExpressionTypeResolver _typeResolver;
 
             /// <summary>
+            /// The constant resolver to use when pre-evaluating constants
+            /// </summary>
+            private readonly ExpressionConstantResolver _constantResolver;
+
+            /// <summary>
             /// Initializes a new instance of the ExpressionStatementsTraverser class
             /// </summary>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
-            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver)
+            /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
+            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
             {
                 _typeResolver = typeResolver;
+                _constantResolver = constantResolver;
             }
 
             /// <summary>
@@ -422,13 +406,17 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     _typeResolver.ResolveExpression(context.expression());
 
-                    Console.WriteLine("Type for expression: " + context.expression().EvaluatedType);
+                    _constantResolver.ExpandConstants(context.expression());
+
+                    //Console.WriteLine("Type for expression: " + context.expression().EvaluatedType);
                 }
                 else if (context.assignmentExpression() != null)
                 {
                     _typeResolver.ResolveAssignmentExpression(context.assignmentExpression());
 
-                    Console.WriteLine("Type for assignment expression: " + context.assignmentExpression().EvaluatedType);
+                    _constantResolver.ExpandConstants(context.assignmentExpression());
+
+                    //Console.WriteLine("Type for assignment expression: " + context.assignmentExpression().EvaluatedType);
                 }
             }
 
@@ -445,6 +433,8 @@ namespace ZScript.CodeGeneration.Analysis
                     const string message = "Expression on if condition must be boolean";
                     _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
                 }
+                
+                _constantResolver.ExpandConstants(context.expression());
             }
 
             // 
@@ -460,6 +450,8 @@ namespace ZScript.CodeGeneration.Analysis
                     const string message = "Expression on while condition must be boolean";
                     _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
                 }
+
+                _constantResolver.ExpandConstants(context.expression());
             }
 
             // 
@@ -479,33 +471,8 @@ namespace ZScript.CodeGeneration.Analysis
                     const string message = "Expression on for condition must be boolean";
                     _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
                 }
-            }
-        }
 
-        /// <summary>
-        /// Struct that bundles a closure and an expected type together
-        /// </summary>
-        private struct ClosureExpectedType
-        {
-            /// <summary>
-            /// The context containing the closure
-            /// </summary>
-            public readonly ZScriptParser.ClosureExpressionContext ClosureContext;
-
-            /// <summary>
-            /// The expected type that was imposed to the closure expression
-            /// </summary>
-            public readonly TypeDef ExpectedType;
-
-            /// <summary>
-            /// Initializes a new ClosureExpectedType struct
-            /// </summary>
-            /// <param name="closureContext">The context containing the closure</param>
-            /// <param name="expectedType">The expected type that was imposed to the closure expression</param>
-            public ClosureExpectedType(ZScriptParser.ClosureExpressionContext closureContext, TypeDef expectedType)
-            {
-                ClosureContext = closureContext;
-                ExpectedType = expectedType;
+                _constantResolver.ExpandConstants(context.expression());
             }
         }
     }
