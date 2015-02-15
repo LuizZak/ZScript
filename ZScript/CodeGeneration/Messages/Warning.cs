@@ -53,6 +53,12 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>Trying to access an object that is not a list with subscription</summary>
         TryingToSubscriptNonList,
         /// <summary>Trying to call an object that is not a callable</summary>
-        TryingToCallNonCallable
+        TryingToCallNonCallable,
+
+        /// <summary>Specifies a warning issued when a condition for an if statement resolves to a constant</summary>
+        ConstantCondition,
+
+        /// <summary>Specifies a warning issued when an expression for a switch statement resolves to a constant value that matches a constant defined in a case label</summary>
+        ConstantSwitchExpression
     }
 }

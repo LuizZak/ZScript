@@ -15,7 +15,7 @@ namespace ZScript.Utils
         /// Prints a given list of tokens into the console
         /// </summary>
         /// <param name="tokenList">The list of tokens to print</param>
-        public static void PrintTokens(List<Token> tokenList)
+        public static void PrintTokens(IList<Token> tokenList)
         {
             int add = 0;
 
@@ -67,7 +67,7 @@ namespace ZScript.Utils
         /// <param name="tokenList">The list of tokens to analyze</param>
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
-        public static int OffsetForJump(List<Token> tokenList, JumpToken jumpToken)
+        public static int OffsetForJump(IList<Token> tokenList, JumpToken jumpToken)
         {
             return tokenList.IndexOfReference(jumpToken.TargetToken);
         }

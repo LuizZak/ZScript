@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-
-using ZScript.CodeGeneration.Messages;
+﻿using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
-using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
@@ -30,15 +27,15 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public List<Token> TokenizeStatement(ZScriptParser.ContinueStatementContext context)
+        public IntermediateTokenList TokenizeStatement(ZScriptParser.ContinueStatementContext context)
         {
             if (_context.CurrentBreakTarget == null)
             {
                 _context.MessageContainer.RegisterError(context, "Continue statement has no target", ErrorCode.NoTargetForContinueStatement);
-                return new List<Token>();
+                return new IntermediateTokenList();
             }
 
-            return new List<Token> { new JumpToken(_context.CurrentContinueTarget) };
+            return new IntermediateTokenList { new JumpToken(_context.CurrentContinueTarget) };
         }
     }
 }

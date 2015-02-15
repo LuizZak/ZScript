@@ -234,6 +234,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.RepeatedCaseLabelValue), "Failed to raise expected errors");
         }
 
+        /// <summary>
+        /// Tests checking a switch's case labels against constant cases
+        /// </summary>
+        [TestMethod]
+        public void TestConstantSwitchStatement()
+        {
+            // Set up the test
+            const string input = "func f() { switch(10) { case 10: break; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected warnings");
+        }
+
         #endregion
 
         #endregion

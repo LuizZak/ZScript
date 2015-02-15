@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using ZScript.Elements;
+﻿using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
@@ -29,9 +27,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public List<Token> TokenizeStatement(ZScriptParser.ReturnStatementContext context)
+        public IntermediateTokenList TokenizeStatement(ZScriptParser.ReturnStatementContext context)
         {
-            List<Token> tokens = new List<Token>();
+            IntermediateTokenList tokens = new IntermediateTokenList();
 
             if(context.expression() != null)
                 tokens.AddRange(_context.TokenizeExpression(context.value));

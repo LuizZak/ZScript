@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -22,7 +21,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
         {
             var jumpToken = new JumpToken(null);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jumpToken,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -50,7 +49,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jumpTarget = new JumpTargetToken();
             var jumpToken = new JumpToken(jumpTarget);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jumpToken,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -76,7 +75,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jumpTarget = new JumpTargetToken();
             var jumpToken = new JumpToken(jumpTarget);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jumpToken,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -105,7 +104,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump1 = new JumpToken(null);
             var jump2 = new JumpToken(null);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 jump2,
@@ -132,7 +131,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump2 = new JumpToken(inter);
             var jump1 = new JumpToken(jump2);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 jump2,
@@ -156,7 +155,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var inter = TokenFactory.CreateInstructionToken(VmInstruction.Interrupt);
             var jump2 = new JumpToken(inter);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -181,7 +180,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
         {
             var jump1 = new JumpToken(null, true, true, false);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -205,7 +204,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump1 = new JumpToken(null);
             var jump2 = new JumpToken(null);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken(10),
                 TokenFactory.CreateMemberNameToken("a"),
@@ -232,7 +231,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump1 = new JumpToken(null);
             var jump2 = new JumpToken(null);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -265,7 +264,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump1 = new JumpToken(null, true, true, false);
             var jump2 = new JumpToken(null, true, true, false);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken("fake_false"),
                 jump1,
@@ -300,7 +299,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump1 = new JumpToken(null, true, false, false);
             var jump2 = new JumpToken(null, true, true, false);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken("fake_true"),
                 jump1,
@@ -335,7 +334,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var ret = TokenFactory.CreateInstructionToken(VmInstruction.Ret);
             var jump1 = new JumpToken(ret);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -358,7 +357,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var jump2 = new JumpToken(ret);
             var jump1 = new JumpToken(jump2);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 jump1,
                 TokenFactory.CreateBoxedValueToken(10),
@@ -384,7 +383,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var target = TokenFactory.CreateInstructionToken(VmInstruction.Ret);
             var jump1 = new JumpToken(target, true, false);
 
-            List<Token> tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken(true),
                 jump1,
@@ -410,7 +409,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
             var target = new JumpTargetToken();
             var jump1 = new JumpToken(target, true, false);
 
-            var tokens = new List<Token>
+            var tokens = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken(false),
                 jump1,
@@ -423,7 +422,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers.Helpers
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var expectedTokens = new List<Token>
+            var expectedTokens = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken(5),
                 TokenFactory.CreateInstructionToken(VmInstruction.Jump),

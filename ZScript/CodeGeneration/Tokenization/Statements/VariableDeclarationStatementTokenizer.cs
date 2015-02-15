@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ZScript.Elements;
 using ZScript.CodeGeneration.Tokenization.Helpers;
-using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
@@ -29,7 +28,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public List<Token> TokenizeValueDeclaration(ZScriptParser.ValueDeclContext context)
+        public IntermediateTokenList TokenizeValueDeclaration(ZScriptParser.ValueDeclContext context)
         {
             if (context.varDecl() != null)
             {
@@ -44,7 +43,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public List<Token> TokenizeVariableDeclaration(ZScriptParser.VarDeclContext context)
+        public IntermediateTokenList TokenizeVariableDeclaration(ZScriptParser.VarDeclContext context)
         {
             var valueHolderDecl = context.variableDeclare().valueHolderDecl();
 
@@ -53,14 +52,14 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             if (expression != null)
             {
-                List<Token> tokens = _context.TokenizeExpression(expression);
+                IntermediateTokenList tokens = _context.TokenizeExpression(expression);
                 tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
                 tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
                 return tokens;
             }
 
-            return new List<Token>();
+            return new IntermediateTokenList();
         }
 
         /// <summary>
@@ -68,14 +67,14 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public List<Token> TokenizeLetDeclaration(ZScriptParser.LetDeclContext context)
+        public IntermediateTokenList TokenizeLetDeclaration(ZScriptParser.LetDeclContext context)
         {
             var valueHolderDecl = context.constantDeclare().valueHolderDecl();
 
             var expression = context.constantDeclare().expression();
             var name = valueHolderDecl.valueHolderName().IDENT().GetText();
 
-            List<Token> tokens = _context.TokenizeExpression(expression);
+            IntermediateTokenList tokens = _context.TokenizeExpression(expression);
             tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 

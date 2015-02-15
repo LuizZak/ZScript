@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using ZScript.CodeGeneration.Tokenization.Helpers;
-using ZScript.Elements;
+﻿using ZScript.CodeGeneration.Tokenization.Helpers;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
@@ -43,7 +41,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public List<Token> TokenizeStatement(ZScriptParser.ForStatementContext context)
+        public IntermediateTokenList TokenizeStatement(ZScriptParser.ForStatementContext context)
         {
             // FOR loop tokenization:
             // 1 - Loop start expression
@@ -63,7 +61,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             _context.PushContinueTarget(_incrementTarget);
             _context.PushBreakTarget(_forBlockEndTarget);
 
-            List<Token> tokens = new List<Token>();
+            IntermediateTokenList tokens = new IntermediateTokenList();
 
             // 1 - Loop start expression
             var init = context.forInit();
@@ -113,7 +111,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="init">The FOR loop init to tokenize</param>
         /// <param name="tokens">The list of tokens to tokenize to</param>
-        private void TokenizeForLoopInit(ZScriptParser.ForInitContext init, List<Token> tokens)
+        private void TokenizeForLoopInit(ZScriptParser.ForInitContext init, IntermediateTokenList tokens)
         {
             if (init.varDecl() != null)
             {

@@ -38,12 +38,12 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
-        public List<Token> TokenizeStatement(ZScriptParser.IfStatementContext context)
+        public IntermediateTokenList TokenizeStatement(ZScriptParser.IfStatementContext context)
         {
             // Create the end if block target
             _ifBlockEndTarget = new JumpTargetToken();
 
-            var tokens = new List<Token>();
+            var tokens = new IntermediateTokenList();
 
             // Read first if block of the chain
             tokens.AddRange(TokenizeIfStatement(context));
@@ -58,10 +58,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containing the IF statement to tokenize</param>
-        private List<Token> TokenizeIfStatement(ZScriptParser.IfStatementContext context)
+        private IntermediateTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext context)
         {
             // Read expression
-            List<Token> retTokens = _context.TokenizeExpression(context.expression());
+            IntermediateTokenList retTokens = _context.TokenizeExpression(context.expression());
 
             // Add the conditional jump token that fires when the expression turns out false
             var falseJump = new JumpToken(_ifBlockEndTarget, true, false);
@@ -96,9 +96,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given ELSE statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containing the ELSE statement to tokenize</param>
-        private List<Token> TokenizeElseStatement(ZScriptParser.ElseStatementContext context)
+        private IntermediateTokenList TokenizeElseStatement(ZScriptParser.ElseStatementContext context)
         {
-            List<Token> retTokens = new List<Token>();
+            IntermediateTokenList retTokens = new IntermediateTokenList();
 
             var target = new JumpTargetToken();
             retTokens.Add(target);

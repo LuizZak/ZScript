@@ -22,7 +22,7 @@ namespace ZScriptTests.Utils
         /// <param name="message">The message to display in case the tokens mismatch</param>
         /// <returns>true if the token lists are equivalent, false otherwise</returns>
         /// <exception cref="Exception">The token lists did not match</exception>
-        public static void AssertTokenListEquals(List<Token> expected, List<Token> actual, string message)
+        public static void AssertTokenListEquals(IList<Token> expected, IList<Token> actual, string message)
         {
             // Compare the tokens one by one
             for (int i = 0; i < Math.Min(expected.Count, actual.Count); i++)

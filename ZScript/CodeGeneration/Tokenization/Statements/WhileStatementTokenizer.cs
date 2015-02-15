@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using ZScript.CodeGeneration.Tokenization.Helpers;
-using ZScript.Elements;
+﻿using ZScript.CodeGeneration.Tokenization.Helpers;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
@@ -38,7 +36,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public List<Token> TokenizeStatement(ZScriptParser.WhileStatementContext context)
+        public IntermediateTokenList TokenizeStatement(ZScriptParser.WhileStatementContext context)
         {
             // WHILE loop tokenization:
             // 1 - Condition expression
@@ -54,7 +52,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             _context.PushContinueTarget(_conditionTarget);
             _context.PushBreakTarget(_blockEnd);
 
-            List<Token> tokens = new List<Token>();
+            IntermediateTokenList tokens = new IntermediateTokenList();
 
             var cond = context.expression();
 

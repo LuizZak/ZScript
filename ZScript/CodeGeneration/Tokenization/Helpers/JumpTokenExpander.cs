@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Utils;
@@ -15,7 +15,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// Expands the jump tokens associated with the given token list
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
-        public static void ExpandInList(List<Token> tokens)
+        public static void ExpandInList(IntermediateTokenList tokens)
         {
             BindJumpTargets(tokens, false, VmInstruction.Noop);
             ExpandJumpTokens(tokens);
@@ -27,7 +27,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
-        public static void ExpandInList(List<Token> tokens, VmInstruction endJumpTargetInstruction)
+        public static void ExpandInList(IntermediateTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
             BindJumpTargets(tokens, true, endJumpTargetInstruction);
             RemoveSequentialInterrupts(tokens);
@@ -42,7 +42,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// Whether to expand jump targets at the end of the list of tokens as an instruction token specified by the endJumpTargetInstruction parameter
         /// </param>
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
-        static void BindJumpTargets(IList<Token> tokens, bool replaceJumpTargetsAtEnd, VmInstruction endJumpTargetInstruction)
+        static void BindJumpTargets(IntermediateTokenList tokens, bool replaceJumpTargetsAtEnd, VmInstruction endJumpTargetInstruction)
         {
             for (int i = 0; i < tokens.Count; i++)
             {
@@ -99,7 +99,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
         /// <exception cref="Exception">One of the jump tokens points to a target token that is not inside the same token list</exception>
-        static void ExpandJumpTokens(List<Token> tokens)
+        static void ExpandJumpTokens(IntermediateTokenList tokens)
         {
             // Optimize the jump flow
             OptimizeJumpPointing(tokens);
@@ -170,7 +170,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// Optimizes the jump flow of the given list of tokens by re-pointing jumps so chained jumps can be avoided.
         /// </summary>
         /// <param name="tokens">The list of tokens to optimize</param>
-        static void OptimizeJumpPointing(List<Token> tokens)
+        static void OptimizeJumpPointing(IntermediateTokenList tokens)
         {
             // Iterate again the jump tokens, now fixing the address of the token pointing
             foreach (Token token in tokens)
@@ -287,7 +287,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="pointedJump">The first jump token which is being pointed at</param>
         /// <param name="pointingJump">The second jump token which is pointing to the first jump token</param>
         /// <param name="owningList">The list of tokens that own the two tokens</param>
-        private static void OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IList<Token> owningList)
+        private static void OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IntermediateTokenList owningList)
         {
             // Unconditional jump, forward the other jump to this jump's target
             if (!pointedJump.Conditional)
@@ -332,7 +332,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="newTarget">A new target for jump tokens that aim at the given jump. Leave null to re-target to the jump's current target</param>
         /// <param name="force">Whether to force the removal, even if it is a conditional jump</param>
         /// <returns>Whether the method successfully removed the jump token</returns>
-        private static bool TryRemoveJumpInstruction(JumpToken jmp, IList<Token> tokens, bool force = false, Token newTarget = null)
+        private static bool TryRemoveJumpInstruction(JumpToken jmp, IntermediateTokenList tokens, bool force = false, Token newTarget = null)
         {
             if (jmp.Conditional && jmp.ConsumesStack && !force)
                 return false;
@@ -347,7 +347,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// This operation must be performed before and jump token expansion
         /// </summary>
         /// <param name="tokens">The list of tokens to remove the sequential trailing interrupts from</param>
-        private static void RemoveSequentialInterrupts(List<Token> tokens)
+        private static void RemoveSequentialInterrupts(IntermediateTokenList tokens)
         {
             if (tokens.Count < 2 || tokens[tokens.Count - 1].Instruction != VmInstruction.Interrupt)
                 return;
@@ -370,7 +370,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="token">The token to remove</param>
         /// <param name="tokens">The list of tokens to remove the token from</param>
         /// <param name="newTarget">A new target for jump instructions that may be pointing to it</param>
-        private static void RemoveToken(Token token, IList<Token> tokens, Token newTarget)
+        private static void RemoveToken(Token token, IntermediateTokenList tokens, Token newTarget)
         {
             // Iterate again the jump tokens, now fixing the address of the token pointing
             foreach (Token t in tokens)
@@ -398,7 +398,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="tokenList">The list of tokens to analyze</param>
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
-        public static int OffsetForJump(List<Token> tokenList, JumpToken jumpToken)
+        public static int OffsetForJump(IntermediateTokenList tokenList, JumpToken jumpToken)
         {
             return tokenList.IndexOfReference(jumpToken.TargetToken);
         }
