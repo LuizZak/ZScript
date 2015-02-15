@@ -56,7 +56,7 @@ namespace ZScript.CodeGeneration.Messages
         TryingToCallNonCallable,
 
         /// <summary>Specifies a warning issued when a condition for an if statement resolves to a constant</summary>
-        ConstantCondition,
+        ConstantIfCondition,
 
         /// <summary>Specifies a warning issued when an expression for a switch statement resolves to a constant value that matches a constant defined in a case label</summary>
         ConstantSwitchExpression

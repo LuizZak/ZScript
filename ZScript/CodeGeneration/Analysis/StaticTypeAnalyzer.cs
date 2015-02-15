@@ -427,16 +427,8 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterIfStatement(ZScriptParser.IfStatementContext context)
             {
-                var provider = _typeResolver.TypeProvider;
-
-                // Check if expression has a boolean type
-                if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
-                {
-                    const string message = "Expression on if condition must be boolean";
-                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
-                }
-                
-                _constantResolver.ExpandConstants(context.expression());
+                var analyzer = new IfStatementAnalyzer(context, _typeResolver, _constantResolver);
+                analyzer.Process();
             }
 
             // 
@@ -461,8 +453,8 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
             {
-                var explorer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver);
-                explorer.Process();
+                var analyzer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver);
+                analyzer.Process();
             }
 
             // 
@@ -516,7 +508,7 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Helper class that helps with type and integrity analysis of switch blocks
+        /// Helper class that helps with type and integrity analysis of switch statements
         /// </summary>
         class SwitchCaseAnalyzer : ZScriptBaseListener
         {
@@ -548,7 +540,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// <summary>
             /// Initializes a new instance of the SwitchCaseExplorer class
             /// </summary>
-            /// <param name="switchContext">The context containig the switch block to process</param>
+            /// <param name="switchContext">The context containing the statement to process</param>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
             public SwitchCaseAnalyzer(ZScriptParser.SwitchStatementContext switchContext, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
@@ -560,7 +552,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             /// <summary>
-            /// Processes the current switch statement
+            /// Processes the statement
             /// </summary>
             public void Process()
             {
@@ -602,19 +594,21 @@ namespace ZScript.CodeGeneration.Analysis
                     if (caseContext.expression().ConstantValue.Equals(_switchContext.expression().ConstantValue))
                     {
                         const string message = "Constant case label that always matches constant switch expression";
-                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message,
-                            WarningCode.ConstantSwitchExpression);
+                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message, WarningCode.ConstantSwitchExpression);
 
                         matched = true;
-                        break;
+                    }
+                    else
+                    {
+                        const string message = "Constant case label that never matches constant switch expression";
+                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message, WarningCode.ConstantSwitchExpression);
                     }
                 }
 
                 if (!matched && allConstant)
                 {
                     const string message = "Constant switch statement that matches no case never executes";
-                    _typeResolver.MessageContainer.RegisterWarning(_switchContext.expression(), message,
-                        WarningCode.ConstantSwitchExpression);
+                    _typeResolver.MessageContainer.RegisterWarning(_switchContext.expression(), message, WarningCode.ConstantSwitchExpression);
                 }
             }
 
@@ -651,6 +645,75 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 _processedCases.Add(context);
+            }
+        }
+
+        /// <summary>
+        /// Helper class that helps with type ant integrity analysis of if statements
+        /// </summary>
+        class IfStatementAnalyzer : ZScriptBaseListener
+        {
+            /// <summary>
+            /// The type resolver to use when resolving the expressions
+            /// </summary>
+            private readonly ExpressionTypeResolver _typeResolver;
+
+            /// <summary>
+            /// The constant resolver to use when pre-evaluating constants
+            /// </summary>
+            private readonly ExpressionConstantResolver _constantResolver;
+
+            /// <summary>
+            /// The context for the statement to analyze
+            /// </summary>
+            private readonly ZScriptParser.IfStatementContext _ifContext;
+
+            /// <summary>
+            /// Initializes a new instance of the IfStatementAnalyzer class
+            /// </summary>
+            /// <param name="ifContext">The context containing the statement to process</param>
+            /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
+            /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
+            public IfStatementAnalyzer(ZScriptParser.IfStatementContext ifContext, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            {
+                _ifContext = ifContext;
+                _typeResolver = typeResolver;
+                _constantResolver = constantResolver;
+            }
+
+            /// <summary>
+            /// Processes the statement
+            /// </summary>
+            public void Process()
+            {
+                var provider = _typeResolver.TypeProvider;
+
+                var expression = _ifContext.expression();
+
+                _typeResolver.ResolveExpression(expression);
+                _constantResolver.ExpandConstants(expression);
+
+                // Check if expression has a boolean type
+                if (!provider.CanImplicitCast(expression.EvaluatedType, provider.BooleanType()))
+                {
+                    const string message = "Expression on if condition must be boolean";
+                    _typeResolver.MessageContainer.RegisterError(expression, message, ErrorCode.InvalidCast);
+                }
+                else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
+                {
+                    string message;
+
+                    if (expression.ConstantValue.Equals(true))
+                    {
+                        message = "True constant in if expression always executes the contained statements";
+                    }
+                    else
+                    {
+                        message = "False constant in if expression never executes the contained statements";
+                    }
+
+                    _typeResolver.MessageContainer.RegisterWarning(expression, message, WarningCode.ConstantIfCondition);
+                }
             }
         }
     }
