@@ -14,7 +14,7 @@ options
 
 program: scriptBody;
 
-scriptBody : (variableBlock | functionDefinition | exportDefinition | objectDefinition | sequenceBlock | typeAlias)*;
+scriptBody : (functionDefinition | globalVariable | exportDefinition | objectDefinition | sequenceBlock | typeAlias)*;
 
 ////
 //// Object Definition
@@ -23,18 +23,13 @@ objectDefinition : 'object' objectName objectInherit? objectBody;
 objectInherit : ':' objectName;
 objectName : IDENT;
 objectBody : '{' (objectField | objectFunction)* '}';
-objectField : varDecl ';';
+objectField : valueDeclareStatement;
 objectFunction : ('override')? functionDefinition;
 
 ////
-//// Blocks
+//// Global variable
 ////
-variableBlock : '[' globalVariable* ']';
-
-////
-//// Variable Block
-////
-globalVariable : T_CONST? variableDeclare ';';
+globalVariable : valueDeclareStatement;
 
 ////
 //// Sequence Block
@@ -67,7 +62,7 @@ argumentName : IDENT;
 ////
 typeAlias : 'typeAlias' typeAliasName typeAliasInherit? ':' stringLiteral (';' | typeAliasBody);
 typeAliasBody : '{' (typeAliasVariable | typeAliasFunction ';')* '}';
-typeAliasVariable : valueDecl;
+typeAliasVariable : valueDeclareStatement;
 typeAliasFunction : 'func' functionName functionArguments? returnType;
 typeAliasName     : complexTypeName;
 typeAliasInherit  : '<-' typeAliasName;
@@ -75,7 +70,7 @@ typeAliasInherit  : '<-' typeAliasName;
 ////
 //// Statements
 ////
-statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDecl);
+statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDeclareStatement);
 blockStatement : '{' statement* '}';
 
 ////
@@ -97,7 +92,7 @@ whileStatement : 'while' '(' expression ')' statement;
 
 // For
 forStatement : 'for' '(' forInit? ';' forCondition? ';' forIncrement? ')' statement;
-forInit : varDecl | expression | assignmentExpression;
+forInit : valueHolderDecl | expression | assignmentExpression;
 forCondition : expression;
 forIncrement : expression;
 
@@ -110,14 +105,9 @@ continueStatement : 'continue' ';';
 ////
 //// Value holder declare statements
 ////
-valueDecl : (varDecl | letDecl) ';';
+valueDeclareStatement : valueHolderDecl ';';
 
-varDecl : 'var' variableDeclare;
-letDecl : 'let' constantDeclare;
-
-variableDeclare : valueHolderDecl ('=' expression)?;
-constantDeclare : valueHolderDecl '=' expression;
-valueHolderDecl : valueHolderName (':' type)?;
+valueHolderDecl : (var='var' | let='let') valueHolderName (':' type)? ('=' expression)?;
 
 valueHolderName : memberName;
 

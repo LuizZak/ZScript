@@ -6,8 +6,8 @@ using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
-using ZScriptTests.Runtime;
-using TestUtils = ZScriptTests.Utils.TestUtils;
+
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
@@ -50,7 +50,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "[int] [int] [[int]]";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -73,7 +73,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "() : [int] => {}()[0]";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -92,7 +92,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "() : (->(->int)) => {}()()()";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -115,7 +115,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "i = 1; b = true; f -= 5.0; s = 'abc'; llf[0][0] = 0;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer(), new TestDefinitionTypeProvider());
 
             var type1 = resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
@@ -145,7 +145,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "10 -10 11.1 -15.251 true false null \"abc\"";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
 
             var intConst = parser.compileConstant();
@@ -177,7 +177,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "10 11.1 true false null \"abc\"";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
 
             var intConst = parser.constantAtom();
@@ -209,7 +209,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "{ x:10 }";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
 
             var type = parser.objectLiteral();
@@ -227,7 +227,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "[0, 1, 2]";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
 
             var type = parser.arrayLiteral();
@@ -249,7 +249,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(a:int, b:bool) : int => { }(0, 0); (a:int, b:bool...) : int => { }(0, true, false, 0, 'sneakyString'); ";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -275,7 +275,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                                  "(a:int, b:bool...) => { }(0, true, false, true);" +
                                  "(a...) => { }();";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -305,7 +305,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(float)1; (int)1.0; (bool)true; ([int])[0];";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -334,7 +334,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "[0]['invalid!']; [0][1]; 'string'['invalid!']; 'string'[0]; { x:10 }['valid']; { x:10 }[0];";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
 
@@ -361,7 +361,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(a:int, b:bool) : int => { }";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -385,7 +385,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(a = 10, b:int...) : int => { }";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -409,7 +409,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(a = 10, b:int...) : (int->int) => { return (i:int, j:int=10) => { }; }";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -429,7 +429,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(a = 10, b:int...) : int => { }(10, 10)";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
 
@@ -455,7 +455,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "++i; --i; ++f; --f;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -484,7 +484,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "i++; i--; f++; f--;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -513,7 +513,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "-i; !b; -f; !(true)";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -550,7 +550,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                                  "10 / 5; 5.5 / 6; 6.0 / 7.0;" +
                                  "10 % 5; 5.5 % 6; 6.0 % 7.0;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -609,7 +609,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(5 + 7) * 8.0; ((5 / 9) + [7][0]) * () : int => { return 0; }(); ((5 / 9) + [7][0]) * 8.0;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -636,7 +636,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "10 | 5; 5 ^ 6; 6 & 7;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -663,7 +663,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "true == false; null != 0; 10 > 5; 5.0 < 1; 7 >= 5; 8 <= 9;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -696,7 +696,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(9 == 7) && false; true && (false || true && false);";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -725,7 +725,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "i == i ? 0 : 1; i == i ? [0] : [true]; ";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, new MessageContainer(), new TestDefinitionTypeProvider());
 
@@ -754,7 +754,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "i = false; b = 10; f -= 'abc'; s -= 'abc'; llf[0] = 0; s *= 10;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new TypeProvider(), container, new TestDefinitionTypeProvider());
 
@@ -778,7 +778,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "++b; --s; ++o; --v;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -801,7 +801,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "b++; o--; s++; v--;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -824,7 +824,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "-b; !f; !s; !(i = 10);";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -847,7 +847,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(float)true; (bool)1.0; ((->))true;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -866,9 +866,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestFailedArithmeticExpression()
         {
             // Set up the test
-            const string input = "10 + null; true + false; ():void => {}() + 1;true/false;";
+            const string input = "10 + null;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
 
@@ -892,7 +892,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(5 == 7) * 8.0; ((5 / 9) + [7][0]) * () : bool => { return 0; }(); ((5 / 9) + [true][0]) * 8.0;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
 
@@ -915,7 +915,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "10 | 5.0; 5 ^ true; null & 7;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
 
@@ -936,7 +936,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "true == ():void => { }(); ():void => { }() != 0; true > 5; null < 1; 7 >= false; ():void => { }() <= 9;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -961,7 +961,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(9) && false; true && (null || true && false);12 && 15;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -983,7 +983,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "(a:bool = 10) => { }";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -1003,7 +1003,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "10 ? 0 : 1;";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
@@ -1027,7 +1027,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "() : int => {}[0]";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -1046,7 +1046,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Set up the test
             const string input = "() : int => {}()()";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(provider, container);
@@ -1068,7 +1068,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func funca(a:int...){ var b:int = a; }";
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
 
             generator.CollectDefinitions();
@@ -1084,7 +1084,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func funca(a:int...){ var b = ():float => { return 1.0; }; var aa:int = b(); }";
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
 
             generator.CollectDefinitions();
@@ -1100,7 +1100,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "func funca() : int { return 1.0; }";
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
 
             generator.CollectDefinitions();
@@ -1109,33 +1109,5 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         #endregion
-
-        /// <summary>
-        /// Test definition type provider used in tests
-        /// </summary>
-        class TestDefinitionTypeProvider : IDefinitionTypeProvider
-        {
-            public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
-            {
-                if(definitionName == "i")
-                    return TypeDef.IntegerType;
-                if (definitionName == "f")
-                    return TypeDef.FloatType;
-                if (definitionName == "b")
-                    return TypeDef.BooleanType;
-                if (definitionName == "s")
-                    return TypeDef.StringType;
-                if (definitionName == "o")
-                    return new ObjectTypeDef();
-                if (definitionName == "v")
-                    return TypeDef.VoidType;
-                if (definitionName == "a")
-                    return TypeDef.AnyType;
-                if(definitionName.StartsWith("l"))
-                    return new ListTypeDef(definitionName.Length == 0 ? TypeDef.IntegerType : TypeForDefinition(context, definitionName.Substring(1)));
-
-                return TypeDef.AnyType;
-            }
-        }
     }
 }

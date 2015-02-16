@@ -109,7 +109,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestConstantGlobalVariableAssignmentCheck()
         {
             // Set up the test
-            const string input = "[ const b = 0; ] func f() { b = null; }";
+            const string input = "let b = 0; func f() { b = null; }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -125,7 +125,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestValuelessGlobalConstantDefinition()
         {
             // Set up the test
-            const string input = "[ const b; ]";
+            const string input = "let b;";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -233,7 +233,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestForStatementInitTypeChecking()
         {
             // Set up the test
-            const string input = "[ b = 10; ] func f() { for(b();;) { } }";
+            const string input = "let b = 10; func f() { for(b();;) { } }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -249,7 +249,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestForStatementIncrementTypeChecking()
         {
             // Set up the test
-            const string input = "[ b = 10; ] func f() { for(;;b()) { } }";
+            const string input = "let b = 10; func f() { for(;;b()) { } }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -387,7 +387,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestGlobalVariableTypeInferring()
         {
             // Set up the test
-            const string input = "[ a = 10; b:bool = 10; ]";
+            const string input = "let a = 10; let b:bool = 10;";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -405,7 +405,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestGlobalVariableTypeChecking()
         {
             // Set up the test
-            const string input = "[ a = 10; b:bool = 10; ] func f() { a(); }";
+            const string input = "let a = 10; let b:bool = 10; func f() { a(); }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;

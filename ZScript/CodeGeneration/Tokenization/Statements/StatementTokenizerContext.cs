@@ -137,9 +137,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             {
                 statementTokens = TokenizeContinueStatement(statement.continueStatement());
             }
-            else if (statement.valueDecl() != null)
+            else if (statement.valueDeclareStatement() != null)
             {
-                statementTokens = TokenizeValueDeclaration(statement.valueDecl());
+                statementTokens = TokenizeValueDeclareStatement(statement.valueDeclareStatement());
             }
             else if (statement.returnStatement() != null)
             {
@@ -284,10 +284,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeValueDeclaration(ZScriptParser.ValueDeclContext context)
+        public IntermediateTokenList TokenizeValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
         {
-            var tokenizer = new VariableDeclarationStatementTokenizer(this);
-            return tokenizer.TokenizeValueDeclaration(context);
+            return TokenizeValueDeclaration(context.valueHolderDecl());
         }
 
         /// <summary>
@@ -295,21 +294,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeVariableDeclaration(ZScriptParser.VarDeclContext context)
+        public IntermediateTokenList TokenizeValueDeclaration(ZScriptParser.ValueHolderDeclContext context)
         {
             var tokenizer = new VariableDeclarationStatementTokenizer(this);
-            return tokenizer.TokenizeVariableDeclaration(context);
-        }
-
-        /// <summary>
-        /// Tokenizes a given constant local variable declaration
-        /// </summary>
-        /// <param name="context">The context to tokenize</param>
-        /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeLetDeclaration(ZScriptParser.LetDeclContext context)
-        {
-            var tokenizer = new VariableDeclarationStatementTokenizer(this);
-            return tokenizer.TokenizeLetDeclaration(context);
+            return tokenizer.TokenizeValueHolderDeclaration(context);
         }
 
         /// <summary>

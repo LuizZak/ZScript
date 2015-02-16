@@ -15,7 +15,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestDictionarySubscriptGet()
         {
-            const string input = "[ a = 0; b; ] func funca(){ a = b[\"abc\"]; }";
+            const string input = "var a = 0; var b; func funca(){ a = b[\"abc\"]; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -40,7 +40,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestDictionarySubscriptSet()
         {
-            const string input = "[ b; ] func funca(){ b[\"abc\"] = 10; }";
+            const string input = "var b; func funca(){ b[\"abc\"] = 10; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -66,7 +66,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestSubscriptCompoundAssign()
         {
-            const string input = "[ b; ] func funca(){ b['abc'] += 10; }";
+            const string input = "var b; func funca(){ b['abc'] += 10; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

@@ -5,8 +5,8 @@ using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
-using ZScriptTests.Runtime;
-using TestUtils = ZScriptTests.Utils.TestUtils;
+
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
@@ -119,7 +119,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestParsedUnusedNonReporting()
         {
             const string input = "func f() { var a = 5; var b; var c = a + b; if(c == 10) { a = b.a; } }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -133,7 +133,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestParseOnlySetReporting()
         {
             const string input = "func f() { var a = 5; var b = a; b = 5; b = a; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -147,7 +147,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestUnusedObjectReporting()
         {
             const string input = "object o { var a; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
 
@@ -160,9 +160,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
         private static ValueHolderDefinition GenerateDefinition()
         {
             const string input = "var b;";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
-            return new ValueHolderDefinition { Name = "Test", Context = parser.valueDecl() };
+            return new ValueHolderDefinition { Name = "Test", Context = parser.valueDeclareStatement() };
         }
     }
 }

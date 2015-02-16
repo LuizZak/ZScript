@@ -61,7 +61,7 @@
     <Compile Include="Runtime\Typing\Elements\ListTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\ObjectTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\StringTypeDef.cs" />
-    <Compile Include="CodeGeneration\FunctionDefinitionGenerator.cs" />
+    <Compile Include="CodeGeneration\DefinitionGenerator.cs" />
     <Compile Include="CodeGeneration\Messages\MessageContainer.cs" />
     <Compile Include="CodeGeneration\Definitions\ClosureDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\Definition.cs" />

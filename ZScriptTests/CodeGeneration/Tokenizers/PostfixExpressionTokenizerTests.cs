@@ -191,9 +191,9 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestTernaryExecution()
         {
-            const string input = "[ a = 1; b = 2; c = 3; d; ] func f1() { d = !true ? a : !true ? b : c;  }";
+            const string input = "var a = 1; var b = 2; var c = 3; var d; func f1() { d = !true ? a : !true ? b : c;  }";
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             var runtime = generator.GenerateRuntime(null);
             var memory = runtime.GlobalMemory;

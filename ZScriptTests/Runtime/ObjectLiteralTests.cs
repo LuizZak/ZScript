@@ -12,7 +12,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestEmptyObjectLiteral()
         {
-            const string input = "[ b; ] func funca(){ b = { }; }";
+            const string input = "var b; func funca(){ b = { }; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -31,7 +31,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestSimpleObjectLiteral()
         {
-            const string input = "[ b; ] func funca(){ b = { x:10, 'abc':11, \"string with spaces\":12 }; }";
+            const string input = "var b; func funca(){ b = { x:10, 'abc':11, \"string with spaces\":12 }; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -52,7 +52,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestComplexObjectLiteral()
         {
-            const string input = "[ b; ] func funca(){ b = { x:10 + 5, y:5 * (7 + 1) }; }";
+            const string input = "var b; func funca(){ b = { x:10 + 5, y:5 * (7 + 1) }; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -72,7 +72,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestNestedObjectLiteral()
         {
-            const string input = "[ b; ] func funca(){ b = { a:{ x: 10 }, b:{ y: { z: { a:10 } } }  }; }";
+            const string input = "var b; func funca(){ b = { a:{ x: 10 }, b:{ y: { z: { a:10 } } }  }; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -94,7 +94,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestObjectSubscript()
         {
-            const string input = "[ b; ] func funca(){ var a = { x:10 }; b = a['x']; }";
+            const string input = "var b; func funca(){ var a = { x:10 }; b = a['x']; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -113,7 +113,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestNestedObjectSubscript()
         {
-            const string input = "[ b; ] func funca(){ var a = { x: { x:10 } }; b = a['x']['x']; }";
+            const string input = "var b; func funca(){ var a = { x: { x:10 } }; b = a['x']['x']; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -132,7 +132,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestObjectMemberAccess()
         {
-            const string input = "[ b; ] func funca(){ var a = { x:10 }; b = a.x; }";
+            const string input = "var b; func funca(){ var a = { x:10 }; b = a.x; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -151,7 +151,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestNestedObjectMemberAccess()
         {
-            const string input = "[ b; ] func funca(){ var a = { x: { x:10 } }; b = a.x.x; }";
+            const string input = "var b; func funca(){ var a = { x: { x:10 } }; b = a.x.x; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

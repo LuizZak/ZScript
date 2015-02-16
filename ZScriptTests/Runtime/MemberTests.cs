@@ -15,7 +15,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestBasicMemberAccess()
         {
-            const string input = "[ a = 0; b = 10; ] func funca(){ a = [0].Count; b = \"abc\".Length; }";
+            const string input = "var a = 0; var b = 10; func funca(){ a = [0].Count; b = \"abc\".Length; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -38,7 +38,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestMemberCompoundAssignment()
         {
-            const string input = "[ a; ] func funca(){ a = { x:10 }; a.x += 10; }";
+            const string input = "var a; func funca(){ a = { x:10 }; a.x += 10; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

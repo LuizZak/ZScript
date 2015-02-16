@@ -113,9 +113,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="tokens">The list of tokens to tokenize to</param>
         private void TokenizeForLoopInit(ZScriptParser.ForInitContext init, IntermediateTokenList tokens)
         {
-            if (init.varDecl() != null)
+            if (init.valueHolderDecl() != null)
             {
-                tokens.AddRange(_context.TokenizeVariableDeclaration(init.varDecl()));
+                tokens.AddRange(_context.TokenizeValueDeclaration(init.valueHolderDecl()));
             }
             else if (init.expression() != null)
             {

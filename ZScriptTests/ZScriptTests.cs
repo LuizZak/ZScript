@@ -4,8 +4,7 @@ using System.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using ZScriptTests.Runtime;
-using TestUtils = ZScriptTests.Utils.TestUtils;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests
 {
@@ -79,9 +78,9 @@ namespace ZScriptTests
         [TestMethod]
         public void TestVirtualMachine()
         {
-            const string input = "[ a = 0; ] func f() { a = 10; }";
+            const string input = "var a = 0; func f() { a = 10; }";
             var owner = new TestRuntimeOwner();
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 

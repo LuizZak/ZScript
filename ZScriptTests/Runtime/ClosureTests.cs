@@ -52,7 +52,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParseGlobalVariableClosure()
         {
-            const string input = "[ a = (i) : int => { return 0; }; ]";
+            const string input = "var a = (i) : int => { return 0; };";
             var generator = Utils.TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();

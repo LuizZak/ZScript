@@ -633,7 +633,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Iterate through each parameter type for the closure
             if (context.functionArg() != null)
             {
-                var t = FunctionDefinitionGenerator.GenerateFunctionArgumentDef(context.functionArg());
+                var t = DefinitionGenerator.GenerateFunctionArgumentDef(context.functionArg());
 
                 // Resolve the type, if available
                 t.Type = ResolveFunctionArgument(context.functionArg());
@@ -645,7 +645,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var args = context.functionArguments().argumentList().functionArg();
                 foreach (var arg in args)
                 {
-                    var t = FunctionDefinitionGenerator.GenerateFunctionArgumentDef(arg);
+                    var t = DefinitionGenerator.GenerateFunctionArgumentDef(arg);
 
                     // Resolve the type, if available
                     t.Type = ResolveFunctionArgument(arg);

@@ -3,9 +3,9 @@ using ZScript.CodeGeneration.Elements;
 namespace ZScript.CodeGeneration
 {
     /// <summary>
-    /// Generator that creates function definitions
+    /// Generator that creates definitions of all sorts by deconstructing parser contexts
     /// </summary>
-    public static class FunctionDefinitionGenerator
+    public static class DefinitionGenerator
     {
         /// <summary>
         /// Generates a new function definition using the given context
@@ -128,6 +128,54 @@ namespace ZScript.CodeGeneration
             }
 
             return args;
+        }
+
+        /// <summary>
+        /// Creates a new value holder definition from a given value holder context
+        /// </summary>
+        /// <param name="context">The context containing the value holder definition</param>
+        /// <returns>A new value holder definition based on the given value holder declaration context</returns>
+        public static ValueHolderDefinition GenerateValueHolderDef(ZScriptParser.ValueHolderDeclContext context)
+        {
+            var def = new ValueHolderDefinition();
+
+            FillValueHolderDef(def, context);
+
+            return def;
+        }
+
+        /// <summary>
+        /// Fills a value holder definition with the contents of a given
+        /// </summary>
+        /// <param name="def">The definition to fill</param>
+        /// <param name="context">The value declaration context that the definition will be filled with</param>
+        private static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDeclContext context)
+        {
+            def.Name = context.valueHolderName().memberName().IDENT().GetText();
+            def.Context = context;
+            def.HasValue = context.expression() != null;
+            def.HasType = context.type() != null;
+            def.ValueExpression = new Expression(context.expression());
+            def.IsConstant = context.let != null;
+
+            if (def.HasType)
+            {
+                def.TypeContext = context.type();
+            }
+        }
+
+        /// <summary>
+        /// Creates a new value holder definition from a given value holder context
+        /// </summary>
+        /// <param name="context">The context containing the value holder definition</param>
+        /// <returns>A new value holder definition based on the given value holder declaration context</returns>
+        public static GlobalVariableDefinition GenerateGlobalVariable(ZScriptParser.GlobalVariableContext context)
+        {
+            GlobalVariableDefinition def = new GlobalVariableDefinition();
+
+            FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
+
+            return def;
         }
     }
 }

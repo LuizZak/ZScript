@@ -149,16 +149,10 @@ namespace ZScript.CodeGeneration
             DefineGlobalVariable(context);
         }
 
-        public override void EnterVarDecl(ZScriptParser.VarDeclContext context)
+        public override void EnterValueHolderDecl(ZScriptParser.ValueHolderDeclContext context)
         {
             if (!IsInGlobalScope())
-                DefineVariable(context);
-        }
-
-        public override void EnterLetDecl(ZScriptParser.LetDeclContext context)
-        {
-            if (!IsInGlobalScope())
-                DefineConstant(context);
+                DefineValueHolder(context);
         }
 
         public override void EnterFunctionArg(ZScriptParser.FunctionArgContext context)
@@ -273,55 +267,13 @@ namespace ZScript.CodeGeneration
         /// Defines a new variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The context containing the variable to define</param>
-        void DefineVariable(ZScriptParser.VarDeclContext variable)
+        void DefineValueHolder(ZScriptParser.ValueHolderDeclContext variable)
         {
-            var valueHolderDecl = variable.variableDeclare().valueHolderDecl();
+            var def = DefinitionGenerator.GenerateValueHolderDef(variable);
 
-            var def = new ValueHolderDefinition
-            {
-                Name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText(),
-                Context = variable,
-                HasValue = variable.variableDeclare().expression() != null,
-                HasType = variable.variableDeclare().valueHolderDecl().type() != null,
-                ValueExpression = new Expression(variable.variableDeclare().expression()),
-                IsInstanceValue = IsInInstanceScope()
-            };
+            def.IsInstanceValue = IsInInstanceScope();
 
-            if (def.HasType)
-            {
-                def.TypeContext = variable.variableDeclare().valueHolderDecl().type();
-            }
-
-            CheckCollisions(def, valueHolderDecl.valueHolderName().memberName().IDENT());
-
-            _currentScope.AddDefinition(def);
-        }
-
-        /// <summary>
-        /// Defines a new constant in the current top-most scope
-        /// </summary>
-        /// <param name="constant">The context containing the constant to define</param>
-        void DefineConstant(ZScriptParser.LetDeclContext constant)
-        {
-            var valueHolderDecl = constant.constantDeclare().valueHolderDecl();
-
-            var def = new ValueHolderDefinition
-            {
-                Name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText(),
-                Context = constant,
-                HasValue = constant.constantDeclare().expression() != null,
-                HasType = constant.constantDeclare().valueHolderDecl().type() != null,
-                ValueExpression = new Expression(constant.constantDeclare().expression()),
-                IsConstant = true,
-                IsInstanceValue = IsInInstanceScope()
-            };
-
-            if (def.HasType)
-            {
-                def.TypeContext = constant.constantDeclare().valueHolderDecl().type();
-            }
-
-            CheckCollisions(def, valueHolderDecl.valueHolderName().memberName().IDENT());
+            CheckCollisions(def, variable);
 
             _currentScope.AddDefinition(def);
         }
@@ -332,30 +284,14 @@ namespace ZScript.CodeGeneration
         /// <param name="variable">The global variable to define</param>
         void DefineGlobalVariable(ZScriptParser.GlobalVariableContext variable)
         {
-            var varDecl = variable.variableDeclare().valueHolderDecl();
-            var def = new GlobalVariableDefinition
-            {
-                Name = varDecl.valueHolderName().memberName().IDENT().GetText(),
-                Context = variable,
-                HasType = variable.variableDeclare().valueHolderDecl().type() != null,
-                HasValue = variable.variableDeclare().expression() != null,
-                IsConstant = variable.T_CONST() != null
-            };
+            var def = DefinitionGenerator.GenerateGlobalVariable(variable);
 
-            if (def.HasValue)
-            {
-                def.ValueExpression = new Expression(variable.variableDeclare().expression());
-            }
-            else if (def.IsConstant)
+            if (!def.HasValue && def.IsConstant)
             {
                 _messageContainer.RegisterError(variable, "Constants require a value to be assigned on declaration", ErrorCode.ValuelessConstantDeclaration);
             }
-            if (def.HasType)
-            {
-                def.TypeContext = variable.variableDeclare().valueHolderDecl().type();
-            }
 
-            CheckCollisions(def, varDecl.valueHolderName().memberName().IDENT());
+            CheckCollisions(def, variable);
 
             _currentScope.AddDefinition(def);
         }
@@ -366,9 +302,9 @@ namespace ZScript.CodeGeneration
         /// <param name="argument">The argument to define</param>
         void DefineFunctionArgument(ZScriptParser.FunctionArgContext argument)
         {
-            var def = FunctionDefinitionGenerator.GenerateFunctionArgumentDef(argument);
+            var def = DefinitionGenerator.GenerateFunctionArgumentDef(argument);
 
-            CheckCollisions(def, argument.argumentName().IDENT());
+            CheckCollisions(def, argument.argumentName());
 
             // Try to find the definition in the current function definition for the argument, and store that instead
             var funcDef = (FunctionDefinition)_baseScope.GetDefinitionByContextRecursive(_currentScope.Context);
@@ -395,9 +331,9 @@ namespace ZScript.CodeGeneration
         /// <param name="exportFunction">The export function to define</param>
         void DefineExportFunction(ZScriptParser.ExportDefinitionContext exportFunction)
         {
-            var def = FunctionDefinitionGenerator.GenerateExportFunctionDef(exportFunction);
+            var def = DefinitionGenerator.GenerateExportFunctionDef(exportFunction);
 
-            CheckCollisions(def, exportFunction.functionName().IDENT());
+            CheckCollisions(def, exportFunction.functionName());
 
             _currentScope.AddDefinition(def);
         }
@@ -408,9 +344,9 @@ namespace ZScript.CodeGeneration
         /// <param name="function">The function to define</param>
         void DefineFunction(ZScriptParser.FunctionDefinitionContext function)
         {
-            var def = FunctionDefinitionGenerator.GenerateFunctionDef(function);
+            var def = DefinitionGenerator.GenerateFunctionDef(function);
 
-            CheckCollisions(def, function.functionName().IDENT());
+            CheckCollisions(def, function.functionName());
 
             DefineFunction(def);
         }
@@ -430,7 +366,7 @@ namespace ZScript.CodeGeneration
         /// <param name="closure">The closure to define</param>
         void DefineClosure(ZScriptParser.ClosureExpressionContext closure)
         {
-            var def = FunctionDefinitionGenerator.GenerateClosureDef(closure);
+            var def = DefinitionGenerator.GenerateClosureDef(closure);
 
             def.Name = ClosureDefinition.ClosureNamePrefix + (_closuresCount++);
 
@@ -468,8 +404,8 @@ namespace ZScript.CodeGeneration
         /// Checks collisions with the specified definition against the definitions in the available scopes
         /// </summary>
         /// <param name="def">The definition to check</param>
-        /// <param name="node">A node used during analysis to report errors</param>
-        void CheckCollisions(Definition def, ITerminalNode node)
+        /// <param name="context">A context used during analysis to report where the error happened</param>
+        void CheckCollisions(Definition def, ParserRuleContext context)
         {
             var defs = _currentScope.GetDefinitionsByName(def.Name);
 
@@ -483,17 +419,15 @@ namespace ZScript.CodeGeneration
                 if (d is ObjectDefinition && def is FunctionDefinition && IsContextChildOf(def.Context, d.Context))
                     continue;
 
-                if (node == null)
+                var message = "Duplicated definition of " + def.Name + " collides with definition " + d;
+
+                if (context == null)
                 {
-                    _messageContainer.RegisterError(0, 0,
-                        "Duplicated definition of " + def.Name + " collides with definition " + d,
-                        ErrorCode.DuplicatedDefinition, def.Context);
+                    _messageContainer.RegisterError(0, 0, message, ErrorCode.DuplicatedDefinition, def.Context);
                 }
                 else
                 {
-                    _messageContainer.RegisterError(node.Symbol.Line, node.Symbol.Column,
-                        "Duplicated definition of " + def.Name + " collides with definition " + d,
-                        ErrorCode.DuplicatedDefinition, def.Context);
+                    _messageContainer.RegisterError(context.Start.Line, context.Start.Column, message, ErrorCode.DuplicatedDefinition, def.Context);
                 }
             }
         }

@@ -129,18 +129,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitObjectFunction([NotNull] ZScriptParser.ObjectFunctionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.variableBlock"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterVariableBlock([NotNull] ZScriptParser.VariableBlockContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.variableBlock"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitVariableBlock([NotNull] ZScriptParser.VariableBlockContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.globalVariable"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -621,65 +609,17 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitContinueStatement([NotNull] ZScriptParser.ContinueStatementContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.valueDecl"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.valueDeclareStatement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterValueDecl([NotNull] ZScriptParser.ValueDeclContext context) { }
+	public virtual void EnterValueDeclareStatement([NotNull] ZScriptParser.ValueDeclareStatementContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.valueDecl"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.valueDeclareStatement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitValueDecl([NotNull] ZScriptParser.ValueDeclContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.varDecl"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterVarDecl([NotNull] ZScriptParser.VarDeclContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.varDecl"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitVarDecl([NotNull] ZScriptParser.VarDeclContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.letDecl"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterLetDecl([NotNull] ZScriptParser.LetDeclContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.letDecl"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitLetDecl([NotNull] ZScriptParser.LetDeclContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.variableDeclare"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterVariableDeclare([NotNull] ZScriptParser.VariableDeclareContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.variableDeclare"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitVariableDeclare([NotNull] ZScriptParser.VariableDeclareContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.constantDeclare"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterConstantDeclare([NotNull] ZScriptParser.ConstantDeclareContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.constantDeclare"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitConstantDeclare([NotNull] ZScriptParser.ConstantDeclareContext context) { }
+	public virtual void ExitValueDeclareStatement([NotNull] ZScriptParser.ValueDeclareStatementContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.valueHolderDecl"/>.
 	/// <para>The default implementation does nothing.</para>

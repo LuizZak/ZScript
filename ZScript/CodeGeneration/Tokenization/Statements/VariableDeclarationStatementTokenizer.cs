@@ -28,27 +28,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeValueDeclaration(ZScriptParser.ValueDeclContext context)
+        public IntermediateTokenList TokenizeValueHolderDeclaration(ZScriptParser.ValueHolderDeclContext context)
         {
-            if (context.varDecl() != null)
-            {
-                return TokenizeVariableDeclaration(context.varDecl());
-            }
-            
-            return TokenizeLetDeclaration(context.letDecl());
-        }
-
-        /// <summary>
-        /// Tokenizes a given variable declaration into a list of tokens
-        /// </summary>
-        /// <param name="context">The context to tokenize</param>
-        /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeVariableDeclaration(ZScriptParser.VarDeclContext context)
-        {
-            var valueHolderDecl = context.variableDeclare().valueHolderDecl();
-
-            var expression = context.variableDeclare().expression();
-            var name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText();
+            var expression = context.expression();
+            var name = context.valueHolderName().memberName().IDENT().GetText();
 
             if (expression != null)
             {
@@ -60,25 +43,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             }
 
             return new IntermediateTokenList();
-        }
-
-        /// <summary>
-        /// Tokenizes a given constant declaration into a list of tokens
-        /// </summary>
-        /// <param name="context">The context to tokenize</param>
-        /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeLetDeclaration(ZScriptParser.LetDeclContext context)
-        {
-            var valueHolderDecl = context.constantDeclare().valueHolderDecl();
-
-            var expression = context.constantDeclare().expression();
-            var name = valueHolderDecl.valueHolderName().memberName().IDENT().GetText();
-
-            IntermediateTokenList tokens = _context.TokenizeExpression(expression);
-            tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
-
-            return tokens;
         }
     }
 }

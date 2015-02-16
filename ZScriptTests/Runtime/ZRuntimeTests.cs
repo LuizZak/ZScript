@@ -14,7 +14,7 @@ namespace ZScriptTests.Runtime
         public void TestLogicalAndShortCircuiting()
         {
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
-            const string input = "[ a = true; c = false; b:int = null; d:bool = null; ] func f() { a = a && (c && b > 0) && d; }";
+            const string input = "var a = true; var c = false; var b:int = null; var d:bool = null; func f() { a = a && (c && b > 0) && d; }";
 
             var generator = Utils.TestUtils.CreateGenerator(input);
 
@@ -34,7 +34,7 @@ namespace ZScriptTests.Runtime
         public void TestLogicalOrShortCircuiting()
         {
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
-            const string input = "[ a = true; c = true; b:bool = null; d:bool = null; ] func f() { a = c || (b || d); }";
+            const string input = "var a = true; var c = true; var b:bool = null; var d:bool = null; func f() { a = c || (b || d); }";
 
             var generator = Utils.TestUtils.CreateGenerator(input);
 
@@ -174,7 +174,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestGlobalVariables()
         {
-            const string input = "[ a = 0; b = null; ]";
+            const string input = "var a = 0; var b = null;";
             var generator = Utils.TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();

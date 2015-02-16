@@ -56,7 +56,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestIfElseIfCodeGeneration()
         {
-            const string input = "[ a = 0; b = 0; c = 0; ] func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; } else { c = 10; } }";
+            const string input = "var a = 0; var b = 0; var c = 0; func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -77,7 +77,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedIfCodeGeneration()
         {
-            const string input = "[ a = 0; b = 0; c = 0; ] func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
+            const string input = "var a = 0; var b = 0; var c = 0; func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -98,7 +98,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestIfExpressionShortCircuit()
         {
-            const string input = "[ a = 0; b = 0; c = 0; d = null; ] func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
+            const string input = "var a = 0; var b = 0; var c = 0; var d = null; func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -361,7 +361,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForGeneration()
         {
-            const string input = "[ i = 0; a = 0; ] func f() { for(i = 0; i < 10; i++) { a = i + 2; } }";
+            const string input = "var i = 0; var a = 0; func f() { for(i = 0; i < 10; i++) { a = i + 2; } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -381,7 +381,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestExpressionInitForGeneration()
         {
-            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(f2(); i < 10; i++) { a = i + 2; } } func f2() { b = 10; }";
+            const string input = "var i = 0; var a = 0; var b = 0; func f() { for(f2(); i < 10; i++) { a = i + 2; } } func f2() { b = 10; }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -402,7 +402,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNoInitForGeneration()
         {
-            const string input = "[ i = 0; a = 0; ] func f() { for(; i < 10; i++) { a = i + 2; } }";
+            const string input = "var i = 0; var a = 0; func f() { for(; i < 10; i++) { a = i + 2; } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -422,7 +422,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNoConditionForGeneration()
         {
-            const string input = "[ i = 0; a = 0; ] func f() { for(i = 0; ; i++) { a = i + 2;  if(i == 9) { i++; break; } } }";
+            const string input = "var i = 0; var a = 0; func f() { for(i = 0; ; i++) { a = i + 2;  if(i == 9) { i++; break; } } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -442,7 +442,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForBreakStatement()
         {
-            const string input = "[ i = 0; a = 0; ] func f() { for(i = 0; i < 10; i++) { a = i + 2; break; } }";
+            const string input = "var i = 0; var a = 0; func f() { for(i = 0; i < 10; i++) { a = i + 2; break; } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -462,7 +462,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestForContinueStatement()
         {
-            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
+            const string input = "var i = 0; var a = 0; var b = 0; func f() { for(i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -483,7 +483,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedForStatement()
         {
-            const string input = "[ i = 0; a = 0; b = 0; ] func f() { for(i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
+            const string input = "var i = 0; var a = 0; var b = 0; func f() { for(i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -508,7 +508,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileCodeGeneration()
         {
-            const string input = "[ a = 0; ] func f() { while(a < 10) { a++; } }";
+            const string input = "var a = 0; func f() { while(a < 10) { a++; } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -528,7 +528,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileContinueStatement()
         {
-            const string input = "[ a = 0; b = 0; ] func f() { while(a < 10) { a++; continue; b = 10; } }";
+            const string input = "var a = 0; var b = 0; func f() { while(a < 10) { a++; continue; b = 10; } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -549,7 +549,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestWhileBreakStatement()
         {
-            const string input = "[ a = 0; ] func f() { while(true) { a++; if(a >= 10) { break; } } }";
+            const string input = "var a = 0; func f() { while(true) { a++; if(a >= 10) { break; } } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -569,7 +569,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedWhileStatement()
         {
-            const string input = "[ a = 0; b = 0; ] func f() { while(a < 10) { a++; while(b / a < 10) { b++; } } }";
+            const string input = "var a = 0; var b = 0; func f() { while(a < 10) { a++; while(b / a < 10) { b++; } } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -590,7 +590,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestNestedWhileBreakStatement()
         {
-            const string input = "[ a = 0; b = 0; ] func f() { while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
+            const string input = "var a = 0; var b = 0; func f() { while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -723,7 +723,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestSwitchStatement()
         {
-            const string input = "[ a = 5; b = 20; c = null; ] func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
+            const string input = "var a = 5; var b = 20; var c = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -742,7 +742,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestDefaultSwitchStatement()
         {
-            const string input = "[ c = null; d = null; ] func f() { var a = 5; var b = 20; switch(a + b) { case 10: c = 5; break; default: c = 10; break; } switch(a + b) { case 25: d = 10; break; default: d = 5; break; } }";
+            const string input = "var c = null; var d = null; func f() { var a = 5; var b = 20; switch(a + b) { case 10: c = 5; break; default: c = 10; break; } switch(a + b) { case 25: d = 10; break; default: d = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -762,7 +762,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
         [TestMethod]
         public void TestMultipleCasesSwitchStatement()
         {
-            const string input = "[ a = 5; b = 20; c; ] func f() { switch(a + b) { case 10: case 25: case 30: c = 10; break; } }";
+            const string input = "var a = 5; var b = 20; var c; func f() { switch(a + b) { case 10: case 25: case 30: c = 10; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
