@@ -502,7 +502,7 @@ namespace ZScript.CodeGeneration.Analysis
                 // Check if expression has a boolean type
                 if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
                 {
-                    const string message = "Expression on while condition must be boolean";
+                    const string message = "Expressions on while conditions must be of boolean type";
                     _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
                 }
 
@@ -757,7 +757,7 @@ namespace ZScript.CodeGeneration.Analysis
                 // Check if expression has a boolean type
                 if (!provider.CanImplicitCast(expression.EvaluatedType, provider.BooleanType()))
                 {
-                    const string message = "Expression on if condition must be boolean";
+                    const string message = "Expressions on if conditions must be of boolean type";
                     _typeResolver.MessageContainer.RegisterError(expression, message, ErrorCode.InvalidCast);
                 }
                 else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
