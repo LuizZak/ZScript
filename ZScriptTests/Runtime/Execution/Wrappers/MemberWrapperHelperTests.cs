@@ -14,7 +14,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         /// Tests wrapping the field of an ordinary object
         /// </summary>
         [TestMethod]
-        public void TestWrappingObject()
+        public void TestWrappingObjectMember()
         {
             const string target = "target";
 
@@ -27,7 +27,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         /// Tests wrapping the field of a ZObject instance
         /// </summary>
         [TestMethod]
-        public void TestWrappingZObject()
+        public void TestWrappingZObjectMember()
         {
             var target = new ZObject();
             target["abc"] = 0;
@@ -35,6 +35,19 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
             var member = MemberWrapperHelper.CreateMemberWrapper(target, "abc");
 
             Assert.AreEqual(target["abc"], member.GetValue(), "The value returned by the member is incorrect");
+        }
+
+        /// <summary>
+        /// Tests wrapping the method of an object instance
+        /// </summary>
+        [TestMethod]
+        public void TestWrappingObjectMethod()
+        {
+            const long target = 10;
+
+            var member = MemberWrapperHelper.CreateCallableWrapper(target, "ToString");
+
+            Assert.AreEqual(target.ToString(), member.Call(), "The value returned by the callable is incorrect");
         }
     }
 }

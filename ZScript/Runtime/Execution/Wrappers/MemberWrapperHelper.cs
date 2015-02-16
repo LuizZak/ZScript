@@ -1,6 +1,7 @@
 ﻿using System;
-
+using System.Linq;
 using ZScript.Elements;
+using ZScript.Runtime.Execution.Wrappers.Callables;
 using ZScript.Runtime.Execution.Wrappers.Members;
 
 namespace ZScript.Runtime.Execution.Wrappers
@@ -27,6 +28,25 @@ namespace ZScript.Runtime.Execution.Wrappers
             }
 
             return ClassMember.CreateMemberWrapper(target, memberName);
+        }
+
+        /// <summary>
+        /// Returns an ICallableWrapper for a given target object's method.
+        /// If the target object does not contains a matching method, an ArgumentException is raised
+        /// </summary>
+        /// <param name="target">The target to wrap</param>
+        /// <param name="callableName">The name of the method to wrap</param>
+        /// <returns>An ICallableWrapper created from the given target</returns>
+        /// <exception cref="ArgumentException">No method with the given name found on target object</exception>
+        public static ICallableWrapper CreateCallableWrapper(object target, string callableName)
+        {
+            // Native method
+            var info = target.GetType().GetMethods().Where(m => m.Name == callableName).ToArray();
+
+            if(info.Length == 0)
+                throw new ArgumentException("No public method of name '" + callableName + "' found on object of type '" + target.GetType() + "'", "callableName");
+
+            return new ClassMethod(target, info);
         }
     }
 }
