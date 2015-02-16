@@ -1,4 +1,6 @@
-﻿/*
+extensions: designer.cs generated.cs
+extensions: .cs .cpp .h
+/*
     ZScript Game Scripting Programming Language
     Copyright (C) 2015  Luiz Fernando Silva
 
@@ -16,36 +18,3 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-namespace ZScript.Runtime.Typing.Elements
-{
-    /// <summary>
-    /// Specifies a string primitive type definition
-    /// </summary>
-    public class StringTypeDef : TypeDef, IListTypeDef
-    {
-        /// <summary>
-        /// Returns the type enclosed within the string type definition
-        /// </summary>
-        public TypeDef EnclosingType
-        {
-            get { return AnyType; }
-        }
-
-        /// <summary>
-        /// Gets the type of objects accepted by the subscript of the string type
-        /// </summary>
-        public TypeDef SubscriptType
-        {
-            get { return IntegerType; }
-        }
-
-        /// <summary>
-        /// Initilaizes a new instance of the StringTypeDef class
-        /// </summary>
-        public StringTypeDef() : base("string")
-        {
-
-        }
-    }
-}
