@@ -143,5 +143,65 @@ namespace ZScriptTests
             Console.WriteLine("Generation time: " + (sw.ElapsedMilliseconds - parseT));
             Console.WriteLine("Total time:      " + sw.ElapsedMilliseconds);
         }
+
+        /// <summary>
+        /// Tests a recursive Fibonacci implementation in ZScript
+        /// </summary>
+        [TestMethod]
+        public void TestRecursiveFibonacci()
+        {
+            const string input = "func fib(n:int) : int { if(n <= 0) return 0; if(n == 1) return 1; return fib(n - 1) + fib(n - 2); }";
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+
+            var sw = Stopwatch.StartNew();
+
+            // Get the return value for the 12th fibonacci number
+            var ret = runtime.CallFunction("fib", 12);
+
+            // Print the time it took, because why not
+            sw.Stop();
+            Console.WriteLine("Runtime: " + sw.ElapsedMilliseconds + "ms");
+
+            Assert.AreEqual(144L, ret, "The runtime failed to derive the expected 12th fibonacci number");
+        }
+
+        /// <summary>
+        /// Tests an iterative Fibonacci implementation in ZScript
+        /// </summary>
+        [TestMethod]
+        public void TestIterativeFibonacci()
+        {
+            const string input = "func fib(n:int) : int {" +
+                                 "  if(n == 0) return 0;" +
+                                 "  if (n == 1) return 1;" +
+                                 "  var prevPrev = 0;" +
+                                 "  var prev = 1;" +
+                                 "  var result = 0;" +
+                                 "  for (var i = 2; i <= n; i++)" +
+                                 "  {" +
+                                 "    result = prev + prevPrev;" +
+                                 "    prevPrev = prev;" +
+                                 "    prev = result;" +
+                                 "  }" +
+                                 "  return result;" +
+                                 "}";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+
+            var sw = Stopwatch.StartNew();
+
+            // Get the return value for the 12th fibonacci number
+            var ret = runtime.CallFunction("fib", 12);
+
+            // Print the time it took, because why not
+            sw.Stop();
+            Console.WriteLine("Runtime: " + sw.ElapsedMilliseconds + "ms");
+
+            Assert.AreEqual(144L, ret, "The runtime failed to derive the expected 12th fibonacci number");
+        }
     }
 }
