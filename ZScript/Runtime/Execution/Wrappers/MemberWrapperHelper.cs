@@ -97,7 +97,7 @@ namespace ZScript.Runtime.Execution.Wrappers
                     methodsNamed.Add(method);
             }
 
-            var cached = new TypeMethodsNamed(type, methodsNamed.ToArray(), methodName);
+            var cached = new TypeMethodsNamed(methodsNamed.ToArray(), methodName);
 
             cachedMethods.Add(cached);
 
@@ -120,11 +120,6 @@ namespace ZScript.Runtime.Execution.Wrappers
         private struct TypeMethodsNamed
         {
             /// <summary>
-            /// Gets the type associated with this TypeMethodsNamed struct
-            /// </summary>
-            public readonly Type Type;
-
-            /// <summary>
             /// Gets the methods associated with this TypeMethodsNamed struct
             /// </summary>
             public readonly MethodInfo[] Methods;
@@ -137,12 +132,10 @@ namespace ZScript.Runtime.Execution.Wrappers
             /// <summary>
             /// Initializes a new TypeMethodsNamed struct
             /// </summary>
-            /// <param name="type">The type to assicate with this struct</param>
             /// <param name="methods">The array of matching methods to associate with this struct</param>
             /// <param name="methodName">The name of the method group</param>
-            public TypeMethodsNamed(Type type, MethodInfo[] methods, string methodName)
+            public TypeMethodsNamed(MethodInfo[] methods, string methodName)
             {
-                Type = type;
                 Methods = methods;
                 MethodName = methodName;
             }
