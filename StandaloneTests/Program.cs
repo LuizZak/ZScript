@@ -129,7 +129,14 @@ namespace StandaloneTests
         static void Main(string[] args)
         {
             //TestThing();
-            TestMove();
+            
+            //TestMove();
+
+            PerformanceTests tests = new PerformanceTests();
+
+            tests.TestObjectFunctionCallPerformance();
+
+            Console.Read();
 
             return;
 
@@ -143,7 +150,7 @@ namespace StandaloneTests
 
             Console.Read();
 
-            PerformanceTests tests = new PerformanceTests();
+            
 
             tests.TestFunctionCallPerformance();
 

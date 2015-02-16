@@ -14,7 +14,36 @@ namespace ZScriptTests.Performance
     public class PerformanceTests
     {
         [TestMethod]
-        public void TestForLoopPeformance()
+        public void TestForLoopPerformance()
+        {
+            // The threshold for the test in milliseconds, based on previous runs.
+            // This value is obviously dependent on the system, and I use it mostly to test in my local machine
+            const long threshold = 200;
+
+            const string input = "func funca { for(var i = 0; i < 100000; i++) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            runtime.CallFunction("funca");
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
+        }
+
+        [TestMethod]
+        public void TestAssignPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.
             // This value is obviously dependent on the system, and I use it mostly to test in my local machine
@@ -101,13 +130,13 @@ namespace ZScriptTests.Performance
         }
 
         [TestMethod]
-        public void TestFunctionAccessPerformance()
+        public void TestObjectFunctionCallPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.
             // This value is obviously dependent on the system, and I use it mostly to test in my local machine
-            const long threshold = 200;
+            const long threshold = 400;
 
-            const string input = "func funca { for(var i = 0; i < 10000; i++) { 'a'.ToString(); } }";
+            const string input = "func funca { for(var i = 0; i < 100000; i++) { 'a'.ToString(); } }";
 
             var generator = TestUtils.CreateGenerator(input);
 

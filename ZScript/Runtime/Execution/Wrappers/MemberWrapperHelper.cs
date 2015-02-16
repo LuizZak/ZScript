@@ -1,5 +1,7 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Reflection;
+
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers.Callables;
 using ZScript.Runtime.Execution.Wrappers.Members;
@@ -41,12 +43,109 @@ namespace ZScript.Runtime.Execution.Wrappers
         public static ICallableWrapper CreateCallableWrapper(object target, string callableName)
         {
             // Native method
-            var info = target.GetType().GetMethods().Where(m => m.Name == callableName).ToArray();
+            var methods = MethodsNamedFor(target.GetType(), callableName);
 
-            if(info.Length == 0)
+            if (methods.Length == 0)
                 throw new ArgumentException("No public method of name '" + callableName + "' found on object of type '" + target.GetType() + "'", "callableName");
 
-            return new ClassMethod(target, info);
+            return new ClassMethod(target, methods);
+        }
+
+        /// <summary>
+        /// Gets all methods available for a given type
+        /// </summary>
+        /// <param name="type">The type to get the methods of</param>
+        /// <returns>An array containing all of the methods for the given type</returns>
+        private static MethodInfo[] MethodsForType(Type type)
+        {
+            MethodInfo[] o;
+            if (TypeMethods.TryGetValue(type, out o))
+            {
+                return o;
+            }
+
+            return TypeMethods[type] = type.GetMethods();
+        }
+
+        /// <summary>
+        /// Gets all methods on a given type that match the provided name
+        /// </summary>
+        /// <param name="type">The type to get the methods of</param>
+        /// <param name="methodName">The name of the methods to match</param>
+        /// <returns>An array containing all of the methods for the given type</returns>
+        private static MethodInfo[] MethodsNamedFor(Type type, string methodName)
+        {
+            List<TypeMethodsNamed> cachedMethods;
+            if (!CachedTypeMethodsNamed.TryGetValue(type, out cachedMethods))
+            {
+                cachedMethods = CachedTypeMethodsNamed[type] = new List<TypeMethodsNamed>();
+            }
+
+            for (int i = 0; i < cachedMethods.Count; i++)
+            {
+                if (cachedMethods[i].MethodName == methodName)
+                    return cachedMethods[i].Methods;
+            }
+
+            // Add a new entry to the method cache list
+            var methods = MethodsForType(type);
+            var methodsNamed = new List<MethodInfo>();
+
+            foreach (var method in methods)
+            {
+                if (method.Name == methodName)
+                    methodsNamed.Add(method);
+            }
+
+            var cached = new TypeMethodsNamed(type, methodsNamed.ToArray(), methodName);
+
+            cachedMethods.Add(cached);
+
+            return cached.Methods;
+        }
+
+        /// <summary>
+        /// Internal dictionary used to improve performance of the CreateCallableWrapper method
+        /// </summary>
+        private static readonly Dictionary<Type, MethodInfo[]> TypeMethods = new Dictionary<Type, MethodInfo[]>();
+
+        /// <summary>
+        /// Internal dictionary used to improve performance of the CreateCallableWrapper method
+        /// </summary>
+        private static readonly Dictionary<Type, List<TypeMethodsNamed>> CachedTypeMethodsNamed = new Dictionary<Type, List<TypeMethodsNamed>>();
+
+        /// <summary>
+        /// Struct that is used to cache lookups of type methods by name
+        /// </summary>
+        private struct TypeMethodsNamed
+        {
+            /// <summary>
+            /// Gets the type associated with this TypeMethodsNamed struct
+            /// </summary>
+            public readonly Type Type;
+
+            /// <summary>
+            /// Gets the methods associated with this TypeMethodsNamed struct
+            /// </summary>
+            public readonly MethodInfo[] Methods;
+
+            /// <summary>
+            /// Gets the method names associated with this TypeMethodsNamed struct
+            /// </summary>
+            public readonly string MethodName;
+
+            /// <summary>
+            /// Initializes a new TypeMethodsNamed struct
+            /// </summary>
+            /// <param name="type">The type to assicate with this struct</param>
+            /// <param name="methods">The array of matching methods to associate with this struct</param>
+            /// <param name="methodName">The name of the method group</param>
+            public TypeMethodsNamed(Type type, MethodInfo[] methods, string methodName)
+            {
+                Type = type;
+                Methods = methods;
+                MethodName = methodName;
+            }
         }
     }
 }
