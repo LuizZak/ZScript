@@ -451,8 +451,11 @@ namespace ZScript.Runtime.Typing
                 return numberObject;
             }
 
-            if (c == NumberClass.ExactDouble || c == NumberClass.ExactFloat ||
-                c == NumberClass.Float || c == NumberClass.Double)
+            // Number already casted
+            if (c == NumberClass.ExactLong || c == NumberClass.ExactDouble)
+                return numberObject;
+
+            if (c == NumberClass.ExactFloat || c == NumberClass.Float || c == NumberClass.Double)
                 return Convert.ChangeType(numberObject, typeof(double));
 
             return Convert.ChangeType(numberObject, typeof(long));
@@ -475,14 +478,12 @@ namespace ZScript.Runtime.Typing
             if (boxedNumber is double)
                 return NumberClass.ExactDouble;
 
-            if (boxedNumber is byte || boxedNumber is sbyte || boxedNumber is short || boxedNumber is ushort)
-                return NumberClass.Integer;
-            if (boxedNumber is uint)
+            if (boxedNumber is byte || boxedNumber is sbyte || boxedNumber is short || boxedNumber is ushort || boxedNumber is uint)
                 return NumberClass.Long;
             if (boxedNumber is ulong)
-                return NumberClass.Float;
+                return NumberClass.Double;
 
-            if(throwOnError)
+            if (throwOnError)
                 throw new ArgumentException("The provided boxed object is not a valid numeric type", "boxedNumber");
 
             return NumberClass.NotANumber;
