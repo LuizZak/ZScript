@@ -31,7 +31,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "The tokens generated for the ternary expression where not generated as expected";
 
             const string input = "0 ? 1 : 2";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -71,7 +71,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "The tokens generated for the ternary expression where not generated as expected";
 
             const string input = "0 ? 1 ? 2 : 3 : 4";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -135,7 +135,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "The tokens generated for the ternary expression where not generated as expected";
 
             const string input = "0 ? 1 : 2 ? 3 : 4";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -217,7 +217,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "Failed to generate tokens containing expected short-circuit";
 
             const string input = "a || b";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -258,7 +258,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "Failed to generate tokens containing expected short-circuit";
 
             const string input = "a && b";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -299,7 +299,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "Failed to generate tokens containing expected short-circuit";
 
             const string input = "a || b && c";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -352,7 +352,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "The constant was not propagated as expected";
 
             const string input = "10 + 10";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -390,7 +390,7 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             const string message = "The constant was not propagated as expected";
 
             const string input = "'abc' + 'abc'";
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
@@ -407,6 +407,236 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateStringToken("abcabc"),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Value access
+
+        /// <summary>
+        /// Tests member access-type access token generation
+        /// </summary>
+        [TestMethod]
+        public void TestMemberAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "'a'.Length";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken("a"),
+                TokenFactory.CreateMemberNameToken("Length"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained member access-type access token generation
+        /// </summary>
+        [TestMethod]
+        public void TestChainedMemberAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "'a'.Length.Length.A";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken("a"),
+                TokenFactory.CreateMemberNameToken("Length"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateMemberNameToken("Length"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateMemberNameToken("A"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests function call-type access token generation
+        /// </summary>
+        [TestMethod]
+        public void TestFunctionCall()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "'a'.ToString()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken("a"),
+                TokenFactory.CreateMemberNameToken("ToString"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained function call-type access token generation
+        /// </summary>
+        [TestMethod]
+        public void TestChainedFunctionCall()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "'a'.ToString().IndexOf('1')";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken("a"),
+                TokenFactory.CreateMemberNameToken("ToString"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateMemberNameToken("IndexOf"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateStringToken("1"),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests subscript-type access token generation
+        /// </summary>
+        [TestMethod]
+        public void TestSubscriptAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "'a'[0]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken("a"),
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained subscript-type access token generation
+        /// </summary>
+        [TestMethod]
+        public void TestChainedSubscriptAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "'a'[0][1]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken("a"),
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
             };
 
             Console.WriteLine("Dump of tokens: ");

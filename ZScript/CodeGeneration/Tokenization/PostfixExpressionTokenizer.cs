@@ -222,7 +222,7 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 _isGetAccess = context.leftValueAccess() != null;
 
-                VisitFieldAccess(context.fieldAccess());
+                VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
 
                 if (context.leftValueAccess() != null)
                 {
@@ -542,7 +542,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
             else if (context.fieldAccess() != null)
             {
-                VisitFieldAccess(context.fieldAccess());
+                VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
             }
             if (context.valueAccess() != null)
             {
@@ -566,7 +566,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 }
                 else if (context.fieldAccess() != null)
                 {
-                    VisitFieldAccess(context.fieldAccess());
+                    VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
                 }
                 if (context.valueAccess() != null)
                 {
@@ -577,14 +577,17 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitFieldAccess(ZScriptParser.FieldAccessContext context)
+        private void VisitFieldAccess(ZScriptParser.FieldAccessContext context, bool functionCall)
         {
             VisitMemberName(context.memberName());
 
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetMember));
+            if (functionCall)
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetCallable));
+            else
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetMember));
 
             // Expand the index subscripter in case it is a get access
-            if (_isGetAccess)
+            if (_isGetAccess && !functionCall)
             {
                 _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Get));
             }
@@ -732,6 +735,36 @@ namespace ZScript.CodeGeneration.Tokenization
         }
 
         #endregion
+
+        /// <summary>
+        /// Returns whether a given object access node represents a function call
+        /// </summary>
+        /// <param name="context">The context containing the value access</param>
+        /// <returns>Whether the node represents a function call</returns>
+        private static bool IsFunctionCallAccess(ZScriptParser.ObjectAccessContext context)
+        {
+            return context.valueAccess() != null && context.valueAccess().functionCall() != null;
+        }
+
+        /// <summary>
+        /// Returns whether a given value access node represents a function call
+        /// </summary>
+        /// <param name="context">The context containing the value access</param>
+        /// <returns>Whether the node represents a function call</returns>
+        private static bool IsFunctionCallAccess(ZScriptParser.ValueAccessContext context)
+        {
+            return context.valueAccess() != null && context.valueAccess().functionCall() != null;
+        }
+
+        /// <summary>
+        /// Returns whether a given left value access node represents a function call
+        /// </summary>
+        /// <param name="context">The context containing the value access</param>
+        /// <returns>Whether the node represents a function call</returns>
+        private static bool IsFunctionCallAccess(ZScriptParser.LeftValueAccessContext context)
+        {
+            return context.leftValueAccess() != null && context.leftValueAccess().functionCall() != null;
+        }
 
         /// <summary>
         /// Returns whether a given assignment operatored stored within an AssignmentOperatorContext is a compound assignment operator.

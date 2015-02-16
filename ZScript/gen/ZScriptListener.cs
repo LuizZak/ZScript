@@ -829,15 +829,15 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitLeftValueAccess([NotNull] ZScriptParser.LeftValueAccessContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.functionCallAccess"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterFunctionCall([NotNull] ZScriptParser.FunctionCallContext context);
+	void EnterFunctionCallAccess([NotNull] ZScriptParser.FunctionCallAccessContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.functionCallAccess"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitFunctionCall([NotNull] ZScriptParser.FunctionCallContext context);
+	void ExitFunctionCallAccess([NotNull] ZScriptParser.FunctionCallAccessContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.fieldAccess"/>.
 	/// </summary>
@@ -859,15 +859,15 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitArrayAccess([NotNull] ZScriptParser.ArrayAccessContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectAccess"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterObjectAccess([NotNull] ZScriptParser.ObjectAccessContext context);
+	void EnterFunctionCall([NotNull] ZScriptParser.FunctionCallContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectAccess"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitObjectAccess([NotNull] ZScriptParser.ObjectAccessContext context);
+	void ExitFunctionCall([NotNull] ZScriptParser.FunctionCallContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.valueAccess"/>.
 	/// </summary>

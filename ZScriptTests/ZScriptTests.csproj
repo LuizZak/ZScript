@@ -83,6 +83,7 @@
     <Compile Include="Runtime\Execution\Wrappers\MemberWrapperHelperTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\LstSubscripterTests.cs" />
     <Compile Include="Runtime\ExportFunctionTests.cs" />
+    <Compile Include="Runtime\FunctionAccessTests.cs" />
     <Compile Include="Runtime\MemberTests.cs" />
     <Compile Include="Runtime\ObjectLiteralTests.cs" />
     <Compile Include="Runtime\SubscriptingTests.cs" />
