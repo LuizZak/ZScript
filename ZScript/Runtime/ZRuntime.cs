@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
+using ZScript.Runtime.Execution.Wrappers;
 
 namespace ZScript.Runtime
 {
@@ -106,6 +107,20 @@ namespace ZScript.Runtime
                 throw new Exception("Trying to call undefined function '" + functionName + "'");
 
             return CallFunction(funcDef, arguments);
+        }
+
+        /// <summary>
+        /// Calls a wrapped callable, using an array of objects as arguments.
+        /// The method raises an exception when the function call fails for any reason
+        /// </summary>
+        /// <param name="callable">The callable to execute</param>
+        /// <param name="arguments">The arguments for the function to execute</param>
+        /// <returns>The return of the function that was called</returns>
+        /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
+        /// <exception cref="Exception">The function call failed</exception>
+        public object CallFunction(ICallableWrapper callable, params object[] arguments)
+        {
+            return callable.Call(arguments);
         }
 
         /// <summary>

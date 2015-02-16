@@ -421,6 +421,11 @@ namespace ZScript.Runtime.Execution
                     PerformGetMember();
                     break;
 
+                // Method fetching
+                case VmInstruction.GetCallable:
+                    PerformGetCallable();
+                    break;
+
                 // Object Literal creation
                 case VmInstruction.CreateObject:
                     PerformObjectCreation();
@@ -514,10 +519,19 @@ namespace ZScript.Runtime.Execution
             if (zFunction != null)
             {
                 _stack.Push(_context.Runtime.CallFunction(zFunction, arguments.ToArray()));
+                return;
             }
-            else
+            var wrapper = callable as ICallableWrapper;
+            if (wrapper != null)
             {
-                _stack.Push(_context.Runtime.CallFunction((string)callable, arguments));
+                _stack.Push(_context.Runtime.CallFunction(wrapper, arguments.ToArray()));
+                return;
+            }
+
+            var s = callable as string;
+            if(s != null)
+            {
+                _stack.Push(_context.Runtime.CallFunction(s, arguments));
             }
         }
 
@@ -601,7 +615,7 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
-        /// Performs a member-fetch on the object on top of the stack, pushing a resulting ClassMember back on the stack
+        /// Performs a member-fetch on the object on top of the stack, pushing a resulting IMemberWrapper back on the stack
         /// </summary>
         void PerformGetMember()
         {
@@ -614,6 +628,22 @@ namespace ZScript.Runtime.Execution
             }
 
             _stack.Push(MemberWrapperHelper.CreateMemberWrapper(target, (string)memberName));
+        }
+
+        /// <summary>
+        /// Performs a method-fetch on the object on top of the stack, pushing a resulting ICallableWrapper back on the stack
+        /// </summary>
+        void PerformGetCallable()
+        {
+            object memberName = _stack.Pop();
+            object target = PopValueImplicit();
+
+            if (memberName is Token)
+            {
+                memberName = (string)((Token)memberName).TokenObject;
+            }
+
+            _stack.Push(MemberWrapperHelper.CreateCallableWrapper(target, (string)memberName));
         }
 
         /// <summary>
@@ -666,6 +696,10 @@ namespace ZScript.Runtime.Execution
             if (obj is ZFunction)
             {
                 return obj as ZFunction;
+            }
+            if (obj is ICallableWrapper)
+            {
+                return obj;
             }
 
             throw new Exception("Value on top of the stack cannot be called: '" + obj + "'");
@@ -930,8 +964,10 @@ namespace ZScript.Runtime.Execution
         Call,
         /// <summary>Fetches the member of a value on the stack</summary>
         GetMember,
-        /// <summary>Represents an instruction that fetches the subscript of the object on top of the stack</summary>
+        /// <summary>Fetches the subscript of the object on top of the stack</summary>
         GetSubscript,
+        /// <summary>Fetches a callable function from the object on the top of the stack</summary>
+        GetCallable,
         /// <summary>Creates a new instance of a type, using the objects at the stack as parameters for the creation</summary>
         New,
 

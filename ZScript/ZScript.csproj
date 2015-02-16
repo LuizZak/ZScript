@@ -56,6 +56,8 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionTreeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediateTokenList.cs" />
     <Compile Include="Parsing\ANTLRExtend\ParserExtensions.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Callables\ClassMethod.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\ICallableWrapper.cs" />
     <Compile Include="Runtime\Typing\Elements\CallableTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\IListTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\ListTypeDef.cs" />
