@@ -118,11 +118,11 @@ namespace ZScriptTests
         [TestMethod]
         public void TestLargeCodeParsingSpeed()
         {
-            var reader = new StreamReader(@"C:\Users\Luiz Fernando\Desktop\ZHScript test 3.txt");
+            var reader = new StreamReader(@"ZScript sample.zs");
             var input = reader.ReadToEnd();
             reader.Close();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
 
             var sw = Stopwatch.StartNew();
 

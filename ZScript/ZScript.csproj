@@ -162,6 +162,7 @@
     <None Include="ZScript.g4" />
     <None Include="Parsing\ANTLR\ZScript.tokens" />
     <None Include="Parsing\ANTLR\ZScriptLexer.tokens" />
+    <None Include="ZScript.licenseheader" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
