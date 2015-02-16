@@ -127,64 +127,52 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// Creates a Memory block with the given arguments set as memory spaces
         /// </summary>
         /// <param name="def">Definition to be used as base when replacing variables with their names</param>
-        /// <param name="byName">Whether the parameters array should be used as a 'by name' argument selector</param>
         /// <param name="arguments">The arguments to use as memory spaces</param>
         /// <returns>A memory block, with the given arguments used as memory spaces</returns>
-        public static Memory CreateMemoryFromArgs(ZFunction def, bool byName, params object[] arguments)
+        public static Memory CreateMemoryFromArgs(ZFunction def, params object[] arguments)
         {
             Memory mem = new Memory();
+            int i;
+            bool arrayRest = false;
 
-            if (byName)
+            // Set the default values now
+            foreach (var arg in def.Arguments)
             {
-                int i;
-                bool arrayRest = false;
-
-                // Set the default values now
-                foreach (var arg in def.Arguments)
+                if (arg.HasValue)
                 {
-                    if (arg.HasValue)
-                    {
-                        mem.SetVariable(arg.Name, arg.DefaultValue);
-                    }
-                }
-
-                // Fetch each variable name from the function definition
-                for (i = 0; i < arguments.Length; i++)
-                {
-                    if (def.Arguments[i].IsVariadic)
-                    {
-                        arrayRest = true;
-                        break;
-                    }
-
-                    mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(arguments[i]));
-                }
-
-                if (arrayRest)
-                {
-                    VarArgsArrayList rest = new VarArgsArrayList();
-                    for (int j = i; j < arguments.Length; j++)
-                    {
-                        // Concat ArrayList arguments
-                        var varArgs = arguments[j] as VarArgsArrayList;
-                        if (varArgs != null)
-                        {
-                            rest.InsertRange(rest.Count, varArgs);
-                        }
-                        else
-                        {
-                            rest.Add(arguments[j]);
-                        }
-                    }
-                    mem.SetVariable(def.Arguments[i].Name, rest);
+                    mem.SetVariable(arg.Name, arg.DefaultValue);
                 }
             }
-            else if (arguments.Length > 1)
+
+            // Fetch each variable name from the function definition
+            for (i = 0; i < arguments.Length; i++)
             {
-                for (int i = 0; i < arguments.Length; i += 2)
+                if (def.Arguments[i].IsVariadic)
                 {
-                    mem.SetVariable(arguments[i] as String, arguments[i + 1]);
+                    arrayRest = true;
+                    break;
                 }
+
+                mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(arguments[i]));
+            }
+
+            if (arrayRest)
+            {
+                VarArgsArrayList rest = new VarArgsArrayList();
+                for (int j = i; j < arguments.Length; j++)
+                {
+                    // Concat ArrayList arguments
+                    var varArgs = arguments[j] as VarArgsArrayList;
+                    if (varArgs != null)
+                    {
+                        rest.InsertRange(rest.Count, varArgs);
+                    }
+                    else
+                    {
+                        rest.Add(arguments[j]);
+                    }
+                }
+                mem.SetVariable(def.Arguments[i].Name, rest);
             }
 
             return mem;

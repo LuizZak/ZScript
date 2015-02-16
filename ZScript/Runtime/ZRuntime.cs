@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -135,7 +134,7 @@ namespace ZScript.Runtime
                 return _owner.CallFunction(exportFunction, arguments);
             }
 
-            IMemory<string> localMemory = Memory.CreateMemoryFromArgs(funcDef, true, arguments);
+            IMemory<string> localMemory = Memory.CreateMemoryFromArgs(funcDef, arguments);
 
             // Closures must trap the local memory into their own scope
             if (funcDef.IsClosure)
