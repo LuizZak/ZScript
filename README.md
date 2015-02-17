@@ -6,7 +6,7 @@ An (once) game scripting programming language.
 
 I did this mostly for fun and to learn about implementations of real programming languages, and also to use in my games. It contains a mish-mash of features of other languages that I find cool and useful, like static typing, type inferring and closures.
 
-I'm also really not proud nor do I know exactly why I re-implemented a (very dysfunctional and incomplete) type system when .NET offers a tested and working one, pretty much for free. Other than that, most of the stuff I did was solely so I could learn about the ins and outs of writing an interpreted language that is run via a VM. Apart from the syntax tree parser library I used for this project (ANTLR v4.5), most of the features I ended up implementing where not really researched prior to execution, so things are a bit janky when it comes to stability. The language is not completely implemented, the full list of features are found in the next sessions of this file.
+I'm also really not proud nor do I know exactly why I re-implemented a (very dysfunctional and incomplete) type system when .NET offers a tested and working one, pretty much for free. Other than that, most of the stuff I did was solely so I could learn about the ins and outs of writing an interpreted language that is run via a VM. Apart from the syntax tree parser library I used for this project (ANTLR v4.5), most of the features I ended up implementing where not really researched prior to execution, so some things are a bit janky when it comes to stability. The language is not completely implemented yet, and a full list of features with implementation and stability information are found in the next sessions of this file.
 
 
 ## About the language
@@ -58,7 +58,26 @@ These short examples showcase a few of the features of the language:
 Statements to be executed in ZScript must be contained within functions that can be called either by other functions in the code, or directly by calling the ZRuntime.CallFunction() at C# code level.
 
 * Type inferring  
-Variables and constants in ZScript are typed, and a type must be provided at time of creation of the value holders, but if the type is omitted, it is inferred from the value it was assigned at time of creation: prevPrev, prev, result and i have their value inferred as integer because that's the value that was provided when they where created.
+Variables and constants in ZScript are typed, and a type must be provided at time of creation of the value holders, but if the type is omitted, it is inferred from the value it was assigned at time of creation: `prevPrev`, `prev`, `result` and `i` have their value inferred as integer because that's the value that was provided when they where created.
+
+
+###### Language implementation status
+
+Some of the features proposed by the language are not fully implemented, and some are still somewhat unstable, as specified by the table bellow.
+
+Feature  | Status | Comments
+------------- | ------------- | ------------
+Variables & constants  | Implemented | Still missing things like analysis of initialization before usages.
+Type System | Partially Implemented | A statical type system is in place, but some functionalities are not yet implemented, like binding to native types, for example. I'm also not fully sure about the ability of the type system to infer a common type between two types, it currently allows things like inferring that a list that contains integers and floats as of '[float]' type, when it really contains integers, too.
+Expression Evaluation | Partially Implemented | Still missing emision of implicit and explicit type cast instructions, making the type system not fully safe. All other aspects are fully implemented, though.
+Statements | Implemented | Modifications for the `switch` statement are planned, though.
+Functions  | Partially Implemented | Working completely, but parameter definition checking is no yet implemented, allowing for unintended things like creating optional parameters before required ones, and specifying multiple variadic parameters in the same signature.
+Export Functions  | Partially Implemented | Same implications to function parameters, se above.
+Closures  | Partially Implemented | Fully working, can capture the variables of the function they are being executed in, including capturing of other closures. Same implications to function parameters, se above.
+Objects (i.e. classes)  | Not Implemented | 
+Sequences | Not Implemented | 
+Type Alias | Not Implemented | Still evaluating the necessity of type aliases, but syntax is already drafted.
+
 
 ## Table of contents:
 
@@ -97,8 +116,8 @@ The next sections explain the types in depth.
 
 ZScript understands two basic types of numbers: ```int```s and ```float```s.
 
-```int``` is a 64-bit integer number (Equivalent to 'long' in C# or 'Int64' in Swift).  
-```float``` is a double precision floating point number (Equivalent to 'double' in C# or 'Double' in Swift).
+```int``` is a 64-bit integer number (Equivalent to 'long' in C# or 'Int64' in Swift, for example).  
+```float``` is a double precision floating point number (Equivalent to 'double' in C# or 'Double' in Swift, for example).
 
 Numbers can be expressed as literals in the code, with integers defined with no decimal point, and floats with a decimal point:
 
@@ -287,7 +306,7 @@ var value = obj1["entry with spaces"];
 ```
 
 
-##### Any type
+##### `any` type
 
 ZScript is a typed language, but sometimes it is handy to make operations dynamically on values without having to worry about what the actual types of these values are. Since operations on values are checked on compile time, we need to use a special type signature to specify that the type is dynamic: that is the purpose of the `any` type.
 
@@ -362,17 +381,17 @@ Other samples, with different callable types:
 A callable type can be used in any place a normal type can:
 
 ```csharp
-func comp(i1:int, i2:int) : bool
+func larger(i1:int, i2:int) : bool
 {
-  reurn i1.ToString()[0] == i2.ToString()[1];
+  return i1 > i2;
 }
 
 // Assignments of callable types are also type-checked: if the type signature of the variable
 // and the type signature of the 'comp' function didn't match, an error would be raised here
-var compareLastDigit:(int,int -> bool) = comp;
+var isFirstLarger:(int,int -> bool) = comp;
 
-// Here, the function call is allowed because the compareLastDigit has a callable type
-var areEqual = compareLastDigit(101, 102);
+// Here, the function call is allowed because isFirstLarger has a callable type
+var areEqual:bool = isFirstLarger(2, 3); // returns false, by the way
 ```
 
 The same rules that apply to usage of function calls apply to callable values
@@ -420,7 +439,7 @@ integer = 5;   // Set the contents of integer to 5
 integer += 10; // Sum integer with 10, and assign the result to itself
 // Now integer contains '15'
 ```
-*(Author note: the check for variable usage before initialization is not implemented yet, so trying to access the value of an uninitialised variable is not detected as an error and will result in runtime-errors)*
+*(Author note: the check for variable usage before initialization is not implemented yet, so trying to access the value of an uninitialised variable is not detected as a compile-time error and will result in runtime-errors)*
 
 
 Much like variables, constants are created by using the 'let' keyword, followed by the constant name, a starting value and, optionally, a type:
@@ -967,17 +986,149 @@ More about return statements is explained in the next section about Functions
 
 #### Functions
 
-Functions in ZScript 
+Statements cannot be executed in the top-level of the file (in previous examples containing what appear to be statements in the top-level are actually implied to be inside a function, and so are the next examples); in order to execute statements they must be contained within functions.
+
+Functions in ZScript are defined with `func` keyword, followed by a parameter list (which can be empty; see bellow for function parameters):
+
+```csharp
+func printHello()
+{
+  print("Hello!");
+}
+```
+
+
+###### Specifying a return type
+
+Functions in ZScript can be made to return values to the caller by adding a `: <type>` bit after the parenthesis:
+
+```csharp
+// Function that is guaranteed to return a non-randomly chosen value 10 to the caller. Very useful when no randomness is expected
+func nonrandom() : int // Specifies that the function returns an int
+{
+  return 10;
+}
+```
+
+Return types are also the only valid place `void` is an accepted type, used to infer that a function returns no value:
+
+```csharp
+// Handy shorcut function for when routinely printing 10: It saves you exactly 0 characters over writing 'print(10)', and was a standard coding practice back in the golden 'C' ages.
+func print10() : void
+{
+  print(10);
+  
+  // Notice the lack of a 'return' keyword: returns are optional in void functions
+}
+```
+
+Return types can be omitted, and when omitted, a return type of `void` is implied:
+
+```csharp
+func example1() : void
+{
+  ...
+}
+func example2()
+{
+  
+}
+```
+
+Both functions `example1` and `example2` above have a return value of `void`, with `example2` being automatically set as void because it lacked an explicit return type.
+
+The specification of a return type changes the semantics of `return` statements contained within the function: Non-void functions must specify a value in their return statements, while void functions do not allow for values to be specified:
+
+```csharp
+func nonVoidFunc() : int
+{
+  return 0; // Removing the 0 value causes a compile-time error: Non-void functions require a return value!
+}
+func voidFunc() : void
+{
+  //return 0; // Uncommenting this line causes a compile-time error: Void functions cannot specify a return value!
+}
+```
+
+As with the rest of the language, return values are typed, and are type-checked agaainst the return type specified by the function signature.
+
+
+###### Parameters
+
+Functions can contain parameters, which are falues that are specified by whomever is calling the function, and can be accessed like any variable:
+
+```csharp
+func printNumber(n:int)
+{
+  print(n);
+}
+
+...
+printNumber(10);
+...
+```
+
+Prints
+```csharp
+10
+```
+
+Functions can specify any number of parameters to be provided by separating them with commas:
+
+```csharp
+func printSum(n1:int, n2:int)
+{
+  print(n1 + n2);
+}
+
+...
+printSum(10);
+...
+```
+
+
+Parameters are typed values, and the type is used to check that the values being provided are valid:
+
+```csharp
+func printNumber(n:int)
+{
+  print(n);
+}
+
+...
+print(true); // Error: Function expects an int value, but receives a boolean value
+...
+```
+
+When defining function parameters, it is to sometimes useful to omit a value and let the function decide what value to use instead. That is done with optional parameters, which are specified by adding `= < value>` in front of the parameter:
+
+```csharp
+func increment(number:int, amount:int = 1) : int
+{
+  return number + amount;
+}
+
+...
+print(increment(4));
+print(increment(4, ));
+...
+```
+
+Prints
+```csharp
+5
+10
+```
 
 ###### Things to consider with `return` statements:
 
 Functions that have a return value require that all return statements specify a value:
 
 ```csharp
-func divide(n1:int, n2:int) : int
+func integerDivide(n1:int, n2:int) : int
 {
   if(n2 != 0)
-     return n1 + n2;
+     return n1 / n2;
   
   return; // Invalid: all return statements require a value
 }
@@ -996,11 +1147,11 @@ In case the function specifies a return value, all possible code paths must retu
 
 ```csharp
 // Invalid: not all code paths return a value
-func divide(n1:int, n2:int) : int
+func integerDivide(n1:int, n2:int) : int
 {
   if(n1 != 0)
   {
-    return n1 + n2;
+    return n1 / n2;
   }
   else
   {
@@ -1011,11 +1162,19 @@ func divide(n1:int, n2:int) : int
 
 #### Export functions
 
+TODO
+
 #### Closures
+
+TODO
 
 #### Objects
 
+TODO
+
 #### Sequences
+
+TODO
 
 ##### About the VM
 
