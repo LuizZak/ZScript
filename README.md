@@ -65,15 +65,15 @@ Variables and constants in ZScript are typed, and a type must be provided at tim
 
 Some of the features proposed by the language are not fully implemented, and some are still somewhat unstable, as specified by the table bellow.
 
-Feature  | Status | Comments
+Feature  | Status | Author's thoughs
 ------------- | ------------- | ------------
 Variables & constants  | Implemented | Still missing things like analysis of initialization before usages.
 Type System | Partially Implemented | A statical type system is in place, but some functionalities are not yet implemented, like binding to native types, for example. I'm also not fully sure about the ability of the type system to infer a common type between two types, it currently allows things like inferring that a list that contains integers and floats as of '[float]' type, when it really contains integers, too.
 Expression Evaluation | Partially Implemented | Still missing emision of implicit and explicit type cast instructions, making the type system not fully safe. All other aspects are fully implemented, though.
 Statements | Implemented | Modifications for the `switch` statement are planned, though.
 Functions  | Partially Implemented | Working completely, but parameter definition checking is no yet implemented, allowing for unintended things like creating optional parameters before required ones, and specifying multiple variadic parameters in the same signature.
-Export Functions  | Partially Implemented | Same implications to function parameters, se above.
-Closures  | Partially Implemented | Fully working, can capture the variables of the function they are being executed in, including capturing of other closures. Same implications to function parameters, se above.
+Export Functions  | Partially Implemented | Same implications to function parameters, see above.
+Closures  | Partially Implemented | Fully working, can capture the variables of the function they are being executed in, including capturing of other closures. Same implications to function parameters, see above.
 Objects (i.e. classes)  | Not Implemented | 
 Sequences | Not Implemented | 
 Type Alias | Not Implemented | Still evaluating the necessity of type aliases, but syntax is already drafted.
