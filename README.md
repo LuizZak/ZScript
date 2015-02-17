@@ -60,9 +60,11 @@ Statements to be executed in ZScript must be contained within functions that can
 * Type inferring  
 Variables and constants in ZScript are typed, and a type must be provided at time of creation of the value holders, but if the type is omitted, it is inferred from the value it was assigned at time of creation: `prevPrev`, `prev`, `result` and `i` have their value inferred as integer because that's the value that was provided when they where created.
 
-
-For more information about the language, please visit the [project's wiki](https://github.com/LuizZak/ZScript/wiki) which contains an assortment of documentation related to the language.
-
 ##### About the VM
 
 The VM (FunctionVM) is a stack-based virtual machine that utilizes special token stream constructs as instructions to execute. The function VM itself has no memory access, requiring an external object (VmContext) that provides access for memory and the runtime to call functions on.
+
+
+## More Information
+
+For more information about the language, please visit the [project's wiki](https://github.com/LuizZak/ZScript/wiki) which contains an assortment of documentation related to the language.
