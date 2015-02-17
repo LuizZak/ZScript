@@ -293,6 +293,7 @@ Prints
 ##### Object type
 
 Objects are another type of collections of items, but differently from lists, the values are accesed by key, with the type of the key always being a string. The signature for an object is the 'object' type name.
+*Author's note: Currently, objects map into an encapsulated C#'s System.Collections.Generic.Dictionary<string, object> object*
 
 Objects are not typed, and any key can contain any type of value within it.
 
@@ -309,10 +310,10 @@ Values in objects can be accessed either by subscription or by field-like access
 var person:object = { name: "John Doe", age: 30 };
 
 // Field access
-var value1 = person.name;    // value1 now equals to 10
+var name = person.name;     // name now equals to "John Doe"
 
 // Subscription; notice that the value between the brackets must be a string
-var value2 = person["age"]; // value2 now equals to 20
+var age = person["age"];    // age now equals to 30
 ```
 
 Additionally, entry names in an object literal can be specified enclosed in a string
