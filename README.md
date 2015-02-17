@@ -719,7 +719,7 @@ If the `<condition>` is omitted, the loop runs indefinitely.
 #### switch
 
 Syntax: `switch( <expression> ) { case <value1>: <statements>, case <value2>: <statements>, ..., case <valueN>: <statements>, [default: <statements>] }`  
-*Author's note: I'm currently evaluating an alternative syntax for the case labels to allow different types ofcomparisions to be performed and multiple case matches to be made with the same 'case' label*
+*Author's note: I'm currently evaluating an alternative syntax for the case labels to allow different types of comparisions to be performed with the values and to allow multiple value matches to be made in the same 'case' label (as an alternative to sequential 'case' labels)*
 
 Evaluates the value of an expression, jumping to a specific internal `case` label of matching value, and if it fails to match with any `case` label, jumps to a `default` label, if present.
 
