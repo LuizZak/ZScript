@@ -277,6 +277,18 @@ var list:[int] = [0, 1, 2];
 list[0] = 1; // List now contains [1, 1, 2]
 ```
 
+The count of items in a list can be accessed with the .Length member:
+
+```csharp
+var list:[int] = [0, 1, 2];
+print(list.Length);
+```
+
+Prints
+```csharp
+3
+```
+
 ##### Object type
 
 Objects are another type of collections of items, but differently from lists, the values are accesed by key, with the type of the key always being a string. The signature for an object is the 'object' type name.
@@ -1138,6 +1150,35 @@ Prints
 5
 6
 ```
+*Note: In case a default value is provided, the type of the parameter can be inferred*  
+*Note: The default value of a function argument must be a constant (or 'compile-time') value*
+
+Functions can also specify a special parameter called `variadic` parameter which can receive any number of arguments passed by the caller. To create a variadic parameter, `...` is added after the parameter's type:
+
+```csharp
+func sumMany(values:int...) : int
+{
+  var sum = 0;
+  for(var i = 0; i < values.Length; i++)
+  {
+    sum += values[i];
+  }
+  return sum;
+}
+
+...
+print(sumMany(1, 2, 3, 4));
+...
+```
+
+Prints
+```
+10
+```
+
+Variadic parameters are equivalent to lists: they can be subscripted and the count of values can be accessed with the .Length member.
+
+*Note: Variadic parameters cannot specify a default value*
 
 ###### Things to consider with `return` statements:
 
@@ -1150,15 +1191,6 @@ func integerDivide(n1:int, n2:int) : int
      return n1 / n2;
   
   return; // Invalid: all return statements require a value
-}
-```
-
-Functions that have a `void`-type return value do not allow a return value to be specified:
-
-```csharp
-func sneakyReturner() : void
-{
-  return 0; // Invalid: no return value can be specified on 'void' functions
 }
 ```
 
