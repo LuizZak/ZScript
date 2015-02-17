@@ -126,6 +126,13 @@ Numbers can be expressed as literals in the code, with integers defined with no 
 10.0  // Literal floating-point value
 ```
 
+Additionally, two syntaxes are available for creating hexadecimal and binary literal integer values:
+
+```
+0b110 // Literal binary integer values are specified by '0b' followed by a sequence of 0-1 digits
+0xFFF // Literal hexadecimal integer values are specified by '0x' followed by a sequence of hex digits
+```
+
 Integers can be implicitly used in places that floats are expected, but not the other way around: Floats require casts to be converted to integers.
 
 ```csharp
@@ -1058,12 +1065,12 @@ func voidFunc() : void
 }
 ```
 
-As with the rest of the language, return values are typed, and are type-checked agaainst the return type specified by the function signature.
+As with the rest of the language, return values are typed, and are type-checked against the return type specified by the function signature.
 
 
 ###### Parameters
 
-Functions can contain parameters, which are falues that are specified by whomever is calling the function, and can be accessed like any variable:
+Functions can contain parameters, which are values that are specified by whomever is calling the function, and can be accessed like any variable:
 
 ```csharp
 func printNumber(n:int)
@@ -1090,10 +1097,14 @@ func printSum(n1:int, n2:int)
 }
 
 ...
-printSum(10);
+printSum(2, 2);
 ...
 ```
 
+Prints
+```csharp
+4
+```
 
 Parameters are typed values, and the type is used to check that the values being provided are valid:
 
@@ -1118,14 +1129,14 @@ func increment(number:int, amount:int = 1) : int
 
 ...
 print(increment(4));
-print(increment(4, ));
+print(increment(4, 2));
 ...
 ```
 
 Prints
 ```csharp
 5
-10
+6
 ```
 
 ###### Things to consider with `return` statements:
