@@ -256,6 +256,7 @@ Lists represent typed, mutable collections of objects. List types are defined by
 // List types can also contain list types in them:
 [[int]] // Type signature for list of lists of integers
 ```
+*Author's note: Lists currently map to the C#'s System.Collections.ArrayList object. There are plans to map it to the generic System.Collections.Generic.List<T> type for increased type safety later on.*
 
 List literals can be created by wapping values in square brackets, separated by commas:
 
