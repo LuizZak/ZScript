@@ -286,13 +286,13 @@ Object literals are defined by enclosing pairs of 'key : value' entries in curly
 Values in objects can be accessed either by subscription or by field-like access:
 
 ```csharp
-var obj1:object = { entry1: 10, entry2: 20 };
+var person:object = { name: "John Doe", age: 30 };
 
 // Field access
-var value1 = obj1.entry1;    // value1 now equals to 10
+var value1 = person.name;    // value1 now equals to 10
 
 // Subscription; notice that the value between the brackets must be a string
-var value2 = obj1["entry2"]; // value2 now equals to 20
+var value2 = person["age"]; // value2 now equals to 20
 ```
 
 Additionally, entry names in an object literal can be specified enclosed in a string
@@ -305,6 +305,14 @@ var obj1:object = { "entry with spaces": 10 };
 var value = obj1["entry with spaces"];
 ```
 
+Trying to access entries not present in an object result in a null value being returned:
+
+```csharp
+var obj1:object = { existing: 10 };
+
+var value1 = obj1.existing; // value1 now equals to 10
+var value2 = obj1.unexisting; // 'unexisting' entry does not exists in the object, so null is returned; value2 now equals to 'null'
+```
 
 ##### `any` type
 
