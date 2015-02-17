@@ -102,7 +102,7 @@ In ZScript, operations are executed by statements inside functions, with data be
 
 ZScript is a typed language, meaning every value has a type associated with it, and that reflects in constructs that manipulate values: variables, constants, function parameters and function return values all have a type signature that describes their expected types. Type signatures are immutable (e.g. after creating a variable that contains integers, it cannot be changed to accept any type of value other than integers).
 
-Types are checked when manipulating values, like assigning a variable or returning a value from a function, and any improper usage of types (say, assining an integer when a string is expected) results in a compile-time error. This increases the confidence that the code will execute as expected, since you can be sure of the type something has from the type signature it exposes.
+Types are checked when manipulating values, like assigning a variable or returning a value from a function, and any improper usage of types (say, assigning an integer when a string is expected) results in a compile-time error. This increases the confidence that the code will execute as expected, since you can be sure of the type something has from the type signature it exposes.
 
 ZScript provides a few sets of basic types that can be used from the get-go:
 
