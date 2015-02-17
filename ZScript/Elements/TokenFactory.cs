@@ -154,6 +154,10 @@ namespace ZScript.Elements
                     inst = VmInstruction.Less;
                     break;
 
+                case "is":
+                    inst = VmInstruction.Is;
+                    break;
+
                 case "&&":
                     inst = VmInstruction.LogicalAnd;
                     break;

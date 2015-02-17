@@ -70,9 +70,9 @@ namespace ZScript.CodeGeneration.Analysis
             // Register an error when trying to perform an operation with a void value
             if (type1.IsVoid || type2.IsVoid)
             {
-                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform binary operations with values of type void", ErrorCode.VoidOnBinaryExpression, context);
+                MessageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform binary operations with values of type void", ErrorCode.VoidOnBinaryExpression, context);
 
-                return _typeProvider.AnyType();
+                return TypeProvider.AnyType();
             }
 
             var str = ExpressionUtils.OperatorOnExpression(context);
@@ -86,18 +86,18 @@ namespace ZScript.CodeGeneration.Analysis
             // Arithmetic instructions with any operands propagate anys
             if ((type1.IsAny || type2.IsAny) && IsArithmetic(instruction))
             {
-                return _typeProvider.AnyType();
+                return TypeProvider.AnyType();
             }
 
-            if (!_typeProvider.BinaryExpressionProvider.CanPerformOperation(instruction, type1, type2))
+            if (!TypeProvider.BinaryExpressionProvider.CanPerformOperation(instruction, type1, type2))
             {
                 var message = "Cannot perform " + instruction + " operation on values of type " + type1 + " and " + type2;
-                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, message, ErrorCode.InvalidTypesOnOperation, context);
+                MessageContainer.RegisterError(context.Start.Line, context.Start.Column, message, ErrorCode.InvalidTypesOnOperation, context);
 
-                return _typeProvider.AnyType();
+                return TypeProvider.AnyType();
             }
 
-            return _typeProvider.BinaryExpressionProvider.TypeForOperation(instruction, type1, type2);
+            return TypeProvider.BinaryExpressionProvider.TypeForOperation(instruction, type1, type2);
         }
 
         /// <summary>

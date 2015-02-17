@@ -329,7 +329,7 @@ func inspectFields(_obj : any, field : any = null) : void
             {
                 compost += "null";
             }
-            else if(is(fields[i].GetValue(_obj), "System.String"))
+            else if(fields[i].GetValue(_obj) is System.String)
             {
                 compost += "'" + fields[i].GetValue(_obj) + "'";
             }
@@ -352,7 +352,7 @@ func inspectFields(_obj : any, field : any = null) : void
                 {
                     compost += "null";
                 }
-                else if(is(fields[i].GetValue(_obj), "System.String"))
+                else if(fields[i].GetValue(_obj) is System.String)
                 {
                     compost += "'" + fields[i].GetValue(_obj) + "'";
                 }
@@ -508,7 +508,7 @@ let ENEMY_TOUGHZOMBIE = 'ToughZombie';
 @setStatic(class : any, field : any, value : any) : void
 @getStaticProp(class : any, prop : any) : any
 @setStaticProp(class : any, prop : any, value : any) : any
-@is(obj : any, type) : bool
+//@is(obj : any, type) : bool
 //@new(class, args=null, types=null)
 @hasField(obj : any, field) : bool
 @hasProperty(obj : any, prop) : bool
@@ -1541,7 +1541,7 @@ func addInventoryItem(_player : Player = null, itemID : int = 0, count : int = 1
     }
     //if(is(hash, 'ZombieHouseScripter.ObjectDef'))
     
-    if(is(hash, 'ZombieHouseScripter.Elements.ObjectDef, ZombieHouseScripter, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'))
+    if(hash is ZombieHouseScripter.Elements.ObjectDef)
     {              
         hash = hash.ToHashtable();
     }

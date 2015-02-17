@@ -972,6 +972,12 @@ namespace ZScript.Runtime.Execution
         Greater,
         /// <summary>Larger operation</summary>
         Less,
+
+        /// <summary>Performs a type check with two operands on the top of the stack, pushing a boolean result on the top of the stack</summary>
+        Is,
+
+        /// <summary>Performs a type cast with the value on the top of the stack, pushing a converted value result on the top of the stack</summary>
+        Cast,
         
         /// <summary>Logical AND (&&) operation</summary>
         LogicalAnd,

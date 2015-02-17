@@ -18,8 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Collections.Generic;
 using System.Linq;
+
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
 
@@ -36,25 +38,40 @@ namespace ZScript.CodeGeneration.Analysis
         private List<ZScriptParser.ReturnStatementContext> _returnStatements;
 
         /// <summary>
-        /// The current message container for the analyzer
-        /// </summary>
-        private MessageContainer _messageContainer;
-
-        /// <summary>
         /// The current function definition being analyzed
         /// </summary>
         private FunctionDefinition _currentDefinition;
 
         /// <summary>
+        /// The context for the analysis
+        /// </summary>
+        private RuntimeGenerationContext _context;
+
+        /// <summary>
+        /// The current message container for the analyzer
+        /// </summary>
+        private MessageContainer Container
+        {
+            get { return _context.MessageContainer; }
+        }
+
+        /// <summary>
+        /// The current function definition being analyzed
+        /// </summary>
+        private FunctionDefinition CurrentDefinition
+        {
+            get { return _currentDefinition; }
+        }
+
+        /// <summary>
         /// Analyzes a given scope for functions with mismatching return statements
         /// </summary>
-        /// <param name="scope">The scope to analyze</param>
-        /// <param name="messageContainer">The container to report the error messages to</param>
-        public void AnalyzeScope(CodeScope scope, MessageContainer messageContainer)
+        /// <param name="context">The context containing the scope to analyze and message container to report errors and warnings to</param>
+        public void Analyze(RuntimeGenerationContext context)
         {
-            _messageContainer = messageContainer;
+            _context = context;
 
-            var funcs = scope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
+            var funcs = context.BaseScope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
 
             foreach (var func in funcs)
             {
@@ -84,7 +101,7 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 if (func.HasReturnType && !func.IsVoid)
                 {
-                    _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
                         "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
                 }
 
@@ -96,12 +113,12 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (state == ReturnStatementState.Partial)
             {
-                _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
                     "Not all code paths of function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
             }
             else if (func.HasReturnType && !func.IsVoid && state != ReturnStatementState.Complete)
             {
-                _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
                     "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
             }
 
@@ -126,18 +143,18 @@ namespace ZScript.CodeGeneration.Analysis
                 // Report inconsistent returns
                 if (inconsistentReturn)
                 {
-                    _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
                         "Function '" + func.Name + "' has inconsistent returns: Some returns are void, some are valued.", ErrorCode.InconsistentReturns, context);
                 }
                 // Check for early-returns on functions that have a missing return value
                 else if (!func.HasReturnType && valuedReturn && state != ReturnStatementState.Complete)
                 {
-                    _messageContainer.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
                         "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, context);
                 }
             }
 
-            _currentDefinition.ReturnStatements = _returnStatements;
+            CurrentDefinition.ReturnStatements = _returnStatements;
         }
 
         /// <summary>
@@ -200,12 +217,12 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 if (context.expression() != null)
                 {
-                    _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
+                    Container.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
                 }
             }
-            else if (_currentDefinition.HasReturnType && context.expression() == null)
+            else if (CurrentDefinition.HasReturnType && context.expression() == null)
             {
-                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
+                Container.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
             }
 
             _returnStatements.Add(context);
@@ -315,7 +332,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>Whether the current return value is void</returns>
         private bool IsCurrentReturnValueVoid()
         {
-            return _currentDefinition.IsVoid;
+            return CurrentDefinition.IsVoid;
         }
 
         /// <summary>

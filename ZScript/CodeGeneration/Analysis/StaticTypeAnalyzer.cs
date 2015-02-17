@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,12 +36,12 @@ namespace ZScript.CodeGeneration.Analysis
     /// <summary>
     /// Analyzes and expands the types of definitions
     /// </summary>
-    public class StaticTypeAnalyzer : IDefinitionTypeProvider
+    public class StaticTypeAnalyzer
     {
         /// <summary>
-        /// The type provider for resolving types
+        /// The generation context to use when analyzing types
         /// </summary>
-        private readonly TypeProvider _typeProvider;
+        private readonly RuntimeGenerationContext _generationContext;
 
         /// <summary>
         /// The code scope containing the definitions to expand
@@ -48,28 +49,38 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly CodeScope _baseScope;
 
         /// <summary>
-        /// The message container to report error messages to
-        /// </summary>
-        private readonly MessageContainer _container;
-
-        /// <summary>
         /// The type resolver used to expand the types
         /// </summary>
         private readonly ExpressionTypeResolver _typeResolver;
 
         /// <summary>
+        /// Gets the type provider for this static type analyzer
+        /// </summary>
+        private TypeProvider TypeProvider
+        {
+            get { return _generationContext.TypeProvider; }
+        }
+
+        /// <summary>
+        /// Gets the message container to report errors and warnings to
+        /// </summary>
+        private MessageContainer Container
+        {
+            get { return _generationContext.MessageContainer; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the DefinitionTypeExpander class
         /// </summary>
-        /// <param name="typeProvider">The type provider for resolving types</param>
+        /// <param name="generationContext">The generation context for this static type analyzer</param>
         /// <param name="scope">The definition collector containing the definitions to expand</param>
-        /// <param name="container">The message container to report error messages to</param>
-        public StaticTypeAnalyzer(TypeProvider typeProvider, CodeScope scope, MessageContainer container)
+        public StaticTypeAnalyzer(RuntimeGenerationContext generationContext, CodeScope scope)
         {
-            _typeProvider = typeProvider;
             _baseScope = scope;
-            _container = container;
 
-            _typeResolver = new ExpressionTypeResolver(typeProvider, container, this);
+            _generationContext = generationContext;
+
+            _typeResolver = new ExpressionTypeResolver(generationContext);
         }
 
         /// <summary>
@@ -136,7 +147,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="scope">The code scope to process expressions on</param>
         private void ProcessExpressions(CodeScope scope)
         {
-            var resolver = new ExpressionConstantResolver(new BinaryExpressionTypeProvider(_typeProvider), new TypeOperationProvider());
+            var resolver = new ExpressionConstantResolver(new BinaryExpressionTypeProvider(TypeProvider), new TypeOperationProvider());
             var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver);
             var definitions = scope.Definitions;
 
@@ -164,7 +175,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Use the type to define the type of the closure
-            var newType = _typeProvider.FindCommonType(definition.CallableTypeDef, contextType) as CallableTypeDef;
+            var newType = TypeProvider.FindCommonType(definition.CallableTypeDef, contextType) as CallableTypeDef;
 
             if(newType != null)
             {
@@ -176,7 +187,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 // Don't update the return type if the closure has a return type and new type is void: this may cause errors during return type analysis
-                if (!definition.HasReturnType || newType.ReturnType != _typeProvider.VoidType())
+                if (!definition.HasReturnType || newType.ReturnType != TypeProvider.VoidType())
                 {
                     definition.ReturnType = newType.ReturnType;
                     definition.HasReturnType = true;
@@ -188,7 +199,7 @@ namespace ZScript.CodeGeneration.Analysis
             Array.ForEach(definition.Arguments, ExpandFunctionArgument);
             
             // Get all of the local variables and expand them now
-            var scope = ScopeForContext(definition.Context);
+            var scope = _baseScope.GetScopeContainingContext(definition.Context);
 
             foreach (var valueDef in scope.GetAllDefinitionsRecursive().OfType<ValueHolderDefinition>().Where(d => !(d is FunctionArgumentDefinition)))
             {
@@ -208,7 +219,7 @@ namespace ZScript.CodeGeneration.Analysis
         private TypeDef FindExpectedTypeForClosure(ZScriptParser.ClosureExpressionContext closureContext)
         {
             // Search closures registered on expected type closures list
-            return closureContext.InferredType ?? _typeProvider.AnyType();
+            return closureContext.InferredType ?? TypeProvider.AnyType();
         }
 
         /// <summary>
@@ -242,11 +253,11 @@ namespace ZScript.CodeGeneration.Analysis
 
                     var type = _typeResolver.ResolveExpression(statement.expression());
 
-                    if (!_typeProvider.CanImplicitCast(type, definition.ReturnType))
+                    if (!TypeProvider.CanImplicitCast(type, definition.ReturnType))
                     {
                         var message = "Cannot implicitly convert return value type " + type +
                                       ", function expects return type of " + definition.ReturnType;
-                        _container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message,
+                        Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message,
                             ErrorCode.InvalidCast, definition.Context);
                     }
 
@@ -264,7 +275,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Evaluate definition type
             if (!definition.HasType)
             {
-                definition.Type = _typeProvider.AnyType();
+                definition.Type = TypeProvider.AnyType();
             }
             else
             {
@@ -290,10 +301,10 @@ namespace ZScript.CodeGeneration.Analysis
 
             var varType = definition.Type;
 
-            if (!_typeProvider.CanImplicitCast(valueType, varType))
+            if (!TypeProvider.CanImplicitCast(valueType, varType))
             {
                 var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
-                _container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
+                Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
             }
         }
 
@@ -307,93 +318,8 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (definition.IsVariadic)
             {
-                definition.Type = _typeProvider.ListForType(definition.Type);
+                definition.Type = TypeProvider.ListForType(definition.Type);
             }
-        }
-
-        //
-        // IDefinitionTypeProvider.TypeForDefinition implementation
-        // 
-        public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
-        {
-            // Search for the inner-most scope that contains the context, and search the definition from there
-            var scopeForDefinition = ScopeForContext(context);
-
-            if (scopeForDefinition != null)
-            {
-                var def = scopeForDefinition.GetDefinitionByName(definitionName);
-
-                // Bind the definition to the member name
-                context.Definition = def;
-
-                var holderDefinition = def as ValueHolderDefinition;
-                if (holderDefinition != null)
-                {
-                    context.IsConstant = holderDefinition.IsConstant;
-
-                    return holderDefinition.Type ?? TypeDef.AnyType;
-                }
-
-                var funcDef = def as FunctionDefinition;
-                if (funcDef != null)
-                {
-                    // Functions cannot be reassigned
-                    context.IsConstant = true;
-
-                    return funcDef.CallableTypeDef;
-                }
-
-                var objDef = def as ObjectDefinition;
-                if (objDef != null)
-                {
-                    // Object definitions cannot be reassigned
-                    context.IsConstant = true;
-
-                    return TypeDef.AnyType;
-                }
-            }
-
-            _container.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
-
-            return _typeProvider.AnyType();
-        }
-
-        /// <summary>
-        /// Returns the inner-most scope that contains a given context on the current definitions collector's scopes, or null, if none was found
-        /// </summary>
-        /// <param name="context">The context to search in the scopes</param>
-        /// <returns>The inner-most scope that contains the given context, or null, if none was found</returns>
-        private CodeScope ScopeForContext(RuleContext context)
-        {
-            var scopes = _baseScope.GetAllScopesRecursive().ToArray();
-
-            bool found = false;
-            CodeScope scopeForDefinition = null;
-
-            RuleContext p = context;
-            while (p != null)
-            {
-                // If the context is a program context, return the base global scope
-                if (p is ZScriptParser.ProgramContext)
-                    return _baseScope;
-
-                foreach (var scope in scopes)
-                {
-                    if (p == scope.Context)
-                    {
-                        scopeForDefinition = scope;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                    break;
-
-                p = p.Parent;
-            }
-
-            return scopeForDefinition;
         }
 
         /// <summary>

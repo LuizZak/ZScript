@@ -18,10 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime;
 using ZScript.Runtime.Execution;
@@ -43,7 +42,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestMethodCallable()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken(10L),
                 TokenFactory.CreateStringToken("ToString"),
@@ -68,7 +67,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestMethodCallableCall()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 TokenFactory.CreateBoxedValueToken(10L),
                 TokenFactory.CreateStringToken("ToString"),
@@ -95,7 +94,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestNestedMethodCallablecall()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 // "10".ToString()
                 TokenFactory.CreateBoxedValueToken(10L),

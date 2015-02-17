@@ -52,6 +52,7 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
+    <Compile Include="CodeGeneration\RuntimeGenerationContext.cs" />
     <Compile Include="CodeGeneration\Definitions\TypeAliasDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTreeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediateTokenList.cs" />

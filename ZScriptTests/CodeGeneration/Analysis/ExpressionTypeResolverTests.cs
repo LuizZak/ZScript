@@ -21,7 +21,7 @@
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
@@ -49,7 +49,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "(int, bool->any)";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
 
             var value = parser.callableType();
 
@@ -72,7 +72,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var type1 = resolver.ResolveListType(parser.listType());
             var type2 = (ListTypeDef)resolver.ResolveType(parser.type());
@@ -95,7 +95,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var type = resolver.ResolveExpression(parser.expression());
 
@@ -114,7 +114,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var type = resolver.ResolveExpression(parser.expression());
 
@@ -136,7 +136,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "i = 1; b = true; f -= 5.0; s = 'abc'; llf[0][0] = 0;";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer(), new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider(), new TestDefinitionTypeProvider()));
 
             var type1 = resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
             var type2 = resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
@@ -166,7 +166,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "10 -10 11.1 -15.251 true false null \"abc\"";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
 
             var intConst = parser.compileConstant();
             var negativeIntConst = parser.compileConstant();
@@ -198,7 +198,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "10 11.1 true false null \"abc\"";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
 
             var intConst = parser.constantAtom();
             var floatConst = parser.constantAtom();
@@ -230,7 +230,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "{ x:10 }";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
 
             var type = parser.objectLiteral();
 
@@ -248,7 +248,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "[0, 1, 2]";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
 
             var type = parser.arrayLiteral();
 
@@ -272,7 +272,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -298,7 +298,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -314,7 +314,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
-        #region Type casting
+        #region Type casting/checking
 
         /// <summary>
         /// Tests basic type casting
@@ -327,7 +327,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var exp1 = parser.statement().expression();
             var exp2 = parser.statement().expression();
@@ -356,7 +356,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider()));
 
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
@@ -383,7 +383,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var value = parser.closureExpression();
 
@@ -407,7 +407,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var value = parser.closureExpression();
 
@@ -432,7 +432,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             resolver.ResolveClosureExpression(parser.closureExpression());
@@ -451,7 +451,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var value = parser.expression();
 
@@ -478,7 +478,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -507,7 +507,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -536,7 +536,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -573,7 +573,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -632,7 +632,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -659,7 +659,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -686,7 +686,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -719,7 +719,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -747,7 +747,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, new MessageContainer(), new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
 
             var value1 = parser.statement().expression();
             var value2 = parser.statement().expression();
@@ -776,7 +776,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider(), new TestDefinitionTypeProvider()));
 
             resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
             resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
@@ -801,7 +801,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -824,7 +824,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -847,7 +847,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -870,7 +870,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
@@ -890,7 +890,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -914,7 +914,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -937,7 +937,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(new TypeProvider(), container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -959,7 +959,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -984,7 +984,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -1006,7 +1006,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             resolver.ResolveClosureExpression(parser.closureExpression());
@@ -1026,7 +1026,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container, new TestDefinitionTypeProvider());
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
@@ -1050,7 +1050,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             resolver.ResolveExpression(parser.expression());
 
@@ -1069,7 +1069,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
             var provider = new TypeProvider();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             resolver.ResolveExpression(parser.expression());
 

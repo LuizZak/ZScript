@@ -122,47 +122,22 @@ listType         : '[' type ']';
 callableTypeList : callableArgType (',' callableArgType)*;
 callableArgType  : type variadic='...'?;
 
-/*
-////
-//// Expressions
-////
-expression:  '(' expression ')'
-           |  expression valueAccess?
-           | '(' assignmentExpression ')'
-           |  prefixOperator leftValue
-           |  leftValue postfixOperator
-           |  '(' type ')' expression
-           // Unary expressions
-           |  '-' expression
-           |  '!' expression
-           // Binary expressions
-           |  expression multOp expression
-           |  expression additionOp expression
-           |  expression bitwiseAndXOrOp expression
-           |  expression bitwiseOrOp expression
-           |  expression comparisionOp expression
-           |  expression logicalOp expression
-           |  newExpression
-           |  closureExpression
-           |  objectLiteral
-           |  memberName
-           |  arrayLiteral
-           |  constantAtom
-           ;
-*/
-
 ////
 //// Expressions
 ////
 expression:  '(' expression ')' valueAccess?
            | '(' assignmentExpression ')'
+           // Prefix and postfix
            |  prefixOperator leftValue
            |  leftValue postfixOperator
            |  closureExpression valueAccess?
+           // Literals
            |  memberName valueAccess?
            |  objectLiteral objectAccess?
            |  arrayLiteral valueAccess?
+           // 'new' expression
            |  newExpression valueAccess?
+           // Type casting
            |  '(' type ')' expression
            // Unary expressions
            |  unaryOperator expression
@@ -172,19 +147,25 @@ expression:  '(' expression ')' valueAccess?
            |  expression bitwiseAndOp expression
            |  expression bitwiseXOrOp expression
            |  expression bitwiseOrOp expression
-           |  expression comparisionOp expression
+           |  expression relationalOp expression
+           |  expression T_IS type
+           |  expression equalityOp expression
            |  expression logicalAnd expression
            |  expression logicalOr expression
-           |  constantAtom objectAccess?
+           // Ternary operator
            |  <assoc=right>expression '?' expression ':' expression
+           // Constant
+           |  constantAtom objectAccess?
            ;
 
 multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');
+bitwiseShift : ('<<' | '>>');
 bitwiseAndOp : ('&' | '^');
 bitwiseXOrOp : ('^');
 bitwiseOrOp : ('|');
-comparisionOp : ('==' | '!=' | '>=' | '<=' | '>' | '<');
+relationalOp : '>=' | '<=' | '>' | '<';
+equalityOp : '==' | '!=';
 logicalAnd : '&&';
 logicalOr  : '||';
 
@@ -240,7 +221,7 @@ StringEscape : '\\' ('n' | 'r' | '\\');
 //// Token Definitions
 ////
 
-T_EXPORT : '@';
+T_EXPORT   : '@';
 T_FUNCTION : 'func';
 T_OVERRIDE : 'override';
 T_OBJECT   : 'object';
@@ -251,6 +232,8 @@ T_VAR   : 'var';
 T_LET   : 'let';
 T_CONST : 'const';
 T_NEW   : 'new';
+
+T_IS    : 'is';
 
 T_IF       : 'if';
 T_ELSE     : 'else';

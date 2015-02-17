@@ -19,10 +19,9 @@
 */
 #endregion
 using System.Collections;
-using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -44,7 +43,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestArrayCreation()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
@@ -81,7 +80,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestNestedArrayCreation()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),

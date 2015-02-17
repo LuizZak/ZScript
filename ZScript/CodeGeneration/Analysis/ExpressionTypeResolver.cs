@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +27,11 @@ using Antlr4.Runtime;
 
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
-using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -42,24 +43,14 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// The type provider using when resolving the type of the expressions
         /// </summary>
-        private readonly TypeProvider _typeProvider;
-
-        /// <summary>
-        /// The container to report error messages to
-        /// </summary>
-        private readonly MessageContainer _messageContainer;
-
-        /// <summary>
-        /// Gets or sets the definition type provider for this ExpressionTypeResolver
-        /// </summary>
-        public IDefinitionTypeProvider DefinitionTypeProvider { get; set; }
+        private readonly RuntimeGenerationContext _generationContext;
 
         /// <summary>
         /// Gets the type provider using when resolving the type of the expressions
         /// </summary>
         public TypeProvider TypeProvider
         {
-            get { return _typeProvider; }
+            get { return _generationContext.TypeProvider; }
         }
 
         /// <summary>
@@ -67,7 +58,15 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         public MessageContainer MessageContainer
         {
-            get { return _messageContainer; }
+            get { return _generationContext.MessageContainer; }
+        }
+
+        /// <summary>
+        /// Gets the definition type provider for the code generation
+        /// </summary>
+        public IDefinitionTypeProvider DefinitionTypeProvider
+        {
+            get { return _generationContext.DefinitionTypeProvider; }
         }
 
         /// <summary>
@@ -78,14 +77,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Initializes a new instance of the ExpressionTypeResolver class
         /// </summary>
-        /// <param name="typeProvider">The type provider using when resolving the type of the expressions</param>
-        /// <param name="messageContainer">A message container to report error messages to</param>
-        /// <param name="definitionTypeProvider">The definition type provider for this ExpressionTypeResolver</param>
-        public ExpressionTypeResolver(TypeProvider typeProvider, MessageContainer messageContainer, IDefinitionTypeProvider definitionTypeProvider = null)
+        /// <param name="generationContext">The generation context for this expression type resolver</param>
+        public ExpressionTypeResolver(RuntimeGenerationContext generationContext)
         {
-            _typeProvider = typeProvider;
-            _messageContainer = messageContainer;
-            DefinitionTypeProvider = definitionTypeProvider;
+            _generationContext = generationContext;
         }
 
         /// <summary>
@@ -114,13 +109,13 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Get the operator
-            if (!PostfixExpressionTokenizer.IsCompoundAssignmentOperator(context.assignmentOperator()))
+            if (!ExpressionUtils.IsCompoundAssignmentOperator(context.assignmentOperator()))
             {
                 // Check the type matching
-                if (!_typeProvider.CanImplicitCast(valueType, variableType))
+                if (!TypeProvider.CanImplicitCast(valueType, variableType))
                 {
                     var message = "Cannot assign value of type " + valueType + " to variable of type " + variableType;
-                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
                 }
             }
             else
@@ -128,10 +123,10 @@ namespace ZScript.CodeGeneration.Analysis
                 var op = context.assignmentOperator().GetText()[0].ToString();
                 var inst = TokenFactory.InstructionForOperator(op);
 
-                if (!_typeProvider.BinaryExpressionProvider.CanPerformOperation(inst, variableType, valueType))
+                if (!TypeProvider.BinaryExpressionProvider.CanPerformOperation(inst, variableType, valueType))
                 {
                     var message = "Cannot perform " + inst + " operation on values of type " + variableType + " and " + valueType;
-                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
                 }
             }
 
@@ -183,10 +178,12 @@ namespace ZScript.CodeGeneration.Analysis
             // Parenthesized expression
             if (context.expression().Length == 1)
             {
+                // Unary operation
                 if (context.unaryOperator() != null)
                 {
                     retType = ResolveUnaryExpression(context);
                 }
+                // Parenthesized expression/type check/type cast
                 else
                 {
                     retType = ResolveExpression(context.expression(0));
@@ -205,10 +202,19 @@ namespace ZScript.CodeGeneration.Analysis
                 retType = ResolveNewExpression(context.newExpression());
             }
 
-            // Type casting
+            // Type casting/checking
             if (context.type() != null)
             {
-                retType = ResolveTypeCasting(retType, context, context.type());
+                // Type check
+                if (context.T_IS() != null)
+                {
+                    retType = ResolveTypeCheck(retType, context, context.type());
+                }
+                // Type casting
+                else
+                {
+                    retType = ResolveTypeCasting(retType, context, context.type());
+                }
             }
 
             // If the closure is being called, return the return type of the closure instead
@@ -252,7 +258,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var typeName = context.typeName().GetText();
 
-            return _typeProvider.TypeNamed(typeName);
+            return TypeProvider.TypeNamed(typeName);
         }
 
         #region Prefix, Postfix and Unary
@@ -267,9 +273,9 @@ namespace ZScript.CodeGeneration.Analysis
             // Get the type of the left value
             TypeDef leftValueType = ResolveLeftValue(context.leftValue());
 
-            if (!_typeProvider.BinaryExpressionProvider.IsNumeric(leftValueType) && !leftValueType.IsAny)
+            if (!TypeProvider.BinaryExpressionProvider.IsNumeric(leftValueType) && !leftValueType.IsAny)
             {
-                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform prefix operation on values of type " + leftValueType);
+                MessageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform prefix operation on values of type " + leftValueType);
             }
 
             return leftValueType;
@@ -285,9 +291,9 @@ namespace ZScript.CodeGeneration.Analysis
             // Get the type of the left value
             TypeDef leftValueType = ResolveLeftValue(context.leftValue());
 
-            if (!_typeProvider.BinaryExpressionProvider.IsNumeric(leftValueType) && !leftValueType.IsAny)
+            if (!TypeProvider.BinaryExpressionProvider.IsNumeric(leftValueType) && !leftValueType.IsAny)
             {
-                _messageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform postfix operation on values of type " + leftValueType);
+                MessageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform postfix operation on values of type " + leftValueType);
             }
 
             return leftValueType;
@@ -317,13 +323,13 @@ namespace ZScript.CodeGeneration.Analysis
                     throw new Exception("Unrecognized unary operator " + unary.GetText());
             }
 
-            if (_typeProvider.BinaryExpressionProvider.CanUnary(expType, inst))
-                return _typeProvider.BinaryExpressionProvider.TypeForUnary(expType, inst);
+            if (TypeProvider.BinaryExpressionProvider.CanUnary(expType, inst))
+                return TypeProvider.BinaryExpressionProvider.TypeForUnary(expType, inst);
 
             var message = "Cannot apply " + inst + " to value of type " + expType;
-            _messageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
+            MessageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
 
-            return _typeProvider.AnyType();
+            return TypeProvider.AnyType();
         }
 
         #endregion
@@ -341,17 +347,17 @@ namespace ZScript.CodeGeneration.Analysis
             // Conditional expression
             var condExp = ResolveExpression(context.expression(0));
 
-            if (!_typeProvider.CanImplicitCast(condExp, _typeProvider.BooleanType()))
+            if (!TypeProvider.CanImplicitCast(condExp, TypeProvider.BooleanType()))
             {
                 const string message = "Expected boolean type opeartion on tearnary condition";
-                _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
             }
 
             // Find type of expressions on both sides
             var type1 = ResolveExpression(context.expression(1));
             var type2 = ResolveExpression(context.expression(2));
 
-            return _typeProvider.FindCommonType(type1, type2);
+            return TypeProvider.FindCommonType(type1, type2);
         }
 
         #endregion
@@ -404,7 +410,7 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveLeftValueAccess(TypeDef leftValue, ZScriptParser.LeftValueAccessContext context)
         {
             // leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
-            var type = _typeProvider.AnyType();
+            var type = TypeProvider.AnyType();
 
             if (context.functionCall() != null)
             {
@@ -443,7 +449,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>A type resolved from the value access</returns>
         public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.ValueAccessContext context)
         {
-            var type = _typeProvider.AnyType();
+            var type = TypeProvider.AnyType();
 
             if (context.arrayAccess() != null)
             {
@@ -499,7 +505,6 @@ namespace ZScript.CodeGeneration.Analysis
             // Collect the list of arguments
             var argTypes = new List<TypeDef>();
 
-            // TODO: Move argument type checking inside the argument collecting loop so we can effectively use the _expectedTypeStack stack here
             if (context.expressionList() != null)
             {
                 int argCount = context.expressionList().expression().Length;
@@ -511,13 +516,13 @@ namespace ZScript.CodeGeneration.Analysis
                 if (argCount < callableType.RequiredArgumentsCount)
                 {
                     var message = "Trying to pass " + argTypes.Count + " arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
-                    _messageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
+                    MessageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
                     mismatchedCount = true;
                 }
                 if (argCount > callableType.MaximumArgumentsCount)
                 {
                     var message = "Trying to pass " + argTypes.Count + " arguments to callable that accepts at most " + callableType.MaximumArgumentsCount;
-                    _messageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
+                    MessageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
                     mismatchedCount = true;
                 }
 
@@ -540,10 +545,10 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
 
                     // Match the argument types
-                    if (!_typeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
+                    if (!TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
                     {
                         var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
-                        _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                        MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
                     }
 
                     // Jump to the next callable argument information
@@ -576,10 +581,10 @@ namespace ZScript.CodeGeneration.Analysis
                 var subType = listType.SubscriptType;
                 var accessValue = ResolveExpression(context.expression());
 
-                if (!_typeProvider.CanImplicitCast(accessValue, subType))
+                if (!TypeProvider.CanImplicitCast(accessValue, subType))
                 {
                     var message = "Subscriptable type " + leftValue + " expects type " + subType + " for subscription but received " + accessValue + ".";
-                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
                 }
             }
             else if (!leftValue.IsAny)
@@ -596,7 +601,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>A type resolved from the value access</returns>
         public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.ObjectAccessContext context)
         {
-            TypeDef resType = _typeProvider.AnyType();
+            TypeDef resType = TypeProvider.AnyType();
 
             if (context.arrayAccess() != null)
             {
@@ -614,7 +619,7 @@ namespace ZScript.CodeGeneration.Analysis
 
         #endregion
 
-        #region Type casting
+        #region Type casting/checking
 
         /// <summary>
         /// Resolves a type cast attempt, retuning the resulting type
@@ -626,13 +631,25 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveTypeCasting(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext castType)
         {
             TypeDef target = ResolveType(castType);
-            if (!_typeProvider.CanExplicitCast(valueType, target))
+            if (!TypeProvider.CanExplicitCast(valueType, target))
             {
                 var message = "Invalid cast: cannot cast objects of type " + valueType + " to type " + target;
-                _messageContainer.RegisterError(origin.Start.Line, origin.Start.Column, message, ErrorCode.InvalidCast, origin);
+                MessageContainer.RegisterError(origin.Start.Line, origin.Start.Column, message, ErrorCode.InvalidCast, origin);
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Resolves a type check ('is' operator) attempt, retuning the resulting type
+        /// </summary>
+        /// <param name="valueType">The type of the value trying to be checked</param>
+        /// <param name="origin">The origin of the value type tring to be checked</param>
+        /// <param name="typeToCheck">The type tring to check the value as</param>
+        /// <returns>A type definition that represents the result of the operation</returns>
+        public TypeDef ResolveTypeCheck(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext typeToCheck)
+        {
+            return TypeProvider.BooleanType();
         }
 
         #endregion
@@ -708,10 +725,10 @@ namespace ZScript.CodeGeneration.Analysis
                 type = ResolveType(context.type());
 
                 // Check default value and parameter value compatibility
-                if (defaultValueType != null && !_typeProvider.CanImplicitCast(type, defaultValueType))
+                if (defaultValueType != null && !TypeProvider.CanImplicitCast(type, defaultValueType))
                 {
                     var message = "Cannot implicitly cast default value type " + defaultValueType + " to expected parameter type " + type;
-                    _messageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
                 }
             }
             else if (defaultValueType != null)
@@ -721,10 +738,10 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else
             {
-                type = _typeProvider.AnyType();
+                type = TypeProvider.AnyType();
             }
 
-            return context.variadic != null ? _typeProvider.ListForType(type) : type;
+            return context.variadic != null ? TypeProvider.ListForType(type) : type;
         }
 
         #endregion
@@ -738,7 +755,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public ObjectTypeDef ResolveObjectLiteral(ZScriptParser.ObjectLiteralContext context)
         {
-            return _typeProvider.ObjectType();
+            return TypeProvider.ObjectType();
         }
 
         /// <summary>
@@ -749,7 +766,7 @@ namespace ZScript.CodeGeneration.Analysis
         public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
         {
             // Try to infer the type of items in the array
-            var listItemsType = _typeProvider.AnyType();
+            var listItemsType = TypeProvider.AnyType();
 
             var items = context.expressionList();
 
@@ -766,11 +783,11 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
                     }
 
-                    listItemsType = _typeProvider.FindCommonType(itemType, listItemsType);
+                    listItemsType = TypeProvider.FindCommonType(itemType, listItemsType);
                 }
             }
 
-            return _typeProvider.ListForType(listItemsType);
+            return TypeProvider.ListForType(listItemsType);
         }
 
         #endregion
@@ -790,15 +807,15 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.stringLiteral() != null)
             {
-                return _typeProvider.StringType();
+                return TypeProvider.StringType();
             }
             if (context.T_FALSE() != null || context.T_TRUE() != null)
             {
-                return _typeProvider.BooleanType();
+                return TypeProvider.BooleanType();
             }
             if (context.T_NULL() != null)
             {
-                return _typeProvider.AnyType();
+                return TypeProvider.AnyType();
             }
 
             throw new Exception("Cannot resolve type for constant atom " + context);
@@ -817,15 +834,15 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.stringLiteral() != null)
             {
-                return _typeProvider.StringType();
+                return TypeProvider.StringType();
             }
             if (context.T_FALSE() != null || context.T_TRUE() != null)
             {
-                return _typeProvider.BooleanType();
+                return TypeProvider.BooleanType();
             }
             if (context.T_NULL() != null)
             {
-                return _typeProvider.AnyType();
+                return TypeProvider.AnyType();
             }
 
             throw new Exception("Cannot resolve type for compie time constant " + context);
@@ -840,11 +857,11 @@ namespace ZScript.CodeGeneration.Analysis
         {
             if (context.INT() != null || context.hexadecimalNumber() != null || context.binaryNumber() != null)
             {
-                return _typeProvider.IntegerType();
+                return TypeProvider.IntegerType();
             }
             if (context.FLOAT() != null)
             {
-                return _typeProvider.FloatType();
+                return TypeProvider.FloatType();
             }
 
             throw new Exception("Cannot resolve type for numeric atom " + context);
@@ -863,11 +880,11 @@ namespace ZScript.CodeGeneration.Analysis
         {
             if (context.objectType() != null)
             {
-                return _typeProvider.ObjectType();
+                return TypeProvider.ObjectType();
             }
             if (context.typeName() != null)
             {
-                return _typeProvider.TypeNamed(context.typeName().GetText());
+                return TypeProvider.TypeNamed(context.typeName().GetText());
             }
             if (context.callableType() != null)
             {
@@ -888,7 +905,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public ListTypeDef ResolveListType(ZScriptParser.ListTypeContext context)
         {
-            return _typeProvider.ListForType(ResolveType(context.type()));
+            return TypeProvider.ListForType(ResolveType(context.type()));
         }
 
         /// <summary>
@@ -935,7 +952,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void RegisterFunctionCallWarning(TypeDef type, ParserRuleContext context)
         {
             string message = "Trying to call non-callable '" + type + "' type like a function may result in runtime errors.";
-            _messageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TryingToCallNonCallable, context);
+            MessageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TryingToCallNonCallable, context);
         }
 
         /// <summary>
@@ -946,7 +963,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void RegisterSubscriptWarning(TypeDef type, ParserRuleContext context)
         {
             string message = "Trying to access non-subscriptable '" + type + "' type like a list may result in runtime errors.";
-            _messageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TryingToSubscriptNonList, context);
+            MessageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TryingToSubscriptNonList, context);
         }
 
         #endregion

@@ -18,9 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
@@ -38,6 +40,7 @@ using ZScript.Elements.ValueHolding;
 using ZScript.Parsing;
 using ZScript.Runtime;
 using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration
 {
@@ -241,25 +244,43 @@ namespace ZScript.CodeGeneration
                 completeScope = MergeScopes(completeScope, source.Definitions.CollectedBaseScope);
             }
 
+            var context = CreateContext(completeScope);
+
             // Walk the source trees, now that the definitions were collected
             ParseTreeWalker walker = new ParseTreeWalker();
             foreach (var source in _sourceProvider.Sources)
             {
-                DefinitionAnalyzer varAnalyzer = new DefinitionAnalyzer(completeScope, _messageContainer);
+                DefinitionAnalyzer varAnalyzer = new DefinitionAnalyzer(context);
                 walker.Walk(varAnalyzer, source.Tree);
             }
 
             // Analyze the return of the scopes
             var returnAnalyzer = new ReturnStatementAnalyzer();
-            returnAnalyzer.AnalyzeScope(completeScope, _messageContainer);
+            returnAnalyzer.Analyze(context);
 
             // Expand the definitions contained within the collector
-            var typeExpander = new StaticTypeAnalyzer(_typeProvider, completeScope, _messageContainer);
+            var typeExpander = new StaticTypeAnalyzer(context, completeScope);
             typeExpander.Expand();
 
             AnalyzeCollisions(completeScope);
 
             return completeScope;
+        }
+
+        /// <summary>
+        /// Creates a new runtime generation context from the given scope
+        /// </summary>
+        /// <param name="scope">The scope to create the generation context around of</param>
+        /// <returns>A new RuntimeGenerationContext created from the given scope</returns>
+        private RuntimeGenerationContext CreateContext(CodeScope scope)
+        {
+            var context = new RuntimeGenerationContext(scope, _messageContainer, _typeProvider, null);
+            var definitionTypeProvider = new DefaultDefinitionTypeProvider(context);
+
+            // Assign the context
+            context.DefinitionTypeProvider = definitionTypeProvider;
+
+            return context;
         }
 
         /// <summary>
@@ -486,6 +507,73 @@ namespace ZScript.CodeGeneration
             foreach (var d in source.Definitions)
             {
                 target.AddDefinition(d);
+            }
+        }
+
+        /// <summary>
+        /// Default definition type provider for the runtime generator
+        /// </summary>
+        private class DefaultDefinitionTypeProvider : IDefinitionTypeProvider
+        {
+            /// <summary>
+            /// A message container to report error messages and warnings to
+            /// </summary>
+            private readonly RuntimeGenerationContext _context;
+
+            /// <summary>
+            /// Initializes a new instance of the DefaultDefinitionTypeProvider class
+            /// </summary>
+            /// <param name="context">The runtime generation context for this default definition type provider</param>
+            public DefaultDefinitionTypeProvider(RuntimeGenerationContext context)
+            {
+                _context = context;
+            }
+
+            // 
+            // IDefinitionTypeProvider.TypeForDefinition implementation
+            // 
+            public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
+            {
+                // Search for the inner-most scope that contains the context, and search the definition from there
+                var scopeForDefinition = _context.BaseScope.GetScopeContainingContext(context);
+
+                if (scopeForDefinition != null)
+                {
+                    var def = scopeForDefinition.GetDefinitionByName(definitionName);
+
+                    // Bind the definition to the member name
+                    context.Definition = def;
+
+                    var holderDefinition = def as ValueHolderDefinition;
+                    if (holderDefinition != null)
+                    {
+                        context.IsConstant = holderDefinition.IsConstant;
+
+                        return holderDefinition.Type ?? TypeDef.AnyType;
+                    }
+
+                    var funcDef = def as FunctionDefinition;
+                    if (funcDef != null)
+                    {
+                        // Functions cannot be reassigned
+                        context.IsConstant = true;
+
+                        return funcDef.CallableTypeDef;
+                    }
+
+                    var objDef = def as ObjectDefinition;
+                    if (objDef != null)
+                    {
+                        // Object definitions cannot be reassigned
+                        context.IsConstant = true;
+
+                        return TypeDef.AnyType;
+                    }
+                }
+
+                _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
+
+                return _context.TypeProvider.AnyType();
             }
         }
     }

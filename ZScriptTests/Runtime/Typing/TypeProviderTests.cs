@@ -18,8 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
@@ -119,12 +121,12 @@ namespace ZScriptTests.Runtime.Typing
             var param1 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, false, false);
             var param2 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, false, false);
 
-            var param2_def = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, true, false);
+            var defaulParam2 = new CallableTypeDef.CallableParameterInfo(provider.IntegerType(), true, true, false);
 
             var callable1 = new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType(), true);
-            var callable2 = new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType(), true);
+            var callable2 = new CallableTypeDef(new[] { param1, defaulParam2 }, provider.VoidType(), true);
 
-            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2_def }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2),
+            Assert.AreEqual(new CallableTypeDef(new[] { param1, defaulParam2 }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
         }
 
@@ -158,7 +160,7 @@ namespace ZScriptTests.Runtime.Typing
             var parser = Utils.TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var callableType = resolver.ResolveCallableType(parser.callableType());
@@ -179,7 +181,7 @@ namespace ZScriptTests.Runtime.Typing
             var parser = Utils.TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(provider, container);
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
             var callableType = resolver.ResolveCallableType(parser.callableType());

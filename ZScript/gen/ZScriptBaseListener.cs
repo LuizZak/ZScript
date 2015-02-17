@@ -825,17 +825,29 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBitwiseOrOp([NotNull] ZScriptParser.BitwiseOrOpContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.comparisionOp"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.relationalOp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterComparisionOp([NotNull] ZScriptParser.ComparisionOpContext context) { }
+	public virtual void EnterRelationalOp([NotNull] ZScriptParser.RelationalOpContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.comparisionOp"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.relationalOp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitComparisionOp([NotNull] ZScriptParser.ComparisionOpContext context) { }
+	public virtual void ExitRelationalOp([NotNull] ZScriptParser.RelationalOpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.equalityOp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEqualityOp([NotNull] ZScriptParser.EqualityOpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.equalityOp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEqualityOp([NotNull] ZScriptParser.EqualityOpContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.logicalAnd"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -993,17 +1005,17 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLeftValueAccess([NotNull] ZScriptParser.LeftValueAccessContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.functionCallAccess"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterFunctionCallAccess([NotNull] ZScriptParser.FunctionCallAccessContext context) { }
+	public virtual void EnterFunctionCall([NotNull] ZScriptParser.FunctionCallContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.functionCallAccess"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitFunctionCallAccess([NotNull] ZScriptParser.FunctionCallAccessContext context) { }
+	public virtual void ExitFunctionCall([NotNull] ZScriptParser.FunctionCallContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.fieldAccess"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -1029,17 +1041,17 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitArrayAccess([NotNull] ZScriptParser.ArrayAccessContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.objectAccess"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterFunctionCall([NotNull] ZScriptParser.FunctionCallContext context) { }
+	public virtual void EnterObjectAccess([NotNull] ZScriptParser.ObjectAccessContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.functionCall"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.objectAccess"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitFunctionCall([NotNull] ZScriptParser.FunctionCallContext context) { }
+	public virtual void ExitObjectAccess([NotNull] ZScriptParser.ObjectAccessContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.valueAccess"/>.
 	/// <para>The default implementation does nothing.</para>

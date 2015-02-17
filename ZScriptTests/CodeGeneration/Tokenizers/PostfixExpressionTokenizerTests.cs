@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 
@@ -222,6 +223,44 @@ namespace ZScriptTests.CodeGeneration.Tokenizers
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
             Assert.AreEqual((long)3, memory.GetVariable("d"), "Ternary operator did not behave as expected");
+        }
+
+        #endregion
+
+        #region 'is' operator
+
+        /// <summary>
+        /// Tests generation of ternary operation
+        /// </summary>
+        [TestMethod]
+        public void TestIsOperator()
+        {
+            const string message = "The tokens generated for the 'is' comparision where not generated as expected";
+
+            const string input = "10 is int";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateInstructionToken(VmInstruction.Is),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
         #endregion

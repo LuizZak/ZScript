@@ -18,11 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections;
-using System.Collections.Generic;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -45,7 +43,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestSimpleObjectCreation()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),
@@ -78,7 +76,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestObjectCreation()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),
@@ -117,7 +115,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestObjectMemberAccess()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),
@@ -151,7 +149,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestObjectMemberGet()
         {
             // Create the set of tokens
-            List<Token> t = new List<Token>
+            IntermediateTokenList t = new IntermediateTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),

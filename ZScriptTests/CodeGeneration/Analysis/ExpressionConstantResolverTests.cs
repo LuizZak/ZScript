@@ -19,7 +19,7 @@
 */
 #endregion
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.Runtime.Typing;
 
@@ -46,7 +46,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -76,7 +76,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -99,12 +99,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "10 + 11";
             
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -129,12 +129,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "10 + 'abc'";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -159,12 +159,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "10 + 11 * 5 - 1";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -189,12 +189,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "true || false && false";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -219,12 +219,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "10 > 5 + 7";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -249,12 +249,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "-10";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(typeProvider, null);
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression

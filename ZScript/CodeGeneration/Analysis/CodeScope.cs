@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,6 +101,23 @@ namespace ZScript.CodeGeneration.Analysis
         public DefinitionUsage[] DefinitionUsages
         {
             get { return _usages.ToArray(); }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CodeScope class
+        /// </summary>
+        public CodeScope()
+        {
+            
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CodeScope class with a context associated with it
+        /// </summary>
+        /// <param name="context">A context to associate this CodeScope with</param>
+        public CodeScope(ParserRuleContext context)
+        {
+            Context = context;
         }
 
         /// <summary>
@@ -324,6 +342,42 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             return usages;
+        }
+
+        /// <summary>
+        /// Returns a code scope from this code scope tree that has a given context nested inside of it.
+        /// If no matching code scope is found, null is returned instead
+        /// </summary>
+        /// <param name="context">The context to search in this CodeScope</param>
+        /// <returns>A CodeScope which contains the given scope, or null, if none is found</returns>
+        public CodeScope GetScopeContainingContext(RuleContext context)
+        {
+            // Assume that if this scope has no parent, it is the root scope, and return it when the query is for a Program context (the root context)
+            if (context is ZScriptParser.ProgramContext && ParentScope == null)
+                return this;
+
+            var scopes = GetAllScopesRecursive().ToArray();
+
+            RuleContext p = context;
+            while (p != null)
+            {
+                // If the context is a program context, return the base global scope
+                if (p is ZScriptParser.ProgramContext && ParentScope == null)
+                    return this;
+
+                // ReSharper disable once PossibleMultipleEnumeration
+                foreach (var scope in scopes)
+                {
+                    if (p == scope.Context)
+                    {
+                        return scope;
+                    }
+                }
+
+                p = p.Parent;
+            }
+
+            return null;
         }
 
         /// <summary>

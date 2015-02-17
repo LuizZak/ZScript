@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
+
 using Antlr4.Runtime;
+
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
@@ -39,17 +42,24 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// The message container that errors will be reported to
         /// </summary>
-        private readonly MessageContainer _messageContainer;
+        private readonly RuntimeGenerationContext _context;
+
+        /// <summary>
+        /// Gest the message container that errors will be reported to
+        /// </summary>
+        private MessageContainer Container
+        {
+            get { return _context.MessageContainer; }
+        }
 
         /// <summary>
         /// Creates a new instance of the VariableUsageAnalyzer class
         /// </summary>
-        /// <param name="scope">The scope to analyzer</param>
-        /// <param name="messageContainer">The message container that errors will be reported to</param>
-        public DefinitionAnalyzer(CodeScope scope, MessageContainer messageContainer)
+        /// <param name="context">The runtime generation context for base the analysis on</param>
+        public DefinitionAnalyzer(RuntimeGenerationContext context)
         {
-            _currentScope = scope;
-            _messageContainer = messageContainer;
+            _currentScope = context.BaseScope;
+            _context = context;
         }
 
         #region Scope walking
@@ -90,7 +100,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 if (!(def is ObjectDefinition))
                 {
-                    _messageContainer.RegisterError(context.Start.Line, context.Start.Column,
+                    Container.RegisterError(context.Start.Line, context.Start.Column,
                         "Unkown or invalid definition '" + name + "' to inherit from",
                         ErrorCode.UndeclaredDefinition);
                 }
@@ -225,7 +235,7 @@ namespace ZScript.CodeGeneration.Analysis
         void ExitContextScope()
         {
             // Analyze the scope for unused definitions
-            UnusedDefinitionsAnalyzer.Analyze(_currentScope, _messageContainer);
+            UnusedDefinitionsAnalyzer.Analyze(_currentScope, Container);
 
             _currentScope = _currentScope.ParentScope;
         }
@@ -280,7 +290,7 @@ namespace ZScript.CodeGeneration.Analysis
                 error.Message += " UNKNOWN";
                 error.Context = CurrentScope().Context;
 
-                _messageContainer.RegisterError(error);
+                Container.RegisterError(error);
 
                 return;
             }
@@ -289,7 +299,7 @@ namespace ZScript.CodeGeneration.Analysis
             error.Message += " '" + member.IDENT().GetText() + "'";
             error.Context = CurrentScope().Context;
 
-            _messageContainer.RegisterError(error);
+            Container.RegisterError(error);
         }
     }
 }

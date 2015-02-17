@@ -18,6 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using ZScript.Elements;
+
 namespace ZScript.Utils
 {
     public class ExpressionUtils
@@ -52,9 +55,17 @@ namespace ZScript.Utils
             {
                 str = context.bitwiseOrOp().GetText();
             }
-            else if (context.comparisionOp() != null)
+            else if (context.T_IS() != null)
             {
-                str = context.comparisionOp().GetText();
+                str = context.T_IS().GetText();
+            }
+            else if (context.relationalOp() != null)
+            {
+                str = context.relationalOp().GetText();
+            }
+            else if (context.equalityOp() != null)
+            {
+                str = context.equalityOp().GetText();
             }
             else if (context.logicalAnd() != null)
             {
@@ -70,6 +81,35 @@ namespace ZScript.Utils
             }
 
             return str;
+        }
+
+        /// <summary>
+        /// Returns whether a given assignment operatored stored within an AssignmentOperatorContext is a compound assignment operator.
+        /// Compound assignments are used when a variable should have an arithmetic operation performed between its value and the expression value
+        /// before the result can then be assigned back to the variable.
+        /// </summary>
+        /// <param name="context">The context that contains the assignment operator</param>
+        /// <returns>Whether the given assignment operator is a compound assignment operator</returns>
+        public static bool IsCompoundAssignmentOperator(ZScriptParser.AssignmentOperatorContext context)
+        {
+            return context.GetText() != "=";
+        }
+
+        /// <summary>
+        /// Returns the underlying arithmetic operator from a provided compound assignment operator.
+        /// If the operator is not an assignment operator, null is returned
+        /// </summary>
+        /// <param name="context">The context that contains the assignment operator to get the token for</param>
+        /// <returns>The underlying arithmetic operator from a provided compound assignment operator</returns>
+        public static Token OperatorForCompound(ZScriptParser.AssignmentOperatorContext context)
+        {
+            if (!IsCompoundAssignmentOperator(context))
+            {
+                return null;
+            }
+
+            // Return the first character of the operator
+            return TokenFactory.CreateOperatorToken(context.GetText()[0].ToString());
         }
     }
 }
