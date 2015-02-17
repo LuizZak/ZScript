@@ -719,6 +719,7 @@ If the `<condition>` is omitted, the loop runs indefinitely.
 #### switch
 
 Syntax: `switch( <expression> ) { case <value1>: <statements>, case <value2>: <statements>, ..., case <valueN>: <statements>, [default: <statements>] }`
+*Author's note: I'm currently evaluating an alternative syntax for the case labels to allow different types ofcomparisions to be performed and multiple case matches to be made with the same 'case' label*
 
 Evaluates the value of an expression, jumping to a specific internal `case` label of matching value, and if it fails to match with any `case` label, jumps to a `default` label, if present.
 
@@ -774,7 +775,7 @@ switch(peopleCount)
 
 Prints:
 ```csharp
-Three people in the house - the house is full!
+Less than two people in the house
 ```
 
 The `break` statements inside the `case` labels is used to stop the code from flowing through the case labels:
@@ -804,7 +805,8 @@ Two salad orders for the table
 Three salad orders for the table - damn, these 'sum healthy people!
 ```
 
-because the `case 2` label didn't contain a `break` statement: the code 'flowed' through the next case label instead.
+because the `case 2` label didn't contain a `break` statement: the code 'flowed' through the next case label instead.  
+*Author's note: I'm currently evaluating a non-gotcha alternative to implicit case fall-through in the form of a special syntax that makes the fall-through explicit*
 
 
 ##### Things to consider with switch statement
