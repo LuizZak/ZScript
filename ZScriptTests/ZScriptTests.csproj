@@ -101,9 +101,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ZScript sample.zs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="ZScript sample.zs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="ZScript.licenseheader" />
   </ItemGroup>
   <Choose>
