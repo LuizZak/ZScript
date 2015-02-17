@@ -11,9 +11,9 @@ I'm also really not proud nor do I know exactly why I re-implemented a (very dys
 
 ## About the language
 
-ZScript is a static (albeit weakly) typed, imperative, object-oriented programming language inspired by other imperative "C-style" languages like .NET C#, Apple's Swift and JavaScript. In ZScript you can define functions, variables, objects and sequences (more about what sequences are later), and have the code executed by calling one of the defined functions through the runtime's `CallFunction(string functionName, object[] arguments)` method.
+ZScript is a static (albeit weakly) typed, imperative, object-oriented programming language inspired by other imperative "C-style" languages like .NET C#, Apple's Swift and JavaScript. In ZScript you can define functions, variables, objects and sequences (more about what sequences are later), and have the code executed by calling one of the defined functions through the runtime's `CallFunction(string functionName, object[] arguments)` method in C# code.
 
-Supposedly, a few snippets of code talk louder than paragraphs to programmers, so here are examples of recursive and iterative implementations of fibonacci in ZScript:
+Supposedly, a few snippets of code talk louder than paragraphs of text to programmers, so here are examples of recursive and iterative implementations of fibonacci in ZScript:
 
 Recursive:
 
