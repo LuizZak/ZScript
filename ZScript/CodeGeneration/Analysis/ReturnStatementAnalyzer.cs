@@ -48,6 +48,11 @@ namespace ZScript.CodeGeneration.Analysis
         private RuntimeGenerationContext _context;
 
         /// <summary>
+        /// Whether the current analysis mode is set to collect or analyze
+        /// </summary>
+        private bool _collecting;
+
+        /// <summary>
         /// The current message container for the analyzer
         /// </summary>
         private MessageContainer Container
@@ -64,11 +69,39 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Collects all the returns in the respective function definitions
+        /// </summary>
+        public void CollectReturnsOnDefinitions(RuntimeGenerationContext context)
+        {
+            // Check for inconsistent return statement valuation
+            _collecting = true;
+            _context = context;
+
+            var funcs = context.BaseScope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
+
+            foreach (var func in funcs)
+            {
+                // Functions missing bodies are not analyzed
+                if (func.BodyContext == null)
+                    continue;
+
+                var c = func.BodyContext;
+
+                _returnStatements = new List<ZScriptParser.ReturnStatementContext>();
+
+                AnalyzeBlockStatement(c.blockStatement());
+
+                func.ReturnStatements = _returnStatements;
+            }
+        }
+
+        /// <summary>
         /// Analyzes a given scope for functions with mismatching return statements
         /// </summary>
         /// <param name="context">The context containing the scope to analyze and message container to report errors and warnings to</param>
         public void Analyze(RuntimeGenerationContext context)
         {
+            _collecting = false;
             _context = context;
 
             var funcs = context.BaseScope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
@@ -92,10 +125,8 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var context = func.BodyContext;
 
-            _currentDefinition = func;
-
-            // Check for inconsistent return statement valuation
             _returnStatements = new List<ZScriptParser.ReturnStatementContext>();
+            _currentDefinition = func;
 
             if (context.blockStatement().statement().Length == 0)
             {
@@ -154,7 +185,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            CurrentDefinition.ReturnStatements = _returnStatements;
+            func.ReturnStatements = _returnStatements;
         }
 
         /// <summary>
@@ -213,6 +244,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private ReturnStatementState AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
         {
+            if(_collecting)
+            {
+                _returnStatements.Add(context);
+                return ReturnStatementState.Complete;
+            }
+
             if (IsCurrentReturnValueVoid())
             {
                 if (context.expression() != null)

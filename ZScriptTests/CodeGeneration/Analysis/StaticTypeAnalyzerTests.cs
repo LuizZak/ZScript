@@ -41,14 +41,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestClosureTypeInferringFunctionArg()
         {
-            const string input = "func f() { var a = f2(i => { return 0; }); } func f2(a:(int->int)) { }";
+            const string input = "func f() { f2(i => { return 1; }); } func f2(a:(int->int)) { }";
             var generator = TestUtils.CreateGenerator(input);
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
+            Assert.IsFalse(generator.HasErrors);
             Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+        }
+
+        /// <summary>
+        /// Tests preventing inferring of types in a closure definition that is contained within a function argument
+        /// </summary>
+        [TestMethod]
+        public void TestPreventedClosureTypeInferringFunctionArg()
+        {
+            const string input = "func f() { f2(i : any => { return 0; }); } func f2(a:(int->int)) { }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var scope = generator.CollectDefinitions();
+            
+            var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
+
+            Assert.IsFalse(generator.HasErrors);
+            Assert.AreEqual(provider.AnyType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
@@ -65,6 +84,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
+            Assert.IsFalse(generator.HasErrors);
             Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
@@ -82,6 +102,27 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
+            Assert.IsFalse(generator.HasErrors);
+            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+        }
+
+        /// <summary>
+        /// Tests inferring of types in a closure definition that is used as a value of a variable
+        /// </summary>
+        [TestMethod]
+        public void TestClosureTypeInferringAssignment()
+        {
+            const string input = "func f2() { var a: (int->int); a = i => { return 0; }; }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var scope = generator.CollectDefinitions();
+
+            var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.HasErrors);
             Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }

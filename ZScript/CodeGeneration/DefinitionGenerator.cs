@@ -40,7 +40,6 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 HasReturnType = context.returnType() != null,
                 ReturnTypeContext = context.returnType(),
-                IsVoid = (context.returnType() == null || context.returnType().type().GetText() == "void")
             };
 
             return f;
@@ -69,7 +68,6 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 HasReturnType = context.returnType() != null,
                 ReturnTypeContext = context.returnType(),
-                IsVoid = (context.returnType() == null || context.returnType().type().GetText() == "void")
             };
 
             return c;
@@ -88,7 +86,6 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 HasReturnType = context.returnType() != null,
                 ReturnTypeContext = context.returnType(),
-                IsVoid = (context.returnType() == null || context.returnType().type().GetText() == "void")
             };
 
             return e;

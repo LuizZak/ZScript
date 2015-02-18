@@ -57,7 +57,7 @@ namespace ZScript.CodeGeneration.Elements
         /// <summary>
         /// Gets or sets a value specifying whether this function definition has a void return value
         /// </summary>
-        public bool IsVoid { get; set; }
+        public bool IsVoid { get { return ReturnType == null || ReturnType.IsVoid; } }
 
         /// <summary>
         /// List of return statements present in this function definition

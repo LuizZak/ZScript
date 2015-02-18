@@ -256,11 +256,13 @@ namespace ZScript.CodeGeneration
 
             // Analyze the return of the scopes
             var returnAnalyzer = new ReturnStatementAnalyzer();
-            returnAnalyzer.Analyze(context);
+            returnAnalyzer.CollectReturnsOnDefinitions(context);
 
             // Expand the definitions contained within the collector
             var typeExpander = new StaticTypeAnalyzer(context, completeScope);
             typeExpander.Expand();
+
+            returnAnalyzer.Analyze(context);
 
             AnalyzeCollisions(completeScope);
 
@@ -274,7 +276,7 @@ namespace ZScript.CodeGeneration
         /// <returns>A new RuntimeGenerationContext created from the given scope</returns>
         private RuntimeGenerationContext CreateContext(CodeScope scope)
         {
-            var context = new RuntimeGenerationContext(scope, _messageContainer, _typeProvider, null);
+            var context = new RuntimeGenerationContext(scope, _messageContainer, _typeProvider);
             var definitionTypeProvider = new DefaultDefinitionTypeProvider(context);
 
             // Assign the context
@@ -294,15 +296,7 @@ namespace ZScript.CodeGeneration
             // Analyze the program
             var scope = CollectDefinitions();
 
-            foreach (var error in _messageContainer.CodeErrors)
-            {
-                Console.WriteLine("Error at " + error.ContextName + " at line " + error.Line + " position " + error.Column + ": " + error.Message);
-            }
-
-            foreach (var warning in _messageContainer.Warnings)
-            {
-                Console.WriteLine("Warning at " + warning.ContextName + " at line " + warning.Line + " position " + warning.Column + ": " + warning.Message);
-            }
+            _messageContainer.PrintMessages();
 
             if (HasErrors)
             {

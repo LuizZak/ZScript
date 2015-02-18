@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using System.Collections.Generic;
 
 using Antlr4.Runtime;
@@ -91,6 +93,27 @@ namespace ZScript.CodeGeneration.Messages
         public bool HasErrors
         {
             get { return HasSyntaxErrors || HasCodeErrors; }
+        }
+
+        /// <summary>
+        /// Prints all the errors and warning messages currently stored in this MessageContainer
+        /// </summary>
+        public void PrintMessages()
+        {
+            foreach (var error in SyntaxErrors)
+            {
+                Console.WriteLine("Syntax Error at " + error.ContextName + " at line " + error.Line + " position " + error.Column + ": " + error.Message);
+            }
+
+            foreach (var error in CodeErrors)
+            {
+                Console.WriteLine("Error at " + error.ContextName + " at line " + error.Line + " position " + error.Column + ": " + error.Message);
+            }
+
+            foreach (var warning in Warnings)
+            {
+                Console.WriteLine("Warning at " + warning.ContextName + " at line " + warning.Line + " position " + warning.Column + ": " + warning.Message);
+            }
         }
 
         /// <summary>

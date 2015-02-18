@@ -132,13 +132,13 @@ namespace ZScript.CodeGeneration.Analysis
                 AnalyzeReturns(definition);
             }
 
+            ProcessExpressions(_baseScope);
+
             // Expand closures now
             foreach (var definition in definitions.OfType<ClosureDefinition>())
             {
                 ExpandClosureDefinition(definition);
             }
-
-            ProcessExpressions(_baseScope);
         }
 
         /// <summary>
@@ -182,12 +182,15 @@ namespace ZScript.CodeGeneration.Analysis
                 // Iterate over the arguments and modify the return type
                 for (int i = 0; i < newType.ParameterInfos.Length; i++)
                 {
+                    if (definition.Arguments[i].HasType)
+                        continue;
+
                     definition.Arguments[i].IsVariadic = newType.ParameterInfos[i].IsVariadic;
                     definition.Arguments[i].Type = newType.ParameterInfos[i].ParameterType;
                 }
 
                 // Don't update the return type if the closure has a return type and new type is void: this may cause errors during return type analysis
-                if (!definition.HasReturnType || newType.ReturnType != TypeProvider.VoidType())
+                if (newType.HasReturnType && (!definition.HasReturnType || newType.ReturnType != TypeProvider.VoidType()))
                 {
                     definition.ReturnType = newType.ReturnType;
                     definition.HasReturnType = true;
