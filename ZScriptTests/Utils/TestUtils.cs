@@ -24,6 +24,7 @@ using Antlr4.Runtime;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
+using ZScript.Utils;
 
 namespace ZScriptTests.Utils
 {
@@ -61,7 +62,7 @@ namespace ZScriptTests.Utils
                     if (jt1.ConditionToJump != jt2.ConditionToJump ||
                         jt1.Conditional != jt2.Conditional ||
                         jt1.ConsumesStack != jt2.ConsumesStack ||
-                        expected.IndexOf(jt1.TargetToken) != expected.IndexOf(jt2.TargetToken))
+                        expected.IndexOfReference(jt1.TargetToken) != actual.IndexOfReference(jt2.TargetToken))
                     {
                         throw new Exception(message + "; Jump tokens at index " + i + " do not have the same configuration: expected " + t1 + " actual: " + t2);
                     }
