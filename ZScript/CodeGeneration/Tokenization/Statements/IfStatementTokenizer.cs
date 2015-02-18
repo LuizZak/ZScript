@@ -18,10 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections.Generic;
+
 using ZScript.CodeGeneration.Tokenization.Helpers;
-using ZScript.Elements;
-using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
@@ -34,16 +32,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// The context used to tokenize the statements, in case a different statement appears
         /// </summary>
         private readonly StatementTokenizerContext _context;
-
-        /// <summary>
-        /// Represents the last block before the end of the current if blocks
-        /// </summary>
-        private JumpTargetToken _ifBlockEndTarget;
-
-        /// <summary>
-        /// A stack of jump token targets that aim at inside the IF bodies that were processed
-        /// </summary>
-        private readonly Stack<Token> _elseTargets = new Stack<Token>();
 
         /// <summary>
         /// Initializes a new instance of the IfStatementTokenizer class
@@ -60,16 +48,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="context">The context containinng</param>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.IfStatementContext context)
         {
-            // Create the end if block target
-            _ifBlockEndTarget = new JumpTargetToken();
-
             var tokens = new IntermediaryTokenList();
 
             // Read first if block of the chain
             tokens.AddRange(TokenizeIfStatement(context));
-
-            // Stick the if block end target at the end of the list
-            tokens.Add(_ifBlockEndTarget);
 
             return tokens;
         }
@@ -80,57 +62,61 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="context">The context containing the IF statement to tokenize</param>
         private IntermediaryTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext context)
         {
-            // Read expression
-            IntermediaryTokenList retTokens = _context.TokenizeExpression(context.expression());
+            IntermediaryTokenList retTokens;
 
-            // Add the conditional jump token that fires when the expression turns out false
-            var falseJump = new JumpToken(_ifBlockEndTarget, true, false);
-            retTokens.Add(falseJump);
-
-            // Tokenize the statement body
-            retTokens.AddRange(_context.TokenizeStatement(context.statement()));
-
-            // Add jump-to-end token
-            var jumpToEnd = new JumpToken(_ifBlockEndTarget);
-            retTokens.Add(jumpToEnd);
-
-            // Make a false condition jump to the next target of the IF chain, if it exists, or the end of the chain
-            if (context.elseStatement() != null)
+            // Constant if statements are evaluated differently
+            if (context.IsConstant)
             {
-                var elseTokens = TokenizeElseStatement(context.elseStatement());
+                // If the constant is true, tokenize the statement, if not, tokenize the else statement, if present
+                if (context.ConstantValue)
+                {
+                    retTokens = _context.TokenizeStatement(context.statement());
+                }
+                else if(context.elseStatement() != null)
+                {
+                    retTokens = _context.TokenizeStatement(context.elseStatement().statement());
+                }
+                else
+                {
+                    retTokens = new IntermediaryTokenList();
+                }
 
-                if (_elseTargets.Count > 0)
-                    falseJump.TargetToken = _elseTargets.Pop();
-
-                retTokens.AddRange(elseTokens);
-            }
-            else
-            {
-                retTokens.RemoveReference(jumpToEnd);
-            }
-
-            return retTokens;
-        }
-
-        /// <summary>
-        /// Tokenizes a given ELSE statement into a list of tokens
-        /// </summary>
-        /// <param name="context">The context containing the ELSE statement to tokenize</param>
-        private IntermediaryTokenList TokenizeElseStatement(ZScriptParser.ElseStatementContext context)
-        {
-            IntermediaryTokenList retTokens = new IntermediaryTokenList();
-
-            var target = new JumpTargetToken();
-            retTokens.Add(target);
-            _elseTargets.Push(target);
-
-            if (context.statement().ifStatement() != null)
-            {
-                retTokens.AddRange(TokenizeIfStatement(context.statement().ifStatement()));
                 return retTokens;
             }
 
+            // Create the 'else' target
+            var elseJump = new JumpTargetToken();
+            var endJump = new JumpTargetToken();
+
+            // 1. Read expression
+            retTokens = _context.TokenizeExpression(context.expression());
+
+            // 1. Add conditional jump for the else target (changed to an end jump, if no else is present)
+            retTokens.Add(new JumpToken(context.elseStatement() == null ? endJump : elseJump, true, false));
+
+            // 2. Add the true statement
             retTokens.AddRange(_context.TokenizeStatement(context.statement()));
+
+            if (context.elseStatement() != null)
+            {
+                // 3. Pin a jump to the end
+                retTokens.Add(new JumpToken(endJump));
+
+                // 
+                // ELSE
+                // 
+                // 4. Add the else jump target
+                retTokens.Add(elseJump);
+
+                // 5. Add the else statement
+                if (context.elseStatement() != null)
+                {
+                    retTokens.AddRange(_context.TokenizeStatement(context.elseStatement().statement()));
+                }
+            }
+
+            // 6. Pin the end jump target
+            retTokens.Add(endJump);
 
             return retTokens;
         }

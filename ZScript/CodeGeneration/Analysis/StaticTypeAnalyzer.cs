@@ -24,6 +24,7 @@ using System.Linq;
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
@@ -695,16 +696,12 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
                 {
-                    string message;
+                    _ifContext.IsConstant = true;
+                    _ifContext.ConstantValue = expression.ConstantValue.Equals(true);
 
-                    if (expression.ConstantValue.Equals(true))
-                    {
-                        message = "True constant in if expression always executes the contained statements";
-                    }
-                    else
-                    {
-                        message = "False constant in if expression never executes the contained statements";
-                    }
+                    var message = _ifContext.ConstantValue
+                                    ? "True constant in if expression always executes the contained statements"
+                                    : "False constant in if expression never executes the contained statements";
 
                     _typeResolver.MessageContainer.RegisterWarning(expression, message, WarningCode.ConstantIfCondition);
                 }

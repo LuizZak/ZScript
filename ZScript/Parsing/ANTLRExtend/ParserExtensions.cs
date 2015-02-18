@@ -107,7 +107,7 @@ public partial class ZScriptParser
     }
 
     /// <summary>
-    /// Provides extensions fo the LeftValueContext for providing information about the value it is pointing at
+    /// Provides extensions to the LeftValueContext for providing information about the value it is pointing at
     /// </summary>
     partial class LeftValueContext
     {
@@ -115,5 +115,21 @@ public partial class ZScriptParser
         /// Gets or sets a value specifying whether the left value is pointing to a constant value holder
         /// </summary>
         public bool IsConstant { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the IfStatementContext for providing constant evaluation flagging
+    /// </summary>
+    partial class IfStatementContext
+    {
+        /// <summary>
+        /// Whether the evaluation of this IF statement is constant
+        /// </summary>
+        public bool IsConstant { get; set; }
+
+        /// <summary>
+        /// The constant value that is always evaluated for the IF statement
+        /// </summary>
+        public bool ConstantValue { get; set; }
     }
 }

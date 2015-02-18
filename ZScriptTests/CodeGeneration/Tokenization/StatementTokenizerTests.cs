@@ -22,7 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
@@ -396,7 +398,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
 
             // Create the expected list
-            var jEnd    = new JumpTargetToken();
+            var jEnd1    = new JumpTargetToken();
+            var jEnd2    = new JumpTargetToken();
             var jElseIf = new JumpTargetToken();
             var jElse   = new JumpTargetToken();
             var expectedTokens = new List<Token>
@@ -410,7 +413,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateVariableToken("b", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
                 // Jump to skip the else block
-                new JumpToken(jEnd),
+                new JumpToken(jEnd1),
 
                 // Else if block
                 jElseIf,
@@ -422,15 +425,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateVariableToken("d", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
                 // Jump to skip the else block
-                new JumpToken(jEnd),
+                new JumpToken(jEnd2),
 
                 // Else block
                 jElse,
                 TokenFactory.CreateVariableToken("e", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
 
+                // End of inner IF block
+                jEnd2,
                 // End of IF block
-                jEnd
+                jEnd1
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -458,11 +463,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jEnd1 = new JumpTargetToken();
+            var jEnd2 = new JumpTargetToken();
             var jElseIf1 = new JumpTargetToken();
             var jElse1 = new JumpTargetToken();
 
-            var jEnd2 = new JumpTargetToken();
-            var jElse2 = new JumpTargetToken();
+            var jInnerEnd = new JumpTargetToken();
+            var jInnerElse = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // If expression
@@ -470,11 +476,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // False condition jump
                 new JumpToken(jElseIf1, true, false),
 
-                // If body
-                TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
-                // Jump to skip the else block
-                new JumpToken(jEnd1),
+                    // If body
+                    TokenFactory.CreateVariableToken("b", true),
+                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                    // Jump to skip the else block
+                    new JumpToken(jEnd1),
 
                 // Else if block
                 jElseIf1,
@@ -490,32 +496,75 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                     // 2nd if expression
                     TokenFactory.CreateVariableToken("e", true),
                     // False condition jump
-                    new JumpToken(jElse2, true, false),
-                    // If body
-                    TokenFactory.CreateVariableToken("f", true),
-                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
-                    // Jump to skip else block
-                    new JumpToken(jEnd2),
+                    new JumpToken(jInnerElse, true, false),
+
+                        // If body
+                        TokenFactory.CreateVariableToken("f", true),
+                        TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                        // Jump to skip else block
+                        new JumpToken(jInnerEnd),
 
                     // Else block
-                    jElse2,
+                    jInnerElse,
 
-                    TokenFactory.CreateVariableToken("g", true),
-                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                        TokenFactory.CreateVariableToken("g", true),
+                        TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
 
                     // End of 2nd if block
-                    jEnd2,
+                    jInnerEnd,
 
-                // Jump to skip the else block
-                new JumpToken(jEnd1),
+                    // Jump to skip the else block
+                    new JumpToken(jEnd2),
 
                 // Else block
                 jElse1,
-                TokenFactory.CreateVariableToken("h", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
 
-                // End of IF block
+                    TokenFactory.CreateVariableToken("h", true),
+                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                
+                // End of second IF block
+                jEnd2,
+                // End of first IF block
                 jEnd1
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant true/false value
+        /// </summary>
+        [TestMethod]
+        public void TestConstantIfTokenGeneration()
+        {
+            const string message = "The tokens generated for the if statement where not generated as expected";
+
+            const string input = "if(true) { a; } else { b; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.ifStatement();
+
+            // Mark the statement as constantly evaluated as true
+            stmt.IsConstant = true;
+            stmt.ConstantValue = true;
+
+            var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                // If body
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack)
             };
 
             Console.WriteLine("Dump of tokens: ");
