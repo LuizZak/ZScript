@@ -54,8 +54,6 @@ namespace ZScript.CodeGeneration.Messages
         {
             get
             {
-                string s = "";
-
                 // Try to roll up until a function definition context
                 RuleContext context = Context;
                 while (context != null)
@@ -92,7 +90,7 @@ namespace ZScript.CodeGeneration.Messages
                     }
                 }
 
-                return s;
+                return "";
             }
         }
     }

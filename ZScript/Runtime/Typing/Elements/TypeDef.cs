@@ -309,7 +309,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// The name for this member
         /// </summary>
-        protected readonly string _name;
+        protected readonly string name;
 
         /// <summary>
         /// Initializes a new instance of the TypeMemberDef class
@@ -317,7 +317,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="memberName">The name of the member to create</param>
         protected TypeMemberDef(string memberName)
         {
-            _name = memberName;
+            name = memberName;
         }
     }
 

@@ -18,8 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections.Generic;
-using System.Linq;
+
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
@@ -39,7 +38,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// The global scope for the definitions to find
         /// </summary>
-        private CodeScope _globalScope;
+        private readonly CodeScope _globalScope;
 
         /// <summary>
         /// Initializes a new instance of the VariableTokenExpander class
@@ -71,7 +70,6 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
                 if (def is FunctionDefinition)
                 {
-                    int index = 0;
                     for (int j = 0; j < _functions.Length; j++)
                     {
                         if (_functions[j].Name == varToken.VariableName)

@@ -748,7 +748,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitType(ZScriptParser.TypeContext context)
         {
-
+            // TODO: Create TypeContext visit code
         }
 
         private void VisitConstantAtom(ZScriptParser.ConstantAtomContext context)
