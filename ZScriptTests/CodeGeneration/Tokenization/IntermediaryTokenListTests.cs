@@ -162,6 +162,47 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
         }
 
+        [TestMethod]
+        public void TestEndTargetlessJumpTargetExpanding()
+        {
+            var jumpTarget = new JumpTargetToken();
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                jumpTarget,
+            };
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            // Bind jump targets
+            tokens.BindJumpTargets(VmInstruction.Interrupt);
+
+            var expanded = tokens.CreateExpandedTokenList();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(expanded);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
+        }
+
         #endregion
 
         #region Unreachable code detection

@@ -37,7 +37,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
         public static void OptimizeJumps(IntermediaryTokenList tokens)
         {
-            tokens.BindJumpTargets(false, VmInstruction.Noop);
+            tokens.BindJumpTargets(VmInstruction.Noop);
 
             OptimizeJumpPointing(tokens);
         }
@@ -50,7 +50,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
         public static void OptimizeJumps(IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
-            tokens.BindJumpTargets(true, endJumpTargetInstruction);
+            tokens.BindJumpTargets(endJumpTargetInstruction);
             
             RemoveSequentialInterrupts(tokens);
 
