@@ -539,14 +539,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         }
 
         /// <summary>
-        /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant true/false value
+        /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant true value
         /// </summary>
         [TestMethod]
-        public void TestConstantIfTokenGeneration()
+        public void TestConstantTrueIfTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
 
-            const string input = "if(true) { a; } else { b; }";
+            const string input = "if(a) { b; } else { c; }";
 
             var parser = TestUtils.CreateParser(input);
             var tokenizer = new StatementTokenizerContext(null, null);
@@ -563,8 +563,105 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 // If body
-                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateVariableToken("b", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant false value
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFalseIfTokenGeneration()
+        {
+            const string message = "The tokens generated for the if statement where not generated as expected";
+
+            const string input = "if(a) { b; } else { c; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.ifStatement();
+
+            // Mark the statement as constantly evaluated as true
+            stmt.IsConstant = true;
+            stmt.ConstantValue = false;
+
+            var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                // Else body
+                TokenFactory.CreateVariableToken("c", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant true/false value
+        /// </summary>
+        [TestMethod]
+        public void TestConstantIfElseTokenGeneration()
+        {
+            const string message = "The tokens generated for the if statement where not generated as expected";
+
+            const string input = "if(a) { b; } else if(c) { d; } else { e; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.ifStatement();
+
+            // Mark the 'else if' statement as constantly evaluated as true
+            stmt.elseStatement().statement().ifStatement().IsConstant = true;
+            stmt.elseStatement().statement().ifStatement().ConstantValue = true;
+
+            var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
+
+            // Create the expected list
+            var jEnd1 = new JumpTargetToken();
+            var jElseIf = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // If expression
+                TokenFactory.CreateVariableToken("a", true),
+                // False condition jump
+                new JumpToken(jElseIf, true, false),
+
+                // If body
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // Jump to skip the else block
+                new JumpToken(jEnd1),
+
+                // Else if block
+                jElseIf,
+
+                // Else if body
+                TokenFactory.CreateVariableToken("d", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+
+                // End of IF block
+                jEnd1
             };
 
             Console.WriteLine("Dump of tokens: ");
