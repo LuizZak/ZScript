@@ -305,7 +305,9 @@ namespace ZScript.CodeGeneration.Tokenization
 
         /// <summary>
         /// Analyzes the tokens contained in this intermediary token list, marking the <see cref="Token.Reachable"/> property of the tokens that are reachable from some code flow.
-        /// The function returns an array of booleans that marks the tokens reachable
+        /// Code flow is marked in a flood-fill-fashion by sweeping the tokens linearly forward, marking visited tokens as reachable, and stopping when an
+        /// interruption instruction is met. The analysis takes into consideration conditional and unconditional jumps to mark all possible instruction paths.
+        /// The function returns an array of booleans that marks the tokens reachable.
         /// The entry index parameter is used to specify where to start traversing the tokens from.
         /// If the index is out of bounds of the list (&lt; 0 or &gt;= Count), an exception is raised.
         /// </summary>
