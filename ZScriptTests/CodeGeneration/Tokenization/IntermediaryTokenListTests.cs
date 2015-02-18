@@ -190,6 +190,29 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         }
 
         /// <summary>
+        /// Tests a basic linear reachability detection in a list of tokens, starting from a specified instruction index
+        /// </summary>
+        [TestMethod]
+        public void TestLinearReachabilityDetectionWithOffset()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var reachable = tokens.DetectReachability(2);
+
+            var expected = new[] { false, false, true, true, true, true };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
         /// Tests detection of unreachable tokens by interruption of the sweeping by an interrupt instruction
         /// </summary>
         [TestMethod]
@@ -499,6 +522,26 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokens = new IntermediaryTokenList();
 
             tokens.OffsetForJump(jumpToken);
+        }
+
+        /// <summary>
+        /// Tests a basic linear reachability detection in a list of tokens
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), "Trying to start an unreachable code detection with an out of bounds index must raise an ArgumentOutOfRangeException exception")]
+        public void TestDetectReachabilityRangeCheck()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            tokens.DetectReachability(-1);
         }
 
         #endregion
