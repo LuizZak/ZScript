@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Tokenization;
@@ -16,6 +18,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     [TestClass]
     public class IntermediaryTokenListTests
     {
+        #region JumpToken/JumpTarget expanding
+
         /// <summary>
         /// Tests jump expanding on the intermediate token list
         /// </summary>
@@ -157,6 +161,319 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Now verify the results
             TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
         }
+
+        #endregion
+
+        #region Unreachable code detection
+
+        /// <summary>
+        /// Tests a basic linear reachability detection in a list of tokens
+        /// </summary>
+        [TestMethod]
+        public void TestLinearReachabilityDetection()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new[] { true, true, true, true, true, true };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
+        /// Tests detection of unreachable tokens by interruption of the sweeping by an interrupt instruction
+        /// </summary>
+        [TestMethod]
+        public void TestInterruptReachabilityDetection()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt), // Flow interrupted!
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new [] { true, true, true, true, false, false, false };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
+        /// Tests detection of unreachable tokens by interruption of the sweeping by an interrupt instruction right at the first step
+        /// </summary>
+        [TestMethod]
+        public void TestFirstInterruptReachabilityDetection()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt), // Flow interrupted!
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new[] { true, false, false, false, false, false, false };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
+        /// Tests detection of unreachable tokens by interruption of the sweeping by a return instruction
+        /// </summary>
+        [TestMethod]
+        public void TestRetReachabilityDetection()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret), // Flow interrupted!
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new[] { true, true, true, true, false, false, false };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
+        /// Tests detection of unreachable tokens by adding an unconditional jump over a set of tokens
+        /// </summary>
+        [TestMethod]
+        public void TestJumpReachabilityDetection()
+        {
+            var jump = new JumpToken(null);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                jump,
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            jump.TargetToken = tokens[5]; // Jump over the 'Set' and '10' tokens
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new[] { true, true, true, false, false, true, true };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
+        /// Tests detection of unreachable tokens by adding a conditional jump over a set of tokens
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalJumpReachabilityDetection()
+        {
+            var jump = new JumpToken(null, true);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                jump,
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            jump.TargetToken = tokens[5]; // Jump over the 'Set' and '10' tokens
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new[] { true, true, true, true, true, true, true };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        /// <summary>
+        /// Tests detection of unreachable tokens by adding a conditional jump over a set of tokens, and an interrupt in the middle of the token list as well
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalJumpWithInterruptReachabilityDetection()
+        {
+            var jump = new JumpToken(null, true);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                jump,
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt), // Interrupt!
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            jump.TargetToken = tokens[8]; // Jump over to the '10 c set' portion of the token list
+
+            var reachable = tokens.DetectReachability();
+
+            var expected = new[] { true, true, true, true, true, true, false, false, true, true, true };
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
+        }
+
+        #endregion
+
+        #region Unreachable code removal
+
+        /// <summary>
+        /// Tests the unreachable code detection and removal with a plain list of tokens that are all reachable
+        /// </summary>
+        [TestMethod]
+        public void TestLinearUnreachableCodeRemoval()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            tokens.RemoveUnreachableTokens();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The unreachable code removal failed to behave as expected");
+        }
+
+        /// <summary>
+        /// Tests the unreachable code detection and removal with a simple break in the control flow with a return statement
+        /// </summary>
+        [TestMethod]
+        public void TestReturnUnreachableCodeRemoval()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            tokens.RemoveUnreachableTokens();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The unreachable code removal failed to behave as expected");
+        }
+
+        /// <summary>
+        /// Tests the unreachable code detection and removal with a jump in the control flow
+        /// </summary>
+        [TestMethod]
+        public void TestJumpUnreachableCodeRemoval()
+        {
+            var jump = new JumpToken(null);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                jump,
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            jump.TargetToken = tokens[5]; // Jump to the 'b set' instruction
+
+            var eJump = new JumpToken(null);
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                eJump,
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            eJump.TargetToken = expectedTokens[3];
+
+            tokens.RemoveUnreachableTokens();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The unreachable code removal failed to behave as expected");
+        }
+
+        #endregion
 
         #region Exception checking
 

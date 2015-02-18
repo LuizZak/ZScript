@@ -45,6 +45,12 @@ namespace ZScript.Elements
         public readonly VmInstruction Instruction;
 
         /// <summary>
+        /// Gets or sets a value specifying the reachability of this token.
+        /// This is a meta-data type property used by IntermediaryTokenLists to mark the reachability of instruction tokens
+        /// </summary>
+        public bool Reachable { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the Token class
         /// </summary>
         /// <param name="type">A type of token to create</param>
@@ -66,6 +72,7 @@ namespace ZScript.Elements
             Type = type;
             TokenObject = tokenObject;
             Instruction = instruction;
+            Reachable = true; // By deafult, tokens always start marked as reachable
         }
 
         /// <summary>

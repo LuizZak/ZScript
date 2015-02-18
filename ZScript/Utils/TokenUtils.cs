@@ -91,6 +91,9 @@ namespace ZScript.Utils
 
             foreach (var token in tokenList.Tokens)
             {
+                if(!token.Reachable)
+                    Console.Write("UNREACHABLE: ");
+
                 Console.Write("{0:0000000}", add++);
                 Console.Write(": ");
 

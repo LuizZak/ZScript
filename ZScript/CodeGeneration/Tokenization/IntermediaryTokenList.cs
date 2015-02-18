@@ -122,6 +122,9 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             BindJumpTargets(true, VmInstruction.Interrupt);
 
+            // Remove the unreachable tokens
+            RemoveUnreachableTokens();
+
             return new TokenList(CreateExpandedTokenList());
         }
 
@@ -277,6 +280,94 @@ namespace ZScript.CodeGeneration.Tokenization
                 throw new ArgumentException("The provided token does not exists inside this intermediate token list object", "jumpToken");
 
             return tokens.IndexOfReference(jumpToken.TargetToken);
+        }
+
+        /// <summary>
+        /// Analyzes the tokens contained in this intermediary token list, and removes any token that happens to be unreachable by any common code flow
+        /// </summary>
+        /// <param name="entryIndex">The index of the token to start analyzing from</param>
+        public void RemoveUnreachableTokens(int entryIndex = 0)
+        {
+            // Detect the reachability of the tokens
+            DetectReachability(entryIndex);
+
+            // Remove the tokens marked as unreachable
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i].Reachable)
+                    continue;
+
+                RemoveToken(_tokens[i], null);
+                i--;
+            }
+        }
+
+        /// <summary>
+        /// Analyzes the tokens contained in this intermediary token list, marking the <see cref="Token.Reachable"/> property of the tokens that are reachable from some code flow.
+        /// The function returns an array of booleans that marks the tokens reachable
+        /// The entry index parameter is used to specify where to start traversing the tokens from.
+        /// If the index is out of bounds of the list (&lt; 0 or &gt;= Count), an exception is raised.
+        /// </summary>
+        /// <param name="entryIndex">The index of the token to start analyzing from</param>
+        /// <exception cref="ArgumentOutOfRangeException">The entryIndex points outside the list of tokens</exception>
+        public bool[] DetectReachability(int entryIndex = 0)
+        {
+            if (entryIndex == 0 && _tokens.Count == 0)
+                return new bool[0];
+
+            if (entryIndex < 0 || entryIndex >= _tokens.Count)
+            {
+                throw new ArgumentOutOfRangeException("entryIndex");
+            }
+
+            // Reset the reachability of the tokens
+            foreach (var token in _tokens)
+            {
+                token.Reachable = false;
+            }
+
+            // Create an array to mark the tokens that have been reached
+            bool[] sweepedFlags = new bool[_tokens.Count];
+
+            // Create the queue of tokens to visit
+            var visitQueue = new Queue<int>();
+            visitQueue.Enqueue(entryIndex);
+
+            while (visitQueue.Count > 0)
+            {
+                // Dequeue the index to visit
+                int index = visitQueue.Dequeue();
+
+                // Linearly scan the tokens, until either A: a conditional jump is reached or B: an interruption (interrupt or ret) instruction is met
+                for (; index < _tokens.Count; index++)
+                {
+                    // Break out of the loop, in case the token has been swept already
+                    if (sweepedFlags[index])
+                        break;
+
+                    // Mark the token as swept and flag the array at the index as reachable
+                    _tokens[index].Reachable = sweepedFlags[index] = true;
+
+                    // Check if the token is an interrupt-type token
+                    if (_tokens[index].Instruction == VmInstruction.Interrupt ||
+                        _tokens[index].Instruction == VmInstruction.Ret)
+                        break;
+
+                    // Check if the token is an unconditional jump
+                    var jump = _tokens[index] as JumpToken;
+                    if (jump != null)
+                    {
+                        // Enqueue the index of the jump target and break
+                        visitQueue.Enqueue(OffsetForJump(jump));
+
+                        // If the jump is not conditional, we break now because no further tokens can be advanced forward anyway
+                        if(!jump.Conditional)
+                            break;
+                    }
+                }
+            }
+
+            return sweepedFlags;
         }
 
         /// <summary>
