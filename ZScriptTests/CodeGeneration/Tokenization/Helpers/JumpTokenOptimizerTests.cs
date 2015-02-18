@@ -634,7 +634,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
                 TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
-            jump2.TargetToken = tokens[5];
+            jump2.TargetToken = expectedTokens[5];
 
             // Expand the jumps
             JumpTokenOptimizer.OptimizeJumps(tokens);

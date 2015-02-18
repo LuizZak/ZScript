@@ -107,13 +107,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 1st ternary expression
                 TokenFactory.CreateBoxedValueToken((long)0),
                 // False jump
-                new JumpToken(jEnd1, true, false),
+                new JumpToken(jFalse1, true, false),
 
                 // 1st ternary true
                     // 2nd ternary expression
                     TokenFactory.CreateBoxedValueToken((long)1),
                     // False jump
-                    new JumpToken(jEnd2, true, false),
+                    new JumpToken(jFalse2, true, false),
                     
                     // 2nd ternary true
                     TokenFactory.CreateBoxedValueToken((long)2),
@@ -170,7 +170,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 // 1st ternary's condition
                 TokenFactory.CreateBoxedValueToken((long)0),
-                new JumpToken(jEnd1, true, false),
+                new JumpToken(jFalse1, true, false),
                 // 1st ternary's left side
                 TokenFactory.CreateBoxedValueToken((long)1),
                 new JumpToken(jEnd1),
@@ -179,7 +179,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 jFalse1,
                     // 2nd ternary's condition 
                     TokenFactory.CreateBoxedValueToken((long)2),
-                    new JumpToken(jEnd2, true, false),
+                    new JumpToken(jFalse2, true, false),
 
                     // 2nd ternary's left side
                     TokenFactory.CreateBoxedValueToken((long)3),
