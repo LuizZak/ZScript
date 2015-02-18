@@ -34,30 +34,6 @@ namespace ZScript.Parsing
         private static readonly NumberFormatInfo Nfi = new NumberFormatInfo { NumberDecimalSeparator = "." };
 
         /// <summary>
-        /// Parses the given string into a number, taking into consideration decimal, hexadecimal (0xXX) and binary (0bXX) notation
-        /// </summary>
-        /// <param name="num">The number to parse</param>
-        /// <returns>A valid floating point number parsed from the string</returns>
-        public static float ParseNumber(string num)
-        {
-            int mult = 1;
-            if (num[0] == '-')
-            {
-                num = num.Substring(1);
-                mult = -1;
-            }
-
-            // Test for hexadecimal numbers
-            if (num.StartsWith("0x"))
-                return ParseHex(num) * mult;
-            // Test for binary numbers
-            if (num.StartsWith("0b"))
-                return ParseBinary(num) * mult;
-
-            return float.Parse(num, Nfi) * mult;
-        }
-
-        /// <summary>
         /// Tries to parse a given value string into a valid value.
         /// The input value string may either be a number, 'null', 'false', or 'true'
         /// </summary>
@@ -149,30 +125,6 @@ namespace ZScript.Parsing
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Parses the given string into a number, taking into consideration decimal, hexadecimal (0xXX) and binary (0bXX) notation
-        /// </summary>
-        /// <param name="num">The number to parse</param>
-        /// <returns>A valid integer number parsed from the string</returns>
-        public static int ParseInt(string num)
-        {
-            int mult = 1;
-            if (num[0] == '-')
-            {
-                num = num.Substring(1);
-                mult = -1;
-            }
-
-            // Test for hexadecimal numbers
-            if (num.StartsWith("0x"))
-                return ParseHex(num) * mult;
-            // Test for binary numbers
-            if (num.StartsWith("0b"))
-                return ParseBinary(num) * mult;
-
-            return int.Parse(num) * mult;
         }
 
         /// <summary>
