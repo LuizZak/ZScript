@@ -36,6 +36,164 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     [TestClass]
     public class StatementTokenizerTests
     {
+        #region Empty statement generation
+
+        [TestMethod]
+        public void TestEmptyStatementTokenGeneration()
+        {
+            const string message = "The tokens generated for the empty statement where not generated as expected";
+
+            const string input = ";";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.statement();
+            var generatedTokens = tokenizer.TokenizeStatement(stmt);
+
+            // Empty statements should not generate any tokens
+            var expectedTokens = new List<Token>();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Variable statement generation and execution
+
+        #region Tokenization tests
+
+        [TestMethod]
+        public void TestValuedVarTokenGeneration()
+        {
+            const string message = "The tokens generated for the variable declare statement where not generated as expected";
+
+            const string input = "var a = 10;";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.valueDeclareStatement();
+            var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                // Variable initial value
+                TokenFactory.CreateBoxedValueToken(10L),
+                // Variable name
+                TokenFactory.CreateVariableToken("a", true),
+                // Variable initial assignment
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestValuelessVarTokenGeneration()
+        {
+            const string message = "The tokens generated for the variable declare statement where not generated as expected";
+
+            const string input = "var a;";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.valueDeclareStatement();
+            var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
+
+            // Valueless initializations generate no instructions
+            var expectedTokens = new List<Token>();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestValuedLetTokenGeneration()
+        {
+            const string message = "The tokens generated for the constant declare statement where not generated as expected";
+
+            const string input = "let a = 10;";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.valueDeclareStatement();
+            var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                // Constant initial value
+                TokenFactory.CreateBoxedValueToken(10L),
+                // Constant name
+                TokenFactory.CreateVariableToken("a", true),
+                // Constant initial assignment
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestValuelessLetTokenGeneration()
+        {
+            const string message = "The tokens generated for the constant declare statement where not generated as expected";
+
+            const string input = "let a;";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.valueDeclareStatement();
+            var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
+
+            // Valueless initializations generate no instructions
+            var expectedTokens = new List<Token>();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #endregion
+
         #region IF statement generation and execution
 
         #region Execution tests

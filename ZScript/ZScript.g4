@@ -213,9 +213,11 @@ numericAtom : hexadecimalNumber | binaryNumber | (FLOAT | INT);
 hexadecimalNumber : HEX;
 binaryNumber : BINARY;
 
-StringLiteral : '"' (StringEscape | ~('"'))* '"'
-              | '\'' ~('\'')* '\'';
-StringEscape : '\\' ('n' | 'r' | '\\');
+StringLiteral : '"' (DoubleQuoteEscape | ~('"'))* '"'
+              | '\'' (SingleQuoteEscape | ~('\''))* '\'';
+
+DoubleQuoteEscape : '\\' ('n' | 'r' | '\\' | '"');
+SingleQuoteEscape : '\\' ('\'' | '\\');
 
 ////
 //// Token Definitions

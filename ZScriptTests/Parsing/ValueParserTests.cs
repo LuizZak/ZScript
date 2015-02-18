@@ -25,11 +25,44 @@ using ZScript.Parsing;
 namespace ZScriptTests.Parsing
 {
     /// <summary>
-    /// Tests the functionality of the Tokenizer class and related components
+    /// Tests the functionality of the ValueParser class and related components
     /// </summary>
     [TestClass]
-    public class TokenizerTests
+    public class ValueParserTests
     {
+        /// <summary>
+        /// Tests the result of the TryParseValueBoxed method
+        /// </summary>
+        [TestMethod]
+        public void TestTryParseValueBoxed()
+        {
+            object value;
+
+            // null
+            Assert.IsTrue(ValueParser.TryParseValueBoxed("null", out value));
+            Assert.AreEqual(null, value);
+
+            // false
+            Assert.IsTrue(ValueParser.TryParseValueBoxed("false", out value));
+            Assert.AreEqual(false, value);
+
+            // true
+            Assert.IsTrue(ValueParser.TryParseValueBoxed("true", out value));
+            Assert.AreEqual(true, value);
+
+            // Infinity
+            Assert.IsTrue(ValueParser.TryParseValueBoxed("Infinity", out value));
+            Assert.IsTrue(double.IsPositiveInfinity((double)value));
+
+            // NegativeInfinity
+            Assert.IsTrue(ValueParser.TryParseValueBoxed("NInfinity", out value));
+            Assert.IsTrue(double.IsNegativeInfinity((double)value));
+
+            // NaN
+            Assert.IsTrue(ValueParser.TryParseValueBoxed("NaN", out value));
+            Assert.IsTrue(double.IsNaN((double)value));
+        }
+
         /// <summary>
         /// Tests the results of the ParseBinary method
         /// </summary>
@@ -80,6 +113,16 @@ namespace ZScriptTests.Parsing
         public void TestFailedParseBinaryUint()
         {
             ValueParser.ParseBinaryUint("0bBAD");
+        }
+
+        /// <summary>
+        /// Tests the results of the ParseBinaryLong method
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        public void TestFailedParseBinaryLong()
+        {
+            ValueParser.ParseBinaryLong("0bBAD");
         }
 
         /// <summary>
@@ -139,14 +182,14 @@ namespace ZScriptTests.Parsing
         [TestMethod]
         public void TestParseNumberBoxed()
         {
-            Assert.AreEqual((long)1, ValueParser.ParseNumberBoxed("1"), "Wrong unboxed number");
-            Assert.AreEqual((long)1, ValueParser.ParseNumberBoxed("0b1"), "Wrong unboxed number");
-            Assert.AreEqual((long)1, ValueParser.ParseNumberBoxed("0x1"), "Wrong unboxed number");
+            Assert.AreEqual(1L, ValueParser.ParseNumberBoxed("1"), "Wrong unboxed number");
+            Assert.AreEqual(1L, ValueParser.ParseNumberBoxed("0b1"), "Wrong unboxed number");
+            Assert.AreEqual(1L, ValueParser.ParseNumberBoxed("0x1"), "Wrong unboxed number");
             Assert.AreEqual(1.0, ValueParser.ParseNumberBoxed("1.0"), "Wrong unboxed number");
 
-            Assert.AreEqual((long)-1, ValueParser.ParseNumberBoxed("-1"), "Wrong unboxed number");
-            Assert.AreEqual((long)-1, ValueParser.ParseNumberBoxed("-0b1"), "Wrong unboxed number");
-            Assert.AreEqual((long)-1, ValueParser.ParseNumberBoxed("-0x1"), "Wrong unboxed number");
+            Assert.AreEqual(-1L, ValueParser.ParseNumberBoxed("-1"), "Wrong unboxed number");
+            Assert.AreEqual(-1L, ValueParser.ParseNumberBoxed("-0b1"), "Wrong unboxed number");
+            Assert.AreEqual(-1L, ValueParser.ParseNumberBoxed("-0x1"), "Wrong unboxed number");
             Assert.AreEqual(-1.0, ValueParser.ParseNumberBoxed("-1.0"), "Wrong unboxed number");
 
             // Test value Wrapping
@@ -163,6 +206,11 @@ namespace ZScriptTests.Parsing
             Assert.AreEqual(1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("1192297203685477580711922972036854775807.0"), "Wrong unboxed number");
             // Negative double wrapping
             Assert.AreEqual(-1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("-1192297203685477580711922972036854775807.0"), "Wrong unboxed number");
+
+
+            // Invalid values testing
+            Assert.AreEqual(null, ValueParser.ParseNumberBoxed("-1..0"), "Expected to return null when invalid number is provided");
+            Assert.AreEqual(null, ValueParser.ParseNumberBoxed("1a0"), "Expected to return null when invalid number is provided");
         }
     }
 }

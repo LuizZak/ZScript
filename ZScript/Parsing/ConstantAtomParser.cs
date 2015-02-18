@@ -101,20 +101,20 @@ namespace ZScript.Parsing
             // Single quotes string
             if (str[0] == '\'')
             {
-                return str.Substring(1, str.Length - 2);
+                return EscapeSingleQuoted(str.Substring(1, str.Length - 2));
             }
 
             str = str.Substring(1, str.Length - 2);
 
-            return EscapeString(str);
+            return EscapeDoubleQuoted(str);
         }
 
         /// <summary>
-        /// Escapes a given string using the language's escape rules, returning the escaped string
+        /// Escapes a given string using the language's escape rules for double quoted strings, returning the escaped string
         /// </summary>
         /// <param name="str">The string to escape</param>
         /// <returns>An escaped version of the string</returns>
-        private static string EscapeString(string str)
+        private static string EscapeDoubleQuoted(string str)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -138,6 +138,52 @@ namespace ZScript.Parsing
                     if (next == 'r')
                     {
                         builder.Append('\r');
+                        continue;
+                    }
+                    if (next == '"')
+                    {
+                        builder.Append('"');
+                        continue;
+                    }
+                    if (next == '\\')
+                    {
+                        builder.Append('\\');
+                        continue;
+                    }
+
+                    throw new FormatException("Unrecognized or invalid escape sequence in string");
+                }
+
+                builder.Append(str[i]);
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Escapes a given string using the language's escape rules for single quoted strings, returning the escaped string
+        /// </summary>
+        /// <param name="str">The string to escape</param>
+        /// <returns>An escaped version of the string</returns>
+        private static string EscapeSingleQuoted(string str)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] == '\\')
+                {
+                    if (i == str.Length - 1)
+                    {
+                        throw new FormatException("Expected escape sequence after '\\' character in string");
+                    }
+
+                    char next = str[i + 1];
+                    i++;
+
+                    if (next == '\'')
+                    {
+                        builder.Append('\'');
                         continue;
                     }
                     if (next == '\\')

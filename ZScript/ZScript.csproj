@@ -75,7 +75,6 @@
     <Compile Include="CodeGeneration\Definitions\FunctionArgumentDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\FunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\GlobalVariableDefinition.cs" />
-    <Compile Include="CodeGeneration\Analysis\CodeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Definitions\ObjectDefinition.cs" />
     <Compile Include="Runtime\Typing\Elements\TypeDef.cs" />
     <Compile Include="CodeGeneration\Definitions\ValueHolderDefinition.cs" />

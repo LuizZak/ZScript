@@ -659,6 +659,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitAdditionOp([NotNull] ZScriptParser.AdditionOpContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseShift"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBitwiseShift([NotNull] ZScriptParser.BitwiseShiftContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.bitwiseShift"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBitwiseShift([NotNull] ZScriptParser.BitwiseShiftContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseAndOp"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

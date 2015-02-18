@@ -789,6 +789,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAdditionOp([NotNull] ZScriptParser.AdditionOpContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseShift"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBitwiseShift([NotNull] ZScriptParser.BitwiseShiftContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.bitwiseShift"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBitwiseShift([NotNull] ZScriptParser.BitwiseShiftContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.bitwiseAndOp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

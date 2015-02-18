@@ -54,13 +54,13 @@ namespace ZScript.Parsing
                     value = false;
                     return true;
                 case "Infinity":
-                    value = float.PositiveInfinity;
+                    value = double.PositiveInfinity;
                     return true;
                 case "NInfinity":
-                    value = float.NegativeInfinity;
+                    value = double.NegativeInfinity;
                     return true;
                 case "NaN":
-                    value = float.NaN;
+                    value = double.NaN;
                     return true;
             }
 
@@ -99,9 +99,9 @@ namespace ZScript.Parsing
                 return ParseBinaryLong(valueString) * mult;
             }
 
+            double outDouble;
             if (valueString.IndexOf('.') > 0)
             {
-                double outDouble;
                 if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
                 {
                     return outDouble;
@@ -115,13 +115,10 @@ namespace ZScript.Parsing
             {
                 return outLong;
             }
-            else
+
+            if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
             {
-                double outDouble;
-                if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
-                {
-                    return outDouble;
-                }
+                return outDouble;
             }
 
             return null;

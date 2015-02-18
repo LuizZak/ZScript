@@ -122,59 +122,55 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="statement">The statement to tokenize</param>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.StatementContext statement)
         {
-            IntermediaryTokenList statementTokens;
-
             if (statement.expression() != null || statement.assignmentExpression() != null)
             {
-                statementTokens = TokenizeExpressionStatement(statement);
+                var statementTokens = TokenizeExpressionStatement(statement);
                 statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+
+                return statementTokens;
             }
-            else if (statement.ifStatement() != null)
+            if (statement.ifStatement() != null)
             {
-                statementTokens = TokenizeIfStatement(statement.ifStatement());
+                return TokenizeIfStatement(statement.ifStatement());
             }
-            else if (statement.forStatement() != null)
+            if (statement.forStatement() != null)
             {
-                statementTokens = TokenizeForStatement(statement.forStatement());
+                return TokenizeForStatement(statement.forStatement());
             }
-            else if (statement.whileStatement() != null)
+            if (statement.whileStatement() != null)
             {
-                statementTokens = TokenizeWhileStatement(statement.whileStatement());
+                return TokenizeWhileStatement(statement.whileStatement());
             }
-            else if (statement.switchStatement() != null)
+            if (statement.switchStatement() != null)
             {
-                statementTokens = TokenizeSwitchStatement(statement.switchStatement());
+                return TokenizeSwitchStatement(statement.switchStatement());
             }
-            else if (statement.blockStatement() != null)
+            if (statement.blockStatement() != null)
             {
-                statementTokens = TokenizeBlockStatement(statement.blockStatement());
+                return TokenizeBlockStatement(statement.blockStatement());
             }
-            else if (statement.breakStatement() != null)
+            if (statement.breakStatement() != null)
             {
-                statementTokens = TokenizeBreakStatement(statement.breakStatement());
+                return TokenizeBreakStatement(statement.breakStatement());
             }
-            else if (statement.continueStatement() != null)
+            if (statement.continueStatement() != null)
             {
-                statementTokens = TokenizeContinueStatement(statement.continueStatement());
+                return TokenizeContinueStatement(statement.continueStatement());
             }
-            else if (statement.valueDeclareStatement() != null)
+            if (statement.valueDeclareStatement() != null)
             {
-                statementTokens = TokenizeValueDeclareStatement(statement.valueDeclareStatement());
+                return TokenizeValueDeclareStatement(statement.valueDeclareStatement());
             }
-            else if (statement.returnStatement() != null)
+            if (statement.returnStatement() != null)
             {
-                statementTokens = TokenizeReturnStatement(statement.returnStatement());
+                return TokenizeReturnStatement(statement.returnStatement());
             }
-            else if (statement.GetText() == ";")
+            if (statement.GetText() == ";")
             {
-                statementTokens = new IntermediaryTokenList();
-            }
-            else
-            {
-                throw new Exception("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
+                return new IntermediaryTokenList();
             }
 
-            return statementTokens;
+            throw new Exception("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
         }
 
         #region Statements
