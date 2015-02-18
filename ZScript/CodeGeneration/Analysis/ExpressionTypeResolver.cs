@@ -97,7 +97,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.expression() != null)
             {
                 // Push expected type
-                ExpectedType = context.expression().closureExpression() != null ? variableType : null;
+                ExpectedType = variableType;
 
                 valueType = ResolveExpression(context.expression());
 

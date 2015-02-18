@@ -48,6 +48,41 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
+            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+        }
+
+        /// <summary>
+        /// Tests inferring of types in a closure definition that is passed as the return value of a function
+        /// </summary>
+        [TestMethod]
+        public void TestClosureTypeInferringReturn()
+        {
+            const string input = "func f2() : (int->int) { return i => { return 0; }; }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var scope = generator.CollectDefinitions();
+
+            var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
+
+            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+        }
+
+        /// <summary>
+        /// Tests inferring of types in a closure definition that is used as a value of a variable
+        /// </summary>
+        [TestMethod]
+        public void TestClosureTypeInferringVariable()
+        {
+            const string input = "func f2() { var a: (int->int) = i => { return 0; }; }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var scope = generator.CollectDefinitions();
+
+            var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
+
+            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 

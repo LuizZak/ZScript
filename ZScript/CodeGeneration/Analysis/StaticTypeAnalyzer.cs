@@ -126,16 +126,16 @@ namespace ZScript.CodeGeneration.Analysis
                 ExpandValueHolderDefinition(valueHolderDefinition);
             }
 
+            // Verify return types now
+            foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => d.BodyContext != null && !(d is ClosureDefinition)))
+            {
+                AnalyzeReturns(definition);
+            }
+
             // Expand closures now
             foreach (var definition in definitions.OfType<ClosureDefinition>())
             {
                 ExpandClosureDefinition(definition);
-            }
-
-            // Verify return types now
-            foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => d.BodyContext != null))
-            {
-                AnalyzeReturns(definition);
             }
 
             ProcessExpressions(_baseScope);
@@ -196,7 +196,6 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Now expand the closure like a normal function
             ExpandFunctionDefinition(definition);
-            Array.ForEach(definition.Arguments, ExpandFunctionArgument);
             
             // Get all of the local variables and expand them now
             var scope = _baseScope.GetScopeContainingContext(definition.Context);
@@ -208,6 +207,9 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Re-create the callable definition for the closure
             definition.RecreateCallableDefinition();
+
+            // Analyze the return type of the closure now
+            AnalyzeReturns(definition);
         }
 
         /// <summary>
@@ -287,12 +289,16 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
+            _typeResolver.ExpectedType = definition.HasType ? definition.Type : null;
+
             // Compare applicability
             // TODO: Deal with this nasy type check horror
             var argumentDefinition = definition as FunctionArgumentDefinition;
             var valueType = (argumentDefinition != null
                 ? _typeResolver.ResolveCompileConstant(argumentDefinition.DefaultValue)
                 : _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext));
+
+            _typeResolver.ExpectedType = null;
 
             if (!definition.HasType)
             {
