@@ -1,5 +1,5 @@
 # ZScript  
-An (once) game scripting programming language.
+An (once) game scripting programming language implemented in C#.
 
 
 ## Some considerations, beforehand
@@ -64,6 +64,9 @@ Variables and constants in ZScript are typed, and a type must be provided at tim
 
 The VM (FunctionVM) is a stack-based virtual machine that utilizes special token stream constructs as instructions to execute. The function VM itself has no memory access, requiring an external object (VmContext) that provides access for memory and the runtime to call functions on.
 
+## Licensing
+
+The project is licensed under LGPL 2.1. The license can be found in the [License.txt](https://github.com/LuizZak/ZScript/blob/master/License.txt) file in the root of the repository tree.
 
 ## More Information
 
