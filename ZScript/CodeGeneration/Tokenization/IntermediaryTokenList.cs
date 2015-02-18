@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -333,6 +334,7 @@ namespace ZScript.CodeGeneration.Tokenization
             var visitQueue = new Queue<int>();
             visitQueue.Enqueue(entryIndex);
 
+            // Repeat until there are no more available code paths to dequeue
             while (visitQueue.Count > 0)
             {
                 // Dequeue the index to visit
@@ -348,19 +350,18 @@ namespace ZScript.CodeGeneration.Tokenization
                     // Mark the token as swept and flag the array at the index as reachable
                     _tokens[index].Reachable = sweepedFlags[index] = true;
 
-                    // Check if the token is an interrupt-type token
+                    // Check if the token is an interrupt-type token; break out if it is
                     if (_tokens[index].Instruction == VmInstruction.Interrupt ||
                         _tokens[index].Instruction == VmInstruction.Ret)
                         break;
 
-                    // Check if the token is an unconditional jump
+                    // Check if the token is an unconditional jump; enqueue the jump address
                     var jump = _tokens[index] as JumpToken;
                     if (jump != null)
                     {
-                        // Enqueue the index of the jump target and break
                         visitQueue.Enqueue(OffsetForJump(jump));
 
-                        // If the jump is not conditional, we break now because no further tokens can be advanced forward anyway
+                        // If the jump is not conditional, we break now because the index cannot be advanced forward from this point anyway
                         if(!jump.Conditional)
                             break;
                     }
