@@ -201,6 +201,9 @@ namespace ZScript.Runtime.Typing
 
         public object BitwiseAnd(object v1, object v2)
         {
+            if (v1 is bool && v2 is bool)
+                return (bool)v1 & (bool)v2;
+
             var c = BestFitForTypes(v1, v2);
 
             switch (c)
@@ -221,6 +224,9 @@ namespace ZScript.Runtime.Typing
 
         public object BitwiseXOr(object v1, object v2)
         {
+            if (v1 is bool && v2 is bool)
+                return (bool)v1 ^ (bool)v2;
+
             var c = BestFitForTypes(v1, v2);
 
             switch (c)
@@ -241,6 +247,9 @@ namespace ZScript.Runtime.Typing
 
         public object BitwiseOr(object v1, object v2)
         {
+            if (v1 is bool && v2 is bool)
+                return (bool)v1 | (bool)v2;
+
             var c = BestFitForTypes(v1, v2);
 
             switch (c)

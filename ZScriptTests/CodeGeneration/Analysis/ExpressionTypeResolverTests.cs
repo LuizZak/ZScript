@@ -732,6 +732,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
         }
 
+        /// <summary>
+        /// Tests utilizing the '|', '&' and '^' operators with boolean types for standard (non-short circuited) boolean operations
+        /// </summary>
+        [TestMethod]
+        public void TestStandardBooleanOperations()
+        {
+            // Set up the test
+            const string input = "true ^ false; false | true; true & false;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+            var type2 = resolver.ResolveExpression(parser.statement().expression());
+            var type3 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.BooleanType(), type1, "Failed to evaluate the result of standard boolean expression correctly");
+            Assert.AreEqual(provider.BooleanType(), type2, "Failed to evaluate the result of standard boolean expression correctly");
+            Assert.AreEqual(provider.BooleanType(), type3, "Failed to evaluate the result of standard boolean expression correctly");
+
+            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+        }
+
         #endregion
 
         #region Ternary type resolving

@@ -248,7 +248,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public bool CanBitwiseAnd(TypeDef type1, TypeDef type2)
         {
-            return type1 == _intType && type2 == _intType;
+            return type1 == _intType && type2 == _intType || type1 == _boolType && type2 == _boolType;
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public bool CanBitwiseXOr(TypeDef type1, TypeDef type2)
         {
-            return type1 == _intType && type2 == _intType;
+            return type1 == _intType && type2 == _intType || type1 == _boolType && type2 == _boolType;
         }
 
         /// <summary>
@@ -264,7 +264,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public bool CanBitwiseOr(TypeDef type1, TypeDef type2)
         {
-            return type1 == _intType && type2 == _intType;
+            return type1 == _intType && type2 == _intType || type1 == _boolType && type2 == _boolType;
         }
 
         #endregion
@@ -432,7 +432,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public TypeDef TypeForBitwiseAnd(TypeDef type1, TypeDef type2)
         {
-            return _intType;
+            return type1 == _boolType ? _boolType : _intType;
         }
 
         /// <summary>
@@ -440,7 +440,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public TypeDef TypeForBitwiseXOr(TypeDef type1, TypeDef type2)
         {
-            return _intType;
+            return type1 == _boolType ? _boolType : _intType;
         }
 
         /// <summary>
@@ -448,7 +448,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public TypeDef TypeForBitwiseOr(TypeDef type1, TypeDef type2)
         {
-            return _intType;
+            return type1 == _boolType ? _boolType : _intType;
         }
 
         #endregion
