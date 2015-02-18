@@ -79,15 +79,16 @@ namespace ZScript.CodeGeneration.Tokenization
                 TokenUtils.PrintTokens(tokens);
             }
 
-            JumpTokenExpander.ExpandInList(tokens, VmInstruction.Interrupt);
+            //JumpTokenOptimizer.OptimizeJumps(tokens, VmInstruction.Interrupt);
+            TokenList finalList = tokens.ToTokenList();
 
             if (DebugTokens)
             {
                 Console.WriteLine("Final token list:");
-                TokenUtils.PrintTokens(tokens);
+                TokenUtils.PrintTokens(finalList);
             }
 
-            return new TokenList(tokens);
+            return finalList;
         }
     }
 

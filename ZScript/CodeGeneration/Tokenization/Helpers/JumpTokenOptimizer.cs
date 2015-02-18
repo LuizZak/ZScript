@@ -29,16 +29,17 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
     /// <summary>
     /// Class responsible for expanding jump tokens into address and instruction tokens
     /// </summary>
-    public class JumpTokenExpander
+    public class JumpTokenOptimizer
     {
         /// <summary>
         /// Expands the jump tokens associated with the given token list
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
-        public static void ExpandInList(IntermediateTokenList tokens)
+        public static void OptimizeJumps(IntermediaryTokenList tokens)
         {
-            BindJumpTargets(tokens, false, VmInstruction.Noop);
-            ExpandJumpTokens(tokens);
+            tokens.BindJumpTargets(false, VmInstruction.Noop);
+
+            OptimizeJumpPointing(tokens);
         }
 
         /// <summary>
@@ -47,150 +48,21 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
-        public static void ExpandInList(IntermediateTokenList tokens, VmInstruction endJumpTargetInstruction)
+        public static void OptimizeJumps(IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
-            BindJumpTargets(tokens, true, endJumpTargetInstruction);
+            tokens.BindJumpTargets(true, endJumpTargetInstruction);
+            
             RemoveSequentialInterrupts(tokens);
-            ExpandJumpTokens(tokens);
-        }
 
-        /// <summary>
-        /// Replaces the jump target tokens on the given list
-        /// </summary>
-        /// <param name="tokens">The list of jump target tokens to replace</param>
-        /// <param name="replaceJumpTargetsAtEnd">
-        /// Whether to expand jump targets at the end of the list of tokens as an instruction token specified by the endJumpTargetInstruction parameter
-        /// </param>
-        /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
-        static void BindJumpTargets(IntermediateTokenList tokens, bool replaceJumpTargetsAtEnd, VmInstruction endJumpTargetInstruction)
-        {
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                if (i == tokens.Count - 1 && !replaceJumpTargetsAtEnd)
-                    break;
-
-                var token = tokens[i];
-
-                if (!(token is JumpTargetToken))
-                    continue;
-
-                Token newTarget;
-                bool endJump = false;
-
-                if (i == tokens.Count - 1)
-                {
-                    // Expand this jump token as an interrupt
-                    newTarget = TokenFactory.CreateInstructionToken(endJumpTargetInstruction);
-                    tokens.Add(newTarget);
-
-                    endJump = true;
-                }
-                else
-                {
-                    newTarget = tokens[i + 1];
-                }
-
-                bool hasSource = false;
-                // Find all jump tokens that are pointing to this jump target token
-                foreach (Token t in tokens)
-                {
-                    var jumpToken = t as JumpToken;
-                    if (jumpToken != null && ReferenceEquals(jumpToken.TargetToken, token))
-                    {
-                        jumpToken.TargetToken = newTarget; // Token next to the target token
-                        hasSource = true;
-                    }
-                }
-
-                // If the target has no source, exclude the newly created target
-                if (!hasSource && endJump)
-                {
-                    tokens.Remove(newTarget);
-                }
-
-                // Remove jump target token
-                tokens.RemoveAt(i);
-                i--;
-            }
-        }
-
-        /// <summary>
-        /// Expands the jump tokens on the given list, replacing them with couples of address tokens and jump instruction tokens
-        /// </summary>
-        /// <param name="tokens">The list of tokens to expand the jumps on</param>
-        /// <exception cref="Exception">One of the jump tokens points to a target token that is not inside the same token list</exception>
-        static void ExpandJumpTokens(IntermediateTokenList tokens)
-        {
             // Optimize the jump flow
             OptimizeJumpPointing(tokens);
-
-            // Iterate over jump tokens and add jump instructions in front of them
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                var jumpToken = tokens[i] as JumpToken;
-                // If the jump is pointed at a jump target token, skip the expansion
-                if (jumpToken == null || jumpToken.TargetToken is JumpTargetToken)
-                    continue;
-
-                AnalyzeJump(jumpToken);
-
-                // Add a jump token in front of the jump token
-                Token t = TokenFactory.CreateInstructionToken(InstructionForJumpToken(jumpToken));
-                tokens.Insert(i + 1, t);
-
-                // Skip over the jump instruction token that was just added
-                i++;
-            }
-
-            // Iterate again the jump tokens, now fixing the address of the token pointing
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                var jumpToken = tokens[i] as JumpToken;
-                // If the jump is pointed at a jump target token, skip the expansion
-                if (jumpToken == null || jumpToken.TargetToken is JumpTargetToken)
-                    continue;
-                
-                // Find address of jump
-                int address = OffsetForJump(tokens, jumpToken);
-                if(address == -1)
-                    throw new Exception("A jump token has a target that is not contained within the same token list");
-
-                var newToken = TokenFactory.CreateBoxedValueToken(address);
-
-                // Replace any jump reference that may be pointing to this jump token
-                foreach (Token t in tokens)
-                {
-                    // If this jump token is unconditional, just point the other token to this token's target
-                    var token = t as JumpToken;
-                    if (token != null && ReferenceEquals(token.TargetToken, jumpToken))
-                    {
-                        token.TargetToken = newToken;
-                    }
-                }
-
-                tokens[i] = newToken;
-            }
-        }
-
-        /// <summary>
-        /// Analyzes a given jump token for errors
-        /// </summary>
-        /// <param name="jumpToken">The jump token</param>
-        // ReSharper disable once UnusedParameter.Local
-        static void AnalyzeJump(JumpToken jumpToken)
-        {
-            if (ReferenceEquals(jumpToken.TargetToken, jumpToken))
-                throw new Exception("Jump instruction is pointing at itself!");
-
-            if (jumpToken.TargetToken == null)
-                throw new Exception("Jump instruction has a null target!");
         }
 
         /// <summary>
         /// Optimizes the jump flow of the given list of tokens by re-pointing jumps so chained jumps can be avoided.
         /// </summary>
         /// <param name="tokens">The list of tokens to optimize</param>
-        static void OptimizeJumpPointing(IntermediateTokenList tokens)
+        public static void OptimizeJumpPointing(IntermediaryTokenList tokens)
         {
             // Iterate again the jump tokens, now fixing the address of the token pointing
             foreach (Token token in tokens)
@@ -235,7 +107,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                             // Also remove the true constant from the stack
                             if (jumpToken.ConsumesStack)
                             {
-                                RemoveToken(valueToken, tokens, newTarget);
+                                tokens.RemoveToken(valueToken, newTarget);
                                 i--;
                             }
                             i--;
@@ -252,7 +124,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                         // Also remove the true constant from the stack
                         if (jumpToken.ConsumesStack)
                         {
-                            RemoveToken(valueToken, tokens, newTarget);
+                            tokens.RemoveToken(valueToken, newTarget);
                             i--;
                         }
                         i--;
@@ -260,7 +132,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     }
                 }
 
-                int nextToken = OffsetForJump(tokens, jumpToken);
+                int nextToken = tokens.OffsetForJump(jumpToken);
                 if (i + 1 == nextToken && TryRemoveJumpInstruction(jumpToken, tokens))
                 {
                     i--;
@@ -307,7 +179,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="pointedJump">The first jump token which is being pointed at</param>
         /// <param name="pointingJump">The second jump token which is pointing to the first jump token</param>
         /// <param name="owningList">The list of tokens that own the two tokens</param>
-        private static void OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IntermediateTokenList owningList)
+        private static void OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IntermediaryTokenList owningList)
         {
             // Unconditional jump, forward the other jump to this jump's target
             if (!pointedJump.Conditional)
@@ -352,12 +224,12 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="newTarget">A new target for jump tokens that aim at the given jump. Leave null to re-target to the jump's current target</param>
         /// <param name="force">Whether to force the removal, even if it is a conditional jump</param>
         /// <returns>Whether the method successfully removed the jump token</returns>
-        private static bool TryRemoveJumpInstruction(JumpToken jmp, IntermediateTokenList tokens, bool force = false, Token newTarget = null)
+        private static bool TryRemoveJumpInstruction(JumpToken jmp, IntermediaryTokenList tokens, bool force = false, Token newTarget = null)
         {
             if (jmp.Conditional && jmp.ConsumesStack && !force)
                 return false;
 
-            RemoveToken(jmp, tokens, newTarget ?? jmp.TargetToken);
+            tokens.RemoveToken(jmp, newTarget ?? jmp.TargetToken);
 
             return true;
         }
@@ -367,7 +239,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// This operation must be performed before and jump token expansion
         /// </summary>
         /// <param name="tokens">The list of tokens to remove the sequential trailing interrupts from</param>
-        private static void RemoveSequentialInterrupts(IntermediateTokenList tokens)
+        private static void RemoveSequentialInterrupts(IntermediaryTokenList tokens)
         {
             if (tokens.Count < 2 || tokens[tokens.Count - 1].Instruction != VmInstruction.Interrupt)
                 return;
@@ -380,66 +252,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 }
 
                 // Remove the token
-                RemoveToken(tokens[tokens.Count - 2], tokens, tokens[tokens.Count - 1]);
+                tokens.RemoveToken(tokens[tokens.Count - 2], tokens[tokens.Count - 1]);
             }
-        }
-
-        /// <summary>
-        /// Safely removes a token, retargeting any temporary jump instruction point to it
-        /// </summary>
-        /// <param name="token">The token to remove</param>
-        /// <param name="tokens">The list of tokens to remove the token from</param>
-        /// <param name="newTarget">A new target for jump instructions that may be pointing to it</param>
-        private static void RemoveToken(Token token, IntermediateTokenList tokens, Token newTarget)
-        {
-            // Iterate again the jump tokens, now fixing the address of the token pointing
-            foreach (Token t in tokens)
-            {
-                var j = t as JumpToken;
-                if (j == null)
-                    continue;
-
-                if (ReferenceEquals(j.TargetToken, token))
-                {
-                    j.TargetToken = newTarget;
-                }
-            }
-
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                if(ReferenceEquals(tokens[i], token))
-                    tokens.RemoveAt(i);
-            }
-        }
-
-        /// <summary>
-        /// Returns an integer that represents the simulated target offset for a jump at a given index
-        /// </summary>
-        /// <param name="tokenList">The list of tokens to analyze</param>
-        /// <param name="jumpToken">The jump to analyze</param>
-        /// <returns>The index that represents the jump's target after evaluation</returns>
-        public static int OffsetForJump(IntermediateTokenList tokenList, JumpToken jumpToken)
-        {
-            return tokenList.IndexOfReference(jumpToken.TargetToken);
-        }
-
-        /// <summary>
-        /// Returns an instruction for the configuration of the jump token
-        /// </summary>
-        /// <param name="token">The token to check</param>
-        /// <returns>One of the VmInstruction jumps that represents the token passed</returns>
-        static VmInstruction InstructionForJumpToken(JumpToken token)
-        {
-            // Unconditional jump
-            if(!token.Conditional)
-                return VmInstruction.Jump;
-
-            // Jump if true conditional jump
-            if (token.ConditionToJump)
-                return token.ConsumesStack ? VmInstruction.JumpIfTrue : VmInstruction.JumpIfTruePeek;
-            
-            // Jump if false conditional jump
-            return token.ConsumesStack ? VmInstruction.JumpIfFalse : VmInstruction.JumpIfFalsePeek;
         }
     }
 }

@@ -479,15 +479,7 @@ namespace ZScript.Runtime.Execution
             // Pop the variable and value to set
             var variable = _stack.Pop();
             object value = PopValueImplicit();
-
-            //if (variable is int)
-            //{
-                //_context.AddressedMemory.SetVariable((int)variable, value);
-            //}
-            //else
-            {
-                SetValue(variable, value);
-            }
+            SetValue(variable, value);
 
             _stack.Push(value);
         }
@@ -833,7 +825,7 @@ namespace ZScript.Runtime.Execution
                 return;
             }
             
-            throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value set");   
+            throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value set");
         }
 
         /// <summary>

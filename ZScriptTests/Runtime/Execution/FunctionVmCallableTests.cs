@@ -26,6 +26,7 @@ using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers.Callables;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution
 {
@@ -42,7 +43,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestMethodCallable()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(10L),
                 TokenFactory.CreateStringToken("ToString"),
@@ -67,7 +68,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestMethodCallableCall()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(10L),
                 TokenFactory.CreateStringToken("ToString"),
@@ -94,7 +95,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestNestedMethodCallablecall()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 // "10".ToString()
                 TokenFactory.CreateBoxedValueToken(10L),

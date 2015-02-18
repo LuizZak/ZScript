@@ -54,7 +54,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
-        public IntermediateTokenList TokenizeStatement(ZScriptParser.SwitchStatementContext context)
+        public IntermediaryTokenList TokenizeStatement(ZScriptParser.SwitchStatementContext context)
         {
             // Create the end switch block target
             _switchBlockEndTarget = new JumpTargetToken();
@@ -71,7 +71,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 cases.Add(TokenizeCaseStatement(c));
             }
 
-            var tokens = new IntermediateTokenList();
+            var tokens = new IntermediaryTokenList();
 
             // Add the switch expression
             tokens.AddRange(_context.TokenizeExpression(context.expression()));
@@ -125,7 +125,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="context">The context containing the ELSE statement to tokenize</param>
         private SwitchCaseStatement TokenizeCaseStatement(ZScriptParser.CaseBlockContext context)
         {
-            var stmtTokens = new IntermediateTokenList();
+            var stmtTokens = new IntermediaryTokenList();
 
             foreach (var statement in context.statement())
             {
@@ -143,12 +143,12 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             /// <summary>
             /// Gets the list of tokens that represent the case entry expression
             /// </summary>
-            public IntermediateTokenList ExpressionTokens { get; private set; }
+            public IntermediaryTokenList ExpressionTokens { get; private set; }
 
             /// <summary>
             /// Gets the list of tokens that represent the statements inside the case block
             /// </summary>
-            public IntermediateTokenList CaseStatementTokens { get; private set; }
+            public IntermediaryTokenList CaseStatementTokens { get; private set; }
 
             /// <summary>
             /// Gets the comparision operator to apply to the switch expression result and this case's expression result
@@ -166,7 +166,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             /// <param name="comparisionOperator">The comparision operator to apply to the switch expression result and this case's expression result</param>
             /// <param name="expressionTokens">A aist of tokens that represent the case entry expression</param>
             /// <param name="caseStatementTokens">A list of tokens that represent the statements inside the case block</param>
-            public SwitchCaseStatement(VmInstruction comparisionOperator, IntermediateTokenList expressionTokens, IntermediateTokenList caseStatementTokens)
+            public SwitchCaseStatement(VmInstruction comparisionOperator, IntermediaryTokenList expressionTokens, IntermediaryTokenList caseStatementTokens)
             {
                 ExpressionTokens = expressionTokens;
                 CaseStatementTokens = caseStatementTokens;

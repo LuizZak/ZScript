@@ -43,7 +43,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestArrayCreation()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
@@ -80,7 +80,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestNestedArrayCreation()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),

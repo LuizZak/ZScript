@@ -48,21 +48,21 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeValueHolderDeclaration(ZScriptParser.ValueHolderDeclContext context)
+        public IntermediaryTokenList TokenizeValueHolderDeclaration(ZScriptParser.ValueHolderDeclContext context)
         {
             var expression = context.expression();
             var name = context.valueHolderName().memberName().IDENT().GetText();
 
             if (expression != null)
             {
-                IntermediateTokenList tokens = _context.TokenizeExpression(expression);
+                IntermediaryTokenList tokens = _context.TokenizeExpression(expression);
                 tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
                 tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
                 return tokens;
             }
 
-            return new IntermediateTokenList();
+            return new IntermediaryTokenList();
         }
     }
 }

@@ -21,19 +21,16 @@
 
 using System;
 using System.Collections.Generic;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
-
 using ZScriptTests.Utils;
 
-namespace ZScriptTests.CodeGeneration.Tokenizers
+namespace ZScriptTests.CodeGeneration.Tokenization
 {
     /// <summary>
     /// Tests the functionality of the PostfixExpressionTokenizer

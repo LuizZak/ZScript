@@ -63,9 +63,10 @@
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\MultipleSourcesTests.cs" />
-    <Compile Include="CodeGeneration\Tokenizers\Helpers\JumpTokenExpanderTests.cs" />
-    <Compile Include="CodeGeneration\Tokenizers\PostfixExpressionTokenizerTests.cs" />
-    <Compile Include="CodeGeneration\Tokenizers\StatementTokenizerTests.cs" />
+    <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTokenOptimizerTests.cs" />
+    <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenListTests.cs" />
+    <Compile Include="CodeGeneration\Tokenization\PostfixExpressionTokenizerTests.cs" />
+    <Compile Include="CodeGeneration\Tokenization\StatementTokenizerTests.cs" />
     <Compile Include="Parsing\ConstantAtomParserTests.cs" />
     <Compile Include="Parsing\ValueParserTests.cs" />
     <Compile Include="Performance\PerformanceTests.cs" />
@@ -90,7 +91,8 @@
     <Compile Include="Runtime\SubscriptingTests.cs" />
     <Compile Include="Runtime\Typing\TypeProviderTests.cs" />
     <Compile Include="Runtime\ZRuntimeTests.cs" />
-    <Compile Include="TestRuntimeOwner.cs" />
+    <Compile Include="Utils\TestRuntimeOwner.cs" />
+    <Compile Include="Utils\TestDefinitionTypeProvider.cs" />
     <Compile Include="Utils\TestUtils.cs" />
     <Compile Include="ZScriptTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

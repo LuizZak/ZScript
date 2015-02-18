@@ -45,7 +45,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestArraySubscriptGet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
@@ -76,7 +76,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestArraySubscriptSet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
@@ -117,7 +117,7 @@ namespace ZScriptTests.Runtime.Execution
             var dict = new Dictionary<string, object>();
 
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, dict),
                 new Token(TokenType.Value, "0"),
@@ -144,7 +144,7 @@ namespace ZScriptTests.Runtime.Execution
             var dict = new Dictionary<string, object>();
 
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, dict),

@@ -39,7 +39,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestNoop()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Instruction, null, VmInstruction.Noop),
                 new Token(TokenType.Value, 10),
@@ -65,7 +65,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestInterrupt()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -88,7 +88,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestValuelessReturn()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateInstructionToken(VmInstruction.Ret),
                 TokenFactory.CreateBoxedValueToken(10),
@@ -111,7 +111,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestValuedReturn()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(10),
                 TokenFactory.CreateInstructionToken(VmInstruction.Ret),
@@ -137,7 +137,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestSet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -159,7 +159,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestMultipleSet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -186,7 +186,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestFailedSet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Instruction, null, VmInstruction.Set)
             };
@@ -204,7 +204,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestGet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.MemberName, "b"),
                 new Token(TokenType.Instruction, null, VmInstruction.Get),
@@ -229,7 +229,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestImplicitGet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.MemberName, "b"),
                 new Token(TokenType.MemberName, "a"),
@@ -254,7 +254,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestClearStack()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -275,7 +275,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestSwapStack()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 5),
                 new Token(TokenType.Value, 10),
@@ -299,7 +299,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestDuplicateStack()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 5),
                 new Token(TokenType.Instruction, null, VmInstruction.Duplicate), // Duplicating the stack should result in two '5's at the top
@@ -323,7 +323,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestJump()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 5),
                 new Token(TokenType.Value, 5),
@@ -350,7 +350,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestJumpIfTrue()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 5),
                 new Token(TokenType.Value, true),
@@ -381,7 +381,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestJumpIfFalse()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 5),
                 new Token(TokenType.Value, false),
@@ -412,7 +412,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPeekJumpIfTrue()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, 5),
@@ -442,7 +442,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPeekJumpIfFalse()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, false),
                 new Token(TokenType.Value, 5),
@@ -476,7 +476,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPrefixIncrement()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -502,7 +502,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPostfixIncrement()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -528,7 +528,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPrefixDecrement()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -554,7 +554,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPostfixDecrement()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -584,7 +584,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestMultiply()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, 10),
@@ -608,7 +608,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestDivide()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 50),
                 new Token(TokenType.Value, 10.0),
@@ -632,7 +632,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestModulo()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, 5),
@@ -656,7 +656,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestAdd()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, 10),
@@ -680,7 +680,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestSubtract()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 15),
                 new Token(TokenType.Value, 7),
@@ -704,7 +704,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestBitwiseAnd()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 0xFF00),
                 new Token(TokenType.Value, 0xF000),
@@ -728,7 +728,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestBitwiseOr()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 0xF000),
                 new Token(TokenType.Value, 0x0F00),
@@ -752,7 +752,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestBitwiseXOr()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 0xFAE01),
                 new Token(TokenType.Value, 0xED10),
@@ -773,10 +773,100 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         [TestMethod]
+        public void TestBooleanBitwiseAnd()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Value, false),
+                new Token(TokenType.Operator, null, VmInstruction.BitwiseAnd),
+                new Token(TokenType.MemberName, "a"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Operator, null, VmInstruction.BitwiseAnd),
+                new Token(TokenType.MemberName, "b"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(false, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(true, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBooleanBitwiseOr()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                new Token(TokenType.Value, false),
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Operator, null, VmInstruction.BitwiseOr),
+                new Token(TokenType.MemberName, "a"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                new Token(TokenType.Value, false),
+                new Token(TokenType.Value, false),
+                new Token(TokenType.Operator, null, VmInstruction.BitwiseOr),
+                new Token(TokenType.MemberName, "b"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBooleanBitwiseXOr()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                new Token(TokenType.Value, false),
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Operator, null, VmInstruction.BitwiseXOr),
+                new Token(TokenType.MemberName, "a"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Value, true),
+                new Token(TokenType.Operator, null, VmInstruction.BitwiseXOr),
+                new Token(TokenType.MemberName, "b"),
+                new Token(TokenType.Instruction, null, VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
         public void TestEquals()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 100),
                 new Token(TokenType.Value, 10),
@@ -814,7 +904,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestUnequals()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 100),
                 new Token(TokenType.Value, 10),
@@ -852,7 +942,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestLess()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 100),
                 new Token(TokenType.Value, 10),
@@ -882,7 +972,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestLessOrEquals()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 100),
                 new Token(TokenType.Value, 10),
@@ -918,7 +1008,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestGreater()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 100),
                 new Token(TokenType.Value, 10),
@@ -948,7 +1038,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestGreaterOrEquals()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 100),
                 new Token(TokenType.Value, 10),
@@ -984,7 +1074,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestLogicalAnd()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, false),
@@ -1020,7 +1110,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestLogicalOr()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, false),
@@ -1056,7 +1146,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestUnaryNegate()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.MemberName, "a"),
@@ -1082,7 +1172,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestLogicalNegate()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, false),
                 new Token(TokenType.MemberName, "a"),
@@ -1133,7 +1223,7 @@ namespace ZScriptTests.Runtime.Execution
             */
 
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateVariableToken("i", true),
@@ -1196,7 +1286,7 @@ namespace ZScriptTests.Runtime.Execution
             */
 
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateBoxedValueToken(0),

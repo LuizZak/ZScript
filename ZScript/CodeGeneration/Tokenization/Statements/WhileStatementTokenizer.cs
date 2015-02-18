@@ -56,7 +56,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeStatement(ZScriptParser.WhileStatementContext context)
+        public IntermediaryTokenList TokenizeStatement(ZScriptParser.WhileStatementContext context)
         {
             // WHILE loop tokenization:
             // 1 - Condition expression
@@ -72,7 +72,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             _context.PushContinueTarget(_conditionTarget);
             _context.PushBreakTarget(_blockEnd);
 
-            IntermediateTokenList tokens = new IntermediateTokenList();
+            IntermediaryTokenList tokens = new IntermediaryTokenList();
 
             var cond = context.expression();
 

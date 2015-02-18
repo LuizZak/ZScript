@@ -19,6 +19,7 @@
 */
 #endregion
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
 {

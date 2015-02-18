@@ -25,6 +25,7 @@ using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution
 {
@@ -41,7 +42,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestCreateInteger()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.String, "System.Collections.ArrayList"),
                 new Token(TokenType.Value, 24),

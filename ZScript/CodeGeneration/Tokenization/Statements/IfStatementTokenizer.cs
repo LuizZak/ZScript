@@ -58,12 +58,12 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
-        public IntermediateTokenList TokenizeStatement(ZScriptParser.IfStatementContext context)
+        public IntermediaryTokenList TokenizeStatement(ZScriptParser.IfStatementContext context)
         {
             // Create the end if block target
             _ifBlockEndTarget = new JumpTargetToken();
 
-            var tokens = new IntermediateTokenList();
+            var tokens = new IntermediaryTokenList();
 
             // Read first if block of the chain
             tokens.AddRange(TokenizeIfStatement(context));
@@ -78,10 +78,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containing the IF statement to tokenize</param>
-        private IntermediateTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext context)
+        private IntermediaryTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext context)
         {
             // Read expression
-            IntermediateTokenList retTokens = _context.TokenizeExpression(context.expression());
+            IntermediaryTokenList retTokens = _context.TokenizeExpression(context.expression());
 
             // Add the conditional jump token that fires when the expression turns out false
             var falseJump = new JumpToken(_ifBlockEndTarget, true, false);
@@ -116,9 +116,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given ELSE statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containing the ELSE statement to tokenize</param>
-        private IntermediateTokenList TokenizeElseStatement(ZScriptParser.ElseStatementContext context)
+        private IntermediaryTokenList TokenizeElseStatement(ZScriptParser.ElseStatementContext context)
         {
-            IntermediateTokenList retTokens = new IntermediateTokenList();
+            IntermediaryTokenList retTokens = new IntermediaryTokenList();
 
             var target = new JumpTargetToken();
             retTokens.Add(target);

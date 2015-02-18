@@ -38,7 +38,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestFieldMemberAccess()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, new TestTarget { Field1 = 10 }),
                 new Token(TokenType.MemberName, "Field1"),
@@ -64,7 +64,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestFieldMemberGet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, new TestTarget { Field1 = 10 }),
                 new Token(TokenType.MemberName, "Field1"),
@@ -89,7 +89,7 @@ namespace ZScriptTests.Runtime.Execution
             var target = new TestTarget { Field1 = 10 };
 
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 11),
                 new Token(TokenType.Value, target),
@@ -113,7 +113,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPropertyMemberAccess()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, new TestTarget { Property1 = 10 }),
                 new Token(TokenType.MemberName, "Property1"),
@@ -139,7 +139,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestPropertyMemberGet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, new TestTarget { Property1 = 10 }),
                 new Token(TokenType.MemberName, "Property1"),
@@ -164,7 +164,7 @@ namespace ZScriptTests.Runtime.Execution
             var target = new TestTarget { Property1 = 10 };
 
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 11),
                 new Token(TokenType.Value, target),

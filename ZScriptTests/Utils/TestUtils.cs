@@ -22,10 +22,8 @@ using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using ZScript.CodeGeneration;
-using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
-using ZScript.Runtime.Typing.Elements;
 
 namespace ZScriptTests.Utils
 {
@@ -84,8 +82,7 @@ namespace ZScriptTests.Utils
         /// <returns>A default runtime generator to use in tests</returns>
         public static ZRuntimeGenerator CreateGenerator(string input)
         {
-            var gen = new ZRuntimeGenerator(input) { Debug = true };
-            return gen;
+            return new ZRuntimeGenerator(input) { Debug = true };
         }
 
         /// <summary>
@@ -100,34 +97,6 @@ namespace ZScriptTests.Utils
             ITokenStream tokens = new CommonTokenStream(lexer);
 
             return new ZScriptParser(tokens);
-        }
-    }
-
-    /// <summary>
-    /// Test definition type provider used in tests
-    /// </summary>
-    public class TestDefinitionTypeProvider : IDefinitionTypeProvider
-    {
-        public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
-        {
-            if (definitionName == "i")
-                return TypeDef.IntegerType;
-            if (definitionName == "f")
-                return TypeDef.FloatType;
-            if (definitionName == "b")
-                return TypeDef.BooleanType;
-            if (definitionName == "s")
-                return TypeDef.StringType;
-            if (definitionName == "o")
-                return new ObjectTypeDef();
-            if (definitionName == "v")
-                return TypeDef.VoidType;
-            if (definitionName == "a")
-                return TypeDef.AnyType;
-            if (definitionName.StartsWith("l"))
-                return new ListTypeDef(definitionName.Length == 0 ? TypeDef.IntegerType : TypeForDefinition(context, definitionName.Substring(1)));
-
-            return TypeDef.AnyType;
         }
     }
 }

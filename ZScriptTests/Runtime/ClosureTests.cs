@@ -25,6 +25,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Elements;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
 {
@@ -40,7 +41,7 @@ namespace ZScriptTests.Runtime
         public void TestParseClosure()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
@@ -51,7 +52,7 @@ namespace ZScriptTests.Runtime
         public void TestParseSingleParameteredClosure()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
@@ -62,7 +63,7 @@ namespace ZScriptTests.Runtime
         public void TestParseClosureCall()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }(10); }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
@@ -73,7 +74,7 @@ namespace ZScriptTests.Runtime
         public void TestParseGlobalVariableClosure()
         {
             const string input = "var a = (i) : int => { return 0; };";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
@@ -84,7 +85,7 @@ namespace ZScriptTests.Runtime
         public void TestParseClosureCallSubscript()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }(10)[0]; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
@@ -106,7 +107,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -127,7 +128,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -148,7 +149,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -170,7 +171,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -191,7 +192,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -212,7 +213,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -234,7 +235,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -255,7 +256,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -277,7 +278,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -298,7 +299,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -313,14 +314,36 @@ namespace ZScriptTests.Runtime
         /// Tests nesting closures with side-effects
         /// </summary>
         [TestMethod]
-        public void TestClosureInStoredClosure()
+        public void TestLocalClosureInStoredClosure()
         {
             const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; var c = a(1); __trace(c(2)); __trace(c(3)); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("funca");
+
+            // Assert the correct call was made
+            Assert.AreEqual((long)3, owner.TraceObjects[0]);
+            Assert.AreEqual((long)4, owner.TraceObjects[1]);
+        }
+
+        /// <summary>
+        /// Tests nesting closures with side-effects
+        /// </summary>
+        [TestMethod]
+        public void TestLocalClosureInStoredClosureParameterReference()
+        {
+            const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { return (_i:int):int => { return i + _i; }; }; var c = a(1); __trace(c(2)); __trace(c(3)); }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -342,7 +365,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -367,7 +390,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -389,7 +412,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 
@@ -419,7 +442,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 

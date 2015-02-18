@@ -18,22 +18,20 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Utils;
-
 using ZScriptTests.Utils;
 
-namespace ZScriptTests.CodeGeneration.Tokenizers
+namespace ZScriptTests.CodeGeneration.Tokenization
 {
     [TestClass]
     public class StatementTokenizerTests

@@ -18,14 +18,14 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-
 using ZScript.Elements;
 using ZScript.Runtime;
 
-namespace ZScriptTests
+namespace ZScriptTests.Utils
 {
     /// <summary>
     /// Runtime owner used in tests

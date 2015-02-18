@@ -43,7 +43,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestSimpleObjectCreation()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),
@@ -76,7 +76,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestObjectCreation()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),
@@ -115,7 +115,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestObjectMemberAccess()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),
@@ -149,7 +149,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestObjectMemberGet()
         {
             // Create the set of tokens
-            IntermediateTokenList t = new IntermediateTokenList
+            IntermediaryTokenList t = new IntermediaryTokenList
             {
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.String, "abc"),

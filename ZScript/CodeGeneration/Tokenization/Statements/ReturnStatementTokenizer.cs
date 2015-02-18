@@ -47,9 +47,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediateTokenList TokenizeStatement(ZScriptParser.ReturnStatementContext context)
+        public IntermediaryTokenList TokenizeStatement(ZScriptParser.ReturnStatementContext context)
         {
-            IntermediateTokenList tokens = new IntermediateTokenList();
+            IntermediaryTokenList tokens = new IntermediaryTokenList();
 
             if(context.expression() != null)
                 tokens.AddRange(_context.TokenizeExpression(context.value));

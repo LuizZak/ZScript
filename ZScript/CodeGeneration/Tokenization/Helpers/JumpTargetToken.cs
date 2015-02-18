@@ -39,6 +39,15 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
         }
 
+        /// <summary>
+        /// Returns a string representation of this JumpTargetToken
+        /// </summary>
+        /// <returns>A string representation of this JumpTargetToken</returns>
+        public override string ToString()
+        {
+            return "{ JumpTargetToken }";
+        }
+
         #region Equality members
 
         public bool Equals(JumpTargetToken other)

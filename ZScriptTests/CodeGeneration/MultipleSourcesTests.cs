@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Sourcing;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration
 {

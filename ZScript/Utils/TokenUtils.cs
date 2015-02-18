@@ -82,6 +82,35 @@ namespace ZScript.Utils
         }
 
         /// <summary>
+        /// Prints a given list of tokens into the console
+        /// </summary>
+        /// <param name="tokenList">The list of tokens to print</param>
+        public static void PrintTokens(TokenList tokenList)
+        {
+            int add = 0;
+
+            foreach (var token in tokenList.Tokens)
+            {
+                Console.Write("{0:0000000}", add++);
+                Console.Write(": ");
+
+                switch (token.Type)
+                {
+                    case TokenType.Operator:
+                    case TokenType.Instruction:
+                        Console.Write(token.Instruction);
+                        break;
+                    default:
+                        Console.Write(token.TokenObject);
+                        break;
+                }
+
+                Console.WriteLine("");
+            }
+            Console.WriteLine();
+        }
+
+        /// <summary>
         /// Returns an integer that represents the simulated target offset for a jump at a given index
         /// </summary>
         /// <param name="tokenList">The list of tokens to analyze</param>
