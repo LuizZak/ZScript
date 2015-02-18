@@ -232,6 +232,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestIsOperator()
         {
+            // TODO: Finish implementing this unit test
+
             const string message = "The tokens generated for the 'is' comparision where not generated as expected";
 
             const string input = "10 is int";
