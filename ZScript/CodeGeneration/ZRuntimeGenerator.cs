@@ -30,7 +30,7 @@ using Antlr4.Runtime.Tree;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Sourcing;
 using ZScript.CodeGeneration.Tokenization;

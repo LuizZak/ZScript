@@ -24,7 +24,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
 using ZScript.CodeGeneration.Analysis;
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 namespace ZScript.CodeGeneration

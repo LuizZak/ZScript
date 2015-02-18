@@ -23,7 +23,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 using ZScriptTests.Utils;

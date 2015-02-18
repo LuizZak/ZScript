@@ -18,10 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Collections.Generic;
 using ZScript.Runtime.Typing.Elements;
 
-namespace ZScript.CodeGeneration.Elements
+namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
     /// Represents a type alias, which is a collection of fields and functions that expose native classes and structs

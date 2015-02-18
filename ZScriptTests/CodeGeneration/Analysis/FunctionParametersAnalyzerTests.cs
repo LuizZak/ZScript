@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis.Definitions;
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 namespace ZScriptTests.CodeGeneration.Analysis

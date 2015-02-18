@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-namespace ZScript.CodeGeneration.Elements
+namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
     /// Defines an object definition that can be instantiated and used in the script

@@ -18,9 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using Antlr4.Runtime;
 
-namespace ZScript.CodeGeneration.Elements
+namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
     /// Declares the usage context of a definition

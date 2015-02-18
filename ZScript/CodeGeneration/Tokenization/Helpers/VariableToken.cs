@@ -18,7 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using ZScript.CodeGeneration.Elements;
+
+using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers

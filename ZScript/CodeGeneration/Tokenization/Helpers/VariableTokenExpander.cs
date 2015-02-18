@@ -21,7 +21,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ZScript.CodeGeneration.Analysis;
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers

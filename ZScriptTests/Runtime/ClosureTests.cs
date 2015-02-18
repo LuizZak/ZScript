@@ -23,8 +23,7 @@ using System.Diagnostics;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime

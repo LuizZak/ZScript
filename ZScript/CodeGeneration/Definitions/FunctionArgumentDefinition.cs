@@ -18,9 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using ZScript.Runtime.Typing.Elements;
 
-namespace ZScript.CodeGeneration.Elements
+namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
     /// Specifies a variable definition

@@ -21,8 +21,7 @@
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 using ZScriptTests.Utils;

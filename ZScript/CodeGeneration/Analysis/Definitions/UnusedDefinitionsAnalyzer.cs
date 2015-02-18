@@ -20,8 +20,7 @@
 #endregion
 
 using System.Linq;
-
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 namespace ZScript.CodeGeneration.Analysis.Definitions

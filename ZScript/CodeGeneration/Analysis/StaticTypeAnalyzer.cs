@@ -24,8 +24,7 @@ using System.Linq;
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-
-using ZScript.CodeGeneration.Elements;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
