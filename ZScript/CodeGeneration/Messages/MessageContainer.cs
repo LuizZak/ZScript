@@ -186,6 +186,12 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterError(ParserRuleContext context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
         {
+            if(context == null)
+            {
+                _errorList.Add(new CodeError(0, 0, errorMessage) { ErrorCode = errorCode });
+                return;
+            }
+
             _errorList.Add(new CodeError(context.Start.Line, context.Start.Column, errorMessage) { ErrorCode = errorCode, Context = context });
         }
 

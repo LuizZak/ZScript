@@ -329,7 +329,7 @@ namespace ZScript.CodeGeneration
             // Try to find the definition in the current function definition for the argument, and store that instead
             var funcDef = (FunctionDefinition)_baseScope.GetDefinitionByContextRecursive(_currentScope.Context);
 
-            _currentScope.AddDefinition(funcDef.Arguments.First(a => a.Context == argument));
+            _currentScope.AddDefinition(funcDef.Parameters.First(a => a.Context == argument));
         }
 
         /// <summary>

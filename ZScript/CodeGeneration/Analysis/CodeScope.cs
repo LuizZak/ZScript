@@ -227,16 +227,16 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Returns all of the definitions reachable by this scope that are of a given type
         /// </summary>
-        /// <typeparam name="T">The type of the definitions to search for</typeparam>
+        /// <typeparam name="TDefinition">The type of the definitions to search for</typeparam>
         /// <returns>An enumerable containing all of the definitions of the given type</returns>
-        public IEnumerable<T> GetDefinitionsByType<T>() where T : Definition
+        public IEnumerable<TDefinition> GetDefinitionsByType<TDefinition>() where TDefinition : Definition
         {
             var scope = this;
-            var definitions = new List<T>();
+            var definitions = new List<TDefinition>();
 
             while (scope != null)
             {
-                definitions.AddRange(scope.Definitions.OfType<T>());
+                definitions.AddRange(scope.Definitions.OfType<TDefinition>());
 
                 scope = scope.ParentScope;
             }
@@ -261,6 +261,34 @@ namespace ZScript.CodeGeneration.Analysis
                 var scope = scopeQueue.Dequeue();
 
                 definitions.AddRange(scope._definitions);
+
+                foreach (var child in scope.ChildrenScopes)
+                {
+                    scopeQueue.Enqueue(child);
+                }
+            }
+
+            return definitions;
+        }
+
+        /// <summary>
+        /// Gets all the definitions of a given type defined in this scope and all children scopes
+        /// </summary>
+        /// <typeparam name="TDefinition">The type of definition to get</typeparam>
+        /// <returns>An enumerable containing the definitions collected</returns>
+        public IEnumerable<TDefinition> GetDefinitionsByTypeRecursive<TDefinition>() where TDefinition : Definition
+        {
+            List<TDefinition> definitions = new List<TDefinition>();
+
+            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+
+            scopeQueue.Enqueue(this);
+
+            while (scopeQueue.Count > 0)
+            {
+                var scope = scopeQueue.Dequeue();
+
+                definitions.AddRange(scope._definitions.OfType<TDefinition>());
 
                 foreach (var child in scope.ChildrenScopes)
                 {

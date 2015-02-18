@@ -29,6 +29,7 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 
 using ZScript.CodeGeneration.Analysis;
+using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Elements;
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Sourcing;
@@ -264,6 +265,10 @@ namespace ZScript.CodeGeneration
 
             returnAnalyzer.Analyze(context);
 
+            // Analyze function parameters, now that they are all expanded
+            var parameterAnalyzer = new FunctionParametersAnalyzer(context);
+            parameterAnalyzer.Analyze();
+
             AnalyzeCollisions(completeScope);
 
             return completeScope;
@@ -357,7 +362,7 @@ namespace ZScript.CodeGeneration
                 funcDefs.Select(
                     def =>
                         new ZFunction(def.Name, tokenizer.TokenizeBody(def.BodyContext),
-                            GenerateFunctionArguments(def.Arguments))
+                            GenerateFunctionArguments(def.Parameters))
                         ).ToArray();
         }
 
@@ -375,7 +380,7 @@ namespace ZScript.CodeGeneration
                 funcDefs.Select(
                     def =>
                         new ZClosureFunction(def.Name, tokenizer.TokenizeBody(def.BodyContext),
-                            GenerateFunctionArguments(def.Arguments))
+                            GenerateFunctionArguments(def.Parameters))
                         ).ToArray();
         }
 
@@ -388,7 +393,7 @@ namespace ZScript.CodeGeneration
         {
             var funcDefs = scope.Definitions.OfType<ExportFunctionDefinition>();
 
-            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Arguments))).ToArray();
+            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Parameters))).ToArray();
         }
 
         /// <summary>

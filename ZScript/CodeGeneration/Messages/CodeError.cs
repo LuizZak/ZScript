@@ -130,7 +130,14 @@ namespace ZScript.CodeGeneration.Messages
         RepeatedCaseLabelValue,
 
         /// <summary>Trying to modify the value of a constant declaration, either through assignment or through postfix/prefix operators</summary>
-        ModifyingConstant
+        ModifyingConstant,
+
+        #endregion
+
+        #region Function analysis errors
+
+        /// <summary>Raised when a function contains invalid parameter definitions</summary>
+        InvalidParameters,
 
         #endregion
     }

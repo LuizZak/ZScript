@@ -34,6 +34,9 @@ namespace ZScriptTests
     [TestClass]
     public class ZScriptTests
     {
+        // These are some of the first dummy tests created, used mostly as integration tests.
+        // These are kept here mostly because of th- actually no reason whatsoever, but I keep them in anyway
+
         /// <summary>
         /// Test mostly used to test expression token generation
         /// </summary>
@@ -115,6 +118,7 @@ namespace ZScriptTests
             Assert.AreEqual((long)10, runtime.GlobalMemory.GetVariable("a"));
         }
 
+        // Perhaps the only really useful test here, tests parsing of a large script containing all the language constructs available to test.
         [TestMethod]
         public void TestLargeCodeParsingSpeed()
         {
@@ -202,6 +206,19 @@ namespace ZScriptTests
             Console.WriteLine("Runtime: " + sw.ElapsedMilliseconds + "ms");
 
             Assert.AreEqual(144L, ret, "The runtime failed to derive the expected 12th fibonacci number");
+        }
+
+        /// <summary>
+        /// Tests optimization by removal of constant-valued if expressions
+        /// </summary>
+        [TestMethod]
+        public void TestConstantIfExpanding()
+        {
+            const string input = "func a() { if(true) { } else if(false) { } else { } }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            generator.GenerateRuntime(owner);
         }
     }
 }

@@ -29,9 +29,9 @@ namespace ZScript.CodeGeneration.Elements
         /// Initializes a new instance of the ExportFunctionDefinition class
         /// </summary>
         /// <param name="name">The name for the definition</param>
-        /// <param name="arguments">The list of arguments for the definition</param>
-        public ExportFunctionDefinition(string name, FunctionArgumentDefinition[] arguments)
-            : base(name, null, arguments)
+        /// <param name="parameters">The list of arguments for the definition</param>
+        public ExportFunctionDefinition(string name, FunctionArgumentDefinition[] parameters)
+            : base(name, null, parameters)
         {
 
         }

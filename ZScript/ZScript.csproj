@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
+    <Compile Include="CodeGeneration\Analysis\Definitions\FunctionParametersAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\Definitions\UnusedDefinitionsAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\StaticTypeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />

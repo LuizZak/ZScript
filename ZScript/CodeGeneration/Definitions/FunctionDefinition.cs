@@ -37,7 +37,7 @@ namespace ZScript.CodeGeneration.Elements
         /// <summary>
         /// An array of all the function arguments for this function
         /// </summary>
-        private readonly FunctionArgumentDefinition[] _arguments;
+        private readonly FunctionArgumentDefinition[] _parameters;
 
         /// <summary>
         /// Cached callable definition
@@ -75,9 +75,9 @@ namespace ZScript.CodeGeneration.Elements
         /// <summary>
         /// Gets an array of all the function arguments for this function
         /// </summary>
-        public FunctionArgumentDefinition[] Arguments
+        public FunctionArgumentDefinition[] Parameters
         {
-            get { return _arguments; }
+            get { return _parameters; }
         }
 
         /// <summary>
@@ -111,13 +111,13 @@ namespace ZScript.CodeGeneration.Elements
         /// </summary>
         /// <param name="name">The name for the definition</param>
         /// <param name="bodyContext">The context containing the function body's statements</param>
-        /// <param name="arguments">The arguments for this function definition</param>
-        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] arguments)
+        /// <param name="parameters">The arguments for this function definition</param>
+        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
         {
             Name = name;
             ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();
             _bodyContext = bodyContext;
-            _arguments = arguments;
+            _parameters = parameters;
             RecreateCallableDefinition();
         }
 
@@ -126,7 +126,7 @@ namespace ZScript.CodeGeneration.Elements
         /// </summary>
         public void RecreateCallableDefinition()
         {
-            _callableTypeDef = new CallableTypeDef(_arguments.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.VoidType, HasReturnType);
+            _callableTypeDef = new CallableTypeDef(_parameters.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.VoidType, HasReturnType);
         }
     }
 }

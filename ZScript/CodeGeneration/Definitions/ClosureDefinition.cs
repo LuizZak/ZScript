@@ -35,9 +35,9 @@ namespace ZScript.CodeGeneration.Elements
         /// </summary>
         /// <param name="name">The name for this closure</param>
         /// <param name="bodyContext">The body context containing the closure's statements</param>
-        /// <param name="arguments">The list of arguments for the closure</param>
-        public ClosureDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] arguments)
-            : base(name, bodyContext, arguments)
+        /// <param name="parameters">The list of arguments for the closure</param>
+        public ClosureDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
+            : base(name, bodyContext, parameters)
         {
 
         }

@@ -49,7 +49,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
             Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
@@ -67,7 +67,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
             Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.AnyType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.AnyType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
@@ -85,7 +85,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
             Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
@@ -103,7 +103,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
             Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
@@ -123,7 +123,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.MessageContainer.PrintMessages();
 
             Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Arguments[0].Type, "The parameter type of the closure was not inferred correctly");
+            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 

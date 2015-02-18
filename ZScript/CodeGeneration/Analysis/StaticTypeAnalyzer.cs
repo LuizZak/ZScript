@@ -19,7 +19,6 @@
 */
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -169,7 +168,7 @@ namespace ZScript.CodeGeneration.Analysis
             var contextType = FindExpectedTypeForClosure(definedContext);
 
             // Get the parameter types
-            foreach (var argumentDefinition in definition.Arguments)
+            foreach (var argumentDefinition in definition.Parameters)
             {
                 ExpandFunctionArgument(argumentDefinition);
             }
@@ -182,11 +181,11 @@ namespace ZScript.CodeGeneration.Analysis
                 // Iterate over the arguments and modify the return type
                 for (int i = 0; i < newType.ParameterInfos.Length; i++)
                 {
-                    if (definition.Arguments[i].HasType)
+                    if (definition.Parameters[i].HasType)
                         continue;
 
-                    definition.Arguments[i].IsVariadic = newType.ParameterInfos[i].IsVariadic;
-                    definition.Arguments[i].Type = newType.ParameterInfos[i].ParameterType;
+                    definition.Parameters[i].IsVariadic = newType.ParameterInfos[i].IsVariadic;
+                    definition.Parameters[i].Type = newType.ParameterInfos[i].ParameterType;
                 }
 
                 // Don't update the return type if the closure has a return type and new type is void: this may cause errors during return type analysis
