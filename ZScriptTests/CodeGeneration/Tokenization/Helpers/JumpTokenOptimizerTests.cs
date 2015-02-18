@@ -23,6 +23,7 @@ using System;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Tokenization;
 
 using ZScript.CodeGeneration.Tokenization.Helpers;
@@ -541,6 +542,108 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
 
             // Expand the jumps
             JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
+        }
+
+        /// <summary>
+        /// Tests optimizing out conditional jumps that precede and point to the same interrupt-type instructions
+        /// </summary>
+        [TestMethod]
+        public void TestDeadEndConditionalPeekingJump()
+        {
+            var jump = new JumpToken(null, true, true, false);
+
+            var tokens = new IntermediaryTokenList
+            {
+                jump,
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateBoxedValueToken(11),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            jump.TargetToken = tokens[5];
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateBoxedValueToken(11),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            // Expand the jumps
+            JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
+        }
+
+        /// <summary>
+        /// Tests failed optimization of dead-ended conditional peeking jumps because they precede and point to different type of interrupt instructions
+        /// </summary>
+        [TestMethod]
+        public void TestFailedDeadEndConditionalPeekingJump()
+        {
+            var jump = new JumpToken(null, true, true, false);
+
+            var tokens = new IntermediaryTokenList
+            {
+                jump,
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+                TokenFactory.CreateBoxedValueToken(11),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            jump.TargetToken = tokens[5];
+
+            var jump2 = new JumpToken(null, true, true, false);
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                jump2,
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+                TokenFactory.CreateBoxedValueToken(11),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            jump2.TargetToken = tokens[5];
+
+            // Expand the jumps
+            JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
 
             // Now verify the results
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");

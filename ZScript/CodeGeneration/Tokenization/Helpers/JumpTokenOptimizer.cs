@@ -157,6 +157,26 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     continue;
                 }
 
+                // If a conditional peek type jump both preceedes and points to the same interrupt-type instruction, replace the token with the instruction itself
+                if (i < tokens.Count - 1 && jumpToken.Conditional && !jumpToken.ConsumesStack &&
+                    (jumpToken.TargetToken.Instruction == VmInstruction.Ret ||
+                     jumpToken.TargetToken.Instruction == VmInstruction.Interrupt) &&
+                    (tokens[i + 1].Instruction == jumpToken.TargetToken.Instruction))
+                {
+                    var replaceToken = TokenFactory.CreateInstructionToken(jumpToken.TargetToken.Instruction);
+                    TryRemoveJumpInstruction(jumpToken, tokens);
+                    tokens.Insert(i, replaceToken);
+
+                    // If the previous token is a 'ClearStack', remove it, since clearing a stack before finishing the VM is useless
+                    if (i > 0 && tokens[i - 1].Instruction == VmInstruction.ClearStack)
+                    {
+                        tokens.RemoveAt(i - 1);
+                        i--;
+                    }
+                    continue;
+                }
+
+                // Sequential equivalent jump detection
                 if (i < tokens.Count - 1 && tokens[i + 1] is JumpToken)
                 {
                     // Remove sequential equivalent jumps
@@ -217,7 +237,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Removes a jump token from a list of tokens, moving all jumps that point to it to it's target point.
         /// The removal is only realized when the jump is unconditional or does not modify the stack.
-        /// This optimization must be made before expanding jump tokens
+        /// This operation must be made before expanding jump tokens
         /// </summary>
         /// <param name="jmp">The jump token to optimize</param>
         /// <param name="tokens">The list of tokens containing the jump</param>
