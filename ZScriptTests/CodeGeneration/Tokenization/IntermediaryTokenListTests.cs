@@ -157,5 +157,33 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Now verify the results
             TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
         }
+
+        #region Exception checking
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to remove tokens with IntermediaryTokenList.Remove() must raise an InvalidOperationException")]
+        public void TestRemoveException()
+        {
+            var jumpToken = new JumpToken(null);
+
+            // ReSharper disable once CollectionNeverQueried.Local
+            var tokens = new IntermediaryTokenList { jumpToken };
+
+            tokens.Remove(jumpToken);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to get the offset for a jump not in the called IntermediaryTokenList must raise an ArgumentException")]
+        public void TestJumpNotInListException()
+        {
+            var jumpToken = new JumpToken(null);
+
+            // ReSharper disable once CollectionNeverQueried.Local
+            var tokens = new IntermediaryTokenList();
+
+            tokens.OffsetForJump(jumpToken);
+        }
+
+        #endregion
     }
 }

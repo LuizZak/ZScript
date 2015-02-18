@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
@@ -68,6 +70,18 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
             var member = MemberWrapperHelper.CreateCallableWrapper(target, "ToString");
 
             Assert.AreEqual(target.ToString(), member.Call(), "The value returned by the callable is incorrect");
+        }
+
+        /// <summary>
+        /// Tests a failure case when trying to wrap an unexisting or non-public method of an object
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Wehn trying to access non-existing or non-public methods with CreateCallableWrapper(), an ArgumentException must be thrown")]
+        public void TestFailedWrappingObjectMethod()
+        {
+            const long target = 10;
+
+            MemberWrapperHelper.CreateCallableWrapper(target, "InvalidMethod");
         }
     }
 }
