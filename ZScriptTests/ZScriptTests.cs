@@ -216,9 +216,10 @@ namespace ZScriptTests
         {
             const string input = "func a() { if(true) { } else if(false) { } else { } }";
 
-            var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
-            generator.GenerateRuntime(owner);
+            var definition = generator.GenerateRuntimeDefinition();
+
+            Assert.AreEqual(0, definition.ZFunctionDefinitions[0].Tokens.Tokens.Length, "The constant, empty if statements inside the function 'a' where expected to be optimized out completely");
         }
     }
 }

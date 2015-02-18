@@ -471,18 +471,17 @@ namespace ZScript.CodeGeneration
                         definition is ExportFunctionDefinition && !(d is ExportFunctionDefinition))
                         continue;
 
-                    if (definition.Context == null)
-                    {
-                        _messageContainer.RegisterError(0, 0,
-                            "Duplicated definition of " + definition.Name + " collides with definition " + d,
-                            ErrorCode.DuplicatedDefinition, definition.Context);
-                    }
-                    else
-                    {
-                        _messageContainer.RegisterError(definition.Context,
-                            "Duplicated definition of " + definition.Name + " collides with definition " + d,
-                            ErrorCode.DuplicatedDefinition);
-                    }
+                    int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;
+                    int defColumn = definition.Context == null ? 0 : definition.Context.Start.Column;
+
+                    int dLine = d.Context == null ? 0 : d.Context.Start.Line;
+                    int dColumn = d.Context == null ? 0 : d.Context.Start.Column;
+
+                    string message = "Duplicated definition of '" + definition.Name + "' at line " + defLine +
+                                     " column " + defColumn + " collides with definition " + d + " at line " + dLine +
+                                     " column " + dColumn;
+
+                    _messageContainer.RegisterError(definition.Context, message, ErrorCode.DuplicatedDefinition);
                 }
             }
         }

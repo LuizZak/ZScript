@@ -423,32 +423,33 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Checks collisions with the specified definition against the definitions in the available scopes
         /// </summary>
-        /// <param name="def">The definition to check</param>
+        /// <param name="definition">The definition to check</param>
         /// <param name="context">A context used during analysis to report where the error happened</param>
-        void CheckCollisions(Definition def, ParserRuleContext context)
+        void CheckCollisions(Definition definition, ParserRuleContext context)
         {
-            var defs = _currentScope.GetDefinitionsByName(def.Name);
+            var defs = _currentScope.GetDefinitionsByName(definition.Name);
 
             foreach (var d in defs)
             {
                 // Collisions between exported definitions are ignored
-                if (d is ExportFunctionDefinition && !(def is ExportFunctionDefinition))
+                if (d is ExportFunctionDefinition && !(definition is ExportFunctionDefinition))
                     continue;
 
                 // Constructor definition
-                if (d is ObjectDefinition && def is FunctionDefinition && IsContextChildOf(def.Context, d.Context))
+                if (d is ObjectDefinition && definition is FunctionDefinition && IsContextChildOf(definition.Context, d.Context))
                     continue;
 
-                var message = "Duplicated definition of " + def.Name + " collides with definition " + d;
+                int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;
+                int defColumn = definition.Context == null ? 0 : definition.Context.Start.Column;
 
-                if (context == null)
-                {
-                    _messageContainer.RegisterError(0, 0, message, ErrorCode.DuplicatedDefinition, def.Context);
-                }
-                else
-                {
-                    _messageContainer.RegisterError(context.Start.Line, context.Start.Column, message, ErrorCode.DuplicatedDefinition, def.Context);
-                }
+                int dLine = d.Context == null ? 0 : d.Context.Start.Line;
+                int dColumn = d.Context == null ? 0 : d.Context.Start.Column;
+
+                string message = "Duplicated definition of '" + definition.Name + "' at line " + defLine +
+                                 " column " + defColumn + " collides with definition " + d + " at line " + dLine +
+                                 " column " + dColumn;
+
+                _messageContainer.RegisterError(context, message, ErrorCode.DuplicatedDefinition);
             }
         }
 

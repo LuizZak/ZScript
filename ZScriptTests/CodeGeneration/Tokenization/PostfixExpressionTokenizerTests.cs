@@ -21,7 +21,9 @@
 
 using System;
 using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
