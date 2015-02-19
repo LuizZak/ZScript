@@ -548,6 +548,94 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         }
 
         /// <summary>
+        /// Tests re-forwarding of jumps when always-true conditional jumps are optimized
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalJumpToJumpTargetToConditionalJumpOptimization()
+        {
+            /*
+                0000000: a
+                0000001: [11 JUMPIfFalse]
+                0000002: c
+                0000003: [8 JUMPIfFalse]
+                0000004: b
+                0000005: 0
+                0000006: Greater
+                0000007: [9 JUMP]
+                0000008: False
+                0000009: JUMP_TARGET 
+                0000010: [12 JUMP]
+                0000011: False
+                0000012: JUMP_TARGET 
+                0000013: [16 JUMPIfFalse]
+                0000014: d
+                0000015: [17 JUMP]
+                0000016: False
+                0000017: JUMP_TARGET 
+                0000018: a
+                0000019: Set
+                0000020: ClearStack
+            */
+
+            var tTarget1 = new JumpTargetToken();
+            var tJump1 = new JumpToken(tTarget1, true, false);
+
+            var tTarget2 = new JumpTargetToken();
+            var tJump2 = new JumpToken(tTarget2, true, false);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("a"),
+                tJump1,
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                tTarget1,
+                TokenFactory.CreateBoxedValueToken(false),
+                tJump2,
+                TokenFactory.CreateBoxedValueToken(6),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                tTarget2,
+                TokenFactory.CreateBoxedValueToken(7),
+                TokenFactory.CreateMemberNameToken("d"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var eTarget2 = TokenFactory.CreateBoxedValueToken(7);
+            var eJump1 = new JumpToken(eTarget2, true, false);
+            var eJump2 = new JumpToken(eTarget2);
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("a"),
+                eJump1,
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                eJump2,
+                TokenFactory.CreateBoxedValueToken(6),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                eTarget2,
+                TokenFactory.CreateMemberNameToken("d"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            // Expand the jumps
+            JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
+        }
+
+        /// <summary>
         /// Tests optimizing out conditional jumps that precede and point to the same interrupt-type instructions
         /// </summary>
         [TestMethod]

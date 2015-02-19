@@ -55,15 +55,23 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             RemoveSequentialInterrupts(tokens);
 
             // Optimize the jump flow
-            OptimizeJumpPointing(tokens);
+            bool optimize = true;
+            while (optimize)
+            {
+                optimize = OptimizeJumpPointing(tokens);
+            }
         }
 
         /// <summary>
         /// Optimizes the jump flow of the given list of tokens by re-pointing jumps so chained jumps can be avoided.
+        /// The method returns a boolean value specifying if optimizations where realized on the token list or not
         /// </summary>
         /// <param name="tokens">The list of tokens to optimize</param>
-        public static void OptimizeJumpPointing(IntermediaryTokenList tokens)
+        /// <returns>true when optimizations where realized; false otherwise</returns>
+        public static bool OptimizeJumpPointing(IntermediaryTokenList tokens)
         {
+            bool optimized = false;
+
             // Iterate again the jump tokens, now fixing the address of the token pointing
             foreach (Token token in tokens)
             {
@@ -80,6 +88,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                         continue;
 
                     OptimizeJumpRelationship(jumpToken, otherJump, tokens);
+                    optimized = true;
                 }
             }
 
@@ -107,7 +116,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                             // Also remove the true constant from the stack
                             if (jumpToken.ConsumesStack)
                             {
-                                tokens.RemoveToken(valueToken, newTarget);
+                                tokens.RemoveToken(valueToken, jumpToken.TargetToken);
                                 i--;
                             }
                             i--;
@@ -124,10 +133,13 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                         // Also remove the true constant from the stack
                         if (jumpToken.ConsumesStack)
                         {
-                            tokens.RemoveToken(valueToken, newTarget);
+                            tokens.RemoveToken(valueToken, jumpToken.TargetToken);
                             i--;
                         }
                         i--;
+
+                        optimized = true;
+
                         continue;
                     }
                 }
@@ -154,6 +166,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                         tokens.RemoveAt(i - 1);
                         i--;
                     }
+
+                    optimized = true;
                     continue;
                 }
 
@@ -173,6 +187,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                         tokens.RemoveAt(i - 1);
                         i--;
                     }
+
+                    optimized = true;
                     continue;
                 }
 
@@ -191,6 +207,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     }
                 }
             }
+
+            return optimized;
         }
 
         /// <summary>
