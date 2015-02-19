@@ -37,7 +37,7 @@ namespace ZScriptTests.Runtime
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
             const string input = "var a = true; var c = false; var b:int = null; var d:bool = null; func f() { a = a && (c && b > 0) && d; }";
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -57,7 +57,7 @@ namespace ZScriptTests.Runtime
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
             const string input = "var a = true; var c = true; var b:bool = null; var d:bool = null; func f() { a = c || (b || d); }";
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
             Assert.IsFalse(generator.HasSyntaxErrors);
@@ -80,7 +80,7 @@ namespace ZScriptTests.Runtime
         public void TestParameteredFunctionCall()
         {
             const string input = "func f1(a:int) : int { return a; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -104,7 +104,7 @@ namespace ZScriptTests.Runtime
         public void TestParameteredDefaultValueFunctionCall()
         {
             const string input = "func f1(a:int, b:int = 0) : int { return a + b; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
 
@@ -128,7 +128,7 @@ namespace ZScriptTests.Runtime
         public void TestInnerFunctionCall()
         {
             const string input = "func f1() : int { return f2(); } func f2() : int { return 10; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.Debug = true;
 
             generator.ParseSources();
@@ -151,7 +151,7 @@ namespace ZScriptTests.Runtime
         public void TestParameteredInnerFunctionCall()
         {
             const string input = "func f1() : int { return f2(5); } func f2(a:int) : int { return a; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -174,7 +174,7 @@ namespace ZScriptTests.Runtime
         public void TestRecursiveFunctionCall()
         {
             const string input = "func f1(a:int) : int { if(a >= 5) { return 0; } return f1(a + 1) + 1; }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
@@ -196,7 +196,7 @@ namespace ZScriptTests.Runtime
         public void TestGlobalVariables()
         {
             const string input = "var a = 0; var b = null;";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();
 
