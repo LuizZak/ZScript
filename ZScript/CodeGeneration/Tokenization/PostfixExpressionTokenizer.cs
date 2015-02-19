@@ -550,7 +550,8 @@ namespace ZScript.CodeGeneration.Tokenization
         }
 
         /// <summary>
-        /// Processes the logical operator at a given expression context, dealing with logical shortcircuiting
+        /// Processes the logical operator at a given expression context, dealing with logical short-circuiting by
+        /// pushing a jump to the short-circuit jump stack when the operator on the context provided is a logical operator
         /// </summary>
         /// <param name="context">The context conaining the jump to perform</param>
         private void ProcessLogicalOperator(ZScriptParser.ExpressionContext context)

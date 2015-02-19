@@ -268,6 +268,52 @@ namespace ZScript.Runtime.Typing
             throw new Exception("Cannot apply BitwiseOr operation on objects of type " + v1.GetType() + " and " + v2.GetType());
         }
 
+        public object ShiftLeft(object v1, object v2)
+        {
+            if (v1 is bool && v2 is bool)
+                return (bool)v1 ^ (bool)v2;
+
+            var c = BestFitForTypes(v1, v2);
+
+            switch (c)
+            {
+                case NumberClass.ExactInteger:
+                    return _intTypeOperator.ShiftLeft((int)v1, (int)v2);
+                case NumberClass.Integer:
+                    return _intTypeOperator.ShiftLeft(Convert.ToInt32(v1), Convert.ToInt32(v2));
+
+                case NumberClass.ExactLong:
+                    return _longTypeOperator.ShiftLeft((long)v1, (long)v2);
+                case NumberClass.Long:
+                    return _longTypeOperator.ShiftLeft(Convert.ToInt64(v1), Convert.ToInt64(v2));
+            }
+
+            throw new Exception("Cannot apply Shift Left operation on objects of type " + v1.GetType() + " and " + v2.GetType());
+        }
+
+        public object ShiftRight(object v1, object v2)
+        {
+            if (v1 is bool && v2 is bool)
+                return (bool)v1 | (bool)v2;
+
+            var c = BestFitForTypes(v1, v2);
+
+            switch (c)
+            {
+                case NumberClass.ExactInteger:
+                    return _intTypeOperator.ShiftRight((int)v1, (int)v2);
+                case NumberClass.Integer:
+                    return _intTypeOperator.ShiftRight(Convert.ToInt32(v1), Convert.ToInt32(v2));
+
+                case NumberClass.ExactLong:
+                    return _longTypeOperator.ShiftRight((long)v1, (long)v2);
+                case NumberClass.Long:
+                    return _longTypeOperator.ShiftRight(Convert.ToInt64(v1), Convert.ToInt64(v2));
+            }
+
+            throw new Exception("Cannot apply Shift Right operation on objects of type " + v1.GetType() + " and " + v2.GetType());
+        }
+
         public bool Greater(object v1, object v2)
         {
             var c = BestFitForTypes(v1, v2);

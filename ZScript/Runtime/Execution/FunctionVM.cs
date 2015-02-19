@@ -258,6 +258,12 @@ namespace ZScript.Runtime.Execution
                 case VmInstruction.BitwiseXOr:
                     ret = _typeOperationProvider.BitwiseXOr(value1, value2);
                     break;
+                case VmInstruction.ShiftLeft:
+                    ret = _typeOperationProvider.ShiftLeft(value1, value2);
+                    break;
+                case VmInstruction.ShiftRight:
+                    ret = _typeOperationProvider.ShiftRight(value1, value2);
+                    break;
                 // Equality/Inequality checks
                 case VmInstruction.Equals:
                     ret = _typeOperationProvider.Equals(value1, value2);
@@ -951,6 +957,11 @@ namespace ZScript.Runtime.Execution
         BitwiseXOr,
         /// <summary>Bitwise OR operation</summary>
         BitwiseOr,
+
+        /// <summary>Shift bits left operation</summary>
+        ShiftLeft,
+        /// <summary>Shift bits right operation</summary>
+        ShiftRight,
         
         /// <summary>Equality operator operation</summary>
         Equals,

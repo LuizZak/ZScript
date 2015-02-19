@@ -59,12 +59,22 @@ namespace ZScript.Runtime.Typing.Operators
 
         public double BitwiseXOr(double v1, double v2)
         {
-            throw new InvalidOperationException("Cannot apply bitwise and to doubles");
+            throw new InvalidOperationException("Cannot apply bitwise xor to doubles");
         }
 
         public double BitwiseOr(double v1, double v2)
         {
-            throw new InvalidOperationException("Cannot apply bitwise and to doubles");
+            throw new InvalidOperationException("Cannot apply bitwise or to doubles");
+        }
+
+        public double ShiftLeft(double v1, double v2)
+        {
+            throw new InvalidOperationException("Cannot apply shift left to doubles");
+        }
+
+        public double ShiftRight(double v1, double v2)
+        {
+            throw new InvalidOperationException("Cannot apply shift right to doubles");
         }
 
         public bool Greater(double v1, double v2)

@@ -21,9 +21,9 @@
 namespace ZScript.CodeGeneration.Analysis
 {
     /// <summary>
-    /// Provides facilities for analyzing expression trees generated from the parser
+    /// Provides facilities for analyzing the validity of expression types
     /// </summary>
-    public class ExpressionTreeAnalyzer
+    public class ExpressionTypeAnalyzer
     {
 
     }

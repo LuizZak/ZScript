@@ -144,11 +144,12 @@ expression:  '(' expression ')' valueAccess?
            // Binary expressions
            |  expression multOp expression
            |  expression additionOp expression
+           |  expression relationalOp expression
+           |  expression T_IS type
+           |  expression bitwiseShift expression
            |  expression bitwiseAndOp expression
            |  expression bitwiseXOrOp expression
            |  expression bitwiseOrOp expression
-           |  expression relationalOp expression
-           |  expression T_IS type
            |  expression equalityOp expression
            |  expression logicalAnd expression
            |  expression logicalOr expression
@@ -160,7 +161,7 @@ expression:  '(' expression ')' valueAccess?
 
 multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');
-bitwiseShift : ('<<' | '>>');
+bitwiseShift : (T_SHIFTLEFT | T_SHIFTRIGHT);
 bitwiseAndOp : ('&' | '^');
 bitwiseXOrOp : ('^');
 bitwiseOrOp : ('|');
@@ -177,7 +178,7 @@ prefixOperator : '++' | '--';
 postfixOperator : '++' | '--';
 
 unaryOperator : '-' | '!';
-assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=';
+assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=' | '<<=' | '>>=';
 
 funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
@@ -308,6 +309,9 @@ T_BITWISE_XOR : '^';
 
 T_BITWISE_OR : '|';
 
+T_SHIFTLEFT : '<<';
+T_SHIFTRIGHT : '<<';
+
 T_EQUALITY : '==';
 T_UNEQUALITY : '!=';
 T_MORE_THAN_OR_EQUALS : '>=';
@@ -329,6 +333,8 @@ T_XOR_EQUALS : '^=';
 T_AND_EQUALS : '&=';
 T_TILDE_EQUALS : '~=';
 T_OR_EQUALS : '|=';
+T_SHIFTLEFT_EQUALS: '<<=';
+T_SHIFTRIGHT_EQUALS: '>>=';
 
 IDENT : CHAR_azAZ_+ CHAR_09azAZ_*;
 

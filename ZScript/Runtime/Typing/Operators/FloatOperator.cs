@@ -59,12 +59,22 @@ namespace ZScript.Runtime.Typing.Operators
 
         public float BitwiseXOr(float v1, float v2)
         {
-            throw new InvalidOperationException("Cannot apply bitwise and to floats");
+            throw new InvalidOperationException("Cannot apply bitwise or to floats");
         }
 
         public float BitwiseOr(float v1, float v2)
         {
-            throw new InvalidOperationException("Cannot apply bitwise and to floats");
+            throw new InvalidOperationException("Cannot apply bitwise xor to floats");
+        }
+
+        public float ShiftLeft(float v1, float v2)
+        {
+            throw new InvalidOperationException("Cannot apply shift left to floats");
+        }
+
+        public float ShiftRight(float v1, float v2)
+        {
+            throw new InvalidOperationException("Cannot apply shift right to floats");
         }
 
         public bool Greater(float v1, float v2)

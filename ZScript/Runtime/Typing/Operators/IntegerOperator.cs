@@ -65,6 +65,16 @@ namespace ZScript.Runtime.Typing.Operators
             return v1 | v2;
         }
 
+        public int ShiftLeft(int v1, int v2)
+        {
+            return v1 << v2;
+        }
+
+        public int ShiftRight(int v1, int v2)
+        {
+            return v1 >> v2;
+        }
+
         public bool Greater(int v1, int v2)
         {
             return v1 > v2;

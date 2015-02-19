@@ -267,6 +267,22 @@ namespace ZScript.Runtime.Typing
             return type1 == _intType && type2 == _intType || type1 == _boolType && type2 == _boolType;
         }
 
+        /// <summary>
+        /// Returns whether the two given types can be 'shift left'ed
+        /// </summary>
+        public bool CanShiftLeft(TypeDef type1, TypeDef type2)
+        {
+            return type1 == _intType && type2 == _intType;
+        }
+
+        /// <summary>
+        /// Returns whether the two given types can be 'shift right'ed
+        /// </summary>
+        public bool CanShiftRight(TypeDef type1, TypeDef type2)
+        {
+            return type1 == _intType && type2 == _intType;
+        }
+
         #endregion
 
         #region Comparisions
@@ -425,7 +441,7 @@ namespace ZScript.Runtime.Typing
 
         #endregion
 
-        #region Additive
+        #region Bitwise
 
         /// <summary>
         /// Returns the type that represents the result of the 'bitwise and'ing of the two given types
@@ -449,6 +465,22 @@ namespace ZScript.Runtime.Typing
         public TypeDef TypeForBitwiseOr(TypeDef type1, TypeDef type2)
         {
             return type1 == _boolType ? _boolType : _intType;
+        }
+
+        /// <summary>
+        /// Returns the type that represents the result of the 'shift lefting'ing of the two given types
+        /// </summary>
+        public TypeDef TypeForShiftLeft(TypeDef type1, TypeDef type2)
+        {
+            return _intType;
+        }
+
+        /// <summary>
+        /// Returns the type that represents the result of the 'shift righting'ing of the two given types
+        /// </summary>
+        public TypeDef TypeForShiftRight(TypeDef type1, TypeDef type2)
+        {
+            return _intType;
         }
 
         #endregion

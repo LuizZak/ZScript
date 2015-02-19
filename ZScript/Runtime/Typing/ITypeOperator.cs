@@ -58,6 +58,14 @@ namespace ZScript.Runtime.Typing
         /// <returns>The result of the operation</returns>
         T BitwiseOr(T v1, T v2);
 
+        /// <summary>Returns the shift left (&lt;&lt;) operation between v1 and v2</summary>
+        /// <returns>The result of the operation</returns>
+        T ShiftLeft(T v1, T v2);
+
+        /// <summary>Returns the shift right (&gt;&gt;) operation between v1 and v2</summary>
+        /// <returns>The result of the operation</returns>
+        T ShiftRight(T v1, T v2);
+
         /// <summary>Returns whether v1 is greater than v2</summary>
         /// <returns>The result of the operation</returns>
         bool Greater(T v1, T v2);

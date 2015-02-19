@@ -41,13 +41,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Instruction, null, VmInstruction.Noop),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Instruction, null, VmInstruction.Noop),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Noop),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Instruction, null, VmInstruction.Noop)
+                TokenFactory.CreateInstructionToken(VmInstruction.Noop),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateInstructionToken(VmInstruction.Noop),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Noop),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Noop)
             };
 
             var tokenList = new TokenList(t);
@@ -67,10 +67,10 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Interrupt),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -139,9 +139,9 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -161,12 +161,12 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 20),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(20),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -188,7 +188,7 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -206,10 +206,10 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Get),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -231,9 +231,9 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -256,10 +256,10 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.ClearStack),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -277,11 +277,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Instruction, null, VmInstruction.Swap), // Swapping the stack should get the '5' at the top, making the Set instruction set a as 5
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap), // Swapping the stack should get the '5' at the top, making the Set instruction set a as 5
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -301,11 +301,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Instruction, null, VmInstruction.Duplicate), // Duplicating the stack should result in two '5's at the top
-                new Token(TokenType.Operator, null, VmInstruction.Add),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate), // Duplicating the stack should result in two '5's at the top
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -325,13 +325,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Instruction, null, VmInstruction.Jump), // Jumping to the 5th instruction should skip to the 'b' variable set instructions
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump), // Jumping to the 5th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -352,17 +352,17 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, 6),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfTrue), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, 12),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfTrue), // Jumping to the end
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(6),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(12),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue), // Jumping to the end
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -383,17 +383,17 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, 6),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfFalse), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, 12),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfFalse), // Jumping to the end
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(6),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(12),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse), // Jumping to the end
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -414,16 +414,16 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfTruePeek), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, 12),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfTruePeek), // Jumping to the end
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTruePeek), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(12),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTruePeek), // Jumping to the end
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -444,16 +444,16 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfFalsePeek), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, 12),
-                new Token(TokenType.Instruction, null, VmInstruction.JumpIfFalsePeek), // Jumping to the end
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalsePeek), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(12),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalsePeek), // Jumping to the end
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -478,13 +478,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.IncrementPrefix),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -504,13 +504,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.IncrementPostfix),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -530,13 +530,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.DecrementPrefix),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -556,13 +556,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.DecrementPostfix),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
             var tokenList = new TokenList(t);
@@ -586,11 +586,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.Multiply),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Multiply),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -610,11 +610,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 50),
-                new Token(TokenType.Value, 10.0),
-                new Token(TokenType.Operator, null, VmInstruction.Divide),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(50),
+                TokenFactory.CreateBoxedValueToken(10.0),
+                TokenFactory.CreateOperatorToken(VmInstruction.Divide),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -634,11 +634,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Operator, null, VmInstruction.Modulo),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateOperatorToken(VmInstruction.Modulo),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -658,11 +658,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.Add),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -682,11 +682,11 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 15),
-                new Token(TokenType.Value, 7),
-                new Token(TokenType.Operator, null, VmInstruction.Subtract),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(15),
+                TokenFactory.CreateBoxedValueToken(7),
+                TokenFactory.CreateOperatorToken(VmInstruction.Subtract),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -701,190 +701,28 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         [TestMethod]
-        public void TestBitwiseAnd()
-        {
-            // Create the set of tokens
-            IntermediaryTokenList t = new IntermediaryTokenList
-            {
-                new Token(TokenType.Value, 0xFF00),
-                new Token(TokenType.Value, 0xF000),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseAnd),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
-            };
-
-            var tokenList = new TokenList(t);
-            var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
-
-            var functionVm = new FunctionVM(tokenList, context);
-
-            functionVm.Execute();
-
-            Assert.AreEqual(0xF000, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-        }
-
-        [TestMethod]
-        public void TestBitwiseOr()
-        {
-            // Create the set of tokens
-            IntermediaryTokenList t = new IntermediaryTokenList
-            {
-                new Token(TokenType.Value, 0xF000),
-                new Token(TokenType.Value, 0x0F00),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseOr),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
-            };
-
-            var tokenList = new TokenList(t);
-            var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
-
-            var functionVm = new FunctionVM(tokenList, context);
-
-            functionVm.Execute();
-
-            Assert.AreEqual(0xFF00, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-        }
-
-        [TestMethod]
-        public void TestBitwiseXOr()
-        {
-            // Create the set of tokens
-            IntermediaryTokenList t = new IntermediaryTokenList
-            {
-                new Token(TokenType.Value, 0xFAE01),
-                new Token(TokenType.Value, 0xED10),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseXOr),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
-            };
-
-            var tokenList = new TokenList(t);
-            var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
-
-            var functionVm = new FunctionVM(tokenList, context);
-
-            functionVm.Execute();
-
-            Assert.AreEqual(1000209, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-        }
-
-        [TestMethod]
-        public void TestBooleanBitwiseAnd()
-        {
-            // Create the set of tokens
-            IntermediaryTokenList t = new IntermediaryTokenList
-            {
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseAnd),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseAnd),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
-            };
-
-            var tokenList = new TokenList(t);
-            var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
-
-            var functionVm = new FunctionVM(tokenList, context);
-
-            functionVm.Execute();
-
-            Assert.AreEqual(false, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
-        }
-
-        [TestMethod]
-        public void TestBooleanBitwiseOr()
-        {
-            // Create the set of tokens
-            IntermediaryTokenList t = new IntermediaryTokenList
-            {
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseOr),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseOr),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
-            };
-
-            var tokenList = new TokenList(t);
-            var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
-
-            var functionVm = new FunctionVM(tokenList, context);
-
-            functionVm.Execute();
-
-            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
-        }
-
-        [TestMethod]
-        public void TestBooleanBitwiseXOr()
-        {
-            // Create the set of tokens
-            IntermediaryTokenList t = new IntermediaryTokenList
-            {
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseXOr),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.BitwiseXOr),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
-            };
-
-            var tokenList = new TokenList(t);
-            var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
-
-            var functionVm = new FunctionVM(tokenList, context);
-
-            functionVm.Execute();
-
-            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
-        }
-
-        [TestMethod]
         public void TestEquals()
         {
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 100),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.Equals),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(100),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Value, 80.0),
-                new Token(TokenType.Operator, null, VmInstruction.Equals),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(80.0),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.Equals),
-                new Token(TokenType.MemberName, "c"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -906,23 +744,23 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 100),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.Unequals),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(100),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Unequals),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
-                new Token(TokenType.Value, 5),
-                new Token(TokenType.Value, 80.0),
-                new Token(TokenType.Operator, null, VmInstruction.Unequals),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(80.0),
+                TokenFactory.CreateOperatorToken(VmInstruction.Unequals),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.Unequals),
-                new Token(TokenType.MemberName, "c"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.Unequals),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -944,16 +782,16 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 100),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.Less),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Value, 80),
-                new Token(TokenType.Operator, null, VmInstruction.Less),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(100),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Less),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateBoxedValueToken(80),
+                TokenFactory.CreateOperatorToken(VmInstruction.Less),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -974,21 +812,21 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 100),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.LessOrEquals),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Operator, null, VmInstruction.LessOrEquals),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Value, 71),
-                new Token(TokenType.Operator, null, VmInstruction.LessOrEquals),
-                new Token(TokenType.MemberName, "c"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(100),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.LessOrEquals),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateOperatorToken(VmInstruction.LessOrEquals),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateBoxedValueToken(71),
+                TokenFactory.CreateOperatorToken(VmInstruction.LessOrEquals),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1010,16 +848,16 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 100),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.Greater),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Value, 80),
-                new Token(TokenType.Operator, null, VmInstruction.Greater),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(100),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Greater),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateBoxedValueToken(80),
+                TokenFactory.CreateOperatorToken(VmInstruction.Greater),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1040,21 +878,21 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 100),
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Operator, null, VmInstruction.GreaterOrEquals),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Operator, null, VmInstruction.GreaterOrEquals),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, 70),
-                new Token(TokenType.Value, 71),
-                new Token(TokenType.Operator, null, VmInstruction.GreaterOrEquals),
-                new Token(TokenType.MemberName, "c"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(100),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.GreaterOrEquals),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateOperatorToken(VmInstruction.GreaterOrEquals),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(70),
+                TokenFactory.CreateBoxedValueToken(71),
+                TokenFactory.CreateOperatorToken(VmInstruction.GreaterOrEquals),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1076,21 +914,21 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalAnd),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalAnd),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalAnd),
-                new Token(TokenType.MemberName, "c"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalAnd),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalAnd),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalAnd),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1112,21 +950,21 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalOr),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Value, true),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalOr),
-                new Token(TokenType.MemberName, "b"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Value, false),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalOr),
-                new Token(TokenType.MemberName, "c"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalOr),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalOr),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalOr),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1148,13 +986,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.ArithmeticNegate),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.ArithmeticNegate),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1174,13 +1012,13 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, false),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Operator, null, VmInstruction.LogicalNegate),
-                new Token(TokenType.MemberName, "a"),
-                new Token(TokenType.Instruction, null, VmInstruction.Set)
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalNegate),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
             };
 
             var tokenList = new TokenList(t);
@@ -1192,6 +1030,232 @@ namespace ZScriptTests.Runtime.Execution
             functionVm.Execute();
 
             Assert.AreEqual(true, memory.GetVariable("a"), "The 'Logical Negate' instruction is not behaving correctly");
+        }
+
+        #endregion
+
+        #region Bitwise Operations
+
+        [TestMethod]
+        public void TestBitwiseAnd()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(0xFF00),
+                TokenFactory.CreateBoxedValueToken(0xF000),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseAnd),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(0xF000, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBitwiseOr()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(0xF000),
+                TokenFactory.CreateBoxedValueToken(0x0F00),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseOr),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(0xFF00, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBitwiseXOr()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(0xFAE01),
+                TokenFactory.CreateBoxedValueToken(0xED10),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseXOr),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(1000209, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBooleanBitwiseAnd()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseAnd),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseAnd),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(false, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(true, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBooleanBitwiseOr()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseOr),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseOr),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestBooleanBitwiseXOr()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(false),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseXOr),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateOperatorToken(VmInstruction.BitwiseXOr),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestShiftLeft()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateOperatorToken(VmInstruction.ShiftLeft),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateOperatorToken(VmInstruction.ShiftLeft),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(4, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(20, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestShiftRight()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(32),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateOperatorToken(VmInstruction.ShiftRight),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(40),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateOperatorToken(VmInstruction.ShiftRight),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(16, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.AreEqual(10, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
         }
 
         #endregion

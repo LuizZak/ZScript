@@ -55,7 +55,7 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
     <Compile Include="CodeGeneration\RuntimeGenerationContext.cs" />
     <Compile Include="CodeGeneration\Definitions\TypeAliasDefinition.cs" />
-    <Compile Include="CodeGeneration\Analysis\ExpressionTreeAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Analysis\ExpressionTypeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenList.cs" />
     <Compile Include="Parsing\ANTLRExtend\ParserExtensions.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Callables\ClassMethod.cs" />

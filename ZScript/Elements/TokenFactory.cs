@@ -133,6 +133,13 @@ namespace ZScript.Elements
                     inst = VmInstruction.BitwiseOr;
                     break;
 
+                case "<<":
+                    inst = VmInstruction.ShiftLeft;
+                    break;
+                case ">>":
+                    inst = VmInstruction.ShiftRight;
+                    break;
+
                 case "==":
                     inst = VmInstruction.Equals;
                     break;
