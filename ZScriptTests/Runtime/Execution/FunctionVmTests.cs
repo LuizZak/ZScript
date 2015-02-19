@@ -326,8 +326,7 @@ namespace ZScriptTests.Runtime.Execution
             IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump), // Jumping to the 5th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4), // Jumping to the 5th instruction should skip to the 'b' variable set instructions
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 TokenFactory.CreateMemberNameToken("b"),
@@ -354,13 +353,11 @@ namespace ZScriptTests.Runtime.Execution
             {
                 TokenFactory.CreateBoxedValueToken(5),
                 TokenFactory.CreateBoxedValueToken(true),
-                TokenFactory.CreateBoxedValueToken(6),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 5), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 TokenFactory.CreateBoxedValueToken(false),
-                TokenFactory.CreateBoxedValueToken(12),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue), // Jumping to the end
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 11), // Jumping to the end
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
@@ -385,13 +382,11 @@ namespace ZScriptTests.Runtime.Execution
             {
                 TokenFactory.CreateBoxedValueToken(5),
                 TokenFactory.CreateBoxedValueToken(false),
-                TokenFactory.CreateBoxedValueToken(6),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse, 5), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 TokenFactory.CreateBoxedValueToken(true),
-                TokenFactory.CreateBoxedValueToken(12),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse), // Jumping to the end
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse, 11), // Jumping to the end
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
@@ -415,13 +410,11 @@ namespace ZScriptTests.Runtime.Execution
             IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(true),
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTruePeek), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTruePeek, 4), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 TokenFactory.CreateBoxedValueToken(false),
-                TokenFactory.CreateBoxedValueToken(12),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTruePeek), // Jumping to the end
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTruePeek, 11), // Jumping to the end
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
@@ -445,13 +438,11 @@ namespace ZScriptTests.Runtime.Execution
             IntermediaryTokenList t = new IntermediaryTokenList
             {
                 TokenFactory.CreateBoxedValueToken(false),
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalsePeek), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalsePeek, 4), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 TokenFactory.CreateBoxedValueToken(true),
-                TokenFactory.CreateBoxedValueToken(12),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalsePeek), // Jumping to the end
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalsePeek, 11), // Jumping to the end
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
@@ -1292,17 +1283,14 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateVariableToken("i", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
-                TokenFactory.CreateBoxedValueToken(7),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 6),
                 TokenFactory.CreateVariableToken("i", true),
                 TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
                 TokenFactory.CreateVariableToken("i", true),
                 TokenFactory.CreateBoxedValueToken(100000),
                 TokenFactory.CreateOperatorToken(VmInstruction.Less),
-                TokenFactory.CreateBoxedValueToken(14),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse),
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse, 12),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
                 TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
             };
 
@@ -1355,18 +1343,15 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.SetAtAddress),
-                TokenFactory.CreateBoxedValueToken(7),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 6),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetAtAddress),
                 TokenFactory.CreateBoxedValueToken(100000),
                 TokenFactory.CreateOperatorToken(VmInstruction.Less),
-                TokenFactory.CreateBoxedValueToken(15),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse),
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse, 14),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
                 TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
             };
 

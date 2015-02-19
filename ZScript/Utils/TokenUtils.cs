@@ -23,6 +23,7 @@ using System.Collections.Generic;
 
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
+using ZScript.Runtime.Execution;
 
 namespace ZScript.Utils
 {
@@ -70,6 +71,14 @@ namespace ZScript.Utils
                     case TokenType.Operator:
                     case TokenType.Instruction:
                         Console.Write(token.Instruction);
+
+                        // Print jump address along with jump instructions
+                        if (token.Instruction == VmInstruction.Jump || token.Instruction == VmInstruction.JumpIfFalse ||
+                            token.Instruction == VmInstruction.JumpIfTrue)
+                        {
+                            Console.Write(" ");
+                            Console.Write(token.TokenObject);
+                        }
                         break;
                     default:
                         Console.Write(token.TokenObject);
@@ -102,6 +111,14 @@ namespace ZScript.Utils
                     case TokenType.Operator:
                     case TokenType.Instruction:
                         Console.Write(token.Instruction);
+
+                        // Print jump address along with jump instructions
+                        if (token.Instruction == VmInstruction.Jump || token.Instruction == VmInstruction.JumpIfFalse ||
+                            token.Instruction == VmInstruction.JumpIfTrue)
+                        {
+                            Console.Write(" ");
+                            Console.Write(token.TokenObject);
+                        }
                         break;
                     default:
                         Console.Write(token.TokenObject);

@@ -144,37 +144,34 @@ namespace ZScript.Runtime.Execution
 
                                 return;
                             case VmInstruction.Jump:
-                                _codePosition = (int)_stack.Pop();
+                                _codePosition = (int)token.TokenObject;
                                 continue;
                             case VmInstruction.JumpIfTrue:
-                                int target = (int)_stack.Pop();
                                 if ((bool)PopValueImplicit())
                                 {
-                                    _codePosition = target;
+                                    //_codePosition = target;
+                                    _codePosition = (int)token.TokenObject;
                                     continue;
                                 }
                                 break;
                             case VmInstruction.JumpIfFalse:
-                                target = (int)_stack.Pop();
                                 if (!(bool)PopValueImplicit())
                                 {
-                                    _codePosition = target;
+                                    _codePosition = (int)token.TokenObject;
                                     continue;
                                 }
                                 break;
                             case VmInstruction.JumpIfTruePeek:
-                                target = (int)_stack.Pop();
                                 if ((bool)PeekValueImplicit())
                                 {
-                                    _codePosition = target;
+                                    _codePosition = (int)token.TokenObject;
                                     continue;
                                 }
                                 break;
                             case VmInstruction.JumpIfFalsePeek:
-                                target = (int)_stack.Pop();
                                 if (!(bool)PeekValueImplicit())
                                 {
-                                    _codePosition = target;
+                                    _codePosition = (int)token.TokenObject;
                                     continue;
                                 }
                                 break;

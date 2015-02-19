@@ -44,8 +44,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expectedTokens = new IntermediaryTokenList
             {
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
                 TokenFactory.CreateBoxedValueToken(10),
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
@@ -89,8 +88,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expectedTokens = new IntermediaryTokenList
             {
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
                 TokenFactory.CreateBoxedValueToken(10),
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
@@ -137,8 +135,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expectedTokens = new IntermediaryTokenList
             {
-                TokenFactory.CreateBoxedValueToken(5),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
                 TokenFactory.CreateBoxedValueToken(10),
                 TokenFactory.CreateMemberNameToken("a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),

@@ -215,10 +215,11 @@ namespace ZScript.Elements
         /// Creates a new instruction token based on a given VM instruction
         /// </summary>
         /// <param name="instruction">A VM instruction to create the token with</param>
+        /// <param name="argument">An object to use as an instruction argument</param>
         /// <returns>A Token with the VM instruction provided binded in</returns>
-        public static Token CreateInstructionToken(VmInstruction instruction)
+        public static Token CreateInstructionToken(VmInstruction instruction, object argument = null)
         {
-            return new Token(TokenType.Instruction, null, instruction);
+            return new Token(TokenType.Instruction, argument, instruction);
         }
 
         /// <summary>

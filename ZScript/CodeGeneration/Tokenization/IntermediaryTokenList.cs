@@ -213,25 +213,7 @@ namespace ZScript.CodeGeneration.Tokenization
         public List<Token> CreateExpandedTokenList()
         {
             List<Token> expandedTokens = new List<Token>(_tokens);
-
-            // Iterate over jump tokens and add jump instructions in front of them
-            for (int i = 0; i < expandedTokens.Count; i++)
-            {
-                var jumpToken = expandedTokens[i] as JumpToken;
-                // If the jump is pointed at a jump target token, skip the expansion
-                if (jumpToken == null || jumpToken.TargetToken is JumpTargetToken)
-                    continue;
-
-                AnalyzeJump(jumpToken);
-
-                // Add a jump token in front of the jump token
-                Token t = TokenFactory.CreateInstructionToken(InstructionForJumpToken(jumpToken));
-                expandedTokens.Insert(i + 1, t);
-
-                // Skip over the jump instruction token that was just added
-                i++;
-            }
-
+            
             // Iterate again the jump tokens, now fixing the address of the token pointing
             for (int i = 0; i < expandedTokens.Count; i++)
             {
@@ -245,7 +227,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 if (address == -1)
                     throw new Exception("A jump token has a target that is not contained within the same token list");
 
-                var newToken = TokenFactory.CreateBoxedValueToken(address);
+                var newToken = TokenFactory.CreateInstructionToken(InstructionForJumpToken(jumpToken), address);
 
                 // Replace any jump reference that may be pointing to this jump token
                 foreach (Token t in expandedTokens)

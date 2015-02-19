@@ -140,6 +140,9 @@ namespace StandaloneTests
             zScriptTests.TestRecursiveFibonacci();
             Console.ReadKey();
 
+            zScriptTests.TestLargeCodeParsingSpeed();
+            Console.ReadKey();
+
             PerformanceTests tests = new PerformanceTests();
 
             tests.TestObjectFunctionCallPerformance();
