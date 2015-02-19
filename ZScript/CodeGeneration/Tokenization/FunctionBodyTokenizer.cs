@@ -22,8 +22,10 @@ using System;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
+using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
+using ZScript.Runtime.Execution;
 using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization
@@ -77,7 +79,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 TokenUtils.PrintTokens(tokens);
             }
 
-            //JumpTokenOptimizer.OptimizeJumps(tokens, VmInstruction.Interrupt);
+            JumpTokenOptimizer.OptimizeJumps(tokens, VmInstruction.Interrupt);
             TokenList finalList = tokens.ToTokenList();
 
             if (DebugTokens)
