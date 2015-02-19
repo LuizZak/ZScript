@@ -55,6 +55,10 @@ namespace ZScript.Utils
             {
                 str = context.bitwiseOrOp().GetText();
             }
+            else if (context.bitwiseShift() != null)
+            {
+                str = context.bitwiseShift().GetText();
+            }
             else if (context.T_IS() != null)
             {
                 str = context.T_IS().GetText();
@@ -108,8 +112,10 @@ namespace ZScript.Utils
                 return null;
             }
 
+            string str = context.GetText();
+
             // Return the first character of the operator
-            return TokenFactory.CreateOperatorToken(context.GetText()[0].ToString());
+            return TokenFactory.CreateOperatorToken(str.Substring(0, str.Length - 1));
         }
     }
 }
