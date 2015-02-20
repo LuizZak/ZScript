@@ -61,6 +61,11 @@ public partial class ZScriptParser
         /// Gets or sets the evaluated type associated with this expression context
         /// </summary>
         public TypeDef EvaluatedType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the expected type for this expression, being implicitly set from a parent expression during expression type analysis
+        /// </summary>
+        public TypeDef ExpectedType { get; set; }
     }
 
     /// <summary>
