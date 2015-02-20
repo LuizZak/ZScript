@@ -226,43 +226,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #endregion
 
-        #region Automatic casting
-
-        /// <summary>
-        /// Tests generation of cast operation
-        /// </summary>
-        [TestMethod]
-        public void TestAutomaticCast()
-        {
-            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
-
-            const string input = "10";
-            var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
-
-            var exp = parser.expression();
-
-            var generatedTokens = tokenizer.TokenizeExpression(exp);
-
-            // Create the expected list
-            var expectedTokens = new List<Token>
-            {
-                TokenFactory.CreateBoxedValueToken(10L),
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.type()),
-            };
-
-            Console.WriteLine("Dump of tokens: ");
-            Console.WriteLine("Expected:");
-            TokenUtils.PrintTokens(expectedTokens);
-            Console.WriteLine("Actual:");
-            TokenUtils.PrintTokens(generatedTokens);
-
-            // Assert the tokens where generated correctly
-            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
-        }
-
-        #endregion
-
         #region cast instruction and 'is' operator
 
         /// <summary>
