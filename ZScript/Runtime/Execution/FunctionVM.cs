@@ -21,7 +21,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Reflection;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Typing;
@@ -127,7 +127,7 @@ namespace ZScript.Runtime.Execution
                 switch (token.Type)
                 {
                     case TokenType.Operator:
-                        PerformOperation(token.Instruction);
+                        PerformOperation(token);
                         break;
                     case TokenType.Instruction:
                         // Virtual machine interruption
@@ -199,12 +199,22 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs an operation specified by a given instruction on items on the top of in the stack, an pushes the result in back again
         /// </summary>
-        /// <param name="instruction">An instruction that specified the operation to perform</param>
-        void PerformOperation(VmInstruction instruction)
+        /// <param name="token">A token containing the instruction that specifies the operation to perform</param>
+        void PerformOperation(Token token)
         {
-            // Special treatement for the increment/decrement/unary negate/logical negate operators
+            VmInstruction instruction = token.Instruction;
+
             switch (instruction)
             {
+                // Special treatment for 'is' and 'cast' operators
+                case VmInstruction.Is:
+                    PerformIsOperator(token);
+                    return;
+                case VmInstruction.Cast:
+                    PerformCastOperation(token);
+                    return;
+
+                // Special treatement for the increment/decrement/unary negate/logical negate operators
                 case VmInstruction.IncrementPrefix:
                 case VmInstruction.IncrementPostfix:
                 case VmInstruction.DecrementPrefix:
@@ -659,6 +669,48 @@ namespace ZScript.Runtime.Execution
             }
 
             _stack.Push(MemberWrapperHelper.CreateCallableWrapper(target, (string)memberName));
+        }
+
+        /// <summary>
+        /// Performs an 'is' operation with the values on top of the stack
+        /// </summary>
+        /// <param name="token">The 'is' operation token that contains the type to check against as argument</param>
+        void PerformIsOperator(Token token)
+        {
+            object value = PopValueImplicit();
+
+            _stack.Push(((Type)token.TokenObject).IsInstanceOfType(value));
+        }
+
+        /// <summary>
+        /// Performs a cast operation with the values on top of the stack
+        /// </summary>
+        /// <param name="token">The cast operation token that contains the type to cast to as argument</param>
+        void PerformCastOperation(Token token)
+        {
+            object value = PopValueImplicit();
+
+            if (value is IConvertible)
+            {
+                _stack.Push(Convert.ChangeType(value, (Type)token.TokenObject));
+                return;
+            }
+
+            MethodInfo castMethod = GetType().GetMethod("Cast").MakeGenericMethod(((Type)token.TokenObject));
+            object castedObject = castMethod.Invoke(null, new [] { value });
+
+            _stack.Push(castedObject);
+        }
+
+        /// <summary>
+        /// Generic static type casting helper method
+        /// </summary>
+        /// <typeparam name="T">The type to cast the object to</typeparam>
+        /// <param name="o">The object to cast</param>
+        /// <returns>A casted version of the given object</returns>
+        public static T Cast<T>(object o)
+        {
+            return (T)o;
         }
 
         /// <summary>

@@ -548,6 +548,106 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         }
 
         /// <summary>
+        /// Tests optimization of jump pointing when a jump points to an always-failing conditional jump
+        /// </summary>
+        [TestMethod]
+        public void TestJumpPointedAtFailedConditionalJump()
+        {
+            var jump1 = new JumpToken(null, true, false);
+            var jump2 = new JumpToken(null);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(true),
+                jump1,
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                jump2,
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            jump1.TargetToken = tokens[6];
+            jump2.TargetToken = tokens[0];
+
+            // Expected tokens
+            var eJump1 = new JumpToken(null);
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                eJump1,
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            eJump1.TargetToken = expectedTokens[0];
+
+            // Expand the jumps
+            JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
+        }
+
+        /// <summary>
+        /// Tests optimization of jump pointing when a jump points to an always-failing conditional jump
+        /// </summary>
+        [TestMethod]
+        public void TestJumpPointedAtSuceededConditionalJump()
+        {
+            var jump1 = new JumpToken(null, true);
+            var jump2 = new JumpToken(null);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(true),
+                jump1,
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                jump2,
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            jump1.TargetToken = tokens[6];
+            jump2.TargetToken = tokens[0];
+
+            // Expected tokens
+            var eJump1 = new JumpToken(null);
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            eJump1.TargetToken = expectedTokens[0];
+
+            // Expand the jumps
+            JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
+        }
+
+        /// <summary>
         /// Tests re-forwarding of jumps when always-true conditional jumps are optimized
         /// </summary>
         [TestMethod]

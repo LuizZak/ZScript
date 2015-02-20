@@ -32,50 +32,50 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// The name for this type
         /// </summary>
-        private readonly string _name;
+        protected readonly string name;
 
         /// <summary>
         /// Whether this type definition represents the 'any' type
         /// </summary>
-        private readonly bool _isAny;
+        protected readonly bool isAny;
 
         /// <summary>
         /// Whether this type definition represents the 'void' type
         /// </summary>
-        private readonly bool _isVoid;
+        protected readonly bool isVoid;
 
         /// <summary>
         /// Whether this type definition represents a native type
         /// </summary>
-        private readonly bool _isNative;
+        protected readonly bool isNative;
 
         /// <summary>
         /// The base type this type inherited from.
         /// May be null, in case this type represents the basic object type
         /// </summary>
-        private readonly TypeDef _baseType;
+        protected readonly TypeDef baseType;
 
         /// <summary>
         /// Array that contains the available methods of this TypeDef
         /// </summary>
-        private TypeMethodDef[] _methods;
+        protected TypeMethodDef[] methods;
 
         /// <summary>
         /// Array that contains the available fields of this TypeDef
         /// </summary>
-        private TypeFieldDef[] _fields;
+        protected TypeFieldDef[] fields;
 
         /// <summary>
         /// Gets the name for this type
         /// </summary>
-        public string Name { get { return _name; } }
+        public string Name { get { return name; } }
 
         /// <summary>
         /// Gets a value specifying whether this type definition represents the 'any' type
         /// </summary>
         public bool IsAny
         {
-            get { return _isAny; }
+            get { return isAny; }
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         public bool IsVoid
         {
-            get { return _isVoid; }
+            get { return isVoid; }
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         public bool IsNative
         {
-            get { return _isNative; }
+            get { return isNative; }
         }
 
         /// <summary>
@@ -101,10 +101,10 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="native">Whether this type represents a native type</param>
         public TypeDef(string name, bool native = false)
         {
-            _name = name;
-            _isAny = name == "any";
-            _isVoid = name == "void";
-            _isNative = native;
+            this.name = name;
+            isAny = name == "any";
+            isVoid = name == "void";
+            isNative = native;
         }
 
         /// <summary>
@@ -118,9 +118,9 @@ namespace ZScript.Runtime.Typing.Elements
         private TypeDef(string name, TypeDef baseType, TypeFieldDef[] fields, TypeMethodDef[] methods, bool native = false)
             : this(name, native)
         {
-            _baseType = baseType;
-            _fields = fields;
-            _methods = methods;
+            this.baseType = baseType;
+            this.fields = fields;
+            this.methods = methods;
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <returns>A string representation of this TypeDef</returns>
         public override string ToString()
         {
-            return _name;
+            return name;
         }
 
         /// <summary>
@@ -139,20 +139,20 @@ namespace ZScript.Runtime.Typing.Elements
         /// <returns>An array containing all the public methods of this type definition</returns>
         public TypeMethodDef[] GetMethods(bool inherited = true)
         {
-            if (!inherited || _baseType == null)
-                return _methods.ToArray();
+            if (!inherited || baseType == null)
+                return methods.ToArray();
 
-            var methods = new List<TypeMethodDef>();
+            var m = new List<TypeMethodDef>();
 
             TypeDef d = this;
             while (d != null)
             {
-                methods.AddRange(_methods);
+                m.AddRange(methods);
 
-                d = d._baseType;
+                d = d.baseType;
             }
 
-            return methods.ToArray();
+            return m.ToArray();
         }
 
         /// <summary>
@@ -162,20 +162,20 @@ namespace ZScript.Runtime.Typing.Elements
         /// <returns>An array containing all of the public fields of this type definition</returns>
         public TypeFieldDef[] GetFields(bool inherited = true)
         {
-            if (!inherited || _baseType == null)
-                return _fields.ToArray();
+            if (!inherited || baseType == null)
+                return fields.ToArray();
 
-            var fields = new List<TypeFieldDef>();
+            var f = new List<TypeFieldDef>();
 
             TypeDef d = this;
             while (d != null)
             {
-                fields.AddRange(_fields);
+                f.AddRange(fields);
 
-                d = d._baseType;
+                d = d.baseType;
             }
 
-            return fields.ToArray();
+            return f.ToArray();
         }
 
         #region Equality members
@@ -189,7 +189,7 @@ namespace ZScript.Runtime.Typing.Elements
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return _isVoid.Equals(other._isVoid) && _isAny.Equals(other._isAny) && string.Equals(_name, other._name) && _isNative.Equals(other._isNative);
+            return isVoid.Equals(other.isVoid) && isAny.Equals(other.isAny) && string.Equals(name, other.name) && isNative.Equals(other.isNative);
         }
 
         /// <summary>
@@ -213,10 +213,10 @@ namespace ZScript.Runtime.Typing.Elements
         {
             unchecked
             {
-                var hashCode = _isVoid.GetHashCode();
-                hashCode = (hashCode * 397) ^ _isAny.GetHashCode();
-                hashCode = (hashCode * 397) ^ _isNative.GetHashCode();
-                hashCode = (hashCode * 397) ^ (_name != null ? _name.GetHashCode() : 0);
+                var hashCode = isVoid.GetHashCode();
+                hashCode = (hashCode * 397) ^ isAny.GetHashCode();
+                hashCode = (hashCode * 397) ^ isNative.GetHashCode();
+                hashCode = (hashCode * 397) ^ (name != null ? name.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -242,24 +242,24 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// The type definition that represents the 'any' type
         /// </summary>
-        public static readonly TypeDef AnyType = new TypeDef("any");
+        public static readonly TypeDef AnyType = new AnyTypeDef();
 
         /// <summary>
         /// The type definition that represents the 'void' type
         /// </summary>
-        public static readonly TypeDef VoidType = new TypeDef("void");
+        public static readonly TypeDef VoidType = new NativeTypeDef(typeof(void), "void");
 
         /// <summary>
         /// The type definition for an integer type in the runtime.
         /// The integer type is defined as an Int64 integer in the C# runtime
         /// </summary>
-        public static readonly TypeDef IntegerType = new TypeDef("int");
+        public static readonly TypeDef IntegerType = new NativeTypeDef(typeof(long), "int");
 
         /// <summary>
         /// The type definition for a floating-point type in the runtime.
         /// The integer type is defined as a double floating point in the C# runtime
         /// </summary>
-        public static readonly TypeDef FloatType = new TypeDef("float");
+        public static readonly TypeDef FloatType = new NativeTypeDef(typeof(double), "float");
 
         /// <summary>
         /// The type definition for a null type in the runtime.
@@ -271,7 +271,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// The type definition for a boolean type in the runtime.
         /// The integer type is defined as a bool in the C# runtime
         /// </summary>
-        public static readonly TypeDef BooleanType = new TypeDef("bool");
+        public static readonly TypeDef BooleanType = new NativeTypeDef(typeof(bool), "bool");
 
         /// <summary>
         /// The type definition for a string type in the runtime.
@@ -297,7 +297,7 @@ namespace ZScript.Runtime.Typing.Elements
             // Add the methods to the object type
             var methods = new[] { toString, equals };
 
-            objectType._methods = methods;
+            objectType.methods = methods;
         }
     }
 

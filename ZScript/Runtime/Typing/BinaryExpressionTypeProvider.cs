@@ -82,6 +82,10 @@ namespace ZScript.Runtime.Typing
         /// <returns>true if the operation can be performed between the two values, false otherwise</returns>
         public bool CanPerformOperation(VmInstruction operation, TypeDef type1, TypeDef type2)
         {
+            // Any types can have any operation performed between them
+            if (type1.IsAny && type2.IsAny)
+                return true;
+
             // Evaluate the operation
             switch (operation)
             {
@@ -602,7 +606,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>true if the type represents an integer or floating-point number, false otherwise</returns>
         public bool IsNumeric(TypeDef type)
         {
-            return type == _intType || type == _floatType || type.IsAny;
+            return type == _intType || type == _floatType;
         }
 
         /// <summary>
@@ -612,7 +616,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>true if the type represents a boolean, false otherwise</returns>
         public bool IsLogicType(TypeDef type)
         {
-            return type == _boolType || type.IsAny;
+            return type == _boolType;
         }
     }
 }

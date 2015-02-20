@@ -84,7 +84,7 @@ namespace ZScript.CodeGeneration.Analysis
             var instruction = TokenFactory.InstructionForOperator(str);
 
             // Arithmetic instructions with any operands propagate anys
-            if ((type1.IsAny || type2.IsAny) && IsArithmetic(instruction))
+            if ((type1.IsAny && type2.IsAny) && IsArithmetic(instruction))
             {
                 return TypeProvider.AnyType();
             }

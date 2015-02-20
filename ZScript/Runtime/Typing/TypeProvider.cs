@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Linq;
+using System.Linq.Expressions;
+
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Runtime.Typing
@@ -76,6 +79,29 @@ namespace ZScript.Runtime.Typing
             }
 
             return new TypeDef(typeName, true);
+        }
+
+        /// <summary>
+        /// Returns a native equivalent for a given TypeDef.
+        /// If no equivalent native type is found, null is returned
+        /// </summary>
+        /// <param name="type">The type to get the native equivalent of</param>
+        /// <returns>A Type that represents a native equivalent for the given type</returns>
+        public Type NativeTypeForTypeDef(TypeDef type)
+        {
+            var nativeTypeDef = type as NativeTypeDef;
+            if (nativeTypeDef != null)
+            {
+                return nativeTypeDef.NativeType;
+            }
+
+            if (type == NullType())
+            {
+                return typeof(object);
+            }
+
+            // No equivalents
+            return null;
         }
 
         /// <summary>
@@ -222,9 +248,18 @@ namespace ZScript.Runtime.Typing
             if (origin is CallableTypeDef && target is CallableTypeDef)
                 return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
 
+            // Booleans can only be compared to booleans
+            if ((origin == BooleanType()) != (target == BooleanType()))
+                return false;
+
             // TODO: Check native typing, somehow
-            if (origin.IsNative && target.IsNative)
-                return true;
+            NativeTypeDef nativeOrigin = origin as NativeTypeDef;
+            NativeTypeDef nativeTarget = target as NativeTypeDef;
+
+            if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
+            {
+                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType);
+            }
 
             return false;
         }
@@ -260,10 +295,19 @@ namespace ZScript.Runtime.Typing
             // Callables
             if (origin is CallableTypeDef && target is CallableTypeDef)
                 return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
-            
+
+            // Booleans can only be compared to booleans
+            if ((origin == BooleanType()) != (target == BooleanType()))
+                return false;
+
             // TODO: Check native typing, somehow
-            if (origin.IsNative && target.IsNative)
-                return true;
+            NativeTypeDef nativeOrigin = origin as NativeTypeDef;
+            NativeTypeDef nativeTarget = target as NativeTypeDef;
+
+            if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
+            {
+                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType);
+            }
 
             return false;
         }
@@ -295,6 +339,27 @@ namespace ZScript.Runtime.Typing
 
             // Callable types are compatible
             return true;
+        }
+
+        /// <summary>
+        /// Returns a boolean specifying whether the given conversion can be made
+        /// </summary>
+        /// <param name="fromType">The type to convert from</param>
+        /// <param name="toType">The typt to convert to</param>
+        /// <returns>true if the conversion is possible; false otherwise</returns>
+        private static bool CanConvert(Type fromType, Type toType)
+        {
+            try
+            {
+                // Throws an exception if there is no conversion from fromType to toType
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                var res = Expression.Convert(Expression.Parameter(fromType, null), toType);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

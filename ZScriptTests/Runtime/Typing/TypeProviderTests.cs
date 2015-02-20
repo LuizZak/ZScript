@@ -19,11 +19,13 @@
 */
 #endregion
 
+using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Elements;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 
@@ -35,6 +37,102 @@ namespace ZScriptTests.Runtime.Typing
     [TestClass]
     public class TypeProviderTests
     {
+        #region NativeTypeForTypeDf
+
+        [TestMethod]
+        public void TestNativeTypeInteger()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.IntegerType());
+
+            Assert.AreEqual(typeof(long), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeBoolean()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.BooleanType());
+
+            Assert.AreEqual(typeof(bool), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeString()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.StringType());
+
+            Assert.AreEqual(typeof(string), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeFloat()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.FloatType());
+
+            Assert.AreEqual(typeof(double), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeVoid()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.VoidType());
+
+            Assert.AreEqual(typeof(void), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeNull()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.NullType());
+
+            Assert.AreEqual(typeof(object), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeList()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.ListForType(provider.IntegerType()));
+
+            Assert.AreEqual(typeof(ArrayList), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeObject()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.ObjectType());
+
+            Assert.AreEqual(typeof(ZObject), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeAny()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.AnyType());
+
+            Assert.AreEqual(null, native);
+        }
+
+        #endregion
+
+        #region FindCommonType
+
         /// <summary>
         /// Tests the FindCommonType method with the same types
         /// </summary>
@@ -148,6 +246,10 @@ namespace ZScriptTests.Runtime.Typing
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
         }
 
+        #endregion
+
+        #region Implicit cast
+
         /// <summary>
         /// Tests failed callable type cast checking by providing callables with different required argument count
         /// </summary>
@@ -190,5 +292,7 @@ namespace ZScriptTests.Runtime.Typing
             Assert.IsTrue(provider.CanImplicitCast(closureType, callableType),
                 "Trying to cast callable types with more total parameters, but same required parameters than the original should not be allowed");
         }
+
+        #endregion
     }
 }

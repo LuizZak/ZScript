@@ -272,7 +272,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestSimpleClosureInClosure()
         {
-            const string input = "@__trace(a...) func funca() { var a = (i):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; __trace(a(0)(1)); }";
+            const string input = "@__trace(a...) func funca() { var a = (i):(int->int) => { var b:int = i; return (_i:int):int => { return b + _i; }; }; __trace(a(0)(1)); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

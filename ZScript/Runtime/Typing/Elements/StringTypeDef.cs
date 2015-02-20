@@ -23,7 +23,7 @@ namespace ZScript.Runtime.Typing.Elements
     /// <summary>
     /// Specifies a string primitive type definition
     /// </summary>
-    public class StringTypeDef : TypeDef, IListTypeDef
+    public class StringTypeDef : NativeTypeDef, IListTypeDef
     {
         /// <summary>
         /// Returns the type enclosed within the string type definition
@@ -44,7 +44,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Initilaizes a new instance of the StringTypeDef class
         /// </summary>
-        public StringTypeDef() : base("string")
+        public StringTypeDef() : base(typeof(string))
         {
 
         }

@@ -535,18 +535,14 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             VisitExpression(context.expression(0));
 
-            VisitType(context.type());
-
-            _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.Cast));
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.type()));
         }
 
         private void VisitTypeCheck(ZScriptParser.ExpressionContext context)
         {
             VisitExpression(context.expression(0));
 
-            VisitType(context.type());
-
-            _tokens.Add(TokenFactory.CreateOperatorToken(VmInstruction.Is));
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, context.type()));
         }
 
         /// <summary>
@@ -745,11 +741,6 @@ namespace ZScript.CodeGeneration.Tokenization
             }
 
             _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
-        }
-
-        private void VisitType(ZScriptParser.TypeContext context)
-        {
-            // TODO: Create TypeContext visit code
         }
 
         private void VisitConstantAtom(ZScriptParser.ConstantAtomContext context)

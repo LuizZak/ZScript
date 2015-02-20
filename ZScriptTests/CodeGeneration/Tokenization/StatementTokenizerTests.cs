@@ -276,7 +276,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestIfExpressionShortCircuit()
         {
-            const string input = "var a = 0; var b = 0; var c = 0; var d = null; func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
+            const string input = "var a = 0; var b = 0; var c:int = 0; var d:int = null; func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 

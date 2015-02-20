@@ -46,7 +46,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -76,7 +76,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -104,7 +104,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -134,7 +134,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -164,7 +164,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -194,7 +194,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -224,7 +224,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression
@@ -254,7 +254,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
             var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider, null));
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
             var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
 
             // Generate the expression

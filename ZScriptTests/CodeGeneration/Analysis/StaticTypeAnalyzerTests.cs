@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -168,7 +169,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestFunctionArgumentTypeChecking()
         {
             // Set up the test
-            const string input = "func inventoryItemCount(_player : Player = null, itemID : int = 0) : any { return _player.CurrentInventory.GetItemNum(itemID); } func hasInventoryItem(_player : Player = null, itemID : int = 0) : any { return inventoryItemCount(_player, itemID) > 0; }";
+            const string input = "func inventoryItemCount(_player : Player = null, itemID : int = 0) : int { return _player.CurrentInventory.GetItemNum(itemID); }" +
+                                 "func hasInventoryItem(_player : Player = null, itemID : int = 0) : bool { return inventoryItemCount(_player, itemID) > 0; }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;

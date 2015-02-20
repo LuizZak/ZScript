@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
+
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
@@ -37,7 +38,7 @@ namespace ZScript.CodeGeneration.Analysis
     /// <summary>
     /// Class capable of resolving the types of expressions
     /// </summary>
-    public partial class ExpressionTypeResolver
+    public partial class ExpressionTypeResolver : IContextTypeProvider
     {
         /// <summary>
         /// The type provider using when resolving the type of the expressions
@@ -122,7 +123,8 @@ namespace ZScript.CodeGeneration.Analysis
                 var op = context.assignmentOperator().GetText()[0].ToString();
                 var inst = TokenFactory.InstructionForOperator(op);
 
-                if (!TypeProvider.BinaryExpressionProvider.CanPerformOperation(inst, variableType, valueType))
+                // Allow any on variable types so objects can be accessed freely
+                if (!variableType.IsAny && !TypeProvider.BinaryExpressionProvider.CanPerformOperation(inst, variableType, valueType))
                 {
                     var message = "Cannot perform " + inst + " operation on values of type " + variableType + " and " + valueType;
                     MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
@@ -966,6 +968,16 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         #endregion
+
+        /// <summary>
+        /// Returns a type for a given type context
+        /// </summary>
+        /// <param name="type">The type to get the type definition from</param>
+        /// <returns>The type for the given type context</returns>
+        public TypeDef TypeForContext(ZScriptParser.TypeContext type)
+        {
+            return ResolveType(type);
+        }
     }
 
     /// <summary>
@@ -980,6 +992,19 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definitionName">The name of the definition to get</param>
         /// <returns>The type for the given definition</returns>
         TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName);
+    }
+
+    /// <summary>
+    /// Interface to be implemented by objects capable of providing a type, given a type ontext
+    /// </summary>
+    public interface IContextTypeProvider
+    {
+        /// <summary>
+        /// Returns a type for a given type context
+        /// </summary>
+        /// <param name="type">The type to get the type definition from</param>
+        /// <returns>The type for the given type context</returns>
+        TypeDef TypeForContext(ZScriptParser.TypeContext type);
     }
 
     /// <summary>

@@ -913,7 +913,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestFailedArithmeticExpression()
         {
             // Set up the test
-            const string input = "10 + null;";
+            const string input = "10 + null; true + false; ():void => {}() + 1;true/false;";
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
@@ -937,7 +937,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestFailedCompoundedArithmeticExpression()
         {
             // Set up the test
-            const string input = "(5 == 7) * 8.0; ((5 / 9) + [7][0]) * () : bool => { return 0; }(); ((5 / 9) + [true][0]) * 8.0;";
+            const string input = "(5 == 7) * 8.0;" +
+                                 "((5 / 9) + [7][0]) * () : bool => { return true; }();" +
+                                 "((5 / 9) + [true][0]) * 8.0;";
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
@@ -950,7 +952,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
 
-            Assert.AreEqual(3, container.CodeErrors.Count(), "Failed to raise the expected errors");
+            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to raise the expected errors");
         }
 
         /// <summary>
@@ -1018,7 +1020,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
             
-            Assert.AreEqual(3, container.CodeErrors.Count(), "Failed to raise the expected errors");
+            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to raise the expected errors");
         }
 
         /// <summary>

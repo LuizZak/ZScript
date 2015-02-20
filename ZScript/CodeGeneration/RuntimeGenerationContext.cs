@@ -46,6 +46,11 @@ namespace ZScript.CodeGeneration
         public IDefinitionTypeProvider DefinitionTypeProvider { get; set; }
 
         /// <summary>
+        /// Gets or sets the contxt type provider for the conte generation
+        /// </summary>
+        public IContextTypeProvider ContextTypeProvider { get; set; }
+
+        /// <summary>
         /// Gets the base scope for the runtime generation, containg all of the combined definitions collected from the script sources
         /// </summary>
         public CodeScope BaseScope

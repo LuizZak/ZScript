@@ -18,12 +18,15 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using ZScript.Elements;
+
 namespace ZScript.Runtime.Typing.Elements
 {
     /// <summary>
     /// Specifies the type for a ZObject
     /// </summary>
-    public class ObjectTypeDef : TypeDef, IListTypeDef
+    public class ObjectTypeDef : NativeTypeDef, IListTypeDef
     {
         /// <summary>
         /// Gets the type of objects subscript on this ObjectTypeDef
@@ -44,7 +47,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Initializes a new instance of the ObjectTypeDef class
         /// </summary>
-        public ObjectTypeDef() : base("object")
+        public ObjectTypeDef() : base(typeof(ZObject), "object")
         {
 
         }

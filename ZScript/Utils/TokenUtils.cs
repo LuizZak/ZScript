@@ -60,30 +60,9 @@ namespace ZScript.Utils
                     Console.WriteLine("]");
                     continue;
                 }
-                if (token is JumpTargetToken)
-                {
-                    Console.WriteLine("JUMP_TARGET ");
-                    continue;
-                }
+                
 
-                switch (token.Type)
-                {
-                    case TokenType.Operator:
-                    case TokenType.Instruction:
-                        Console.Write(token.Instruction);
-
-                        // Print jump address along with jump instructions
-                        if (token.Instruction == VmInstruction.Jump || token.Instruction == VmInstruction.JumpIfFalse ||
-                            token.Instruction == VmInstruction.JumpIfTrue)
-                        {
-                            Console.Write(" ");
-                            Console.Write(token.TokenObject);
-                        }
-                        break;
-                    default:
-                        Console.Write(token.TokenObject);
-                        break;
-                }
+                PrintToken(token);
 
                 Console.WriteLine("");
             }
@@ -106,28 +85,52 @@ namespace ZScript.Utils
                 Console.Write("{0:0000000}", add++);
                 Console.Write(": ");
 
-                switch (token.Type)
-                {
-                    case TokenType.Operator:
-                    case TokenType.Instruction:
-                        Console.Write(token.Instruction);
-
-                        // Print jump address along with jump instructions
-                        if (token.Instruction == VmInstruction.Jump || token.Instruction == VmInstruction.JumpIfFalse ||
-                            token.Instruction == VmInstruction.JumpIfTrue)
-                        {
-                            Console.Write(" ");
-                            Console.Write(token.TokenObject);
-                        }
-                        break;
-                    default:
-                        Console.Write(token.TokenObject);
-                        break;
-                }
+                PrintToken(token);
 
                 Console.WriteLine("");
             }
             Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Prints the contents of a given token on the console
+        /// </summary>
+        /// <param name="token">The token to print</param>
+        public static void PrintToken(Token token)
+        {
+            if (token is JumpTargetToken)
+            {
+                Console.Write("JUMP_TARGET");
+                return;
+            }
+
+            if (token is TypedToken)
+            {
+                Console.Write(token.Instruction);
+                Console.Write(" ");
+                Console.Write(token);
+                return;
+            }
+
+            switch (token.Type)
+            {
+                case TokenType.Operator:
+                case TokenType.Instruction:
+                    Console.Write(token.Instruction);
+
+                    // Print jump address along with jump instructions
+                    if (token.Instruction == VmInstruction.Jump || token.Instruction == VmInstruction.JumpIfFalse ||
+                        token.Instruction == VmInstruction.JumpIfTrue || token.Instruction == VmInstruction.Is ||
+                        token.Instruction == VmInstruction.Cast)
+                    {
+                        Console.Write(" ");
+                        Console.Write(token.TokenObject);
+                    }
+                    break;
+                default:
+                    Console.Write(token.TokenObject);
+                    break;
+            }
         }
 
         /// <summary>

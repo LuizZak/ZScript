@@ -18,7 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
+
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Runtime.Execution;
 
@@ -64,6 +66,18 @@ namespace ZScript.Elements
         public static Token CreateStringToken(string content)
         {
             return new Token(TokenType.String, content, VmInstruction.Noop);
+        }
+
+        /// <summary>
+        /// Creates a new token with a given type context as the content.
+        /// </summary>
+        /// <param name="tokenType">The type to associate with the token</param>
+        /// <param name="instruction">The instruction to associate with the token</param>
+        /// <param name="context">A type context to associate with the token</param>
+        /// <returns>A Token with the type context provided binded in</returns>
+        public static TypedToken CreateTypeToken(TokenType tokenType, VmInstruction instruction, ZScriptParser.TypeContext context)
+        {
+            return new TypedToken(tokenType, instruction, context);
         }
 
         /// <summary>
@@ -226,10 +240,11 @@ namespace ZScript.Elements
         /// Creates a new´operator token based on a given VM instruction
         /// </summary>
         /// <param name="operatorInstruction">A VM instruction to create the token with</param>
+        /// <param name="argument">An object to use as an operator argument</param>
         /// <returns>A Token with the VM instruction provided binded in</returns>
-        public static Token CreateOperatorToken(VmInstruction operatorInstruction)
+        public static Token CreateOperatorToken(VmInstruction operatorInstruction, object argument = null)
         {
-            return new Token(TokenType.Operator, null, operatorInstruction);
+            return new Token(TokenType.Operator, argument, operatorInstruction);
         }
 
         /// <summary>

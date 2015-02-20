@@ -41,7 +41,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             runtime.ExpandGlobalVariables();
@@ -66,7 +66,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             runtime.ExpandGlobalVariables();
@@ -92,7 +92,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             runtime.ExpandGlobalVariables();

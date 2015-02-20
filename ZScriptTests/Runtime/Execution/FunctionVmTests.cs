@@ -1025,6 +1025,143 @@ namespace ZScriptTests.Runtime.Execution
 
         #endregion
 
+        #region Type operations
+
+        #region Value/primitive types
+
+        [TestMethod]
+        public void TestPassingPrimitiveIsOperator()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Is, typeof(long))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(true, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+        }
+
+        [TestMethod]
+        public void TestFailingPrimitiveIsOperator()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateStringToken("StringyString"),
+                TokenFactory.CreateOperatorToken(VmInstruction.Is, typeof(long))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(false, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+        }
+
+        [TestMethod]
+        public void TestPassingPrimitiveCastOperation()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, typeof(int))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+        }
+
+        #endregion
+
+        #region Reference types
+
+        [TestMethod]
+        public void TestPassingReferenceIsOperator()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(new TestDerivedClass()),
+                TokenFactory.CreateOperatorToken(VmInstruction.Is, typeof(TestBaseClass))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(true, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+        }
+
+        [TestMethod]
+        public void TestPassingReferenceCastOperator()
+        {
+            TestBaseClass bc = new TestDerivedClass();
+
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(bc),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, typeof(TestDerivedClass))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCastException), "Trying to cast an object from one type to an invalid type must raise an InvalidCastException at runtime")]
+        public void TestFailingCastOperation()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateStringToken("StringyString"),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, typeof(TestDerivedClass))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
+        #endregion
+
+        #endregion
+
         #region Bitwise Operations
 
         [TestMethod]
@@ -1434,6 +1571,16 @@ namespace ZScriptTests.Runtime.Execution
             {
                 return _count;
             }
+        }
+
+        class TestBaseClass
+        {
+            
+        }
+
+        class TestDerivedClass : TestBaseClass
+        {
+            
         }
     }
 }

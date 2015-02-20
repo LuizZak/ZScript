@@ -18,14 +18,16 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
+using System.Collections;
 
 namespace ZScript.Runtime.Typing.Elements
 {
     /// <summary>
     /// Represents a list type definition
     /// </summary>
-    public class ListTypeDef : TypeDef, IListTypeDef, IEquatable<ListTypeDef>
+    public class ListTypeDef : NativeTypeDef, IListTypeDef, IEquatable<ListTypeDef>
     {
         /// <summary>
         /// The type of items enclosed in this list type
@@ -50,7 +52,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="enclosingType">The type of items in this list type</param>
         public ListTypeDef(TypeDef enclosingType)
-            : base("list")
+            : base(typeof(ArrayList), "list")
         {
             _enclosingType = enclosingType;
             // Default the subscript to integer

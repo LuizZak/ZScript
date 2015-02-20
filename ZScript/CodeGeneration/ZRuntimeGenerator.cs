@@ -317,11 +317,15 @@ namespace ZScript.CodeGeneration
             runtimeDefinition.AddClosurenDefs(GenerateClosures(scope));
 
             // Expand the definitions in all of the list now
-            var expander = new VariableTokenExpander(runtimeDefinition.GetFunctions(), scope);
+            var variableExpander = new VariableTokenExpander(runtimeDefinition.GetFunctions(), scope);
+            var typeExpander = new TypedTokenExpander(CreateContext(scope));
             foreach (var function in runtimeDefinition.GetFunctions())
             {
                 if (function.Tokens != null)
-                    expander.ExpandInList(function.Tokens);
+                {
+                    variableExpander.ExpandInList(function.Tokens);
+                    typeExpander.ExpandInList(function.Tokens);
+                }
             }
             
             return runtimeDefinition;
