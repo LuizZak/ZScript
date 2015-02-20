@@ -87,8 +87,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     if (otherJump == null || !ReferenceEquals(otherJump.TargetToken, jumpToken))
                         continue;
 
-                    OptimizeJumpRelationship(jumpToken, otherJump, tokens);
-                    optimized = true;
+                    optimized = OptimizeJumpRelationship(jumpToken, otherJump, tokens);
                 }
             }
 
@@ -116,7 +115,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                             // Also remove the true constant from the stack
                             if (jumpToken.ConsumesStack)
                             {
-                                tokens.RemoveToken(valueToken, jumpToken.TargetToken);
+                                tokens.RemoveToken(valueToken, newTarget);
                                 i--;
                             }
                             i--;
@@ -212,12 +211,13 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         }
 
         /// <summary>
-        /// Analyzes and performs optimizations, when possible, on two jumps
+        /// Analyzes and performs optimizations, when possible, on two jumps, returning a boolean value specifying if any optimization was made
         /// </summary>
         /// <param name="pointedJump">The first jump token which is being pointed at</param>
         /// <param name="pointingJump">The second jump token which is pointing to the first jump token</param>
         /// <param name="owningList">The list of tokens that own the two tokens</param>
-        private static void OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IntermediaryTokenList owningList)
+        /// <returns>true if any optimization was made, false otherwise</returns>
+        private static bool OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IntermediaryTokenList owningList)
         {
             // Unconditional jump, forward the other jump to this jump's target
             if (!pointedJump.Conditional)
@@ -229,7 +229,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 }
 
                 pointingJump.TargetToken = pointedJump.TargetToken;
-                return;
+                return true;
             }
 
             // Conditional stack peek jump
@@ -239,7 +239,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 if (pointingJump.ConditionToJump == pointedJump.ConditionToJump)
                 {
                     pointingJump.TargetToken = pointedJump.TargetToken;
-                    return;
+                    return true;
                 }
 
                 // Point the jump forward, because if the jumps have different conditions,
@@ -248,8 +248,11 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 if (pointedJumpIndex < owningList.Count - 2)
                 {
                     pointingJump.TargetToken = owningList[pointedJumpIndex + 1];
+                    return true;
                 }
             }
+
+            return false;
         }
 
         /// <summary>
