@@ -28,6 +28,7 @@ using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution
 {
@@ -1572,16 +1573,6 @@ namespace ZScriptTests.Runtime.Execution
             {
                 return _count;
             }
-        }
-
-        class TestBaseClass
-        {
-            
-        }
-
-        class TestDerivedClass : TestBaseClass
-        {
-            
         }
     }
 }

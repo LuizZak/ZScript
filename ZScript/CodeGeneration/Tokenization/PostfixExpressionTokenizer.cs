@@ -286,12 +286,12 @@ namespace ZScript.CodeGeneration.Tokenization
                     // 'is' comparision
                     if (context.T_IS() != null)
                     {
-                        VisitTypeCheck(context);
+                        VisitTypeCheckExpression(context);
                     }
                     // Type cast
                     else
                     {
-                        VisitTypeCast(context);
+                        VisitTypeCastExpression(context);
                     }
                 }
             }
@@ -453,6 +453,24 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateStringToken(context.GetText()));
         }
 
+        #region Type casting/checking
+
+        private void VisitTypeCastExpression(ZScriptParser.ExpressionContext context)
+        {
+            VisitExpression(context.expression(0));
+
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.type()));
+        }
+
+        private void VisitTypeCheckExpression(ZScriptParser.ExpressionContext context)
+        {
+            VisitExpression(context.expression(0));
+
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, context.type()));
+        }
+
+        #endregion
+
         #region Ternary, binary, unary
 
         private void VisitUnaryExpression(ZScriptParser.ExpressionContext context)
@@ -537,20 +555,6 @@ namespace ZScript.CodeGeneration.Tokenization
                 jump.TargetToken = target;
                 _tokens.Add(target);
             }
-        }
-
-        private void VisitTypeCast(ZScriptParser.ExpressionContext context)
-        {
-            VisitExpression(context.expression(0));
-
-            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.type()));
-        }
-
-        private void VisitTypeCheck(ZScriptParser.ExpressionContext context)
-        {
-            VisitExpression(context.expression(0));
-
-            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, context.type()));
         }
 
         /// <summary>

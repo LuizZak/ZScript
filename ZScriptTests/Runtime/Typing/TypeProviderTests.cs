@@ -19,15 +19,18 @@
 */
 #endregion
 
+using System;
 using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
+
 using ZScript.Elements;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Typing
 {
@@ -291,6 +294,38 @@ namespace ZScriptTests.Runtime.Typing
 
             Assert.IsTrue(provider.CanImplicitCast(closureType, callableType),
                 "Trying to cast callable types with more total parameters, but same required parameters than the original should not be allowed");
+        }
+
+        #endregion
+
+        #region Casting
+
+        [TestMethod]
+        public void TestPassingPrimitiveCastOperation()
+        {
+            var typeProvider = new TypeProvider();
+
+            Assert.AreEqual(10, typeProvider.CastObject(10L, typeof(int)), "Type provider failed to cast to expected type");
+            Assert.AreEqual(10.0, typeProvider.CastObject(10L, typeof(double)), "Type provider failed to cast to expected type");
+            Assert.AreEqual(10.0f, typeProvider.CastObject(10L, typeof(float)), "Type provider failed to cast to expected type");
+        }
+
+        [TestMethod]
+        public void TestPassingReferenceCastOperator()
+        {
+            var typeProvider = new TypeProvider();
+            TestBaseClass testBaseClass = new TestDerivedClass();
+
+            Assert.IsInstanceOfType(typeProvider.CastObject(testBaseClass, typeof(TestDerivedClass)), typeof(TestDerivedClass), "Type provider failed to cast to expected type");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCastException), "Trying to cast an object from one type to an invalid type must raise an InvalidCastException at runtime")]
+        public void TestFailingCastOperation()
+        {
+            var typeProvider = new TypeProvider();
+
+            typeProvider.CastObject("SneakyString", typeof(TestDerivedClass));
         }
 
         #endregion

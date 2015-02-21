@@ -61,6 +61,10 @@ namespace ZScript.Runtime.Typing
         /// <returns></returns>
         public object CastObject(object value, Type newType)
         {
+            // No casting necessary
+            if (value.GetType() == newType)
+                return value;
+
             if (value is IConvertible)
             {
                 return Convert.ChangeType(value, newType);
@@ -269,7 +273,7 @@ namespace ZScript.Runtime.Typing
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
-            // TODO: Check native typing, somehow
+            // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
             NativeTypeDef nativeTarget = target as NativeTypeDef;
 
@@ -317,7 +321,7 @@ namespace ZScript.Runtime.Typing
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
-            // TODO: Check native typing, somehow
+            // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
             NativeTypeDef nativeTarget = target as NativeTypeDef;
 

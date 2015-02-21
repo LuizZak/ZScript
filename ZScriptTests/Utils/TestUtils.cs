@@ -108,4 +108,20 @@ namespace ZScriptTests.Utils
             return new ZScriptParser(tokens);
         }
     }
+
+    /// <summary>
+    /// Test base class used in a few type-related tests
+    /// </summary>
+    public class TestBaseClass
+    {
+
+    }
+
+    /// <summary>
+    /// Test derived class used in a few type-related tests
+    /// </summary>
+    class TestDerivedClass : TestBaseClass
+    {
+
+    }
 }

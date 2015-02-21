@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
@@ -9,6 +11,7 @@ using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing;
+using ZScript.Utils;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
