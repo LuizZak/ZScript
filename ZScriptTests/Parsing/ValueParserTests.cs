@@ -195,7 +195,7 @@ namespace ZScriptTests.Parsing
             // Test value Wrapping
 
             // Uint wrapping
-            Assert.AreEqual((long)4059231220, ValueParser.ParseNumberBoxed("4059231220"), "Wrong unboxed number");
+            Assert.AreEqual(4059231220L, ValueParser.ParseNumberBoxed("4059231220"), "Wrong unboxed number");
             // Long wrapping
             Assert.AreEqual(40592312200, ValueParser.ParseNumberBoxed("40592312200"), "Wrong unboxed number");
             // Negative Long wrapping

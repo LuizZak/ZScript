@@ -33,7 +33,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
 
             var tokens = new IntermediaryTokenList
             {
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, type)
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, type),
             };
 
             var tokenList = tokens.ToTokenList();

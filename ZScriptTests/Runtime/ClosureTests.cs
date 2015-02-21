@@ -113,7 +113,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)0, owner.TraceObjects[0]);
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)1, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
@@ -155,8 +155,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)0, owner.TraceObjects[0]);
-            Assert.AreEqual((long)1, owner.TraceObjects[1]);
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)1, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)0, owner.TraceObjects[0]);
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
         }
         
         /// <summary>
@@ -219,8 +219,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)10, owner.TraceObjects[0]);
-            Assert.AreEqual((long)11, owner.TraceObjects[1]);
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
+            Assert.AreEqual(11L, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)10, owner.TraceObjects[0]);
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
         /// <summary>
@@ -262,8 +262,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)6, owner.TraceObjects[0]);
-            Assert.AreEqual((long)7, owner.TraceObjects[1]);
+            Assert.AreEqual(6L, owner.TraceObjects[0]);
+            Assert.AreEqual(7L, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)1, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
@@ -305,8 +305,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)1, owner.TraceObjects[0]);
-            Assert.AreEqual((long)2, owner.TraceObjects[1]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(2L, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -327,8 +327,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)3, owner.TraceObjects[0]);
-            Assert.AreEqual((long)4, owner.TraceObjects[1]);
+            Assert.AreEqual(3L, owner.TraceObjects[0]);
+            Assert.AreEqual(4L, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -349,8 +349,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)3, owner.TraceObjects[0]);
-            Assert.AreEqual((long)4, owner.TraceObjects[1]);
+            Assert.AreEqual(3L, owner.TraceObjects[0]);
+            Assert.AreEqual(4L, owner.TraceObjects[1]);
         }
 
         /// <summary>
@@ -371,12 +371,12 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)1, owner.TraceObjects[0]);
-            Assert.AreEqual((long)3, owner.TraceObjects[1]);
-            Assert.AreEqual((long)2, owner.TraceObjects[2]);
-            Assert.AreEqual((long)4, owner.TraceObjects[3]);
-            Assert.AreEqual((long)3, owner.TraceObjects[4]);
-            Assert.AreEqual((long)5, owner.TraceObjects[5]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(3L, owner.TraceObjects[1]);
+            Assert.AreEqual(2L, owner.TraceObjects[2]);
+            Assert.AreEqual(4L, owner.TraceObjects[3]);
+            Assert.AreEqual(3L, owner.TraceObjects[4]);
+            Assert.AreEqual(5L, owner.TraceObjects[5]);
         }
 
         /// <summary>
@@ -448,7 +448,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)10, owner.TraceObjects[0]);
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
         #endregion

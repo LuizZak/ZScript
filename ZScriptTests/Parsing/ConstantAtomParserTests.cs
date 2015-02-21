@@ -42,7 +42,7 @@ namespace ZScriptTests.Parsing
             var token = parser.numericAtom();
             var number = ConstantAtomParser.ParseNumericAtom(token, false);
 
-            Assert.AreEqual((long)2136547, number, "The integer number was not parsed correctly");
+            Assert.AreEqual(2136547L, number, "The integer number was not parsed correctly");
         }
 
         [TestMethod]

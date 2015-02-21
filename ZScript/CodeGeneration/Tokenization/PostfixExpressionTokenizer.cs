@@ -27,6 +27,7 @@ using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization
@@ -382,7 +383,8 @@ namespace ZScript.CodeGeneration.Tokenization
             }
 
             // Add implicit casting
-            if (context.ImplicitCastType != null)
+            // We ignore callable type definitions because are non-castable, currently
+            if (context.ImplicitCastType != null && context.EvaluatedType != context.ImplicitCastType && !context.ImplicitCastType.IsAny && !(context.ExpectedType is CallableTypeDef))
             {
                 _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.ImplicitCastType));
             }

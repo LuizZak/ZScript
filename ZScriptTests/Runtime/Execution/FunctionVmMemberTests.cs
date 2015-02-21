@@ -132,7 +132,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var value = (ClassMember)functionVm.Stack.Pop();
 
-            Assert.AreEqual((long)10, value.GetValue(), "The member was not accessed successfully");
+            Assert.AreEqual(10L, value.GetValue(), "The member was not accessed successfully");
         }
 
         [TestMethod]
@@ -155,7 +155,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual((long)10, functionVm.Stack.Pop(), "The member's value was not accessed successfully");
+            Assert.AreEqual(10L, functionVm.Stack.Pop(), "The member's value was not accessed successfully");
         }
 
         [TestMethod]

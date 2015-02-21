@@ -1,6 +1,7 @@
 ﻿using System;
 
 using ZScript.Elements;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
@@ -37,26 +38,24 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             {
                 var typedToken = tokens[i] as TypedToken;
                 if (typedToken == null)
-                    return;
+                    continue;
 
-                Type type;
+                TypeDef typeDef;
 
                 if(typedToken.TypeContext != null)
                 {
                     // Substitute the token
-                    type = _context.TypeProvider.NativeTypeForTypeDef(_context.ContextTypeProvider.TypeForContext(typedToken.TypeContext));
-
-                    if(type == null)
-                        throw new Exception("Could not expand type context " + typedToken.TypeContext.GetText());
+                    typeDef = _context.ContextTypeProvider.TypeForContext(typedToken.TypeContext);
                 }
                 else
                 {
                     // Substitute the token
-                    type = _context.TypeProvider.NativeTypeForTypeDef(typedToken.TypeDef);
-
-                    if (type == null)
-                        throw new Exception("Could not expand type " + typedToken.TypeDef);
+                    typeDef = typedToken.TypeDef;
                 }
+
+                Type type = _context.TypeProvider.NativeTypeForTypeDef(typeDef);
+                if (type == null)
+                    throw new Exception("Could not expand type token " + typedToken);
 
                 // Replace the token
                 tokens[i] = new Token(typedToken.Type, type, typedToken.Instruction);

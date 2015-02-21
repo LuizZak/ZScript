@@ -59,6 +59,16 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Creates a new global function token that represents an indexed global function
+        /// </summary>
+        /// <param name="functionIndex">The index of the function to associate with the token</param>
+        /// <returns>A Token with the global function index provided binded in</returns>
+        public static Token CreateGlobalFunctionToken(int functionIndex)
+        {
+            return new Token(TokenType.GlobalFunction, functionIndex, VmInstruction.Noop);
+        }
+
+        /// <summary>
         /// Creates a new token with a given string as the content.
         /// The resulting token will have a TokenType.String associated with it
         /// </summary>

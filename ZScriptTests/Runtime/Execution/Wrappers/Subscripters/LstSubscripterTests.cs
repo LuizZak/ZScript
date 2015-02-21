@@ -44,12 +44,12 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
             Assert.AreEqual(subscripter.List, array, "The list returned by ListSubscripter.List must be the same object passed on its constructor");
 
             subscripter[1] = 1;
-            subscripter[(long)3] = 3;
+            subscripter[3L] = 3;
 
             Assert.AreEqual(0, subscripter[0], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(1, subscripter[(long)1], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
+            Assert.AreEqual(1, subscripter[1L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
             Assert.AreEqual(2, subscripter[2], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(3, subscripter[(long)3], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
+            Assert.AreEqual(3, subscripter[3L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
         }
 
         /// <summary>
@@ -79,12 +79,12 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
             var subscripter = new ListSubscripterWrapper(array);
 
             subscripter[1] = 1;
-            subscripter[(long)3] = 3;
+            subscripter[3L] = 3;
 
             Assert.AreEqual(0, subscripter[0], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(1, subscripter[(long)1], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
+            Assert.AreEqual(1, subscripter[1L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
             Assert.AreEqual(2, subscripter[2], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(3, subscripter[(long)3], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
+            Assert.AreEqual(3, subscripter[3L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
         }
 
         /// <summary>

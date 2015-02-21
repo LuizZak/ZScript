@@ -27,6 +27,7 @@ using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
+using ZScript.Runtime.Typing;
 
 namespace ZScriptTests.Runtime.Execution
 {
@@ -1041,7 +1042,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
@@ -1062,7 +1063,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
@@ -1083,7 +1084,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
@@ -1108,7 +1109,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
@@ -1131,7 +1132,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
@@ -1151,7 +1152,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 

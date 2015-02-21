@@ -19,12 +19,16 @@
 */
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
-
+using ZScript.Elements;
+using ZScript.Runtime.Execution;
+using ZScript.Utils;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -35,6 +39,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
     [TestClass]
     public class StaticTypeAnalyzerTests
     {
+        #region Closure resolving
+
         /// <summary>
         /// Tests inferring of types in a closure definition that is contained within a function argument
         /// </summary>
@@ -45,6 +51,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var generator = TestUtils.CreateGenerator(input);
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
+            generator.MessageContainer.PrintMessages();
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
@@ -127,6 +134,87 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
+        #endregion
+
+        #region Implicit casting
+
+        /// <summary>
+        /// Tests emission of implicit casts to function arguments
+        /// </summary>
+        [TestMethod]
+        public void TestFunctionArgumentImplicitCasting()
+        {
+            const string input = "var a:int = 0; func f() { f2(a); } func f2(i:float) { }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var definition = generator.GenerateRuntimeDefinition();
+
+            var function = definition.ZFunctionDefinitions[0];
+
+            // Fetch the tokens now
+            var generatedTokens = function.Tokens.Tokens;
+
+            // Compare to the expected emitted tokens
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateGlobalFunctionToken(1), // 1 is the global indexer of the 'f2' function
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, provider.NativeTypeForTypeDef(provider.FloatType())),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, "Failed to generate expected implicit cast tokens");
+        }
+
+        /// <summary>
+        /// Tests non-emission of implicit casts when providing values of matching types
+        /// </summary>
+        [TestMethod]
+        public void TestFunctionArgumentNoImplicitCasting()
+        {
+            const string input = "var a:int = 0; func f() { f2(a); } func f2(i:int) { }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var definition = generator.GenerateRuntimeDefinition();
+
+            var function = definition.ZFunctionDefinitions[0];
+
+            // Fetch the tokens now
+            var generatedTokens = function.Tokens.Tokens;
+
+            // Compare to the expected emitted tokens
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateGlobalFunctionToken(1), // 1 is the global indexer of the 'f2' function
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, "Failed to generate expected implicit cast tokens");
+        }
+
+        #endregion
+
+        #region General function resolving
+
         /// <summary>
         /// Tests callable argument type checking
         /// </summary>
@@ -178,6 +266,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
         }
+
+        #endregion
 
         #region Statement analysis
 

@@ -66,6 +66,12 @@ public partial class ZScriptParser
         /// Gets or sets the expected type for this expression, being implicitly set from a parent expression during expression type analysis
         /// </summary>
         public TypeDef ImplicitCastType { get; set; }
+
+        /// <summary>
+        /// The type that was set as expected by a parent expression when this expression was evaluated.
+        /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
+        /// </summary>
+        public TypeDef ExpectedType { get; set; }
     }
 
     /// <summary>
@@ -87,7 +93,7 @@ public partial class ZScriptParser
         /// <summary>
         /// The type that was inferred to this ClosureExpressionContext while being processed by an ExpressionTypeResolver
         /// </summary>
-        public TypeDef InferredType { get; set; }
+        //public TypeDef InferredType { get; set; }
     }
 
     /// <summary>

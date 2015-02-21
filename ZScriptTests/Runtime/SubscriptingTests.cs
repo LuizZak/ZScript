@@ -48,11 +48,11 @@ namespace ZScriptTests.Runtime
             var memory = runtime.GlobalMemory;
 
             // Set the dictionary on memory now
-            memory.SetVariable("b", new Dictionary<string, object> { { "abc", (long)10 } });
+            memory.SetVariable("b", new Dictionary<string, object> { { "abc", 10L } });
 
             runtime.CallFunction("funca");
 
-            Assert.AreEqual((long)10, memory.GetVariable("a"), "The VM failed to fetch the correct subscription for the dictionary object stored");
+            Assert.AreEqual(10L, memory.GetVariable("a"), "The VM failed to fetch the correct subscription for the dictionary object stored");
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("funca");
 
-            Assert.AreEqual((long)10, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
+            Assert.AreEqual(10L, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("funca");
 
-            Assert.AreEqual((long)20, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
+            Assert.AreEqual(20L, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
         }
     }
 }

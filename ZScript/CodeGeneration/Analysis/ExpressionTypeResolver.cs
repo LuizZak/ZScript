@@ -70,11 +70,6 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Gets or sets a type that specifies an expected type when dealing with function arguments and assignment operations, used mostly to infer types to closures
-        /// </summary>
-        public TypeDef ExpectedType { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the ExpressionTypeResolver class
         /// </summary>
         /// <param name="generationContext">The generation context for this expression type resolver</param>
@@ -97,11 +92,9 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.expression() != null)
             {
                 // Push expected type
-                ExpectedType = variableType;
+                context.expression().ExpectedType = variableType;
 
                 valueType = ResolveExpression(context.expression());
-
-                ExpectedType = null;
             }
             else
             {
@@ -247,6 +240,9 @@ namespace ZScript.CodeGeneration.Analysis
 
             context.EvaluatedType = retType;
 
+            if (context.ExpectedType != null)
+                context.ImplicitCastType = context.ExpectedType;
+
             return retType;
         }
 
@@ -345,6 +341,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type definition for the expressions of the ternary</returns>
         public TypeDef ResolveTernaryExpression(ZScriptParser.ExpressionContext context)
         {
+            context.expression(0).ExpectedType = TypeProvider.BooleanType();
+
             // Conditional expression
             var condExp = ResolveExpression(context.expression(0));
 
@@ -533,14 +531,11 @@ namespace ZScript.CodeGeneration.Analysis
                 foreach (var exp in context.expressionList().expression())
                 {
                     // Set expected type
-                    if(!mismatchedCount && exp.closureExpression() != null)
-                        ExpectedType = curArgInfo.RawParameterType;
+                    if(!mismatchedCount)
+                        exp.ExpectedType = curArgInfo.RawParameterType;
 
                     var argType = ResolveExpression(exp);
                     argTypes.Add(argType);
-
-                    // Clear expected type
-                    ExpectedType = null;
 
                     if (mismatchedCount)
                         continue;
@@ -697,9 +692,6 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 returnType = ResolveType(context.returnType().type());
             }
-
-            // Update type inferring
-            context.InferredType = ExpectedType;
 
             return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType, hasReturnType);
         }

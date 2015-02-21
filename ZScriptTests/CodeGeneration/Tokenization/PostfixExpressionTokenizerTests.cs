@@ -58,6 +58,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var exp = parser.expression();
 
             // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
             exp.ImplicitCastType = TypeDef.FloatType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
@@ -66,6 +67,123 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests non-generation of implicit cast operations on expressions when an expression has an expected type of 'any'
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitAnyCast()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.AnyType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests non-generation of implicit cast operations on expressions when an expression is already of the desired type
+        /// </summary>
+        [TestMethod]
+        public void TestNoImplicitCasting()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.IntegerType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests implicit casts that have expressions nested within
+        /// </summary>
+        [TestMethod]
+        public void TestNestedImplicitCasting()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "true ? 1 : 0";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.FloatType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jtt1 = new JumpTargetToken();
+            var jtt2 = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(true),
+                new JumpToken(jtt1, true, false),
+                TokenFactory.CreateBoxedValueToken(1L),
+                new JumpToken(jtt2),
+                jtt1,
+                TokenFactory.CreateBoxedValueToken(0L),
+                jtt2,
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
             };
 
@@ -104,12 +222,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var jFalse = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
-                TokenFactory.CreateBoxedValueToken((long)0),
+                TokenFactory.CreateBoxedValueToken(0L),
                 new JumpToken(jFalse, true, false),
-                TokenFactory.CreateBoxedValueToken((long)1),
+                TokenFactory.CreateBoxedValueToken(1L),
                 new JumpToken(jEnd),
                 jFalse,
-                TokenFactory.CreateBoxedValueToken((long)2),
+                TokenFactory.CreateBoxedValueToken(2L),
                 jEnd
             };
 
@@ -148,24 +266,24 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 // 1st ternary expression
-                TokenFactory.CreateBoxedValueToken((long)0),
+                TokenFactory.CreateBoxedValueToken(0L),
                 // False jump
                 new JumpToken(jFalse1, true, false),
 
                 // 1st ternary true
                     // 2nd ternary expression
-                    TokenFactory.CreateBoxedValueToken((long)1),
+                    TokenFactory.CreateBoxedValueToken(1L),
                     // False jump
                     new JumpToken(jFalse2, true, false),
                     
                     // 2nd ternary true
-                    TokenFactory.CreateBoxedValueToken((long)2),
+                    TokenFactory.CreateBoxedValueToken(2L),
                     // End jump
                     new JumpToken(jEnd2),
 
                     // 1st ternary false
                     jFalse2,
-                    TokenFactory.CreateBoxedValueToken((long)3),
+                    TokenFactory.CreateBoxedValueToken(3L),
                     jEnd2,
 
                 // End jump
@@ -173,7 +291,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // 1st ternary false
                 jFalse1,
-                TokenFactory.CreateBoxedValueToken((long)4),
+                TokenFactory.CreateBoxedValueToken(4L),
                 jEnd1
             };
 
@@ -212,25 +330,25 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 // 1st ternary's condition
-                TokenFactory.CreateBoxedValueToken((long)0),
+                TokenFactory.CreateBoxedValueToken(0L),
                 new JumpToken(jFalse1, true, false),
                 // 1st ternary's left side
-                TokenFactory.CreateBoxedValueToken((long)1),
+                TokenFactory.CreateBoxedValueToken(1L),
                 new JumpToken(jEnd1),
 
                 // 1st ternary's right side
                 jFalse1,
                     // 2nd ternary's condition 
-                    TokenFactory.CreateBoxedValueToken((long)2),
+                    TokenFactory.CreateBoxedValueToken(2L),
                     new JumpToken(jFalse2, true, false),
 
                     // 2nd ternary's left side
-                    TokenFactory.CreateBoxedValueToken((long)3),
+                    TokenFactory.CreateBoxedValueToken(3L),
                     new JumpToken(jEnd2),
 
                     jFalse2,
                     // 2nd ternary's right side
-                    TokenFactory.CreateBoxedValueToken((long)4),
+                    TokenFactory.CreateBoxedValueToken(4L),
                     jEnd2,
 
                 jEnd1
@@ -252,7 +370,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestTernaryExecution()
         {
-            const string input = "var a = 1; var b = 2; var c = 3; var d; func f1() { d = !true ? a : !true ? b : c;  }";
+            const string input = "var a = 1; var b = 2; var c = 3; var d:int; func f1() { d = !true ? a : !true ? b : c;  }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -262,7 +380,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             runtime.CallFunction("f1");
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
-            Assert.AreEqual((long)3, memory.GetVariable("d"), "Ternary operator did not behave as expected");
+            Assert.AreEqual(3L, memory.GetVariable("d"), "Ternary operator did not behave as expected");
         }
 
         #endregion

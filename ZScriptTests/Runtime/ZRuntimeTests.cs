@@ -35,7 +35,7 @@ namespace ZScriptTests.Runtime
         public void TestLogicalAndShortCircuiting()
         {
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
-            const string input = "var a = true; var c = false; var b:int = null; var d:bool = null; func f() { a = a && (c && b > 0) && d; }";
+            const string input = "var a = true; var c = false; var b:int = 0; var d:int = 0; func f() { a = a && (c && bSet()) && dSet(); } func bSet() : bool { b = 10; return true; } func dSet() : bool { d = 10; return true; }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -49,13 +49,15 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f");
 
             Assert.AreEqual(false, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("d"));
         }
 
         [TestMethod]
         public void TestLogicalOrShortCircuiting()
         {
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
-            const string input = "var a = true; var c = true; var b:bool = null; var d:bool = null; func f() { a = c || (b || d); }";
+            const string input = "var a = true; var c = true; var b:int = 0; var d:int = 0; func f() { a = c || (bSet() || dSet()); } func bSet() : bool { b = 10; return true; } func dSet() : bool { d = 10; return true; }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -69,6 +71,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f");
 
             Assert.AreEqual(true, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("d"));
         }
 
         #endregion
@@ -93,8 +97,8 @@ namespace ZScriptTests.Runtime
             var ret1 = runtime.CallFunction("f1", 10);
             var ret2 = runtime.CallFunction("f1", 20);
 
-            Assert.AreEqual((long)10, ret1, "The function did not return the expected value");
-            Assert.AreEqual((long)20, ret2, "The function did not return the expected value");
+            Assert.AreEqual(10L, ret1, "The function did not return the expected value");
+            Assert.AreEqual(20L, ret2, "The function did not return the expected value");
         }
 
         /// <summary>
@@ -117,8 +121,8 @@ namespace ZScriptTests.Runtime
             var ret1 = runtime.CallFunction("f1", 10);
             var ret2 = runtime.CallFunction("f1", 10, 1);
 
-            Assert.AreEqual((long)10, ret1, "The function did not return the expected value");
-            Assert.AreEqual((long)11, ret2, "The function did not return the expected value");
+            Assert.AreEqual(10L, ret1, "The function did not return the expected value");
+            Assert.AreEqual(11L, ret2, "The function did not return the expected value");
         }
 
         /// <summary>
@@ -141,7 +145,7 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1");
 
-            Assert.AreEqual((long)10, ret, "The statement did not execute as expected");
+            Assert.AreEqual(10L, ret, "The statement did not execute as expected");
         }
 
         /// <summary>
@@ -165,7 +169,7 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1");
 
-            Assert.AreEqual((long)5, ret, "The statement did not execute as expected");
+            Assert.AreEqual(5L, ret, "The statement did not execute as expected");
         }
         /// <summary>
         /// Tests calling a function recursively
@@ -186,7 +190,7 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1", 0);
 
-            Assert.AreEqual((long)5, ret, "The statement did not execute as expected");
+            Assert.AreEqual(5L, ret, "The statement did not execute as expected");
         }
 
         /// <summary>
@@ -210,7 +214,7 @@ namespace ZScriptTests.Runtime
             // Expands the global variables
             runtime.ExpandGlobalVariables();
 
-            Assert.AreEqual((long)0, memory.GetVariable("a"), "The global variables where not parsed as expected");
+            Assert.AreEqual(0L, memory.GetVariable("a"), "The global variables where not parsed as expected");
             Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
         }
     }

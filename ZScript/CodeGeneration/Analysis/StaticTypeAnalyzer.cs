@@ -223,7 +223,12 @@ namespace ZScript.CodeGeneration.Analysis
         private TypeDef FindExpectedTypeForClosure(ZScriptParser.ClosureExpressionContext closureContext)
         {
             // Search closures registered on expected type closures list
-            return closureContext.InferredType ?? TypeProvider.AnyType();
+            if (closureContext.Parent != null)
+            {
+                return ((ZScriptParser.ExpressionContext)closureContext.Parent).ExpectedType ?? TypeProvider.AnyType();
+            }
+
+            return TypeProvider.AnyType();
         }
 
         /// <summary>
@@ -253,7 +258,7 @@ namespace ZScript.CodeGeneration.Analysis
                 if (statement.expression() != null)
                 {
                     // Resolve a second time, inferring types to closures
-                    _typeResolver.ExpectedType = definition.ReturnType;
+                    statement.expression().ExpectedType = definition.ReturnType;
 
                     var type = _typeResolver.ResolveExpression(statement.expression());
 
@@ -264,8 +269,6 @@ namespace ZScript.CodeGeneration.Analysis
                         Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message,
                             ErrorCode.InvalidCast, definition.Context);
                     }
-
-                    _typeResolver.ExpectedType = null;
                 }
             }
         }
@@ -291,16 +294,19 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
-            _typeResolver.ExpectedType = definition.HasType ? definition.Type : null;
-
             // Compare applicability
-            // TODO: Deal with this nasy type check horror
-            var argumentDefinition = definition as FunctionArgumentDefinition;
-            var valueType = (argumentDefinition != null
-                ? _typeResolver.ResolveCompileConstant(argumentDefinition.DefaultValue)
-                : _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext));
+            TypeDef valueType;
 
-            _typeResolver.ExpectedType = null;
+            var argumentDefinition = definition as FunctionArgumentDefinition;
+            if (argumentDefinition != null)
+            {
+                valueType = _typeResolver.ResolveCompileConstant(argumentDefinition.DefaultValue);
+            }
+            else
+            {
+                definition.ValueExpression.ExpressionContext.ExpectedType = definition.HasType ? definition.Type : null;
+                valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
+            }
 
             if (!definition.HasType)
             {

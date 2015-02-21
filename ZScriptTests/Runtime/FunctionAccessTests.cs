@@ -18,8 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ZScript.Elements;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -36,12 +37,12 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestBasicFunctionCall()
         {
-            const string input = "var a = 0; var b = 10; func funca(){ a = b.ToString(); }";
+            const string input = "var a = ''; var b = 10; func funca(){ a = b.ToString(); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;
@@ -63,7 +64,7 @@ namespace ZScriptTests.Runtime
             // Setup owner call
             var owner = new TestRuntimeOwner();
 
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
             var memory = runtime.GlobalMemory;

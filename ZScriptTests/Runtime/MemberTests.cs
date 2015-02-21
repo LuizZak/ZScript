@@ -49,8 +49,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
             
             // Assert the correct call was made
-            Assert.AreEqual(1, memory.GetVariable("a"), "The member fetch did not occur as expected");
-            Assert.AreEqual(3, memory.GetVariable("b"), "The member fetch did not occur as expected");
+            Assert.AreEqual(1L, memory.GetVariable("a"), "The member fetch did not occur as expected");
+            Assert.AreEqual(3L, memory.GetVariable("b"), "The member fetch did not occur as expected");
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual((long)20, ((ZObject)memory.GetVariable("a"))["x"], "The member fetch did not occur as expected");
+            Assert.AreEqual(20L, ((ZObject)memory.GetVariable("a"))["x"], "The member fetch did not occur as expected");
         }
     }
 }
