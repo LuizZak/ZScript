@@ -99,6 +99,38 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
         }
 
+        /// <summary>
+        /// Tests implicit casting of expressions
+        /// </summary>
+        [TestMethod]
+        public void TestExpressionImplicitCast()
+        {
+            const string input = "10 + 10";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Implicitly set it as a float, and have it converted
+            expression.ImplicitCastType = typeProvider.FloatType();
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(20.0, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
         #endregion
 
         /// <summary>

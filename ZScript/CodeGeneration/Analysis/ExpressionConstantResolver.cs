@@ -129,6 +129,12 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ResolveUnaryExpression(context);
             }
+
+            // Verify if any implicit casts are in place
+            if (context.IsConstant && context.ImplicitCastType != null)
+            {
+                context.ConstantValue = _typeProvider.CastObject(context.ConstantValue, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
+            }
         }
 
         /// <summary>
