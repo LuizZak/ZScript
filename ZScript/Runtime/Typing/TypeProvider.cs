@@ -63,12 +63,21 @@ namespace ZScript.Runtime.Typing
         public object CastObject(object value, Type newType)
         {
             // No casting necessary
-            if (value.GetType() == newType)
+            if (value != null && value.GetType() == newType)
                 return value;
 
             if (value is IConvertible)
             {
                 return Convert.ChangeType(value, newType);
+            }
+
+            // Resolve nulls
+            if (value == null)
+            {
+                if (newType.IsValueType)
+                    throw new Exception("Cannot convert 'null' to value type " + newType);
+
+                return null;
             }
 
             MethodInfo castMethod = GetType().GetMethod("Cast").MakeGenericMethod(newType);
