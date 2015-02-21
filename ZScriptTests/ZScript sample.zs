@@ -136,7 +136,7 @@ func __init(levelRef : GameLevel)
     
     device = level.MainEngine.Device;
     
-    gameFPS = (int)(1000.0 / level.MainEngine.Game.TargetElapsedTime.TotalMilliseconds);
+    gameFPS = (int)(1000.0 / (float)level.MainEngine.Game.TargetElapsedTime.TotalMilliseconds);
     
     screenWidth  = level.MainEngine.Width;
     screenHeight = level.MainEngine.Height;
@@ -176,7 +176,7 @@ func __step(time : float)
 {
     timer += time;
     
-    if(getStaticProp("Zombie_House.Entities.UI.OutputPanel", "Panel") == null || getStaticProp("Zombie_House.Entities.UI.OutputPanel", "Panel").Show)
+    if(getStaticProp("Zombie_House.Entities.UI.OutputPanel", "Panel") == null || (bool)getStaticProp("Zombie_House.Entities.UI.OutputPanel", "Panel").Show)
         allowInput = false;
     else
         allowInput = true;
@@ -203,7 +203,7 @@ func setObjectTimeout(_obj : object, funcName : string, time : int, params=null,
 }
 
 // Interpolates the given property of an object over the given frames
-func interpolate(_obj : any, prop : string, type : string, interp : [any], interpDelay : float, cInterp : float = 0.0)
+func interpolate(_obj : any, prop : string, type : string, interp : [float], interpDelay : float, cInterp : float = 0.0)
 {
     if(cInterp >= interpDelay)
     {
@@ -262,11 +262,11 @@ func inspectMethods(_obj : any, method : any = null)
     var methods = type.GetMethods();
     if(method == null)
     {
-        for(var i = 0; i < methods.Length; i++)
+        for(var i = 0; i < (int)methods.Length; i++)
         {
-            var compost = methods[i].Name + "(";
+            var compost = (string)methods[i].Name + "(";
             
-            for(var j = 0; j < methods[i].GetParameters().Length; j++)
+            for(var j = 0; j < (int)methods[i].GetParameters().Length; j++)
             {
                 if(j != 0)
                     compost += ", ";
@@ -286,13 +286,13 @@ func inspectMethods(_obj : any, method : any = null)
     }
     else
     {
-        for(var i = 0; i < methods.Length; i++)
+        for(var i = 0; i < (int)methods.Count; i++)
         {
             if(methods[i].Name == method)
             {
                 var compost = methods[i].Name + "(";
                 
-                for(var j = 0; j < methods[i].GetParameters().Length; j++)
+                for(var j = 0; j < (int)methods[i].GetParameters().Length; j++)
                 {
                     if(j != 0)
                         compost += ", ";
@@ -322,7 +322,7 @@ func inspectFields(_obj : any, field : any = null) : void
     var fields = type.GetFields();
     if(field == null)
     {
-        for(var i = 0; i < fields.Length; i++)
+        for(var i = 0; i < (int)fields.Length; i++)
         {
             var compost = fields[i].FieldType + " " + type.Name + "." + fields[i].Name + " = ";
             if(fields[i].GetValue(_obj) == null)
@@ -343,7 +343,7 @@ func inspectFields(_obj : any, field : any = null) : void
     }
     else
     {
-        for(var i = 0; i < fields.Length; i++)
+        for(var i = 0; i < (int)fields.Length; i++)
         {
             if(fields[i].Name == field)
             {
@@ -523,7 +523,7 @@ func showGenericMessage(mess, delay=2, font=null) : GenericMessage
     if(font == null)
         font = font_large;
     
-    var genMess = new Zombie_House.Entities.UI.GenericMessage(mess, delay, font);
+    var genMess = new GenericMessage(mess, delay, font);
     
     level.HUD.AddChild(genMess, -1);
     
@@ -572,7 +572,7 @@ func resumeFade : void
 func addEmitter(x : int = 0, y : int = 0, w : int = 0, h : int = 0, particleType : string = 'Smoke') : ParticleEmitter
 {
     // Add the particle emitter for the black smoke
-    var emitter = new Zombie_House.Entities.ParticleEmitter();
+    var emitter = new ParticleEmitter();
 
     emitter.CollisionRectangle = rec(x, y, w, h);
     emitter.BaseVelocity = vec(0, -1 / 32);
@@ -912,15 +912,15 @@ object RunBehavior : ConstantBehavior
     
     func step()
     {
-        if(!player.codeControlled)
+        if(!(bool)player.codeControlled)
         {
             if(player.GetIntState() == HumanState_Standing && allowInput && (getKeyInterval(Key_NumPad5) > -1))
             {
-                player.speedMod += (1.0 - player.speedMod) / easingIn;
+                player.speedMod += (1.0 - (float)player.speedMod) / easingIn;
             }
             else
             {
-                player.speedMod += (0.65 - player.speedMod) / easingOut;
+                player.speedMod += (0.65 - (float)player.speedMod) / easingOut;
             }
         }
     }
@@ -958,7 +958,7 @@ object PlayerLightBehavior : ConstantBehavior
             playerLight.Y = player.Y;
             
             if(player.crouching)
-                playerLight.Y = player.Y + 5;
+                playerLight.Y = (float)player.Y + 5;
             
             // Perform a Raycast so we don't accidentally cross walls with the light while moving it over
             var v = level.RaycastPoint(vec(playerLight.X, playerLight.Y), vec(playerLight.X - ((turnTimer - 4.5) / 4) * player.ScaleX * 45, playerLight.Y), true);
@@ -1050,7 +1050,7 @@ func init
 }
 func zdead(z:Enemy=null)
 {
-    if(z.TotalHP <= 1)
+    if((float)z.TotalHP <= 1)
         return;
     
     // zdead = spawnEnemy(baseZombie, { x: z.X, y : z.Y, hp: z.TotalHP / 2 });
@@ -1077,11 +1077,11 @@ func setupLights()
 }
 
 // Sets the elevator floor
-func setElevatorFloor(_floor)
+func setElevatorFloor(_floor:int)
 {
     level.ChangeElevatorFloor(_floor);
     
-    for(var i = 0; i < elevatorDisplayLights.Count; i++)
+    for(var i = 0; i < (int)elevatorDisplayLights.Count; i++)
     {
         elevatorDisplayLights[i].X = 273 + toInt((_floor / 21.0) * 17);
     }
@@ -1461,7 +1461,7 @@ func canPlayerAttack(_player : Player = null) : bool
     if(_player == null)
         _player = player;
     
-    return !_player.GetWeapon(-1).IsEmpty();
+    return !(bool)_player.GetWeapon(-1).IsEmpty();
 }
 
 // Makes the given player entity attack with the current wapon, with an optional parameter that can be used to force the attack even when the player is not resting
@@ -1530,7 +1530,7 @@ func killPlayer(_player : Player = null, killSource : int = -2) : void
 }
 
 // Adds an inventory item to the given player's inventory
-func addInventoryItem(_player : Player = null, itemID : int = 0, count : int = 1, hash : int = null, slot : int = 0) : void
+func addInventoryItem(_player : Player = null, itemID : int = 0, count : int = 1, hash : object = null, slot : int = 0) : void
 {
     if(_player == null)
         _player = player;
@@ -1559,7 +1559,7 @@ func removeInventoryItem(_player : Player = null, itemID : int = 0, count : int 
 }
 
 // Returns the count of the specified item on the given player's inventory
-func inventoryItemCount(_player : Player = null, itemID : int = 0) : any
+func inventoryItemCount(_player : Player = null, itemID : int = 0) : int
 {
     if(_player == null)
         _player = player;
@@ -1567,7 +1567,7 @@ func inventoryItemCount(_player : Player = null, itemID : int = 0) : any
     return _player.CurrentInventory.GetItemNum(itemID);
 }
 
-func hasInventoryItem(_player : Player = null, itemID : int = 0) : any
+func hasInventoryItem(_player : Player = null, itemID : int = 0) : bool
 {
     return inventoryItemCount(_player, itemID) > 0;
 }
