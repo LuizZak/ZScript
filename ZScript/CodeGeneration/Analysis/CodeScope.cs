@@ -203,20 +203,20 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The definition that was found</returns>
         public Definition GetDefinitionByContextRecursive(RuleContext context)
         {
-            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
 
-            scopeQueue.Enqueue(this);
+            scopeQueue.Push(this);
 
             while (scopeQueue.Count > 0)
             {
-                var scope = scopeQueue.Dequeue();
+                var scope = scopeQueue.Pop();
                 var def = scope.Definitions.FirstOrDefault(d => d.Context == context);
                 if(def != null)
                     return def;
 
                 foreach (var child in scope.ChildrenScopes)
                 {
-                    scopeQueue.Enqueue(child);
+                    scopeQueue.Push(child);
                 }
             }
 
@@ -251,19 +251,19 @@ namespace ZScript.CodeGeneration.Analysis
         {
             List<Definition> definitions = new List<Definition>();
 
-            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
 
-            scopeQueue.Enqueue(this);
+            scopeQueue.Push(this);
 
             while (scopeQueue.Count > 0)
             {
-                var scope = scopeQueue.Dequeue();
+                var scope = scopeQueue.Pop();
 
                 definitions.AddRange(scope._definitions);
 
                 foreach (var child in scope.ChildrenScopes)
                 {
-                    scopeQueue.Enqueue(child);
+                    scopeQueue.Push(child);
                 }
             }
 
@@ -279,19 +279,19 @@ namespace ZScript.CodeGeneration.Analysis
         {
             List<TDefinition> definitions = new List<TDefinition>();
 
-            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
 
-            scopeQueue.Enqueue(this);
+            scopeQueue.Push(this);
 
             while (scopeQueue.Count > 0)
             {
-                var scope = scopeQueue.Dequeue();
+                var scope = scopeQueue.Pop();
 
                 definitions.AddRange(scope._definitions.OfType<TDefinition>());
 
                 foreach (var child in scope.ChildrenScopes)
                 {
-                    scopeQueue.Enqueue(child);
+                    scopeQueue.Push(child);
                 }
             }
 
@@ -326,18 +326,18 @@ namespace ZScript.CodeGeneration.Analysis
         {
             List<CodeScope> scopes = new List<CodeScope>();
 
-            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
 
-            scopeQueue.Enqueue(this);
+            scopeQueue.Push(this);
 
             while (scopeQueue.Count > 0)
             {
-                var scope = scopeQueue.Dequeue();
+                var scope = scopeQueue.Pop();
                 scopes.Add(scope);
 
                 foreach (var child in scope.ChildrenScopes)
                 {
-                    scopeQueue.Enqueue(child);
+                    scopeQueue.Push(child);
                 }
             }
 
@@ -352,19 +352,19 @@ namespace ZScript.CodeGeneration.Analysis
         {
             List<DefinitionUsage> usages = new List<DefinitionUsage>();
 
-            Queue<CodeScope> scopeQueue = new Queue<CodeScope>();
+            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
 
-            scopeQueue.Enqueue(this);
+            scopeQueue.Push(this);
 
             while (scopeQueue.Count > 0)
             {
-                var scope = scopeQueue.Dequeue();
+                var scope = scopeQueue.Pop();
 
                 usages.AddRange(_usages);
 
                 foreach (var child in scope.ChildrenScopes)
                 {
-                    scopeQueue.Enqueue(child);
+                    scopeQueue.Push(child);
                 }
             }
 
