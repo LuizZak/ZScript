@@ -232,7 +232,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public bool CanSum(TypeDef type1, TypeDef type2)
         {
-            return (IsNumeric(type1) || type1 == _stringType) && (IsNumeric(type2) || type2 == _stringType);
+            return (IsNumeric(type1) && IsNumeric(type2)) || (type1 == _stringType || type2 == _stringType);
         }
 
         /// <summary>
