@@ -4,7 +4,7 @@ An (once) game scripting programming language implemented in C#.
 
 ## Some considerations, beforehand
 
-I did this mostly for fun and to learn about implementations of real programming languages, and also to use in my games. It contains a mish-mash of features of other languages that I find cool and useful, like static typing, type inferring and closures.
+I did this mostly for fun and to learn about implementations of real programming languages, and also to use in my games. It contains a mish-mash of features of other languages that I find cool and useful, like static typing, type inferring and closures. I don't intend on this becoming in the future a "real" game/general scripting language in any way, and this is mostly a personal hobby project.
 
 I'm also really not proud nor do I know exactly why I re-implemented a (very dysfunctional and incomplete) type system when .NET offers a tested and working one, pretty much for free. Other than that, most of the stuff I did was solely so I could learn about the ins and outs of writing an interpreted language that is run via a VM. Apart from the syntax tree parser library I used for this project (ANTLR v4.5), most of the features I ended up implementing where not really researched prior to execution, so some things are a bit janky when it comes to stability. The language is not completely implemented yet, and a full list of features with implementation and stability information are found in the next sessions of this file.
 
