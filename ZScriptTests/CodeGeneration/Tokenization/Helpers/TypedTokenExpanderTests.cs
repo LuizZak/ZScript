@@ -81,7 +81,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             expander.ExpandInList(tokenList);
 
             // Assert the results
-            Assert.AreEqual(typeof(ArrayList), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
+            Assert.AreEqual(typeof(List<long>), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
         }
 
         /// <summary>

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
@@ -109,7 +110,17 @@ namespace ZScriptTests.Runtime.Typing
 
             var native = provider.NativeTypeForTypeDef(provider.ListForType(provider.IntegerType()));
 
-            Assert.AreEqual(typeof(ArrayList), native);
+            Assert.AreEqual(typeof(List<long>), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeAnyList()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.ListForType(provider.AnyType()));
+
+            Assert.AreEqual(typeof(List<object>), native);
         }
 
         [TestMethod]

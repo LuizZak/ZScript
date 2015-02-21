@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using System.Reflection;
@@ -106,17 +107,27 @@ namespace ZScript.Runtime.Typing
         /// Returns a native equivalent for a given TypeDef.
         /// If no equivalent native type is found, null is returned
         /// </summary>
-        /// <param name="type">The type to get the native equivalent of</param>
+        /// <param name="typeDef">The type to get the native equivalent of</param>
         /// <returns>A Type that represents a native equivalent for the given type</returns>
-        public Type NativeTypeForTypeDef(TypeDef type)
+        public Type NativeTypeForTypeDef(TypeDef typeDef)
         {
-            var nativeTypeDef = type as NativeTypeDef;
+            var listTypeDef = typeDef as ListTypeDef;
+            if (listTypeDef != null)
+            {
+                // Get the native type definition if the inner type
+                var innerType = NativeTypeForTypeDef(listTypeDef.EnclosingType);
+                var listType = typeof(List<>);
+
+                return listType.MakeGenericType(innerType ?? typeof(object));
+            }
+
+            var nativeTypeDef = typeDef as NativeTypeDef;
             if (nativeTypeDef != null)
             {
                 return nativeTypeDef.NativeType;
             }
 
-            if (type == NullType())
+            if (typeDef == NullType())
             {
                 return typeof(object);
             }
