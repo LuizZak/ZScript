@@ -131,7 +131,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Verify if any implicit casts are in place
-            if (context.IsConstant && context.ImplicitCastType != null)
+            if (context.IsConstant && context.ImplicitCastType != null && !context.ImplicitCastType.IsAny)
             {
                 context.ConstantValue = _typeProvider.CastObject(context.ConstantValue, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
             }
