@@ -621,6 +621,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests string concatenation
+        /// </summary>
+        [TestMethod]
+        public void TestStringConcatenation()
+        {
+            // Set up the test
+            const string input = "'a' + 10;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.StringType(), type1, "Failed to evaluate the result of expression correctly");
+
+            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+        }
+
+        /// <summary>
         /// Tests resolving the type of arithmetic expressions that are evaluated from complex scenarios (compounded, in parenthesis, evaluated from arrays, etc.)
         /// </summary>
         [TestMethod]

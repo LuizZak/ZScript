@@ -432,7 +432,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         public TypeDef TypeForSum(TypeDef type1, TypeDef type2)
         {
-            return (type1 == _floatType || type2 == _floatType ? _floatType : _intType);
+            return type1 == _stringType || type2 == _stringType ? _stringType : (type1 == _floatType || type2 == _floatType ? _floatType : _intType);
         }
 
         /// <summary>
