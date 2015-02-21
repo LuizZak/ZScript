@@ -211,6 +211,120 @@ namespace ZScriptTests.CodeGeneration.Analysis
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, "Failed to generate expected implicit cast tokens");
         }
 
+        /// <summary>
+        /// Tests implicit casting on assignments
+        /// </summary>
+        [TestMethod]
+        public void TestAssignmentImplicitCasting()
+        {
+            const string input = "var a:float = 0; var b:int = 0; func f() { a = b; }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var definition = generator.GenerateRuntimeDefinition();
+
+            var function = definition.ZFunctionDefinitions[0];
+
+            // Fetch the tokens now
+            var generatedTokens = function.Tokens.Tokens;
+
+            // Compare to the expected emitted tokens
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, provider.NativeTypeForTypeDef(provider.FloatType())),
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, "Failed to generate expected implicit cast tokens");
+        }
+
+        /// <summary>
+        /// Tests implicit casting on assignments
+        /// </summary>
+        [TestMethod]
+        public void TestCompoundAssignmentImplicitCasting()
+        {
+            const string input = "var a:float = 0; var b:int = 0; func f() { a += b; }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var definition = generator.GenerateRuntimeDefinition();
+
+            var function = definition.ZFunctionDefinitions[0];
+
+            // Fetch the tokens now
+            var generatedTokens = function.Tokens.Tokens;
+
+            // Compare to the expected emitted tokens
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, provider.NativeTypeForTypeDef(provider.FloatType())),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, "Failed to generate expected implicit cast tokens");
+        }
+
+        /// <summary>
+        /// Tests implicit casting on assignments
+        /// </summary>
+        [TestMethod]
+        public void TestListAssignmentImplicitCasting()
+        {
+            const string input = "var a:[float] = [0]; var b:int = 0; func f() { a[0] = b; }";
+            var generator = TestUtils.CreateGenerator(input);
+            var provider = generator.TypeProvider;
+            var definition = generator.GenerateRuntimeDefinition();
+
+            var function = definition.ZFunctionDefinitions[0];
+
+            // Fetch the tokens now
+            var generatedTokens = function.Tokens.Tokens;
+
+            // Compare to the expected emitted tokens
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateOperatorToken(VmInstruction.Cast, provider.NativeTypeForTypeDef(provider.FloatType())),
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, "Failed to generate expected implicit cast tokens");
+        }
+
         #endregion
 
         #region General function resolving
@@ -296,7 +410,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestConstantGlobalVariableAssignmentCheck()
         {
             // Set up the test
-            const string input = "let b = 0; func f() { b = null; }";
+            const string input = "let b = 0; func f() { b = 10; }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
