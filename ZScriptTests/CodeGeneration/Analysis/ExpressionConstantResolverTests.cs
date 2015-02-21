@@ -23,7 +23,7 @@ using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.Runtime.Typing;
 
-using TestUtils = ZScriptTests.Utils.TestUtils;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
@@ -33,6 +33,74 @@ namespace ZScriptTests.CodeGeneration.Analysis
     [TestClass]
     public class ExpressionConstantResolverTests
     {
+        #region Implicit casting tests
+
+        /// <summary>
+        /// Tests a simple constant resolving with an integer that is caster to a float
+        /// </summary>
+        [TestMethod]
+        public void TestCastedIntegerResolving()
+        {
+            const string input = "10";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Implicitly set it as a float, and have it converted
+            expression.ImplicitCastType = typeProvider.FloatType();
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(10.0, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
+        /// Tests a simple constant resolving with a float that is caster to an integer
+        /// </summary>
+        [TestMethod]
+        public void TestCastedFloatResolving()
+        {
+            const string input = "10.0";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Implicitly set it as a integer, and have it converted
+            expression.ImplicitCastType = typeProvider.IntegerType();
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        #endregion
+
         /// <summary>
         /// Tests a simple constant resolving with a single constant atom
         /// </summary>
@@ -45,9 +113,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -60,7 +127,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
             Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual((long)10, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.AreEqual(10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
         }
 
         /// <summary>
@@ -75,9 +142,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -103,9 +169,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -133,9 +198,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -163,9 +227,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -193,9 +256,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -223,9 +285,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -253,9 +314,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var binaryProvider = new BinaryExpressionTypeProvider(typeProvider);
             var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(binaryProvider, new TypeOperationProvider());
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();

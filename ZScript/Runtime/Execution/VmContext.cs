@@ -19,6 +19,7 @@
 */
 #endregion
 using ZScript.Runtime.Execution.VirtualMemory;
+using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution
 {
@@ -48,12 +49,17 @@ namespace ZScript.Runtime.Execution
         public readonly IRuntimeOwner Owner;
 
         /// <summary>
+        /// The type provider that is used to provide type conversions during runtime
+        /// </summary>
+        public readonly TypeProvider TypeProvider;
+
+        /// <summary>
         /// Initializes a new instance of the VmContext class
         /// </summary>
         /// <param name="memory">The memory for this VM context</param>
         /// <param name="runtime">The current runtime to associate with this VmContext</param>
         public VmContext(IMemory<string> memory, ZRuntime runtime)
-            : this(memory, new IntegerMemory(), runtime, (runtime == null ? null : runtime.Owner))
+            : this(memory, new IntegerMemory(), runtime, (runtime == null ? null : runtime.Owner), null)
         {
 
         }
@@ -65,7 +71,7 @@ namespace ZScript.Runtime.Execution
         /// <param name="addressedMemory">The addressed memory for this VM context</param>
         /// <param name="runtime">The current runtime to associate with this VmContext</param>
         public VmContext(IMemory<string> memory, IMemory<int> addressedMemory, ZRuntime runtime)
-            : this(memory, addressedMemory, runtime, (runtime == null ? null : runtime.Owner))
+            : this(memory, addressedMemory, runtime, (runtime == null ? null : runtime.Owner), null)
         {
 
         }
@@ -77,12 +83,14 @@ namespace ZScript.Runtime.Execution
         /// <param name="addressedMemory">The addressed memory for this VM context</param>
         /// <param name="runtime">The current runtime to associate with this VmContext</param>
         /// <param name="owner">The owner to associate with this VmContext</param>
-        public VmContext(IMemory<string> memory, IMemory<int> addressedMemory, ZRuntime runtime, IRuntimeOwner owner)
+        /// <param name="typeProvider">Type provider for runtime type conversions</param>
+        public VmContext(IMemory<string> memory, IMemory<int> addressedMemory, ZRuntime runtime, IRuntimeOwner owner, TypeProvider typeProvider)
         {
             Memory = memory;
             AddressedMemory = addressedMemory;
             Runtime = runtime;
             Owner = owner;
+            TypeProvider = typeProvider;
         }
     }
 }

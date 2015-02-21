@@ -21,8 +21,8 @@
 
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 
+using System.Reflection;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Runtime.Typing
@@ -51,6 +51,23 @@ namespace ZScript.Runtime.Typing
         public TypeProvider()
         {
             _binaryExpressionProvider = new BinaryExpressionTypeProvider(this);
+        }
+
+        /// <summary>
+        /// Performs a cast on an object from its type to a type provided
+        /// </summary>
+        /// <param name="value">The value to convert</param>
+        /// <param name="newType">The new type to convert to</param>
+        /// <returns></returns>
+        public object CastObject(object value, Type newType)
+        {
+            if (value is IConvertible)
+            {
+                return Convert.ChangeType(value, newType);
+            }
+
+            MethodInfo castMethod = GetType().GetMethod("Cast").MakeGenericMethod(newType);
+            return castMethod.Invoke(null, new[] {value});
         }
 
         /// <summary>
@@ -340,28 +357,7 @@ namespace ZScript.Runtime.Typing
             // Callable types are compatible
             return true;
         }
-
-        /// <summary>
-        /// Returns a boolean specifying whether the given conversion can be made
-        /// </summary>
-        /// <param name="fromType">The type to convert from</param>
-        /// <param name="toType">The typt to convert to</param>
-        /// <returns>true if the conversion is possible; false otherwise</returns>
-        private static bool CanConvert(Type fromType, Type toType)
-        {
-            try
-            {
-                // Throws an exception if there is no conversion from fromType to toType
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                var res = Expression.Convert(Expression.Parameter(fromType, null), toType);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
+        
         /// <summary>
         /// Returns the type to associate with 'any' values in the runtime
         /// </summary>
@@ -432,6 +428,17 @@ namespace ZScript.Runtime.Typing
         public ObjectTypeDef ObjectType()
         {
             return new ObjectTypeDef();
+        }
+
+        /// <summary>
+        /// Generic static type casting helper method
+        /// </summary>
+        /// <typeparam name="T">The type to cast the object to</typeparam>
+        /// <param name="o">The object to cast</param>
+        /// <returns>A casted version of the given object</returns>
+        public static T Cast<T>(object o)
+        {
+            return (T)o;
         }
     }
 }

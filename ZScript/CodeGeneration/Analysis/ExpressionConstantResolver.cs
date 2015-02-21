@@ -37,9 +37,9 @@ namespace ZScript.CodeGeneration.Analysis
     public class ExpressionConstantResolver : ZScriptBaseListener
     {
         /// <summary>
-        /// The binary expression type provider which will be used to check expression solvability
+        /// The type provider which will be used to check expression solvability
         /// </summary>
-        private readonly BinaryExpressionTypeProvider _binaryProvider;
+        private readonly TypeProvider _typeProvider;
 
         /// <summary>
         /// The type provider which will be used to perform the operations on the constants
@@ -49,11 +49,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Initializes a new instance of the ExpressionConstantResolver class
         /// </summary>
-        /// <param name="binaryProvider">A binary expression type provider which will be used to check expression solvability</param>
+        /// <param name="typeProvider">A type provider which will be used to check expression solvability</param>
         /// <param name="typeOperationProvider">A type provider which will be used to perform the operations on the constants</param>
-        public ExpressionConstantResolver(BinaryExpressionTypeProvider binaryProvider, TypeOperationProvider typeOperationProvider)
+        public ExpressionConstantResolver(TypeProvider typeProvider, TypeOperationProvider typeOperationProvider)
         {
-            _binaryProvider = binaryProvider;
+            _typeProvider = typeProvider;
             _typeOperationProvider = typeOperationProvider;
         }
 
@@ -98,6 +98,12 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 // Get the value of the constant atom
                 var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
+
+                // Verify if any implicit casts are in place
+                if (context.ImplicitCastType != null)
+                {
+                    value = _typeProvider.CastObject(value, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
+                }
 
                 context.IsConstant = true;
                 context.IsConstantPrimitive = IsValuePrimitive(value);
@@ -151,7 +157,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Resosolve the operand
             ResolveExpression(exp1);
 
-            if (exp1.IsConstant && exp1.EvaluatedType != null && _binaryProvider.CanUnary(exp1.EvaluatedType, inst))
+            if (exp1.IsConstant && exp1.EvaluatedType != null && _typeProvider.BinaryExpressionProvider.CanUnary(exp1.EvaluatedType, inst))
             {
                 var value = PerformUnaryExpression(exp1.ConstantValue, inst, _typeOperationProvider);
 
@@ -183,7 +189,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var inst = TokenFactory.InstructionForOperator(ExpressionUtils.OperatorOnExpression(context));
 
                 // Check the possibility of performing an operation on the two types with the type operator
-                if (_binaryProvider.CanPerformOperation(inst, exp1.EvaluatedType, exp2.EvaluatedType))
+                if (_typeProvider.BinaryExpressionProvider.CanPerformOperation(inst, exp1.EvaluatedType, exp2.EvaluatedType))
                 {
                     object value = PerformBinaryExpression(expV1, expV2, inst, _typeOperationProvider);
 

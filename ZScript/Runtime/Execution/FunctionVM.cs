@@ -21,7 +21,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Typing;
@@ -689,28 +689,9 @@ namespace ZScript.Runtime.Execution
         void PerformCastOperation(Token token)
         {
             object value = PopValueImplicit();
-
-            if (value is IConvertible)
-            {
-                _stack.Push(Convert.ChangeType(value, (Type)token.TokenObject));
-                return;
-            }
-
-            MethodInfo castMethod = GetType().GetMethod("Cast").MakeGenericMethod(((Type)token.TokenObject));
-            object castedObject = castMethod.Invoke(null, new [] { value });
+            object castedObject = _context.TypeProvider.CastObject(value, (Type)token.TokenObject);
 
             _stack.Push(castedObject);
-        }
-
-        /// <summary>
-        /// Generic static type casting helper method
-        /// </summary>
-        /// <typeparam name="T">The type to cast the object to</typeparam>
-        /// <param name="o">The object to cast</param>
-        /// <returns>A casted version of the given object</returns>
-        public static T Cast<T>(object o)
-        {
-            return (T)o;
         }
 
         /// <summary>

@@ -380,6 +380,12 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 throw new Exception("Unkown expression type encoutered: " + context.GetText());
             }
+
+            // Add implicit casting
+            if (context.ImplicitCastType != null)
+            {
+                _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.ImplicitCastType));
+            }
         }
 
         private void VisitMemberName(ZScriptParser.MemberNameContext context)

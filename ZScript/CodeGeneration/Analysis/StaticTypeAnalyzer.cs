@@ -146,7 +146,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="scope">The code scope to process expressions on</param>
         private void ProcessExpressions(CodeScope scope)
         {
-            var resolver = new ExpressionConstantResolver(new BinaryExpressionTypeProvider(TypeProvider), new TypeOperationProvider());
+            var resolver = new ExpressionConstantResolver(TypeProvider, new TypeOperationProvider());
             var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver);
             var definitions = scope.Definitions;
 

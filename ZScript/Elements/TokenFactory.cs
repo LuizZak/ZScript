@@ -23,6 +23,7 @@ using System;
 
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Elements
 {
@@ -78,6 +79,18 @@ namespace ZScript.Elements
         public static TypedToken CreateTypeToken(TokenType tokenType, VmInstruction instruction, ZScriptParser.TypeContext context)
         {
             return new TypedToken(tokenType, instruction, context);
+        }
+
+        /// <summary>
+        /// Creates a new token with a given type definition as the content.
+        /// </summary>
+        /// <param name="tokenType">The type to associate with the token</param>
+        /// <param name="instruction">The instruction to associate with the token</param>
+        /// <param name="type">A type definition to associate with the token</param>
+        /// <returns>A Token with the type definition provided binded in</returns>
+        public static TypedToken CreateTypeToken(TokenType tokenType, VmInstruction instruction, TypeDef type)
+        {
+            return new TypedToken(tokenType, instruction, type);
         }
 
         /// <summary>

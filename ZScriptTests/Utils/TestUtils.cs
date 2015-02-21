@@ -68,6 +68,14 @@ namespace ZScriptTests.Utils
                     }
                 }
 
+                var tt1 = t1 as TypedToken;
+                var tt2 = t2 as TypedToken;
+                if (tt1 != null && tt2 != null)
+                {
+                    if(!tt1.Equals(tt2))
+                        throw new Exception(message + "; Tokens at index " + i + " have different values: expected " + t1 + " actual: " + t2 + " (watch out for int->long conversions in numeric atoms!)");
+                }
+
                 if (!t1.Equals(t2))
                     throw new Exception(message + "; Tokens at index " + i + " have different values: expected " + t1 + " actual: " + t2 + " (watch out for int->long conversions in numeric atoms!)");
             }

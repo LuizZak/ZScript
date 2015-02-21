@@ -3,6 +3,7 @@ using System.Text;
 
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
@@ -13,9 +14,14 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
     public class TypedToken : Token, IEquatable<TypedToken>
     {
         /// <summary>
-        /// The TypeContext associated with thi type
+        /// The TypeContext associated with this typed token
         /// </summary>
         private readonly ZScriptParser.TypeContext _typeContext;
+
+        /// <summary>
+        /// The TypeDef associated with this typed token
+        /// </summary>
+        private readonly TypeDef _typeDef;
 
         /// <summary>
         /// Gets the TypeContext associated with thi type
@@ -23,6 +29,14 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         public ZScriptParser.TypeContext TypeContext
         {
             get { return _typeContext; }
+        }
+
+        /// <summary>
+        /// Gets the TypeDef associated with this typed token
+        /// </summary>
+        public TypeDef TypeDef
+        {
+            get { return _typeDef; }
         }
 
         /// <summary>
@@ -38,6 +52,18 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         }
 
         /// <summary>
+        /// Initializes a new instance of the TypedToken class
+        /// </summary>
+        /// <param name="type">The type for this token</param>
+        /// <param name="instruction">The instruction to associate with the token</param>
+        /// <param name="typeDef">The type to associate with this typed token</param>
+        public TypedToken(TokenType type, VmInstruction instruction, TypeDef typeDef)
+            : base(type, null, instruction)
+        {
+            _typeDef = typeDef;
+        }
+
+        /// <summary>
         /// Returns a string representation of this typed token
         /// </summary>
         /// <returns>A string representation of this typed token</returns>
@@ -45,7 +71,17 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         {
             var builder = new StringBuilder();
 
-            builder.Append("{ TypedToken type:" + _typeContext);
+            builder.Append("{ TypedToken ");
+
+            if (_typeContext != null)
+            {
+                builder.Append("type: " + _typeContext);
+            }
+            else
+            {
+                builder.Append("typeDef: " + _typeDef);
+            }
+
             builder.Append(" }");
 
             return builder.ToString();
@@ -57,7 +93,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(_typeContext, other._typeContext);
+            return base.Equals(other) && Equals(_typeContext, other._typeContext) && Equals(_typeDef, other._typeDef);
         }
 
         public override bool Equals(object obj)
@@ -70,7 +106,13 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
         public override int GetHashCode()
         {
-            return (_typeContext != null ? _typeContext.GetHashCode() : 0);
+            unchecked
+            {
+                int hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ (_typeContext != null ? _typeContext.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_typeDef != null ? _typeDef.GetHashCode() : 0);
+                return hashCode;
+            }
         }
 
         public static bool operator==(TypedToken left, TypedToken right)

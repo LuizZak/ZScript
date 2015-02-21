@@ -30,6 +30,7 @@ using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Tokenization
@@ -40,6 +41,46 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     [TestClass]
     public class PostfixExpressionTokenizerTests
     {
+        #region Implicit casting
+
+        /// <summary>
+        /// Tests generation of implicit cast operations on expressions containing a non-null ImplicitCastType entry
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitIntegerCast()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.ImplicitCastType = TypeDef.FloatType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
         #region Ternary operator
 
         /// <summary>

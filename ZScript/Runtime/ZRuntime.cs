@@ -25,6 +25,7 @@ using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers;
+using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime
 {
@@ -48,6 +49,11 @@ namespace ZScript.Runtime
         /// Used to enable closure capture
         /// </summary>
         private readonly Stack<IMemory<string>> _localMemoriesStack;
+
+        /// <summary>
+        /// The type provider for runtime type conversions
+        /// </summary>
+        private readonly TypeProvider _typeProvider;
 
         /// <summary>
         /// Whether the runtime has expanded the global variables yet
@@ -106,6 +112,7 @@ namespace ZScript.Runtime
             _owner = owner;
             _globalMemory = new Memory();
             _globalAddressedMemory = new IntegerMemory();
+            _typeProvider = new TypeProvider();
 
             _closuresStart = definition.ZFunctionDefinitions.Length + definition.ZExportFunctionDefinitions.Length;
         }
@@ -185,7 +192,7 @@ namespace ZScript.Runtime
 
             _localMemoriesStack.Push(localMemory);
 
-            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this));
+            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider));
             vm.Execute();
 
             _localMemoriesStack.Pop();
