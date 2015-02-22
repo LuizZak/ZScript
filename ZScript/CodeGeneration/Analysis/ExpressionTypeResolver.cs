@@ -554,6 +554,11 @@ namespace ZScript.CodeGeneration.Analysis
                     }
                 }
             }
+            else if (callableType.RequiredArgumentsCount > 0)
+            {
+                var message = "Trying to pass 0 arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
+                MessageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
+            }
 
             return argTypes.ToArray();
         }
