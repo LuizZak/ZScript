@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Utils;
@@ -24,7 +25,6 @@ namespace ZScriptTests.Runtime
             const string input = "class TestClass { var field1:int; func f1() { } }";
 
             var generator = TestUtils.CreateGenerator(input);
-            generator.ParseSources();
             var definitions = generator.CollectDefinitions();
 
             // Get the class created
@@ -45,7 +45,6 @@ namespace ZScriptTests.Runtime
             const string input = "class BaseTest { } class DerivedTest : BaseTest { }";
 
             var generator = TestUtils.CreateGenerator(input);
-            generator.ParseSources();
             var definitions = generator.CollectDefinitions();
 
             // Get the class created
@@ -54,6 +53,8 @@ namespace ZScriptTests.Runtime
 
             Assert.AreEqual(baseTest, derivedTest.BaseClass, "Failed to link inherited classes correctly");
         }
+
+        #region Parsing Errors
 
         /// <summary>
         /// Tests error raising when creating functions on base and derived classes that are not marked as override
@@ -65,7 +66,6 @@ namespace ZScriptTests.Runtime
 
             var generator = TestUtils.CreateGenerator(input);
             var collector = generator.MessageContainer;
-            generator.ParseSources();
             generator.CollectDefinitions();
 
             collector.PrintMessages();
@@ -83,7 +83,6 @@ namespace ZScriptTests.Runtime
 
             var generator = TestUtils.CreateGenerator(input);
             var collector = generator.MessageContainer;
-            generator.ParseSources();
             generator.CollectDefinitions();
 
             collector.PrintMessages();
@@ -101,12 +100,35 @@ namespace ZScriptTests.Runtime
 
             var generator = TestUtils.CreateGenerator(input);
             var collector = generator.MessageContainer;
-            generator.ParseSources();
             generator.CollectDefinitions();
 
             collector.PrintMessages();
 
             Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.CircularInheritanceChain), "Failed to raise expected errors");
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Execution
+
+        /// <summary>
+        /// Tests a simple class instantiation
+        /// </summary>
+        [TestMethod]
+        public void TestExecuteClass()
+        {
+            const string input = "var a:any; func f1() { a = TestClass(); } class TestClass { }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            Assert.IsNotNull(memory.GetVariable("a"));
         }
 
         #endregion

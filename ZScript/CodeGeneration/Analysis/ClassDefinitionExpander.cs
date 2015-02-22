@@ -73,9 +73,6 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            // Set inheritance
-            definition.BaseClass = baseClass;
-
             // Test circular inheritance
             var c = baseClass;
             while (c != null)
@@ -87,7 +84,7 @@ namespace ZScript.CodeGeneration.Analysis
                     // Iterate from baseClass until 'c'
                     c = baseClass;
 
-                    while (c != definition)
+                    while (c != definition && c != null)
                     {
                         message += "'" + c.Name + "' <- ";
 
@@ -98,11 +95,16 @@ namespace ZScript.CodeGeneration.Analysis
                     message += "'" + baseClass.Name + "' <- ...";
 
                     _generationContext.MessageContainer.RegisterError(definition.ClassContext.classInherit(), message, ErrorCode.CircularInheritanceChain);
+
+                    baseClass = null;
                     break;
                 }
 
                 c = c.BaseClass;
             }
+
+            // Set inheritance
+            definition.BaseClass = baseClass;
         }
 
         /// <summary>
