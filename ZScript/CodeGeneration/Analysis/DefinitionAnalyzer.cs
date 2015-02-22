@@ -20,7 +20,8 @@
 #endregion
 
 using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration.Analysis.Definitions;
@@ -45,6 +46,11 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly RuntimeGenerationContext _context;
 
         /// <summary>
+        /// Stack of class definitions currently being analyzed
+        /// </summary>
+        private readonly Stack<ClassDefinition> _classStack; 
+
+        /// <summary>
         /// Gest the message container that errors will be reported to
         /// </summary>
         private MessageContainer Container
@@ -60,6 +66,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             _currentScope = context.BaseScope;
             _context = context;
+            _classStack = new Stack<ClassDefinition>();
         }
 
         #region Scope walking
@@ -92,6 +99,9 @@ namespace ZScript.CodeGeneration.Analysis
 
         public override void EnterClassDefinition(ZScriptParser.ClassDefinitionContext context)
         {
+            // Push class definition
+            _classStack.Push(_currentScope.GetDefinitionByName<ClassDefinition>(context.className().GetText()));
+
             if (context.classInherit() != null)
             {
                 // Mark inherited classes as 'used'
@@ -106,6 +116,9 @@ namespace ZScript.CodeGeneration.Analysis
 
         public override void ExitClassDefinition(ZScriptParser.ClassDefinitionContext context)
         {
+            // Pop class definition
+            _classStack.Pop();
+
             ExitContextScope();
         }
 
@@ -253,7 +266,26 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (definition == null)
             {
-                RegisterMemberNotFound(context);
+                bool found = false;
+                // If we are in a class definition, search inheritance chain
+                var classDef = _classStack.Peek();
+
+                while(classDef != null)
+                {
+                    var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
+
+                    if (field != null)
+                    {
+                        definition = field;
+                        found = true;
+                        break;
+                    }
+
+                    classDef = classDef.BaseClass;
+                }
+
+                if(!found)
+                    RegisterMemberNotFound(context);
             }
 
             _currentScope.AddDefinitionUsage(new DefinitionUsage(definition, context));

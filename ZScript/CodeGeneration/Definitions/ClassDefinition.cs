@@ -75,6 +75,52 @@ namespace ZScript.CodeGeneration.Definitions
                 PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0]);
             }
         }
+
+        /// <summary>
+        /// Returns a list of all the methods inherited and defined by this class definition
+        /// </summary>
+        /// <param name="inheritedOnly">Whether to only get methods that where inherited</param>
+        /// <returns>A list of all the methods inherited and defined by this given class definition</returns>
+        public List<MethodDefinition> GetAllMethods(bool inheritedOnly = false)
+        {
+            var functions = new List<MethodDefinition>();
+
+            var curClass = this;
+            if (inheritedOnly)
+                curClass = curClass.BaseClass;
+
+            while (curClass != null)
+            {
+                functions.AddRange(curClass.Methods);
+
+                curClass = curClass.BaseClass;
+            }
+
+            return functions;
+        }
+
+        /// <summary>
+        /// Returns a list of all the fields inherited and defined by this class definition
+        /// </summary>
+        /// <param name="inheritedOnly">Whether to only get fields that where inherited</param>
+        /// <returns>A list of all the fields inherited and defined by this given class definition</returns>
+        public List<ValueHolderDefinition> GetAllFields(bool inheritedOnly = false)
+        {
+            var functions = new List<ValueHolderDefinition>();
+
+            var curClass = this;
+            if (inheritedOnly)
+                curClass = curClass.BaseClass;
+
+            while (curClass != null)
+            {
+                functions.AddRange(curClass.Fields);
+
+                curClass = curClass.BaseClass;
+            }
+
+            return functions;
+        }
     }
 
     /// <summary>

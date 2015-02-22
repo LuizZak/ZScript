@@ -114,7 +114,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void CheckMethodCollisions(ClassDefinition definition)
         {
             var methods = definition.Methods;
-            var inheritedMethods = GetAllMethods(definition, true);
+            var inheritedMethods = definition.GetAllMethods(true);
 
             for (int i = 0; i < methods.Count; i++)
             {
@@ -144,30 +144,6 @@ namespace ZScript.CodeGeneration.Analysis
                     _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns a list of all the functions inherited and defined by a given class definition
-        /// </summary>
-        /// <param name="definition">The class definition to get the function definitions from</param>
-        /// <param name="inheritedOnly">Whether to only get methods that where inherited</param>
-        /// <returns>A list of all the functions inherited and defined by a given class definition</returns>
-        private List<MethodDefinition> GetAllMethods(ClassDefinition definition, bool inheritedOnly = false)
-        {
-            var functions = new List<MethodDefinition>();
-
-            var curClass = definition;
-            if (inheritedOnly)
-                curClass = curClass.BaseClass;
-
-            while (curClass != null)
-            {
-                functions.AddRange(curClass.Methods);
-
-                curClass = curClass.BaseClass;
-            }
-
-            return functions;
         }
     }
 }

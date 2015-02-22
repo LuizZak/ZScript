@@ -248,6 +248,10 @@ namespace ZScript.CodeGeneration
 
             var context = CreateContext(completeScope);
 
+            // Expand class definitions
+            ClassDefinitionExpander classExpander = new ClassDefinitionExpander(context);
+            classExpander.Expand();
+
             // Walk the source trees, now that the definitions were collected
             ParseTreeWalker walker = new ParseTreeWalker();
             foreach (var source in _sourceProvider.Sources)
@@ -255,10 +259,6 @@ namespace ZScript.CodeGeneration
                 DefinitionAnalyzer varAnalyzer = new DefinitionAnalyzer(context);
                 walker.Walk(varAnalyzer, source.Tree);
             }
-
-            // Expand class definitions
-            ClassDefinitionExpander classExpander = new ClassDefinitionExpander(context);
-            classExpander.Expand();
 
             // Analyze the return of the scopes
             var returnAnalyzer = new ReturnStatementAnalyzer();
@@ -394,7 +394,7 @@ namespace ZScript.CodeGeneration
                 // Iterate over the methods
                 List<ZMethod> methods = new List<ZMethod>();
 
-                foreach (var methodDef in classDef.Methods)
+                foreach (var methodDef in classDef.GetAllMethods())
                 {
                     var tokens = new TokenList();
                     if (methodDef.BodyContext != null)
@@ -414,7 +414,7 @@ namespace ZScript.CodeGeneration
 
                 List<ZClassField> fields = new List<ZClassField>();
 
-                foreach (var fieldDef in classDef.Fields)
+                foreach (var fieldDef in classDef.GetAllFields())
                 {
                     var tokens = new TokenList();
                     if (fieldDef.HasValue)
@@ -648,9 +648,52 @@ namespace ZScript.CodeGeneration
                     }
                 }
 
+                // Search in class inheritance chain
+                var classDef = GetClassContainingContext(context);
+
+                if (classDef != null)
+                {
+                    while (classDef != null)
+                    {
+                        var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
+
+                        if (field != null)
+                        {
+                            return field.Type;
+                        }
+
+                        classDef = classDef.BaseClass;
+                    }
+                }
+
                 _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
 
                 return _context.TypeProvider.AnyType();
+            }
+
+            /// <summary>
+            /// Gets the inner-most class definition described by the given context.
+            /// Returns null, when not in a class definition context
+            /// </summary>
+            /// <returns>The inner-most class definition for a given context</returns>
+            private ClassDefinition GetClassContainingContext(RuleContext context)
+            {
+                // Traverse backwards
+                while (context != null)
+                {
+                    var classContext = context as ZScriptParser.ClassDefinitionContext;
+                    if (classContext != null)
+                    {
+                        // Get the class definition for the context
+                        return
+                            _context.BaseScope.GetScopeContainingContext(classContext)
+                                .GetDefinitionByName<ClassDefinition>(classContext.className().IDENT().GetText());
+                    }
+
+                    context = context.Parent;
+                }
+
+                return null;
             }
         }
     }
