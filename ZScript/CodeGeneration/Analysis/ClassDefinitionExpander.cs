@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
@@ -38,7 +37,7 @@ namespace ZScript.CodeGeneration.Analysis
         public void Expand()
         {
             // Get the classes to expand
-            var classes = _baseScope.GetDefinitionsByTypeRecursive<ClassDefinition>();
+            var classes = _baseScope.GetDefinitionsByTypeRecursive<ClassDefinition>().ToArray();
 
             foreach (var classDefinition in classes)
             {

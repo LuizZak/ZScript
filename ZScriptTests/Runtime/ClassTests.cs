@@ -117,7 +117,7 @@ namespace ZScriptTests.Runtime
         /// Tests a simple class instantiation
         /// </summary>
         [TestMethod]
-        public void TestConstructor()
+        public void TestBasicClass()
         {
             const string input = "var a:any; func f1() { a = TestClass(); } class TestClass { }";
 
@@ -129,6 +129,24 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f1");
 
             Assert.IsNotNull(memory.GetVariable("a"));
+        }
+
+        /// <summary>
+        /// Tests a simple class instantiation
+        /// </summary>
+        [TestMethod]
+        public void TestConstructor()
+        {
+            const string input = "var a:any; func f1() { var f = TestClass(10); a = f.field; } class TestClass { var field:int; func TestClass(i:int) { field = i; } }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, memory.GetVariable("a"));
         }
 
         /// <summary>

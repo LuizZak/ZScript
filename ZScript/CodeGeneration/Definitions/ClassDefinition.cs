@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
 {
@@ -28,6 +29,11 @@ namespace ZScript.CodeGeneration.Definitions
     /// </summary>
     public class ClassDefinition : Definition
     {
+        /// <summary>
+        /// Represents the type that defines this class
+        /// </summary>
+        private readonly ClassTypeDef _classTypeDef;
+
         /// <summary>
         /// Gets or sets the context containing this class definition
         /// </summary>
@@ -54,12 +60,22 @@ namespace ZScript.CodeGeneration.Definitions
         public ClassDefinition BaseClass { get; set; }
 
         /// <summary>
+        /// Gets the type that represents this class
+        /// </summary>
+        public ClassTypeDef ClassTypeDef
+        {
+            get { return _classTypeDef; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ClassDefinition class
         /// </summary>
         /// <param name="className">The name for this class</param>
         public ClassDefinition(string className)
         {
             Name = className;
+
+            _classTypeDef = new ClassTypeDef(className);
 
             Fields = new List<ValueHolderDefinition>();
             Methods = new List<MethodDefinition>();
@@ -124,6 +140,21 @@ namespace ZScript.CodeGeneration.Definitions
     }
 
     /// <summary>
+    /// Represents a type that describes a class
+    /// </summary>
+    public class ClassTypeDef : TypeDef
+    {
+        /// <summary>
+        /// Initializes a new instance of the ClassTypeDef class
+        /// </summary>
+        /// <param name="name">The name for the class type definition</param>
+        public ClassTypeDef(string name) : base(name, false)
+        {
+
+        }
+    }
+
+    /// <summary>
     /// Represents a class constructor
     /// </summary>
     public class ConstructorDefinition : FunctionDefinition
@@ -137,7 +168,7 @@ namespace ZScript.CodeGeneration.Definitions
         public ConstructorDefinition(ClassDefinition classDefinition, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
             : base(classDefinition.Name, bodyContext, parameters)
         {
-
+            ReturnType = classDefinition.ClassTypeDef;
         }
     }
 }

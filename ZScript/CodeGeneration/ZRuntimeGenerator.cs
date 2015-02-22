@@ -425,7 +425,7 @@ namespace ZScript.CodeGeneration
                     var field = new ZClassField(fieldDef.Name, tokens)
                     {
                         Type = _typeProvider.NativeTypeForTypeDef(fieldDef.Type),
-                        HasValue = true
+                        HasValue = fieldDef.HasValue
                     };
 
                     fields.Add(field);
@@ -643,8 +643,8 @@ namespace ZScript.CodeGeneration
                     {
                         // Object definitions cannot be reassigned
                         context.IsConstant = true;
-
-                        return TypeDef.AnyType;
+                        
+                        return objDef.PublicConstructor.CallableTypeDef;
                     }
                 }
 

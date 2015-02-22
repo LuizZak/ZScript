@@ -214,7 +214,7 @@ namespace ZScript.Runtime
                 var classMemory = new MemoryMapper();
 
                 classMemory.AddMemory(constructor.ClassInstance.LocalMemory);
-                classMemory.AddMemory(constructor.LocalMemory);
+                classMemory.AddMemory(localMemory);
 
                 localMemory = classMemory;
 

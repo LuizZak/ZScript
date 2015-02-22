@@ -42,6 +42,12 @@ namespace ZScript.Runtime
         {
             _class = zClass;
             _localMemory = new Memory();
+
+            // Init the local memory with null values for the variables
+            foreach (var field in zClass.Fields)
+            {
+                _localMemory.SetVariable(field.Name, null);
+            }
         }
     }
 }
