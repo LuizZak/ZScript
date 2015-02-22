@@ -550,6 +550,11 @@ namespace ZScript.CodeGeneration
                         definition is ExportFunctionDefinition && !(d is ExportFunctionDefinition))
                         continue;
 
+                    // Shadowing of global variables
+                    if (d is GlobalVariableDefinition && !(definition is GlobalVariableDefinition) ||
+                        !(d is GlobalVariableDefinition) && definition is GlobalVariableDefinition)
+                        continue;
+
                     int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;
                     int defColumn = definition.Context == null ? 0 : definition.Context.Start.Column;
 

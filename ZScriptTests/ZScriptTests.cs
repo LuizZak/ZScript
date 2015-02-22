@@ -43,7 +43,7 @@ namespace ZScriptTests
         [TestMethod]
         public void TestExpressionCodeGeneration()
         {
-            const string input = "[ a; b; c; d; i; gameFPS; toFloat; a5; elevatorDisplayLights; toInt; _floor; enArray; level; ]" +
+            const string input = "var a; var b; var c; var d; var i; var gameFPS; var toFloat; var a5; var elevatorDisplayLights; var toInt; var _floor; var enArray; var level;" +
                                  "func f()" +
                                  "{" +
                                  "  a = ((a = c) && b);" +

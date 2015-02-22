@@ -299,7 +299,7 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Gets all definitions reahable in this code scope by name
+        /// Gets all definitions reachable in this code scope by name
         /// </summary>
         /// <param name="definitionName">The name of the definitions to get</param>
         /// <returns>An enumerable containing all of the definitions with a given name reachable by this code scope</returns>

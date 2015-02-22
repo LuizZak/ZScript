@@ -97,8 +97,8 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
-            var source1 = new ZScriptStringSource("[ a; ] func f1() { a = b; }");
-            var source2 = new ZScriptStringSource("[ b; ] func f2() { b = a; }");
+            var source1 = new ZScriptStringSource("var a; func f1() { a = b; }");
+            var source2 = new ZScriptStringSource("var b; func f2() { b = a; }");
 
             // Add a few sources
             generator.SourceProvider.AddSource(source1);

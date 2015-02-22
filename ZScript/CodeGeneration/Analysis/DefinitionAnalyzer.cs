@@ -267,21 +267,25 @@ namespace ZScript.CodeGeneration.Analysis
             if (definition == null)
             {
                 bool found = false;
-                // If we are in a class definition, search inheritance chain
-                var classDef = _classStack.Peek();
 
-                while(classDef != null)
+                if(_classStack.Count > 0)
                 {
-                    var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
+                    // If we are in a class definition, search inheritance chain
+                    var classDef = _classStack.Peek();
 
-                    if (field != null)
+                    while(classDef != null)
                     {
-                        definition = field;
-                        found = true;
-                        break;
-                    }
+                        var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
 
-                    classDef = classDef.BaseClass;
+                        if (field != null)
+                        {
+                            definition = field;
+                            found = true;
+                            break;
+                        }
+
+                        classDef = classDef.BaseClass;
+                    }
                 }
 
                 if(!found)

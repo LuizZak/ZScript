@@ -182,6 +182,48 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Creates a new local variable definition from a given value holder context
+        /// </summary>
+        /// <param name="context">The context containing the local variable definition</param>
+        /// <returns>A new local variable definition based on the given value holder declaration context</returns>
+        public static LocalVariableDefinition GenerateLocalVariable(ZScriptParser.ValueHolderDeclContext context)
+        {
+            var def = new LocalVariableDefinition();
+
+            FillValueHolderDef(def, context);
+
+            return def;
+        }
+
+        /// <summary>
+        /// Creates a new local variable definition from a given value holder context
+        /// </summary>
+        /// <param name="context">The context containing the local variable definition</param>
+        /// <returns>A new local variable definition based on the given value holder declaration context</returns>
+        public static ClassFieldDefinition GenerateClassField(ZScriptParser.ClassFieldContext context)
+        {
+            var def = new ClassFieldDefinition();
+
+            FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
+
+            return def;
+        }
+
+        /// <summary>
+        /// Creates a new value holder definition from a given value holder context
+        /// </summary>
+        /// <param name="context">The context containing the global vriable definition</param>
+        /// <returns>A new global variable definition based on the given global variable declaration context</returns>
+        public static GlobalVariableDefinition GenerateGlobalVariable(ZScriptParser.GlobalVariableContext context)
+        {
+            GlobalVariableDefinition def = new GlobalVariableDefinition();
+
+            FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
+
+            return def;
+        }
+
+        /// <summary>
         /// Fills a value holder definition with the contents of a given
         /// </summary>
         /// <param name="def">The definition to fill</param>
@@ -199,20 +241,6 @@ namespace ZScript.CodeGeneration
             {
                 def.TypeContext = context.type();
             }
-        }
-
-        /// <summary>
-        /// Creates a new value holder definition from a given value holder context
-        /// </summary>
-        /// <param name="context">The context containing the value holder definition</param>
-        /// <returns>A new value holder definition based on the given value holder declaration context</returns>
-        public static GlobalVariableDefinition GenerateGlobalVariable(ZScriptParser.GlobalVariableContext context)
-        {
-            GlobalVariableDefinition def = new GlobalVariableDefinition();
-
-            FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
-
-            return def;
         }
     }
 }

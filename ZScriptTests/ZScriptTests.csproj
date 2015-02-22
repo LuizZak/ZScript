@@ -57,6 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CodeGeneration\Analysis\CodeScopeTests.cs" />
+    <Compile Include="CodeGeneration\Analysis\DefinitionsAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\FunctionParametersAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\StaticTypeAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolverTests.cs" />

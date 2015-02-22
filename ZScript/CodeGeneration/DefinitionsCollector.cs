@@ -197,8 +197,13 @@ namespace ZScript.CodeGeneration
 
         public override void EnterValueHolderDecl(ZScriptParser.ValueHolderDeclContext context)
         {
-            if (!IsInGlobalScope())
-                DefineValueHolder(context);
+            if (!IsInGlobalScope() && GetNearestValueHoldingDefinition() is FunctionDefinition)
+                DefineLocalVariable(context);
+        }
+
+        public override void EnterClassField(ZScriptParser.ClassFieldContext context)
+        {
+            DefineClassField(context);
         }
 
         public override void EnterFunctionArg(ZScriptParser.FunctionArgContext context)
@@ -318,6 +323,37 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Returns a definition that describes the nearest definition in the definition scopes that can hold variables.
+        /// Returns null when none are found
+        /// </summary>
+        /// <returns>A definition that describes the nearest definition in the definition scopes that can hold variables, or null, when none are found</returns>
+        Definition GetNearestValueHoldingDefinition()
+        {
+            // Traverse up the scopes
+            CodeScope scope = _currentScope;
+
+            while (scope != null)
+            {
+                if (scope.Context is ZScriptParser.ProgramContext)
+                    return null;
+
+                if (scope.Context is ZScriptParser.FunctionBodyContext ||
+                    scope.Context is ZScriptParser.BlockStatementContext)
+                    return _functionStack.Peek();
+
+                if (scope.Context is ZScriptParser.ClassBodyContext ||
+                    scope.Context is ZScriptParser.SequenceBodyContext)
+                {
+                    return scope.ParentScope.GetDefinitionByContextRecursive(scope.Context);
+                }
+
+                scope = scope.ParentScope;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns the class definition associated with the current class being parsed.
         /// If the collector is currently not inside a class context, null is returned
         /// </summary>
@@ -331,7 +367,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The context containing the variable to define</param>
-        void DefineValueHolder(ZScriptParser.ValueHolderDeclContext variable)
+        void DefineLocalVariable(ZScriptParser.ValueHolderDeclContext variable)
         {
             var def = DefinitionGenerator.GenerateValueHolderDef(variable);
 
@@ -349,6 +385,23 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Defines a field in a class
+        /// </summary>
+        /// <param name="context">The context containing the field to define</param>
+        private void DefineClassField(ZScriptParser.ClassFieldContext context)
+        {
+            var def = DefinitionGenerator.GenerateClassField(context);
+
+            def.IsInstanceValue = IsInInstanceScope();
+
+            CheckCollisions(def, context);
+
+            _currentScope.AddDefinition(def);
+
+            GetClassScope().Fields.Add(def);
+        }
+
+        /// <summary>
         /// Defines a new global variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The global variable to define</param>
@@ -360,8 +413,6 @@ namespace ZScript.CodeGeneration
             {
                 _messageContainer.RegisterError(variable, "Constants require a value to be assigned on declaration", ErrorCode.ValuelessConstantDeclaration);
             }
-
-            CheckCollisions(def, variable);
 
             _currentScope.AddDefinition(def);
         }
@@ -546,6 +597,16 @@ namespace ZScript.CodeGeneration
 
                 // Constructor definition
                 if (d is ClassDefinition && definition is FunctionDefinition && IsContextChildOf(definition.Context, d.Context))
+                    continue;
+
+                // Shadowing of global variables
+                if (d is GlobalVariableDefinition && !(definition is GlobalVariableDefinition) ||
+                    !(d is GlobalVariableDefinition) && definition is GlobalVariableDefinition)
+                    continue;
+
+                // Class field shadowing
+                if (d is ClassFieldDefinition && (definition is LocalVariableDefinition || definition is FunctionArgumentDefinition) ||
+                    definition is ClassFieldDefinition && (d is LocalVariableDefinition || d is FunctionArgumentDefinition))
                     continue;
 
                 int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;

@@ -118,16 +118,16 @@ namespace ZScript.CodeGeneration.Analysis
         void ResolveExpression(ZScriptParser.ExpressionContext context)
         {
             // No need to analyze an expression that was already marked as constant
-            if (context.IsConstant)
-                return;
-
-            if (context.expression().Length == 2)
+            if (!context.IsConstant)
             {
-                ResolveBinaryExpression(context);
-            }
-            if (context.unaryOperator() != null)
-            {
-                ResolveUnaryExpression(context);
+                if (context.expression().Length == 2)
+                {
+                    ResolveBinaryExpression(context);
+                }
+                if (context.unaryOperator() != null)
+                {
+                    ResolveUnaryExpression(context);
+                }
             }
 
             // Verify if any implicit casts are in place
