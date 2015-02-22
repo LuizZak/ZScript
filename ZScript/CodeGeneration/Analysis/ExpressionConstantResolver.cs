@@ -100,7 +100,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
 
                 // Verify if any implicit casts are in place
-                if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny)
+                if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && _typeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
                 {
                     value = _typeProvider.CastObject(value, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
                 }
