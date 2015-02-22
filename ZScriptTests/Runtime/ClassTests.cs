@@ -225,6 +225,27 @@ namespace ZScriptTests.Runtime
             Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
 
+        /// <summary>
+        /// Tests basic method accessing
+        /// </summary>
+        [TestMethod]
+        public void TestAccessBaseMethod()
+        {
+            const string input = "var a:int; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; func access() : int { return field; } } class TestClass : TestBaseClass { }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(10L, memory.GetVariable("a"));
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
+
         #endregion
 
         #endregion
