@@ -140,5 +140,12 @@ namespace ZScript.CodeGeneration.Messages
         InvalidParameters,
 
         #endregion
+
+        #region Class analysis errors
+
+        /// <summary>Classes are locked in a circular inheritance chain</summary>
+        CircularInheritanceChain,
+
+        #endregion
     }
 }

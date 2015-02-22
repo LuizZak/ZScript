@@ -90,38 +90,31 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
-        public override void EnterObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
+        public override void EnterClassDefinition(ZScriptParser.ClassDefinitionContext context)
         {
-            // Add an usage for the inherited object, if available
-            if (context.objectInherit() != null)
+            if (context.classInherit() != null)
             {
-                var name = context.objectInherit().objectName().GetText();
-                Definition def = _currentScope.GetDefinitionByName(name);
+                // Mark inherited classes as 'used'
+                var baseClass = _currentScope.GetDefinitionByName<ClassDefinition>(context.classInherit().className().GetText());
 
-                if (!(def is ObjectDefinition))
-                {
-                    Container.RegisterError(context.Start.Line, context.Start.Column,
-                        "Unkown or invalid definition '" + name + "' to inherit from",
-                        ErrorCode.UndeclaredDefinition);
-                }
-
-                RegisterDefinitionUsage(def, context);
+                if(baseClass != null)
+                    RegisterDefinitionUsage(baseClass, context);
             }
 
             EnterContextScope(context);
         }
 
-        public override void ExitObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
+        public override void ExitClassDefinition(ZScriptParser.ClassDefinitionContext context)
         {
             ExitContextScope();
         }
 
-        public override void EnterObjectBody(ZScriptParser.ObjectBodyContext context)
+        public override void EnterClassBody(ZScriptParser.ClassBodyContext context)
         {
             EnterContextScope(context);
         }
 
-        public override void ExitObjectBody(ZScriptParser.ObjectBodyContext context)
+        public override void ExitClassBody(ZScriptParser.ClassBodyContext context)
         {
             ExitContextScope();
         }
@@ -156,12 +149,12 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
-        public override void EnterObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        public override void EnterClassMethod(ZScriptParser.ClassMethodContext context)
         {
             EnterContextScope(context);
         }
 
-        public override void ExitObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        public override void ExitClassMethod(ZScriptParser.ClassMethodContext context)
         {
             ExitContextScope();
         }

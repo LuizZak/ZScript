@@ -29,6 +29,25 @@ namespace ZScript.CodeGeneration
     public static class DefinitionGenerator
     {
         /// <summary>
+        /// Generates a new method definition using the given context
+        /// </summary>
+        /// <param name="context">The context to generate the method definition from</param>
+        /// <returns>A method definition generated from the given context</returns>
+        public static MethodDefinition GenerateMethodDef(ZScriptParser.ClassMethodContext context)
+        {
+            var m = new MethodDefinition(context.functionDefinition().functionName().IDENT().GetText(), context.functionDefinition().functionBody(),
+                CollectFunctionArguments(context.functionDefinition().functionArguments()))
+            {
+                Context = context,
+                HasReturnType = context.functionDefinition().returnType() != null,
+                ReturnTypeContext = context.functionDefinition().returnType(),
+                IsOverride = context.@override != null
+            };
+
+            return m;
+        }
+
+        /// <summary>
         /// Generates a new function definition using the given context
         /// </summary>
         /// <param name="context">The context to generate the function definition from</param>

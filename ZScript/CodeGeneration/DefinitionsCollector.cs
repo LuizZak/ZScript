@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
@@ -55,6 +57,11 @@ namespace ZScript.CodeGeneration
         private CodeScope _currentScope;
 
         /// <summary>
+        /// Stack of classes used to define methods and members inside classes
+        /// </summary>
+        private Stack<ClassDefinition> _classStack;
+
+        /// <summary>
         /// Gets the collected base scope containing the scopes defined
         /// </summary>
         public CodeScope CollectedBaseScope
@@ -79,6 +86,9 @@ namespace ZScript.CodeGeneration
         /// <param name="context">The context to analyze</param>
         public void Collect(ParserRuleContext context)
         {
+            // Clear class stack
+            _classStack = new Stack<ClassDefinition>();
+
             var walker = new ParseTreeWalker();
             walker.Walk(this, context);
         }
@@ -108,8 +118,10 @@ namespace ZScript.CodeGeneration
 
         public override void EnterFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
         {
-            // Define the function
-            DefineFunction(context);
+            // Define the function, but only if it's not a class method
+            if(!(context.Parent is ZScriptParser.ClassMethodContext))
+                DefineFunction(context);
+
             PushScope(context);
         }
 
@@ -128,16 +140,18 @@ namespace ZScript.CodeGeneration
             PopScope();
         }
 
-        public override void EnterObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
+        public override void EnterClassDefinition(ZScriptParser.ClassDefinitionContext context)
         {
-            DefineObject(context);
+            _classStack.Push(DefineClass(context));
 
             PushScope(context);
         }
 
-        public override void ExitObjectDefinition(ZScriptParser.ObjectDefinitionContext context)
+        public override void ExitClassDefinition(ZScriptParser.ClassDefinitionContext context)
         {
             PopScope();
+
+            _classStack.Pop().FinishDefinition();
         }
 
         public override void EnterSequenceBlock(ZScriptParser.SequenceBlockContext context)
@@ -180,14 +194,14 @@ namespace ZScript.CodeGeneration
             DefineFunctionArgument(context);
         }
 
-        public override void EnterObjectBody(ZScriptParser.ObjectBodyContext context)
+        public override void EnterClassBody(ZScriptParser.ClassBodyContext context)
         {
             DefineHiddenVariable("this");
 
             PushScope(context);
         }
 
-        public override void ExitObjectBody(ZScriptParser.ObjectBodyContext context)
+        public override void ExitClassBody(ZScriptParser.ClassBodyContext context)
         {
             PopScope();
         }
@@ -228,16 +242,19 @@ namespace ZScript.CodeGeneration
             PopScope();
         }
 
-        public override void EnterObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        public override void EnterClassMethod(ZScriptParser.ClassMethodContext context)
         {
             PushScope(context);
 
             // Add a definition pointing to the base overriden function.
             // The analysis of whether this is a valid call is done in a separate analysis phase
-            DefineFunction(new FunctionDefinition("base", null, new FunctionArgumentDefinition[0]));
+            DefineMethod(new MethodDefinition("base", null, new FunctionArgumentDefinition[0]) { Class = GetClassScope() });
+
+            // Define the method
+            DefineMethod(context);
         }
 
-        public override void ExitObjectFunction(ZScriptParser.ObjectFunctionContext context)
+        public override void ExitClassMethod(ZScriptParser.ClassMethodContext context)
         {
             PopScope();
         }
@@ -279,8 +296,18 @@ namespace ZScript.CodeGeneration
         /// <returns>A boolean value specifying whether the current scope is instance (object or sequence) scope</returns>
         bool IsInInstanceScope()
         {
-            return _currentScope.Context is ZScriptParser.ObjectBodyContext ||
+            return _classStack.Count > 0 || _currentScope.Context is ZScriptParser.ClassBodyContext ||
                    _currentScope.Context is ZScriptParser.SequenceBodyContext;
+        }
+
+        /// <summary>
+        /// Returns the class definition associated with the current class being parsed.
+        /// If the collector is currently not inside a class context, null is returned
+        /// </summary>
+        /// <returns>A class definition for the current scope</returns>
+        ClassDefinition GetClassScope()
+        {
+            return _classStack.Count > 0 ? _classStack.Peek() : null;
         }
 
         /// <summary>
@@ -296,6 +323,12 @@ namespace ZScript.CodeGeneration
             CheckCollisions(def, variable);
 
             _currentScope.AddDefinition(def);
+
+            // Class field collection
+            if (GetClassScope() != null)
+            {
+                GetClassScope().Fields.Add(def);
+            }
         }
 
         /// <summary>
@@ -381,6 +414,49 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Defines a new method in the current top-most scope
+        /// </summary>
+        /// <param name="method">The method to define</param>
+        void DefineMethod(MethodDefinition method)
+        {
+            // Define the function inside a class context as a method, if any class context is available
+            if (GetClassScope() != null)
+            {
+                // Constructor detection
+                if (method.Name == GetClassScope().Name)
+                {
+                    var constructor = new ConstructorDefinition(GetClassScope(), method.BodyContext, method.Parameters);
+
+                    if (GetClassScope().PublicConstructor != null)
+                    {
+                        _messageContainer.RegisterError(method.BodyContext, "Duplicated constructor definition for class '" + method.Name + "'", ErrorCode.DuplicatedDefinition);
+                    }
+
+                    GetClassScope().PublicConstructor = constructor;
+                }
+                else
+                {
+                    GetClassScope().Methods.Add(method);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Defines a new class method in the current top-most scope
+        /// </summary>
+        /// <param name="method">The method to define</param>
+        void DefineMethod(ZScriptParser.ClassMethodContext method)
+        {
+            var def = DefinitionGenerator.GenerateMethodDef(method);
+
+            def.Class = GetClassScope();
+
+            CheckCollisions(def, method.functionDefinition().functionName());
+
+            DefineMethod(def);
+        }
+
+        /// <summary>
         /// Defines a new closure in the current top-most scope
         /// </summary>
         /// <param name="closure">The closure to define</param>
@@ -395,18 +471,21 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Defines a new object definition in the current top-most scope
+        /// Defines a new class definition in the current top-most scope
         /// </summary>
-        /// <param name="objectDefinition">The object to define</param>
-        void DefineObject(ZScriptParser.ObjectDefinitionContext objectDefinition)
+        /// <param name="classDefinition">The object to define</param>
+        /// <returns>The class that was defined</returns>
+        ClassDefinition DefineClass(ZScriptParser.ClassDefinitionContext classDefinition)
         {
-            var def = new ObjectDefinition
+            var def = new ClassDefinition(classDefinition.className().IDENT().GetText())
             {
-                Name = objectDefinition.objectName().IDENT().GetText(),
-                Context = objectDefinition
+                Context = classDefinition,
+                ClassContext = classDefinition
             };
 
             _currentScope.AddDefinition(def);
+
+            return def;
         }
 
         /// <summary>
@@ -436,7 +515,7 @@ namespace ZScript.CodeGeneration
                     continue;
 
                 // Constructor definition
-                if (d is ObjectDefinition && definition is FunctionDefinition && IsContextChildOf(definition.Context, d.Context))
+                if (d is ClassDefinition && definition is FunctionDefinition && IsContextChildOf(definition.Context, d.Context))
                     continue;
 
                 int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;

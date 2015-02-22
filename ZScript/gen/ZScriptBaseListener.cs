@@ -57,77 +57,77 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitScriptBody([NotNull] ZScriptParser.ScriptBodyContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectDefinition"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.classDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObjectDefinition([NotNull] ZScriptParser.ObjectDefinitionContext context) { }
+	public virtual void EnterClassDefinition([NotNull] ZScriptParser.ClassDefinitionContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectDefinition"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.classDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObjectDefinition([NotNull] ZScriptParser.ObjectDefinitionContext context) { }
+	public virtual void ExitClassDefinition([NotNull] ZScriptParser.ClassDefinitionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectInherit"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.classInherit"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObjectInherit([NotNull] ZScriptParser.ObjectInheritContext context) { }
+	public virtual void EnterClassInherit([NotNull] ZScriptParser.ClassInheritContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectInherit"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.classInherit"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObjectInherit([NotNull] ZScriptParser.ObjectInheritContext context) { }
+	public virtual void ExitClassInherit([NotNull] ZScriptParser.ClassInheritContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectName"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.className"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObjectName([NotNull] ZScriptParser.ObjectNameContext context) { }
+	public virtual void EnterClassName([NotNull] ZScriptParser.ClassNameContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectName"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.className"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObjectName([NotNull] ZScriptParser.ObjectNameContext context) { }
+	public virtual void ExitClassName([NotNull] ZScriptParser.ClassNameContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectBody"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.classBody"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObjectBody([NotNull] ZScriptParser.ObjectBodyContext context) { }
+	public virtual void EnterClassBody([NotNull] ZScriptParser.ClassBodyContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectBody"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.classBody"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObjectBody([NotNull] ZScriptParser.ObjectBodyContext context) { }
+	public virtual void ExitClassBody([NotNull] ZScriptParser.ClassBodyContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectField"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.classField"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObjectField([NotNull] ZScriptParser.ObjectFieldContext context) { }
+	public virtual void EnterClassField([NotNull] ZScriptParser.ClassFieldContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectField"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.classField"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObjectField([NotNull] ZScriptParser.ObjectFieldContext context) { }
+	public virtual void ExitClassField([NotNull] ZScriptParser.ClassFieldContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.objectFunction"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.classMethod"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterObjectFunction([NotNull] ZScriptParser.ObjectFunctionContext context) { }
+	public virtual void EnterClassMethod([NotNull] ZScriptParser.ClassMethodContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.objectFunction"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.classMethod"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitObjectFunction([NotNull] ZScriptParser.ObjectFunctionContext context) { }
+	public virtual void ExitClassMethod([NotNull] ZScriptParser.ClassMethodContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.globalVariable"/>.
 	/// <para>The default implementation does nothing.</para>

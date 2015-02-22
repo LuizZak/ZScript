@@ -72,10 +72,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// Initializes a new instance of the DefinitionTypeExpander class
         /// </summary>
         /// <param name="generationContext">The generation context for this static type analyzer</param>
-        /// <param name="scope">The definition collector containing the definitions to expand</param>
-        public StaticTypeAnalyzer(RuntimeGenerationContext generationContext, CodeScope scope)
+        public StaticTypeAnalyzer(RuntimeGenerationContext generationContext)
         {
-            _baseScope = scope;
+            _baseScope = generationContext.BaseScope;
 
             _generationContext = generationContext;
 

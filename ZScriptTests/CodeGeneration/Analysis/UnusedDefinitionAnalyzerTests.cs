@@ -161,12 +161,26 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests reporting an object definition that is never used
+        /// Tests reporting a class definition that is never used
         /// </summary>
         [TestMethod]
-        public void TestUnusedObjectReporting()
+        public void TestUnusedClassReporting()
         {
-            const string input = "object o { var a; }";
+            const string input = "class o { var a; }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+        }
+
+        /// <summary>
+        /// Tests reporting a class definition that is never used, supressing the message when a class inherits from it
+        /// </summary>
+        [TestMethod]
+        public void TestInheritedUnusedClassReporting()
+        {
+            const string input = "class o { var a; } class b : o { }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();

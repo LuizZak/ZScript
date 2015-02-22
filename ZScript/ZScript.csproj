@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Analysis\ClassDefinitionExpander.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
     <Compile Include="CodeGeneration\Analysis\Definitions\FunctionParametersAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\Definitions\UnusedDefinitionsAnalyzer.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
+    <Compile Include="CodeGeneration\Definitions\MethodDefinition.cs" />
     <Compile Include="CodeGeneration\RuntimeGenerationContext.cs" />
     <Compile Include="CodeGeneration\Definitions\TypeAliasDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeAnalyzer.cs" />
@@ -80,7 +82,7 @@
     <Compile Include="CodeGeneration\Definitions\FunctionArgumentDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\FunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\GlobalVariableDefinition.cs" />
-    <Compile Include="CodeGeneration\Definitions\ObjectDefinition.cs" />
+    <Compile Include="CodeGeneration\Definitions\ClassDefinition.cs" />
     <Compile Include="Runtime\Typing\Elements\TypeDef.cs" />
     <Compile Include="CodeGeneration\Definitions\ValueHolderDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionAnalyzer.cs" />

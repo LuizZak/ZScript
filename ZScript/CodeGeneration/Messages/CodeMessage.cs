@@ -64,10 +64,10 @@ namespace ZScript.CodeGeneration.Messages
                         return "function '" + fd.functionName().IDENT().GetText() + "'";
                     }
 
-                    var od = context as ZScriptParser.ObjectDefinitionContext;
+                    var od = context as ZScriptParser.ClassDefinitionContext;
                     if (od != null)
                     {
-                        return "object '" + od.objectName().IDENT().GetText() + "'";
+                        return "object '" + od.className().IDENT().GetText() + "'";
                     }
 
                     var sf = context as ZScriptParser.SequenceFrameContext;

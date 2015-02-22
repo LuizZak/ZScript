@@ -255,13 +255,17 @@ namespace ZScript.CodeGeneration
                 walker.Walk(varAnalyzer, source.Tree);
             }
 
+            // Expand class definitions
+            ClassDefinitionExpander classExpander = new ClassDefinitionExpander(context);
+            classExpander.Expand();
+
             // Analyze the return of the scopes
             var returnAnalyzer = new ReturnStatementAnalyzer();
             returnAnalyzer.CollectReturnsOnDefinitions(context);
 
             // Expand the definitions contained within the collector
-            var typeExpander = new StaticTypeAnalyzer(context, completeScope);
-            typeExpander.Expand();
+            var staticTypeAnalyzer = new StaticTypeAnalyzer(context);
+            staticTypeAnalyzer.Expand();
 
             returnAnalyzer.Analyze(context);
 
@@ -563,7 +567,7 @@ namespace ZScript.CodeGeneration
                         return funcDef.CallableTypeDef;
                     }
 
-                    var objDef = def as ObjectDefinition;
+                    var objDef = def as ClassDefinition;
                     if (objDef != null)
                     {
                         // Object definitions cannot be reassigned

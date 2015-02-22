@@ -63,6 +63,8 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolverTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
+    <Compile Include="CodeGeneration\DefinitionsCollectorTests.cs" />
+    <Compile Include="CodeGeneration\Definitions\ClassDefinitionTests.cs" />
     <Compile Include="CodeGeneration\MultipleSourcesTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTokenOptimizerTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedTokenExpanderTests.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="Parsing\ValueParserTests.cs" />
     <Compile Include="Performance\PerformanceTests.cs" />
     <Compile Include="Runtime\ArrayTests.cs" />
+    <Compile Include="Runtime\ClassTests.cs" />
     <Compile Include="Runtime\ClosureTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmArrayTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmCallableTests.cs" />

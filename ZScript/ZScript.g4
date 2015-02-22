@@ -14,17 +14,17 @@ options
 
 program: scriptBody;
 
-scriptBody : (functionDefinition | globalVariable | exportDefinition | objectDefinition | sequenceBlock | typeAlias)*;
+scriptBody : (functionDefinition | globalVariable | exportDefinition | classDefinition | sequenceBlock | typeAlias)*;
 
 ////
-//// Object Definition
+//// Class Definition
 ////
-objectDefinition : 'object' objectName objectInherit? objectBody;
-objectInherit : ':' objectName;
-objectName : IDENT;
-objectBody : '{' (objectField | objectFunction)* '}';
-objectField : valueDeclareStatement;
-objectFunction : ('override')? functionDefinition;
+classDefinition : 'class' className classInherit? classBody;
+classInherit : ':' className;
+className : IDENT;
+classBody : '{' (classField | classMethod)* '}';
+classField : valueDeclareStatement;
+classMethod : (override='override')? functionDefinition;
 
 ////
 //// Global variable
@@ -36,7 +36,7 @@ globalVariable : valueDeclareStatement;
 ////
 sequenceBlock       : 'sequence' sequenceName sequenceBody;
 sequenceName        : IDENT;
-sequenceBody        : '[' (objectField | sequenceFrame | sequenceFrameChange)* ']';
+sequenceBody        : '[' (classField | sequenceFrame | sequenceFrameChange)* ']';
 sequenceFrame       : frameRange? blockStatement;
 sequenceFrameChange : '=' frameNumber | ('-' frameNumber);
 frameRange          : frameRangeElement (',' frameRangeElement)*;
