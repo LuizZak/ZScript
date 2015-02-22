@@ -56,6 +56,11 @@ namespace ZScript.Runtime
         private readonly List<GlobalVariable> _globalVariableDefinitions;
 
         /// <summary>
+        /// The list of class definitions
+        /// </summary>
+        private readonly List<ZClass> _classDefinitions; 
+
+        /// <summary>
         /// Gets the type provider for this runtime definition containing the reference for the collected types
         /// </summary>
         public ZTypeProvider TypeProvider
@@ -96,6 +101,14 @@ namespace ZScript.Runtime
         }
 
         /// <summary>
+        /// Gets an array of all the class definitions stored in this ZRuntimeDefinition
+        /// </summary>
+        public ZClass[] ClassDefinitions
+        {
+            get { return _classDefinitions.ToArray(); }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ZRuntimeDefinition class
         /// </summary>
         public ZRuntimeDefinition()
@@ -105,6 +118,7 @@ namespace ZScript.Runtime
             _closureDefinitions = new List<ZClosureFunction>();
             _exportFunctionDefinitions = new List<ZExportFunction>();
             _globalVariableDefinitions = new List<GlobalVariable>();
+            _classDefinitions = new List<ZClass>();
         }
 
         /// <summary>
@@ -155,10 +169,19 @@ namespace ZScript.Runtime
         /// <summary>
         /// Adds a range of global variable definitions to this ZRuntimeDefinition class
         /// </summary>
-        /// <param name="definition">A valid enumerable of global variable definitions</param>
-        public void AddGlobalVariables(IEnumerable<GlobalVariable> definition)
+        /// <param name="definitions">A valid enumerable of global variable definitions</param>
+        public void AddGlobalVariables(IEnumerable<GlobalVariable> definitions)
         {
-            _globalVariableDefinitions.AddRange(definition);
+            _globalVariableDefinitions.AddRange(definitions);
+        }
+
+        /// <summary>
+        /// Adds a range of class definitions to this ZRuntimeDefinition class
+        /// </summary>
+        /// <param name="definitions">A valid enumerable of class definitions</param>
+        public void AddClassDefinitions(IEnumerable<ZClass> definitions)
+        {
+            _classDefinitions.AddRange(definitions);
         }
 
         /// <summary>

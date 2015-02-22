@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Runtime.Execution.Wrappers
@@ -33,6 +35,12 @@ namespace ZScript.Runtime.Execution.Wrappers
         string CallableName { get; }
 
         /// <summary>
+        /// Gets the local memory for this ICallableWrapper.
+        /// May be null, if no local memory is available
+        /// </summary>
+        IMemory<string> LocalMemory { get; }
+
+            /// <summary>
         /// REturns the type for the callable wrapped by this ICallableWrapper when presented with a given list of arguments
         /// </summary>
         /// <param name="arguments">The list of arguments to get the callable type info of</param>
@@ -43,7 +51,8 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// Performs a call of the callable, utilizing a given array as arguments
         /// </summary>
         /// <param name="arguments">The arguments for the call</param>
+        /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the call. Will be null, if the wrapped callable's return type is void</returns>
-        object Call(params object[] arguments);
+        object Call(VmContext context, params object[] arguments);
     }
 }

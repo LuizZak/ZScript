@@ -86,6 +86,7 @@
     <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripterTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Members\ClassMemberTests.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\ZClassMemberTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Members\ZObjectMemberTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\MemberWrapperHelperTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\LstSubscripterTests.cs" />

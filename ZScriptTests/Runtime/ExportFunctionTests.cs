@@ -36,7 +36,7 @@ namespace ZScriptTests.Runtime
         public void TestExportFunctionParse()
         {
             const string input = "@f2(i)";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
@@ -46,11 +46,22 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestExportFunctionCallInFunctionParse()
         {
-            const string input = "@f2(i) func f() { f2(10); }";
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            const string input = "@f2(i:int) func f() { f2(10); }";
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
             
+            Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
+        }
+
+        [TestMethod]
+        public void TestForwardExportFunctionCall()
+        {
+            const string input = "func f() { f2(10); } @f2(i:int)";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var definition = generator.GenerateRuntimeDefinition();
+
             Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
         }
 
@@ -64,7 +75,7 @@ namespace ZScriptTests.Runtime
             const string input = "@__trace(i) func f() { __trace(10); __trace(11); }";
 
             var owner = new TestRuntimeOwner();
-            var generator = Utils.TestUtils.CreateGenerator(input);
+            var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var runtime = generator.GenerateRuntime(owner);
 

@@ -436,7 +436,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestClassInstanceClosure()
         {
-            const string input = "@__trace(a...) func funca(){ var a = o(); var b = a.closure(); b(10); __trace(a.c); } object o { var c = 0; func closure() : (int->) { return (i:int) => { c = i; }; } }";
+            const string input = "@__trace(a...) func funca(){ var a = o(); var b = a.closure(); b(10); __trace(a.c); } class o { var c = 0; func closure() : (int->) { return (i:int) => { c = i; }; } }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

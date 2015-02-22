@@ -65,7 +65,9 @@
     <Compile Include="Elements\ZMethod.cs" />
     <Compile Include="Parsing\ANTLRExtend\ParserExtensions.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Callables\ClassMethod.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Callables\ZClassMethod.cs" />
     <Compile Include="Runtime\Execution\Wrappers\ICallableWrapper.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Members\ZClassMember.cs" />
     <Compile Include="Runtime\Typing\Elements\AnyTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\CallableTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\IListTypeDef.cs" />
@@ -158,6 +160,7 @@
     <Compile Include="Runtime\Typing\TypeFactory.cs" />
     <Compile Include="Runtime\Typing\TypeOperationProvider.cs" />
     <Compile Include="Runtime\Typing\TypeProvider.cs" />
+    <Compile Include="Runtime\ZClassInstance.cs" />
     <Compile Include="Runtime\ZRuntime.cs" />
     <Compile Include="CodeGeneration\Messages\SyntaxError.cs" />
     <Compile Include="CodeGeneration\Messages\Warning.cs" />

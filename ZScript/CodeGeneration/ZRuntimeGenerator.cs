@@ -180,11 +180,12 @@ namespace ZScript.CodeGeneration
                     ITokenSource lexer = new ZScriptLexer(stream);
                     ITokenStream tokens = new CommonTokenStream(lexer);
 
+                    // TODO: See how to implement the bail error strategy correctly
                     _parser = new ZScriptParser(tokens)
                     {
                         BuildParseTree = true,
-                        Interpreter = { PredictionMode = PredictionMode.Sll },
-                        ErrorHandler = new BailErrorStrategy()
+                        //Interpreter = { PredictionMode = PredictionMode.Sll },
+                        //ErrorHandler = new BailErrorStrategy()
                     };
 
                     _parser.AddErrorListener(_syntaxErrorListener);
@@ -319,6 +320,7 @@ namespace ZScript.CodeGeneration
             runtimeDefinition.AddGlobalVariables(GenerateGlobalVariables(scope));
             runtimeDefinition.AddExportFunctionDefs(GenerateExportFunctions(scope));
             runtimeDefinition.AddClosurenDefs(GenerateClosures(scope));
+            runtimeDefinition.AddClassDefinitions(GenerateClasses(scope));
 
             // Expand the definitions in all of the list now
             var variableExpander = new VariableTokenExpander(runtimeDefinition.GetFunctions(), scope);
@@ -357,7 +359,7 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Returns a list of ZFunctions generated from a given definitions collector
+        /// Returns a list of ZFunctions generated from a given code scope
         /// </summary>
         /// <param name="scope">The code scope containing the functions to generate</param>
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
@@ -370,12 +372,81 @@ namespace ZScript.CodeGeneration
                 funcDefs.Select(
                     def =>
                         new ZFunction(def.Name, tokenizer.TokenizeBody(def.BodyContext),
-                            GenerateFunctionArguments(def.Parameters))
+                            GenerateFunctionArguments(def.Parameters)) { Signature = def.CallableTypeDef }
                         ).ToArray();
         }
 
         /// <summary>
-        /// Returns a list of ZClosureFunction generated from a given definitions collector
+        /// Returns a list of ZClasses generated from a given code scope
+        /// </summary>
+        /// <param name="scope">The code scope containing the classes to generate</param>
+        /// <returns>An array containing ZClasses available at the top-level scope</returns>
+        private ZClass[] GenerateClasses(CodeScope scope)
+        {
+            var stmtTokenizer = new StatementTokenizerContext(scope, _messageContainer);
+            var tokenizer = new FunctionBodyTokenizer(scope, _messageContainer) { DebugTokens = Debug };
+
+            var classDefs = scope.Definitions.OfType<ClassDefinition>();
+            List<ZClass> classes = new List<ZClass>();
+
+            foreach (var classDef in classDefs)
+            {
+                // Iterate over the methods
+                List<ZMethod> methods = new List<ZMethod>();
+
+                foreach (var methodDef in classDef.Methods)
+                {
+                    var tokens = new TokenList();
+                    if (methodDef.BodyContext != null)
+                    {
+                        tokens = tokenizer.TokenizeBody(methodDef.BodyContext);
+                    }
+
+                    methodDef.RecreateCallableDefinition();
+
+                    ZMethod method = new ZMethod(methodDef.Name, tokens, GenerateFunctionArguments(methodDef.Parameters))
+                    {
+                        Signature = methodDef.CallableTypeDef
+                    };
+
+                    methods.Add(method);
+                }
+
+                List<ZClassField> fields = new List<ZClassField>();
+
+                foreach (var fieldDef in classDef.Fields)
+                {
+                    var tokens = new TokenList();
+                    if (fieldDef.HasValue)
+                    {
+                        tokens = stmtTokenizer.TokenizeExpression(fieldDef.ValueExpression.ExpressionContext).ToTokenList();
+                    }
+
+                    var field = new ZClassField(fieldDef.Name, tokens)
+                    {
+                        Type = _typeProvider.NativeTypeForTypeDef(fieldDef.Type),
+                        HasValue = true
+                    };
+
+                    fields.Add(field);
+                }
+
+                TokenList tokenList = new TokenList();
+
+                if (classDef.PublicConstructor.BodyContext != null)
+                    tokenList = tokenizer.TokenizeBody(classDef.PublicConstructor.BodyContext);
+
+                ZMethod constructor = new ZMethod(classDef.PublicConstructor.Name, tokenList,
+                                                    GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
+
+                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor));
+            }
+
+            return classes.ToArray();
+        }
+
+        /// <summary>
+        /// Returns a list of ZClosureFunction generated from a given code scope
         /// </summary>
         /// <param name="scope">The code scope containing the closures to generate</param>
         /// <returns>An array containing ZClosureFunction available at the top-level scope</returns>
@@ -393,7 +464,7 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Returns a list of ZFunctions generated from a given definitions collector
+        /// Returns a list of ZFunctions generated from a given code scope
         /// </summary>
         /// <param name="scope">The code scope populated with function definitions</param>
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
@@ -405,7 +476,7 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Returns a list of GlobalVariables generated from a given definitions collector
+        /// Returns a list of GlobalVariables generated from a given code scope
         /// </summary>
         /// <param name="scope">The code scope populated with the global variable definitions</param>
         /// <returns>An array containing GlobalVariables available at the top-level scope</returns>
@@ -422,7 +493,7 @@ namespace ZScript.CodeGeneration
                             Name = def.Name,
                             HasValue = def.HasValue,
                             DefaultValue = null,
-                            Type = def.Type,
+                            Type = _typeProvider.NativeTypeForTypeDef(def.Type),
                             ExpressionTokens = def.HasValue ? new TokenList(tokenizer.TokenizeExpression(def.ValueExpression.ExpressionContext)) : new TokenList()
                         })
                     .ToArray();

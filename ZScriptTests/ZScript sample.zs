@@ -368,7 +368,7 @@ func inspectFields(_obj : any, field : any = null) : void
 }
 
 // Objects
-object ConstantBehavior
+class ConstantBehavior
 {
     func ConstantBehavior()
     {
@@ -504,10 +504,10 @@ let ENEMY_TOUGHZOMBIE = 'ToughZombie';
 @textureFromFile(file)
 
 // Reflection related functions
-@getStatic(class : any, field : any) : any
-@setStatic(class : any, field : any, value : any) : void
-@getStaticProp(class : any, prop : any) : any
-@setStaticProp(class : any, prop : any, value : any) : any
+@getStatic(cls : any, field : any) : any
+@setStatic(cls : any, field : any, value : any) : void
+@getStaticProp(cls : any, prop : any) : any
+@setStaticProp(cls : any, prop : any, value : any) : any
 //@is(obj : any, type) : bool
 //@new(class, args=null, types=null)
 @hasField(obj : any, field) : bool
@@ -894,7 +894,7 @@ sequence seq
     }
 ]
 
-object RunBehavior : ConstantBehavior
+class RunBehavior : ConstantBehavior
 {
     var easingIn : float = 5;
     var easingOut : float = 5;
@@ -926,7 +926,7 @@ object RunBehavior : ConstantBehavior
     }
 }
 
-object PlayerLightBehavior : ConstantBehavior
+class PlayerLightBehavior : ConstantBehavior
 {
     var playerLight = null;
     var playerLight2 = null;
@@ -1731,7 +1731,7 @@ func funca()
     __trace(c.c);
 }
 
-object o
+class o
 {
     var c = 0;
     func  closure() : (int->)

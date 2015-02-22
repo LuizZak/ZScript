@@ -20,7 +20,7 @@
 #endregion
 using System;
 using System.Reflection;
-
+using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Runtime.Execution.Wrappers.Callables
@@ -49,6 +49,15 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         }
 
         /// <summary>
+        /// Gets the local memory for the class method.
+        /// Always returns null
+        /// </summary>
+        public IMemory<string> LocalMemory
+        {
+            get { return null; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ClassMethod class
         /// </summary>
         /// <param name="target">The target for this wrapper</param>
@@ -64,9 +73,10 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// Raises an exception, if no method matches the given set of arguments
         /// </summary>
         /// <param name="arguments">The arguments for the method call</param>
+        /// /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the method call</returns>
         /// <exception cref="Exception"></exception>
-        public object Call(params object[] arguments)
+        public object Call(VmContext context, params object[] arguments)
         {
             // TODO: Se how we are going to deal with long -> int conversions during native calls
             var method = MatchMethod(arguments);

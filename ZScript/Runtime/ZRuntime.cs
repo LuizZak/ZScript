@@ -72,6 +72,11 @@ namespace ZScript.Runtime
         private readonly ZFunction[] _zFunctions;
 
         /// <summary>
+        /// The list of all classes defined in this ZRuntime instance
+        /// </summary>
+        private readonly ZClass[] _zClasses;
+
+        /// <summary>
         /// The global memory for the runtime
         /// </summary>
         private readonly Memory _globalMemory;
@@ -116,6 +121,7 @@ namespace ZScript.Runtime
             _typeProvider = new TypeProvider();
 
             _closuresStart = definition.ZFunctionDefinitions.Length + definition.ZExportFunctionDefinitions.Length;
+            _zClasses = definition.ClassDefinitions;
         }
 
         /// <summary>
@@ -148,7 +154,20 @@ namespace ZScript.Runtime
         /// <exception cref="Exception">The function call failed</exception>
         public object CallFunction(ICallableWrapper callable, params object[] arguments)
         {
-            return callable.Call(arguments);
+            bool pushed = false;
+
+            if(callable.LocalMemory != null)
+            {
+                _localMemoriesStack.Push(callable.LocalMemory);
+                pushed = true;
+            }
+
+            var ret = callable.Call(new VmContext(_globalMemory, _globalAddressedMemory, this, _owner, _typeProvider), arguments);
+
+            if (pushed)
+                _localMemoriesStack.Pop();
+
+            return ret;
         }
 
         /// <summary>
@@ -162,13 +181,13 @@ namespace ZScript.Runtime
         /// <exception cref="Exception">The function call failed</exception>
         public object CallFunction(ZFunction funcDef, params object[] arguments)
         {
+            // TODO: Clean the clutter on this method
+            if (funcDef == null) throw new ArgumentNullException("funcDef");
+            
             if (!_expandedGlobals)
             {
                 ExpandGlobalVariables();
             }
-
-            if (funcDef == null)
-                return null;
 
             // Export functions are handled separatedly
             var exportFunction = funcDef as ZExportFunction;
@@ -187,6 +206,25 @@ namespace ZScript.Runtime
                 localMemory = ((ZClosureFunction)funcDef).CapturedMemory;
             }
 
+            // Class constructors
+            var constructor = funcDef as ZConstructor;
+            if (constructor != null)
+            {
+                // Wrap the method's memory and the class' memory into a memory mapper
+                var classMemory = new MemoryMapper();
+
+                classMemory.AddMemory(constructor.ClassInstance.LocalMemory);
+                classMemory.AddMemory(constructor.LocalMemory);
+
+                localMemory = classMemory;
+
+                // Init the fields beforehand
+                MemoryMapper constructorMapper = new MemoryMapper();
+                constructorMapper.AddMemory(_globalMemory);
+                constructorMapper.AddMemory(constructor.ClassInstance.LocalMemory);
+                constructor.InitFields(new VmContext(constructorMapper, _globalAddressedMemory, this, _owner, _typeProvider));
+            }
+
             MemoryMapper mapper = new MemoryMapper();
             mapper.AddMemory(_globalMemory);
             mapper.AddMemory(localMemory);
@@ -199,6 +237,12 @@ namespace ZScript.Runtime
             _localMemoriesStack.Pop();
 
             mapper.Clear();
+
+            // In case we just ran a constructor, return the class instance created by the constructor
+            if (constructor != null)
+            {
+                return constructor.ClassInstance;
+            }
 
             if (vm.HasReturnValue)
             {
@@ -233,7 +277,29 @@ namespace ZScript.Runtime
                 }
             }
 
+            // Search for constructors now
+            foreach (var zClass in _zClasses)
+            {
+                if (zClass.ClassName == functionName)
+                {
+                    return CreateConstructor(zClass);
+                }
+            }
+
             return null;
+        }
+
+        /// <summary>
+        /// Creates a new constructor and binds it to an instance
+        /// </summary>
+        /// <param name="zClass">The class to create the constructor out of</param>
+        /// <returns>A ZConstructor that when executed returns an instance of a class</returns>
+        private ZConstructor CreateConstructor(ZClass zClass)
+        {
+            var classInstance = new ZClassInstance(zClass);
+            var constructor = new ZConstructor(classInstance);
+
+            return constructor;
         }
 
         /// <summary>

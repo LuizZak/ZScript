@@ -154,7 +154,7 @@ namespace ZScriptTests.Performance
         {
             // The threshold for the test in milliseconds, based on previous runs.
             // This value is obviously dependent on the system, and I use it mostly to test in my local machine
-            const long threshold = 400;
+            const long threshold = 500;
 
             const string input = "func funca { for(var i = 0; i < 100000; i++) { 'a'.ToString(); } }";
 

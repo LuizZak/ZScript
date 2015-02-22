@@ -19,6 +19,7 @@
 */
 #endregion
 using ZScript.Elements.ValueHolding;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Elements
 {
@@ -54,6 +55,11 @@ namespace ZScript.Elements
         /// Gets or sets a value specifying whether this function is a closure function type
         /// </summary>
         public bool IsClosure { get; set; }
+
+        /// <summary>
+        /// Gets or sets the signature for this function
+        /// </summary>
+        public CallableTypeDef Signature { get; set; }
 
         /// <summary>
         /// An array of the arguments for this function

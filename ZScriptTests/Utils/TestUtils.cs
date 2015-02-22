@@ -22,8 +22,12 @@ using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using ZScript.CodeGeneration;
+using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
+using ZScript.Elements.ValueHolding;
+using ZScript.Runtime;
+using ZScript.Runtime.Execution;
 using ZScript.Utils;
 
 namespace ZScriptTests.Utils
@@ -106,6 +110,31 @@ namespace ZScriptTests.Utils
             ITokenStream tokens = new CommonTokenStream(lexer);
 
             return new ZScriptParser(tokens);
+        }
+
+        /// <summary>
+        /// Creates a test class to use in tests, containing a field named 'field1' of long type with a default value of 10
+        /// and a method definition 'func1' with sinature '(->int)' containing a simple return instruction that returns a '10L' literal value
+        /// </summary>
+        /// <returns>A dummy test class to use in tests</returns>
+        public static ZClassInstance CreateTestClassInstance()
+        {
+            // 'field1' field
+            var fieldTokens = new IntermediaryTokenList { TokenFactory.CreateBoxedValueToken(10) };
+            var field1 = new ZClassField("field1", fieldTokens.ToTokenList()) { DefaultValue = 10, Type = typeof(long) };
+
+            // 'func1' method
+            var funcTokens = new IntermediaryTokenList { TokenFactory.CreateBoxedValueToken(10L), TokenFactory.CreateInstructionToken(VmInstruction.Ret) };
+            var func1 = new ZMethod("func1", funcTokens.ToTokenList(), new FunctionArgument[0]);
+
+            var cls = new ZClass("className", new[] { func1 }, new[] { field1 }, new ZMethod("className", new TokenList(), new FunctionArgument[0]));
+
+            var inst = new ZClassInstance(cls);
+
+            // Pre-populate the field
+            inst.LocalMemory.SetVariable("field1", 10L);
+
+            return inst;
         }
     }
 

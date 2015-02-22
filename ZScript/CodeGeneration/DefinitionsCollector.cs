@@ -62,6 +62,11 @@ namespace ZScript.CodeGeneration
         private Stack<ClassDefinition> _classStack;
 
         /// <summary>
+        /// Stack of functions used to define arguments
+        /// </summary>
+        private Stack<FunctionDefinition> _functionStack; 
+
+        /// <summary>
         /// Gets the collected base scope containing the scopes defined
         /// </summary>
         public CodeScope CollectedBaseScope
@@ -86,8 +91,9 @@ namespace ZScript.CodeGeneration
         /// <param name="context">The context to analyze</param>
         public void Collect(ParserRuleContext context)
         {
-            // Clear class stack
+            // Clear stacks
             _classStack = new Stack<ClassDefinition>();
+            _functionStack = new Stack<FunctionDefinition>();
 
             var walker = new ParseTreeWalker();
             walker.Walk(this, context);
@@ -106,7 +112,7 @@ namespace ZScript.CodeGeneration
         public override void EnterExportDefinition(ZScriptParser.ExportDefinitionContext context)
         {
             // Define the function
-            DefineExportFunction(context);
+            _functionStack.Push(DefineExportFunction(context));
 
             PushScope(context);
         }
@@ -114,13 +120,15 @@ namespace ZScript.CodeGeneration
         public override void ExitExportDefinition(ZScriptParser.ExportDefinitionContext context)
         {
             PopScope();
+
+            _functionStack.Pop();
         }
 
         public override void EnterFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
         {
             // Define the function, but only if it's not a class method
             if(!(context.Parent is ZScriptParser.ClassMethodContext))
-                DefineFunction(context);
+                _functionStack.Push(DefineFunction(context));
 
             PushScope(context);
         }
@@ -128,6 +136,10 @@ namespace ZScript.CodeGeneration
         public override void ExitFunctionDefinition(ZScriptParser.FunctionDefinitionContext context)
         {
             PopScope();
+
+            // Pop the function stack
+            if (!(context.Parent is ZScriptParser.ClassMethodContext))
+                _functionStack.Pop();
         }
 
         public override void EnterBlockStatement(ZScriptParser.BlockStatementContext context)
@@ -222,13 +234,16 @@ namespace ZScript.CodeGeneration
 
         public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
-            DefineClosure(context);
+            _functionStack.Push(DefineClosure(context));
+
             PushScope(context);
         }
 
         public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
             PopScope();
+            // Pop the scope
+            _functionStack.Pop();
         }
 
         public override void EnterTypeAlias(ZScriptParser.TypeAliasContext context)
@@ -251,12 +266,14 @@ namespace ZScript.CodeGeneration
             DefineMethod(new MethodDefinition("base", null, new FunctionArgumentDefinition[0]) { Class = GetClassScope() });
 
             // Define the method
-            DefineMethod(context);
+            _functionStack.Push(DefineMethod(context));
         }
 
         public override void ExitClassMethod(ZScriptParser.ClassMethodContext context)
         {
             PopScope();
+
+            _functionStack.Pop();
         }
 
         #endregion
@@ -360,7 +377,7 @@ namespace ZScript.CodeGeneration
             CheckCollisions(def, argument.argumentName());
 
             // Try to find the definition in the current function definition for the argument, and store that instead
-            var funcDef = (FunctionDefinition)_baseScope.GetDefinitionByContextRecursive(_currentScope.Context);
+            var funcDef = _functionStack.Peek();
 
             _currentScope.AddDefinition(funcDef.Parameters.First(a => a.Context == argument));
         }
@@ -382,26 +399,30 @@ namespace ZScript.CodeGeneration
         /// Defines a new export function on the current top-most scope
         /// </summary>
         /// <param name="exportFunction">The export function to define</param>
-        void DefineExportFunction(ZScriptParser.ExportDefinitionContext exportFunction)
+        ExportFunctionDefinition DefineExportFunction(ZScriptParser.ExportDefinitionContext exportFunction)
         {
             var def = DefinitionGenerator.GenerateExportFunctionDef(exportFunction);
 
             CheckCollisions(def, exportFunction.functionName());
 
             _currentScope.AddDefinition(def);
+
+            return def;
         }
 
         /// <summary>
         /// Defines a new function in the current top-most scope
         /// </summary>
         /// <param name="function">The function to define</param>
-        void DefineFunction(ZScriptParser.FunctionDefinitionContext function)
+        FunctionDefinition DefineFunction(ZScriptParser.FunctionDefinitionContext function)
         {
             var def = DefinitionGenerator.GenerateFunctionDef(function);
 
             CheckCollisions(def, function.functionName());
 
             DefineFunction(def);
+
+            return def;
         }
         
         /// <summary>
@@ -419,25 +440,27 @@ namespace ZScript.CodeGeneration
         /// <param name="method">The method to define</param>
         void DefineMethod(MethodDefinition method)
         {
+            _currentScope.AddDefinition(method);
+
             // Define the function inside a class context as a method, if any class context is available
-            if (GetClassScope() != null)
+            if (GetClassScope() == null)
+                return;
+
+            // Constructor detection
+            if (method.Name == GetClassScope().Name)
             {
-                // Constructor detection
-                if (method.Name == GetClassScope().Name)
-                {
-                    var constructor = new ConstructorDefinition(GetClassScope(), method.BodyContext, method.Parameters);
+                var constructor = new ConstructorDefinition(GetClassScope(), method.BodyContext, method.Parameters);
 
-                    if (GetClassScope().PublicConstructor != null)
-                    {
-                        _messageContainer.RegisterError(method.BodyContext, "Duplicated constructor definition for class '" + method.Name + "'", ErrorCode.DuplicatedDefinition);
-                    }
-
-                    GetClassScope().PublicConstructor = constructor;
-                }
-                else
+                if (GetClassScope().PublicConstructor != null)
                 {
-                    GetClassScope().Methods.Add(method);
+                    _messageContainer.RegisterError(method.BodyContext, "Duplicated constructor definition for class '" + method.Name + "'", ErrorCode.DuplicatedDefinition);
                 }
+
+                GetClassScope().PublicConstructor = constructor;
+            }
+            else
+            {
+                GetClassScope().Methods.Add(method);
             }
         }
 
@@ -445,7 +468,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new class method in the current top-most scope
         /// </summary>
         /// <param name="method">The method to define</param>
-        void DefineMethod(ZScriptParser.ClassMethodContext method)
+        MethodDefinition DefineMethod(ZScriptParser.ClassMethodContext method)
         {
             var def = DefinitionGenerator.GenerateMethodDef(method);
 
@@ -454,13 +477,15 @@ namespace ZScript.CodeGeneration
             CheckCollisions(def, method.functionDefinition().functionName());
 
             DefineMethod(def);
+
+            return def;
         }
 
         /// <summary>
         /// Defines a new closure in the current top-most scope
         /// </summary>
         /// <param name="closure">The closure to define</param>
-        void DefineClosure(ZScriptParser.ClosureExpressionContext closure)
+        ClosureDefinition DefineClosure(ZScriptParser.ClosureExpressionContext closure)
         {
             var def = DefinitionGenerator.GenerateClosureDef(closure);
 
@@ -468,6 +493,8 @@ namespace ZScript.CodeGeneration
 
             // Closures are always defined at the base scope
             _baseScope.AddDefinition(def);
+
+            return def;
         }
 
         /// <summary>

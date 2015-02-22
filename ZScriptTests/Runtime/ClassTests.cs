@@ -117,7 +117,7 @@ namespace ZScriptTests.Runtime
         /// Tests a simple class instantiation
         /// </summary>
         [TestMethod]
-        public void TestExecuteClass()
+        public void TestConstructor()
         {
             const string input = "var a:any; func f1() { a = TestClass(); } class TestClass { }";
 
@@ -129,6 +129,60 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f1");
 
             Assert.IsNotNull(memory.GetVariable("a"));
+        }
+
+        /// <summary>
+        /// Tests getting the value of a class instance's field
+        /// </summary>
+        [TestMethod]
+        public void TestGetField()
+        {
+            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.field; } class TestClass { var field:int = 10; }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, memory.GetVariable("a"));
+        }
+
+        /// <summary>
+        /// Tests setting the value of a class instance's field
+        /// </summary>
+        [TestMethod]
+        public void TestSetField()
+        {
+            const string input = "var a:any; func f1() { var inst = TestClass(); inst.field = 20; a = inst.field; } class TestClass { var field:int = 10; }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(20L, memory.GetVariable("a"));
+        }
+
+        /// <summary>
+        /// Tests invoking methods of class definitions
+        /// </summary>
+        [TestMethod]
+        public void TestMethod()
+        {
+            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.calc(); } class TestClass { func calc() : int { return 10; } }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, memory.GetVariable("a"));
         }
 
         #endregion

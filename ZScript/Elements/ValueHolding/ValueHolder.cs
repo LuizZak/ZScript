@@ -18,6 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
+
 namespace ZScript.Elements.ValueHolding
 {
     /// <summary>
@@ -33,6 +36,6 @@ namespace ZScript.Elements.ValueHolding
         /// <summary>
         /// Gets or sets the type of the value contained within this value holder definition
         /// </summary>
-        public object Type { get; set; }
+        public Type Type { get; set; }
     }
 }

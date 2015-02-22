@@ -43,12 +43,28 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <exception cref="ArgumentException">No member with the given name found on target object</exception>
         public static IMemberWrapper CreateMemberWrapper(object target, string memberName)
         {
-            var z = target as ZObject;
-            if (z != null)
+            // ZObjects always wrap any member name incoming
+            var zObj = target as ZObject;
+            if (zObj != null)
             {
-                return new ZObjectMember(z, memberName);
+                return new ZObjectMember(zObj, memberName);
             }
 
+            // Try to wrap around the class instance, if any of the fields equals to the passed member name
+            var zCls = target as ZClassInstance;
+            if (zCls != null)
+            {
+                var fields = zCls.Class.Fields;
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    if (fields[i].Name == memberName)
+                    {
+                        return new ZClassMember(zCls, memberName);
+                    }
+                }
+            }
+
+            // Fall-back to normal class member search
             return ClassMember.CreateMemberWrapper(target, memberName);
         }
 
@@ -62,6 +78,20 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <exception cref="ArgumentException">No method with the given name found on target object</exception>
         public static ICallableWrapper CreateCallableWrapper(object target, string callableName)
         {
+            // ZClassInstance method
+            var zClassInstance = target as ZClassInstance;
+            if (zClassInstance != null)
+            {
+                var zMethods = zClassInstance.Class.Methods;
+                for (int i = 0; i < zMethods.Length; i++)
+                {
+                    if (zMethods[i].Name == callableName)
+                    {
+                        return new ZClassMethod(zClassInstance, zMethods[i]);
+                    }
+                }
+            }
+            
             // Native method
             var methods = MethodsNamedFor(target.GetType(), callableName);
 

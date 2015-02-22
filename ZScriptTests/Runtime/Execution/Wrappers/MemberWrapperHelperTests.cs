@@ -22,7 +22,10 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Elements;
+using ZScript.Runtime.Execution;
+using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution.Wrappers
 {
@@ -60,6 +63,19 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         }
 
         /// <summary>
+        /// Tests wrapping the field of a ZClassInstance object
+        /// </summary>
+        [TestMethod]
+        public void TestWrappingZClassInstanceMember()
+        {
+            var target = TestUtils.CreateTestClassInstance();
+
+            var member = MemberWrapperHelper.CreateMemberWrapper(target, "field1");
+
+            Assert.AreEqual(target.LocalMemory.GetVariable("field1"), member.GetValue(), "The value returned by the member is incorrect");
+        }
+
+        /// <summary>
         /// Tests wrapping the method of an object instance
         /// </summary>
         [TestMethod]
@@ -69,19 +85,33 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
 
             var member = MemberWrapperHelper.CreateCallableWrapper(target, "ToString");
 
-            Assert.AreEqual(target.ToString(), member.Call(), "The value returned by the callable is incorrect");
+            Assert.AreEqual(target.ToString(), member.Call(null), "The value returned by the callable is incorrect");
         }
 
         /// <summary>
         /// Tests a failure case when trying to wrap an unexisting or non-public method of an object
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "Wehn trying to access non-existing or non-public methods with CreateCallableWrapper(), an ArgumentException must be thrown")]
+        [ExpectedException(typeof(ArgumentException), "When trying to access non-existing or non-public methods with CreateCallableWrapper(), an ArgumentException must be thrown")]
         public void TestFailedWrappingObjectMethod()
         {
             const long target = 10;
 
             MemberWrapperHelper.CreateCallableWrapper(target, "InvalidMethod");
+        }
+
+        /// <summary>
+        /// Tests wrapping the method of a ZClassInstance object
+        /// </summary>
+        [TestMethod]
+        public void TestWrappingClassInstanceMethod()
+        {
+            var target = TestUtils.CreateTestClassInstance();
+
+            var member = MemberWrapperHelper.CreateCallableWrapper(target, "func1");
+            var context = new VmContext(new Memory(), null, null, null, null);
+
+            Assert.AreEqual(10L, member.Call(context), "The value returned by the callable is incorrect");
         }
     }
 }

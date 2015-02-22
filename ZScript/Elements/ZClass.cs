@@ -23,6 +23,11 @@ namespace ZScript.Elements
         private readonly ZClassField[] _fields;
 
         /// <summary>
+        /// The constructor for this class
+        /// </summary>
+        private readonly ZMethod _constructor;
+
+        /// <summary>
         /// Gets the name for the class
         /// </summary>
         public string ClassName
@@ -39,6 +44,14 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Gets the constructor for this class
+        /// </summary>
+        public ZMethod Constructor
+        {
+            get { return _constructor; }
+        }
+
+        /// <summary>
         /// Gets the fields for this class
         /// </summary>
         public ZClassField[] Fields
@@ -51,11 +64,14 @@ namespace ZScript.Elements
         /// </summary>
         /// <param name="className">The name for the class</param>
         /// <param name="methods">The array of methods for the class</param>
-        public ZClass(string className, ZMethod[] methods, ZClassField[] fields)
+        /// <param name="fields">The array of fields for the class</param>
+        /// <param name="constructor">The constructor for this class</param>
+        public ZClass(string className, ZMethod[] methods, ZClassField[] fields, ZMethod constructor)
         {
             _className = className;
             _methods = methods;
             _fields = fields;
+            _constructor = constructor;
         }
     }
 
@@ -72,9 +88,11 @@ namespace ZScript.Elements
         /// <summary>
         /// Initializes a new instance of the ZClassField class
         /// </summary>
+        /// <param name="fieldName">The name of the field</param>
         /// <param name="tokens">The tokens to execute to initialize the variable's value when the class is created</param>
-        public ZClassField(TokenList tokens)
+        public ZClassField(string fieldName, TokenList tokens)
         {
+            Name = fieldName;
             Tokens = tokens;
         }
     }
