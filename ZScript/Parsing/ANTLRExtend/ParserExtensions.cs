@@ -86,17 +86,6 @@ public partial class ZScriptParser
     }
 
     /// <summary>
-    /// Provides extensions to the ClosureExpressionContext for type inferring helping
-    /// </summary>
-    partial class ClosureExpressionContext
-    {
-        /// <summary>
-        /// The type that was inferred to this ClosureExpressionContext while being processed by an ExpressionTypeResolver
-        /// </summary>
-        //public TypeDef InferredType { get; set; }
-    }
-
-    /// <summary>
     /// Provides extensions to the MemberNameContext for binding it to definitions
     /// </summary>
     partial class MemberNameContext
