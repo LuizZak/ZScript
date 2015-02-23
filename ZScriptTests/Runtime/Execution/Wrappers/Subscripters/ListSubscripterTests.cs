@@ -30,7 +30,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
     /// Tests the functionality of the ListSubscripter class
     /// </summary>
     [TestClass]
-    public class LstSubscripterTests
+    public class ListSubscripterTests
     {
         /// <summary>
         /// Tests the creation and valid usage of a ListSubscripter object
