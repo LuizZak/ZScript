@@ -214,13 +214,13 @@ namespace ZScript.CodeGeneration.Analysis
             // If the closure is being called, return the return type of the closure instead
             if (context.valueAccess() != null)
             {
-                retType = ResolveValueAccess(retType, context.valueAccess());
+                retType = ResolveValueAccess(retType, null, context.valueAccess());
             }
 
             // If the closure is being called, return the return type of the closure instead
             if (context.objectAccess() != null)
             {
-                retType = ResolveObjectAccess(retType, context.objectAccess());
+                retType = ResolveObjectAccess(retType, null, context.objectAccess());
             }
 
             // Prefix operator
@@ -378,7 +378,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Evaluate the access
             if (context.leftValueAccess() != null)
             {
-                type = ResolveLeftValueAccess(type, context.leftValueAccess());
+                type = ResolveLeftValueAccess(type, context, context.leftValueAccess());
 
                 // Disable constant checking when making accesses
                 context.IsConstant = false;
@@ -404,33 +404,34 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves a left value access
         /// </summary>
         /// <param name="leftValue">The type of the value being accessed</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context containing the left value access to resolve</param>
         /// <returns>The type for the left value access</returns>
-        public TypeDef ResolveLeftValueAccess(TypeDef leftValue, ZScriptParser.LeftValueAccessContext context)
+        public TypeDef ResolveLeftValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.LeftValueAccessContext context)
         {
             // leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
             var type = TypeProvider.AnyType();
 
             if (context.functionCall() != null)
             {
-                ResolveFunctionCall(leftValue, context.functionCall(), ref type);
+                ResolveFunctionCall(leftValue, leftValueContext, context.functionCall(), ref type);
 
-                return ResolveLeftValueAccess(type, context.leftValueAccess());
+                return ResolveLeftValueAccess(type, leftValueContext, context.leftValueAccess());
             }
 
             if (context.fieldAccess() != null)
             {
-                ResolveFieldAccess(leftValue, context.fieldAccess(), ref type);
+                ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref type);
             }
 
             if (context.arrayAccess() != null)
             {
-                ResolveSubscript(leftValue, context.arrayAccess(), ref type);
+                ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref type);
             }
 
             if (context.leftValueAccess() != null)
             {
-                type = ResolveLeftValueAccess(type, context.leftValueAccess());
+                type = ResolveLeftValueAccess(type, leftValueContext, context.leftValueAccess());
             }
 
             return type;
@@ -444,30 +445,31 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves a value access, using a given left value as a starting point for the evaluation
         /// </summary>
         /// <param name="leftValue">The left value to access the value from</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context that contains the value access</param>
         /// <returns>A type resolved from the value access</returns>
-        public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.ValueAccessContext context)
+        public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ValueAccessContext context)
         {
             var type = TypeProvider.AnyType();
 
             if (context.arrayAccess() != null)
             {
-                ResolveSubscript(leftValue, context.arrayAccess(), ref type);
+                ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref type);
             }
 
             if (context.functionCall() != null)
             {
-                ResolveFunctionCall(leftValue, context.functionCall(), ref type);
+                ResolveFunctionCall(leftValue, leftValueContext, context.functionCall(), ref type);
             }
 
             if (context.fieldAccess() != null)
             {
-                ResolveFieldAccess(leftValue, context.fieldAccess(), ref type);
+                ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref type);
             }
 
             if (context.valueAccess() != null)
             {
-                return ResolveValueAccess(type, context.valueAccess());
+                return ResolveValueAccess(type, leftValueContext, context.valueAccess());
             }
 
             return type;
@@ -477,9 +479,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves a field access of a given left value, using the given field access as context
         /// </summary>
         /// <param name="leftValue">The left value to get</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context containing the field access to fetch</param>
         /// <param name="resType">The type to update the resulting field access type to</param>
-        private void ResolveFieldAccess(TypeDef leftValue, ZScriptParser.FieldAccessContext context, ref TypeDef resType)
+        private void ResolveFieldAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.FieldAccessContext context, ref TypeDef resType)
         {
             // Object and 'any' types always resolve to 'any'
             if (leftValue == _generationContext.TypeProvider.ObjectType() || leftValue == _generationContext.TypeProvider.AnyType())
@@ -488,18 +491,30 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
+            string memberName = context.memberName().IDENT().GetText();
+
             // Try to get the field info
-            var memberInfo = leftValue.GetMember(context.memberName().IDENT().GetText());
+            var memberInfo = leftValue.GetMember(memberName);
             if (memberInfo is TypeFieldDef)
             {
                 resType = (memberInfo as TypeFieldDef).FieldType;
+
+                // Update constant flag
+                if (leftValueContext != null)
+                    leftValueContext.IsConstant = (memberInfo as TypeFieldDef).Readonly;
             }
             else if (memberInfo is TypeMethodDef)
             {
                 resType = (memberInfo as TypeMethodDef).CallableTypeDef();
+
+                // Update constant flag
+                if (leftValueContext != null)
+                    leftValueContext.IsConstant = true;
             }
 
             // TODO: Decide what to do on failure. Raise error? Warning? Do nothing?
+            if(memberInfo == null)
+                _generationContext.MessageContainer.RegisterError(context, "Undefined member name '" + memberName + "' on type " + leftValue, ErrorCode.UnrecognizedMember);
         }
 
         /// <summary>
@@ -507,9 +522,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// This method raises a warning when the value is not an explicitly callable type
         /// </summary>
         /// <param name="leftValue">The type of the left value</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context of the function call</param>
         /// <param name="resType">The type to update the resulting function call return type to</param>
-        private void ResolveFunctionCall(TypeDef leftValue, ZScriptParser.FunctionCallContext context, ref TypeDef resType)
+        private void ResolveFunctionCall(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.FunctionCallContext context, ref TypeDef resType)
         {
             var callableType = leftValue as CallableTypeDef;
             if (callableType != null)
@@ -523,6 +539,10 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 RegisterFunctionCallWarning(leftValue, context);
             }
+
+            // Update constant flag
+            if (leftValueContext != null)
+                leftValueContext.IsConstant = true;
         }
 
         /// <summary>
@@ -600,9 +620,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// This method raises a warning when the value is not an explicitly subscriptable type
         /// </summary>
         /// <param name="leftValue">The type of the value</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context of the subscription</param>
         /// <param name="resType">The type to update the resulting subscripting type to</param>
-        private void ResolveSubscript(TypeDef leftValue, ZScriptParser.ArrayAccessContext context, ref TypeDef resType)
+        private void ResolveSubscript(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ArrayAccessContext context, ref TypeDef resType)
         {
             // Get the type of object being subscripted
             var listType = leftValue as IListTypeDef;
@@ -624,31 +645,36 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 RegisterSubscriptWarning(leftValue, context);
             }
+
+            // Update constant flag
+            if (leftValueContext != null)
+                leftValueContext.IsConstant = false;
         }
 
         /// <summary>
         /// Resolves a value access, using a given left value as a starting point for the evaluation
         /// </summary>
         /// <param name="leftValue">The left value to access the value from</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context that contains the value access</param>
         /// <returns>A type resolved from the value access</returns>
-        public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.ObjectAccessContext context)
+        public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ObjectAccessContext context)
         {
             TypeDef resType = TypeProvider.AnyType();
 
             if (context.arrayAccess() != null)
             {
-                ResolveSubscript(leftValue, context.arrayAccess(), ref resType);
+                ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref resType);
             }
             
             if (context.fieldAccess() != null)
             {
-                ResolveFieldAccess(leftValue, context.fieldAccess(), ref resType);
+                ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref resType);
             }
 
             if (context.valueAccess() != null)
             {
-                return ResolveValueAccess(resType, context.valueAccess());
+                return ResolveValueAccess(resType, leftValueContext, context.valueAccess());
             }
 
             return resType;

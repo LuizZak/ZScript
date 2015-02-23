@@ -83,6 +83,8 @@ namespace ZScript.CodeGeneration.Messages
         UndeclaredDefinition,
         /// <summary>Specifies an error raised when a definition is found with the same name of another definition in the same reachable scope</summary>
         DuplicatedDefinition,
+        /// <summary>Trying to access a member that is not defined on a type</summary>
+        UnrecognizedMember,
 
         /// <summary>Specifies an error raised when a constant definition has no starting value assigned to it</summary>
         ValuelessConstantDeclaration,
@@ -145,7 +147,6 @@ namespace ZScript.CodeGeneration.Messages
 
         /// <summary>Classes are locked in a circular inheritance chain</summary>
         CircularInheritanceChain,
-
         /// <summary>Trying to override a method that is not present in a base class</summary>
         NoOverrideTarget,
 

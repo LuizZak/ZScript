@@ -299,7 +299,7 @@ namespace ZScript.Runtime.Typing
 
             if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
             {
-                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType);
+                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType) || CanExplicitCastPrimitive(nativeOrigin.NativeType, nativeTarget.NativeType);
             }
 
             return false;
@@ -347,8 +347,57 @@ namespace ZScript.Runtime.Typing
 
             if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
             {
-                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType);
+                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType) || CanImplicitCastPrimitive(nativeOrigin.NativeType, nativeTarget.NativeType);
             }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Whether the two primitive types can be implicitly casted from one to another
+        /// </summary>
+        /// <param name="origin">The origin type to cast from</param>
+        /// <param name="target">The type target to cast to</param>
+        /// <returns>Whether the values can be implicitly caster</returns>
+        private bool CanImplicitCastPrimitive(Type origin, Type target)
+        {
+            // int -> long
+            if (origin == typeof(int) && target == typeof(long))
+                return true;
+            // int -> double
+            if (origin == typeof(int) && target == typeof(double))
+                return true;
+            // long -> double
+            if (origin == typeof(long) && target == typeof(double))
+                return true;
+            // string -> char
+            if (origin == typeof(string) && target == typeof(char))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Whether the two primitive types can be explicitly casted from one to another
+        /// </summary>
+        /// <param name="origin">The origin type to cast from</param>
+        /// <param name="target">The type target to cast to</param>
+        /// <returns>Whether the values can be implicitly caster</returns>
+        private bool CanExplicitCastPrimitive(Type origin, Type target)
+        {
+            // If they can be implicitly casted, they can also be explicitly casted
+            if (CanImplicitCastPrimitive(origin, target))
+                return true;
+
+            // long -> int
+            if (origin == typeof(long) && target == typeof(int))
+                return true;
+            // double -> int
+            if (origin == typeof(double) && target == typeof(int))
+                return true;
+            // string -> char
+            if (origin == typeof(string) && target == typeof(char))
+                return true;
 
             return false;
         }

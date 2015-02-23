@@ -371,12 +371,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestFunctionArgumentTypeChecking()
         {
             // Set up the test
-            const string input = "func inventoryItemCount(_player : Player = null, itemID : int = 0) : int { return _player.CurrentInventory.GetItemNum(itemID); }" +
+            const string input = "func inventoryItemCount(_player : Player = null, itemID : int = 0) : int { return ((any)_player).CurrentInventory.GetItemNum(itemID); }" +
                                  "func hasInventoryItem(_player : Player = null, itemID : int = 0) : bool { return inventoryItemCount(_player, itemID) > 0; }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
+
+            container.PrintMessages();
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
         }

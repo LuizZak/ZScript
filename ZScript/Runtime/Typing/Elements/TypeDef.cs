@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -54,7 +53,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// The base type this type inherited from.
         /// May be null, in case this type represents the basic object type
         /// </summary>
-        protected readonly TypeDef baseType;
+        protected TypeDef baseType;
 
         /// <summary>
         /// Array that contains the available methods of this TypeDef
@@ -96,6 +95,26 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Static constructor for the TypeDef class which deals with basic type creation
+        /// </summary>
+        static TypeDef()
+        {
+            AnyType = new AnyTypeDef();
+            VoidType = new NativeTypeDef(typeof(void), "void");
+            IntegerType = new NativeTypeDef(typeof(long), "int");
+            FloatType = new NativeTypeDef(typeof(double), "float");
+            NullType = new TypeDef("null");
+
+            GenerateBaseTypes(out BaseObjectType, out StringType, out BooleanType);
+
+            AnyType.baseType = BaseObjectType;
+            VoidType.baseType = BaseObjectType;
+            IntegerType.baseType = BaseObjectType;
+            FloatType.baseType = BaseObjectType;
+            NullType.baseType = BaseObjectType;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the TypeDef class
         /// </summary>
         /// <param name="name">The name for the type</param>
@@ -109,22 +128,6 @@ namespace ZScript.Runtime.Typing.Elements
 
             fields = new List<TypeFieldDef>();
             methods = new List<TypeMethodDef>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the TypeDef class, providing a base type to set as this type's base type.
-        /// </summary>
-        /// <param name="name">The name for the type</param>
-        /// <param name="baseType">The type this type inherits from</param>
-        /// <param name="fields">The fields for this type definition</param>
-        /// <param name="methods">The methods for this type definition</param>
-        /// <param name="native">Whether this type represents a native type</param>
-        private TypeDef(string name, TypeDef baseType, TypeFieldDef[] fields, TypeMethodDef[] methods, bool native = false)
-            : this(name, native)
-        {
-            this.baseType = baseType;
-            this.fields = new List<TypeFieldDef>(fields);
-            this.methods = new List<TypeMethodDef>(methods);
         }
 
         /// <summary>
@@ -266,6 +269,37 @@ namespace ZScript.Runtime.Typing.Elements
             methods.Add(methodDef);
         }
 
+        /// <summary>
+        /// Returns a static TypeDef that most-fittingly describes a given Type object
+        /// </summary>
+        /// <param name="type">The type to get the most fitting type out of</param>
+        /// <returns>A TypeDef that matches the given type's description</returns>
+        protected static TypeDef MostFittingType(Type type)
+        {
+            // Numeric
+            if (type == typeof(long))
+                return IntegerType ?? new NativeTypeDef(typeof(long));
+            if (type == typeof(double))
+                return FloatType ?? new NativeTypeDef(typeof(double));
+            // Boolean
+            if (type == typeof(bool))
+                return BooleanType ?? new NativeTypeDef(typeof(bool));
+            // String
+            if (type == typeof(string))
+                return StringType;
+            // Void
+            if (type == typeof(void))
+                return VoidType ?? new NativeTypeDef(typeof(void));
+
+            // List
+            if (type == typeof(List<>))
+            {
+                return new ListTypeDef(MostFittingType(type.GetGenericArguments()[0]));
+            }
+
+            return new NativeTypeDef(type);
+        }
+
         #region Equality members
 
         /// <summary>
@@ -330,42 +364,48 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// The type definition that represents the 'any' type
         /// </summary>
-        public static readonly TypeDef AnyType = new AnyTypeDef();
+        public static readonly TypeDef AnyType;
 
         /// <summary>
         /// The type definition that represents the 'void' type
         /// </summary>
-        public static readonly TypeDef VoidType = new NativeTypeDef(typeof(void), "void");
+        public static readonly TypeDef VoidType;
 
         /// <summary>
         /// The type definition for an integer type in the runtime.
         /// The integer type is defined as an Int64 integer in the C# runtime
         /// </summary>
-        public static readonly TypeDef IntegerType = new NativeTypeDef(typeof(long), "int");
+        public static readonly TypeDef IntegerType;
 
         /// <summary>
         /// The type definition for a floating-point type in the runtime.
         /// The integer type is defined as a double floating point in the C# runtime
         /// </summary>
-        public static readonly TypeDef FloatType = new NativeTypeDef(typeof(double), "float");
+        public static readonly TypeDef FloatType;
 
         /// <summary>
         /// The type definition for a null type in the runtime.
         /// The integer type is defined as a null in the C# runtime
         /// </summary>
-        public static readonly TypeDef NullType = new TypeDef("null");
+        public static readonly TypeDef NullType;
 
         /// <summary>
         /// The type definition for a boolean type in the runtime.
         /// The integer type is defined as a bool in the C# runtime
         /// </summary>
-        public static readonly TypeDef BooleanType = new NativeTypeDef(typeof(bool), "bool");
+        public static readonly TypeDef BooleanType;
+
+        /// <summary>
+        /// The base type definition all types are derived from.
+        /// The base object type is defined as an object in the C# runtime
+        /// </summary>
+        public static readonly TypeDef BaseObjectType;
 
         /// <summary>
         /// The type definition for a string type in the runtime.
         /// The integer type is defined as a string in the C# runtime
         /// </summary>
-        public static readonly StringTypeDef StringType = new StringTypeDef();
+        public static readonly StringTypeDef StringType;
 
         /// <summary>
         /// Creates type definitions for three core objects that have linked shared dependencies
@@ -373,11 +413,11 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="objectType">The resulting object type for this operation</param>
         /// <param name="stringType">The resulting string type for this operation</param>
         /// <param name="boolType">The resulting bool type for this operation</param>
-        public static void GenerateBaseTypes(out TypeDef objectType, out TypeDef stringType, out TypeDef boolType)
+        public static void GenerateBaseTypes(out TypeDef objectType, out StringTypeDef stringType, out TypeDef boolType)
         {
-            objectType = new TypeDef("object");
-            stringType = new TypeDef("string", objectType, null, null);
-            boolType = new TypeDef("bool", objectType, null, null);
+            objectType = new NativeTypeDef(typeof(object), "object");
+            stringType = new StringTypeDef();
+            boolType = new NativeTypeDef(typeof(bool), "bool");
             
             var toString = new TypeMethodDef("ToString", new ParameterInfo[0], stringType);
             var equals = new TypeMethodDef("Equals", new [] { new ParameterInfo("obj", objectType, false, false) }, boolType);
@@ -386,6 +426,10 @@ namespace ZScript.Runtime.Typing.Elements
             var methods = new[] { toString, equals };
 
             objectType.methods = new List<TypeMethodDef>(methods);
+
+            // Sort child types
+            stringType.baseType = objectType;
+            boolType.baseType = objectType;
         }
     }
 
@@ -428,6 +472,11 @@ namespace ZScript.Runtime.Typing.Elements
         private readonly TypeDef _fieldType;
 
         /// <summary>
+        /// Whether the field is readonly or not
+        /// </summary>
+        private readonly bool _readonly;
+
+        /// <summary>
         /// The type for the field
         /// </summary>
         public TypeDef FieldType
@@ -436,14 +485,24 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets a value specifying whether the field is readonly or not
+        /// </summary>
+        public bool Readonly
+        {
+            get { return _readonly; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the TypeFieldDef class
         /// </summary>
         /// <param name="fieldName">The name for the field</param>
         /// <param name="fieldType">The type that can be stored on the field</param>
-        public TypeFieldDef(string fieldName, TypeDef fieldType)
+        /// <param name="isReadonly">Whether the field is readonly or not</param>
+        public TypeFieldDef(string fieldName, TypeDef fieldType, bool isReadonly)
             : base(fieldName)
         {
             _fieldType = fieldType;
+            _readonly = isReadonly;
         }
     }
 

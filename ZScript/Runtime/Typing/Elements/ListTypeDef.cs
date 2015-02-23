@@ -57,6 +57,9 @@ namespace ZScript.Runtime.Typing.Elements
             _enclosingType = enclosingType;
             // Default the subscript to integer
             SubscriptType = IntegerType;
+
+            // Setup elements
+            AddField(new TypeFieldDef("Count", new NativeTypeDef(typeof(int)), true));
         }
 
         /// <summary>

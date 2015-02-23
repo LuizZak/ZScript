@@ -37,7 +37,7 @@ namespace ZScript.Runtime.Typing
         /// <summary>
         /// A string type definition
         /// </summary>
-        private static readonly TypeDef _stringTypeDef;
+        private static readonly StringTypeDef _stringTypeDef;
 
         /// <summary>
         /// A boolean type definition

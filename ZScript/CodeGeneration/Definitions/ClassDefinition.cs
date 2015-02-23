@@ -197,10 +197,13 @@ namespace ZScript.CodeGeneration.Definitions
             _classTypeDef.ClearFields();
             _classTypeDef.ClearMethods();
 
+            // Set base type
+            _classTypeDef.BaseType = (BaseClass == null ? null : BaseClass._classTypeDef);
+
             // Add the fields
             foreach (var field in _fields)
             {
-                var fieldType = new TypeFieldDef(field.Name, field.Type);
+                var fieldType = new TypeFieldDef(field.Name, field.Type, field.IsConstant);
 
                 _classTypeDef.AddField(fieldType);
             }
@@ -229,6 +232,15 @@ namespace ZScript.CodeGeneration.Definitions
     /// </summary>
     public class ClassTypeDef : TypeDef
     {
+        /// <summary>
+        /// Gets or sets the base type for this ClassTypeDef
+        /// </summary>
+        public TypeDef BaseType
+        {
+            get { return baseType; }
+            set { baseType = value; }
+        }
+
         /// <summary>
         /// Initializes a new instance of the ClassTypeDef class
         /// </summary>
