@@ -217,6 +217,15 @@ namespace ZScript.CodeGeneration.Tokenization
             // Iterate again the jump tokens, now fixing the address of the token pointing
             for (int i = 0; i < expandedTokens.Count; i++)
             {
+                // Remove 'noop' tokens
+                if (expandedTokens[i].Type == TokenType.Instruction &&
+                    expandedTokens[i].Instruction == VmInstruction.Noop)
+                {
+                    expandedTokens.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
                 var jumpToken = expandedTokens[i] as JumpToken;
                 // If the jump is pointed at a jump target token, skip the expansion
                 if (jumpToken == null || jumpToken.TargetToken is JumpTargetToken)

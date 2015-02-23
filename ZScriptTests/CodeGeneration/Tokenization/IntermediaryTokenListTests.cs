@@ -18,6 +18,44 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     [TestClass]
     public class IntermediaryTokenListTests
     {
+        /// <summary>
+        /// Tests automatic removal of 'noop' instruction tokens
+        /// </summary>
+        [TestMethod]
+        public void TestNoopRemoval()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Noop),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateInstructionToken(VmInstruction.Noop),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens.ToTokenList().Tokens, "The unreachable code removal failed to behave as expected");
+        }
+
         #region JumpToken/JumpTarget expanding
 
         /// <summary>
