@@ -48,6 +48,9 @@ namespace ZScript.Runtime
             {
                 _localMemory.SetVariable(field.Name, null);
             }
+            
+            // Init special variables
+            _localMemory.SetVariable("this", this);
         }
     }
 }

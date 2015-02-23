@@ -213,7 +213,7 @@ namespace ZScript.CodeGeneration
 
         public override void EnterClassBody(ZScriptParser.ClassBodyContext context)
         {
-            DefineHiddenVariable("this");
+            DefineHiddenVariable("this").IsConstant = true;
 
             PushScope(context);
         }
@@ -225,7 +225,7 @@ namespace ZScript.CodeGeneration
 
         public override void EnterSequenceBody(ZScriptParser.SequenceBodyContext context)
         {
-            DefineHiddenVariable("this");
+            DefineHiddenVariable("this").IsConstant = true;
             DefineHiddenVariable("T");
             DefineHiddenVariable("async");
 
@@ -437,13 +437,15 @@ namespace ZScript.CodeGeneration
         /// Defines a variable that is hidden, that is, it can be accessed, but does not comes from the script source
         /// </summary>
         /// <param name="variableName">The name of the variable to define</param>
-        void DefineHiddenVariable(string variableName)
+        ValueHolderDefinition DefineHiddenVariable(string variableName)
         {
             var def = new ValueHolderDefinition { Name = variableName };
 
             CheckCollisions(def, null);
 
             _currentScope.AddDefinition(def);
+
+            return def;
         }
 
         /// <summary>

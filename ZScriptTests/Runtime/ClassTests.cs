@@ -203,6 +203,38 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(10L, memory.GetVariable("a"));
         }
 
+        /// <summary>
+        /// Tests usage of the 'this' variable
+        /// </summary>
+        [TestMethod]
+        public void TestThisVariable()
+        {
+            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.f(); } class TestClass { var field:int = 10; func f() { return this.field; } }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, memory.GetVariable("a"));
+        }
+
+        /// <summary>
+        /// Tests trying to re-assign the 'this' special constant
+        /// </summary>
+        [TestMethod]
+        public void TestConstantThis()
+        {
+            const string input = "var a:any; func f1() { var inst = TestClass(); } class TestClass { func TestClass() { this = null; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+        }
+
         #region Inheritance tests
 
         /// <summary>
