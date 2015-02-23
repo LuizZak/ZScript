@@ -55,9 +55,9 @@ namespace ZScript.Runtime.Execution.Wrappers
             if (zCls != null)
             {
                 var fields = zCls.Class.Fields;
-                for (int i = 0; i < fields.Length; i++)
+                foreach (ZClassField field in fields)
                 {
-                    if (fields[i].Name == memberName)
+                    if (field.Name == memberName)
                     {
                         return new ZClassMember(zCls, memberName);
                     }

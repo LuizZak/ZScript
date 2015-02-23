@@ -62,7 +62,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="context">The context containing the IF statement to tokenize</param>
         private IntermediaryTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext context)
         {
-            IntermediaryTokenList retTokens;
+            IntermediaryTokenList retTokens = new IntermediaryTokenList();
 
             // Constant if statements are evaluated differently
             if (context.IsConstant)
@@ -75,10 +75,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 else if(context.elseStatement() != null)
                 {
                     retTokens = _context.TokenizeStatement(context.elseStatement().statement());
-                }
-                else
-                {
-                    retTokens = new IntermediaryTokenList();
                 }
 
                 return retTokens;
