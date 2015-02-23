@@ -113,7 +113,7 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
-        /// Executes the instructions of this VM
+        /// Executes the instructions of the token list on this VM
         /// </summary>
         public void Execute()
         {
