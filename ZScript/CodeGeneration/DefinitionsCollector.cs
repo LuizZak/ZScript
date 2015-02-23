@@ -376,12 +376,6 @@ namespace ZScript.CodeGeneration
             CheckCollisions(def, variable);
 
             _currentScope.AddDefinition(def);
-
-            // Class field collection
-            if (GetClassScope() != null)
-            {
-                GetClassScope().Fields.Add(def);
-            }
         }
 
         /// <summary>
@@ -398,7 +392,7 @@ namespace ZScript.CodeGeneration
 
             _currentScope.AddDefinition(def);
 
-            GetClassScope().Fields.Add(def);
+            GetClassScope().AddField(def);
         }
 
         /// <summary>
@@ -516,7 +510,7 @@ namespace ZScript.CodeGeneration
             }
             else
             {
-                GetClassScope().Methods.Add(method);
+                GetClassScope().AddMethod(method);
             }
         }
 

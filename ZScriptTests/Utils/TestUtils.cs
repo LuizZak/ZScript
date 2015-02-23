@@ -22,12 +22,14 @@ using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using ZScript.CodeGeneration;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Elements.ValueHolding;
 using ZScript.Runtime;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 
 namespace ZScriptTests.Utils
@@ -110,6 +112,25 @@ namespace ZScriptTests.Utils
             ITokenStream tokens = new CommonTokenStream(lexer);
 
             return new ZScriptParser(tokens);
+        }
+
+        /// <summary>
+        /// Creates a test class definition to use in tests, containing a field named 'field1' of long type with a default value of 10
+        /// and a method definition 'func1' with sinature '(->int)' containing a simple return instruction that returns a '10L' literal value
+        /// </summary>
+        /// <returns>A dummy test class to use in tests</returns>
+        public static ClassDefinition CreateTestClassDefinition()
+        {
+            var classDef = new ClassDefinition("className");
+
+            const string field1Exp = "10";
+
+            var parser = CreateParser(field1Exp);
+
+            classDef.AddMethod(new MethodDefinition("func1", null, new FunctionArgumentDefinition[0]));
+            classDef.AddField(new ClassFieldDefinition("field1") { Type = TypeDef.IntegerType, HasValue = true, ValueExpression = new Expression(parser.expression()) });
+
+            return classDef;
         }
 
         /// <summary>

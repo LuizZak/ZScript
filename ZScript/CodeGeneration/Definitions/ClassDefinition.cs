@@ -30,9 +30,24 @@ namespace ZScript.CodeGeneration.Definitions
     public class ClassDefinition : Definition
     {
         /// <summary>
+        /// Dirty flag for the '_classTypeDef' property
+        /// </summary>
+        private bool _classTypeDirty;
+
+        /// <summary>
         /// Represents the type that defines this class
         /// </summary>
         private readonly ClassTypeDef _classTypeDef;
+
+        /// <summary>
+        /// Internal list of fields for this class definition
+        /// </summary>
+        private readonly List<ClassFieldDefinition> _fields;
+
+        /// <summary>
+        /// Internal list of methods for this class definition
+        /// </summary>
+        private readonly List<MethodDefinition> _methods;
 
         /// <summary>
         /// Gets or sets the context containing this class definition
@@ -42,12 +57,18 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets the list of fields colelcted in this class definition
         /// </summary>
-        public List<ValueHolderDefinition> Fields { get; private set; } 
+        public ClassFieldDefinition[] Fields
+        {
+            get { return _fields.ToArray(); }
+        }
 
         /// <summary>
         /// Gets the list of methods collected in this class definition
         /// </summary>
-        public List<MethodDefinition> Methods { get; private set; }
+        public MethodDefinition[] Methods
+        {
+            get { return _methods.ToArray(); }
+        }
 
         /// <summary>
         /// Gets or sets the public constructor for this class definitions
@@ -64,7 +85,13 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         public ClassTypeDef ClassTypeDef
         {
-            get { return _classTypeDef; }
+            get
+            {
+                if (_classTypeDirty)
+                    UpdateClassTypeDef();
+
+                return _classTypeDef;
+            }
         }
 
         /// <summary>
@@ -77,8 +104,10 @@ namespace ZScript.CodeGeneration.Definitions
 
             _classTypeDef = new ClassTypeDef(className);
 
-            Fields = new List<ValueHolderDefinition>();
-            Methods = new List<MethodDefinition>();
+            _fields = new List<ClassFieldDefinition>();
+            _methods = new List<MethodDefinition>();
+
+            _classTypeDirty = true;
         }
 
         /// <summary>
@@ -88,8 +117,30 @@ namespace ZScript.CodeGeneration.Definitions
         {
             if (PublicConstructor == null)
             {
-                PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0]);
+                PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0]) { ReturnType = _classTypeDef, HasReturnType = true };
             }
+        }
+
+        /// <summary>
+        /// Adds a new method definition to this class
+        /// </summary>
+        /// <param name="method">The method to add to this class</param>
+        public void AddMethod(MethodDefinition method)
+        {
+            _methods.Add(method);
+
+            _classTypeDirty = true;
+        }
+
+        /// <summary>
+        /// Adds a new field definition to this class
+        /// </summary>
+        /// <param name="field">The field to add to this class</param>
+        public void AddField(ClassFieldDefinition field)
+        {
+            _fields.Add(field);
+
+            _classTypeDirty = true;
         }
 
         /// <summary>
@@ -136,6 +187,40 @@ namespace ZScript.CodeGeneration.Definitions
             }
 
             return functions;
+        }
+
+        /// <summary>
+        /// Re-creates the _classTypeDef property
+        /// </summary>
+        public void UpdateClassTypeDef()
+        {
+            _classTypeDef.ClearFields();
+            _classTypeDef.ClearMethods();
+
+            // Add the fields
+            foreach (var field in _fields)
+            {
+                var fieldType = new TypeFieldDef(field.Name, field.Type);
+
+                _classTypeDef.AddField(fieldType);
+            }
+
+            // Add the methods
+            foreach (var method in _methods)
+            {
+                var parameters = new ParameterInfo[method.Parameters.Length];
+
+                for (int i = 0; i < method.Parameters.Length; i++)
+                {
+                    parameters[i] = new ParameterInfo(method.Parameters[i].Name, method.Parameters[i].Type ?? TypeDef.AnyType, method.Parameters[i].IsVariadic, method.Parameters[i].HasValue);
+                }
+
+                var methodType = new TypeMethodDef(method.Name, parameters, method.ReturnType ?? TypeDef.AnyType);
+
+                _classTypeDef.AddMethod(methodType);
+            }
+
+            _classTypeDirty = false;
         }
     }
 

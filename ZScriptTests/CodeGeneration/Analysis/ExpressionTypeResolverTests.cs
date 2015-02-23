@@ -370,6 +370,40 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Class Type resolving
+
+        /// <summary>
+        /// Tests resolving the type of a class field
+        /// </summary>
+        [TestMethod]
+        public void TestClassFieldTypeResolving()
+        {
+            // Set up the test
+            const string input = "tClass.field1";
+
+            // Create the test class
+            var testClass = TestUtils.CreateTestClassDefinition();
+
+            var definitionTypeProvider = new TestDefinitionTypeProvider();
+            definitionTypeProvider.CustomTypes["tClass"] = testClass.ClassTypeDef;
+
+            var container = new MessageContainer();
+            var context = new RuntimeGenerationContext(null, container, new TypeProvider())
+            {
+                DefinitionTypeProvider = definitionTypeProvider
+            };
+
+            var resolver = new ExpressionTypeResolver(context);
+
+            var parser = TestUtils.CreateParser(input);
+
+            var type = resolver.ResolveExpression(parser.expression());
+
+            Assert.AreEqual(context.TypeProvider.IntegerType(), type, "Failed to get type of class field");
+        }
+
+        #endregion
+
         #region Closure type resolving
 
         /// <summary>

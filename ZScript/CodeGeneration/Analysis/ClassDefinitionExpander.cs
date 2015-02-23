@@ -116,7 +116,7 @@ namespace ZScript.CodeGeneration.Analysis
             var methods = definition.Methods;
             var inheritedMethods = definition.GetAllMethods(true);
 
-            for (int i = 0; i < methods.Count; i++)
+            for (int i = 0; i < methods.Length; i++)
             {
                 var method = methods[i];
 
@@ -125,7 +125,7 @@ namespace ZScript.CodeGeneration.Analysis
                     continue;
 
                 // Check inner collisions
-                for (int j = i + 1; j < methods.Count; j++)
+                for (int j = i + 1; j < methods.Length; j++)
                 {
                     if (methods[j].Name == method.Name)
                     {
@@ -161,7 +161,7 @@ namespace ZScript.CodeGeneration.Analysis
             var methods = definition.Fields;
             var inheritedMethods = definition.GetAllFields(true);
 
-            for (int i = 0; i < methods.Count; i++)
+            for (int i = 0; i < methods.Length; i++)
             {
                 var method = methods[i];
 
@@ -170,7 +170,7 @@ namespace ZScript.CodeGeneration.Analysis
                     continue;
 
                 // Check inner collisions
-                for (int j = i + 1; j < methods.Count; j++)
+                for (int j = i + 1; j < methods.Length; j++)
                 {
                     if (methods[j].Name == method.Name)
                     {

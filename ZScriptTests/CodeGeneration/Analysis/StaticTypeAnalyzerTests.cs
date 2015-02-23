@@ -383,6 +383,19 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Class resolving
+
+        /// <summary>
+        /// Tests class field type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestClassFieldResolving()
+        {
+            
+        }
+
+        #endregion
+
         #region Statement analysis
 
         #region General expression statement analysis

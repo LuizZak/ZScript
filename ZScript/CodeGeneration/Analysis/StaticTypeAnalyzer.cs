@@ -89,6 +89,12 @@ namespace ZScript.CodeGeneration.Analysis
             // Get all definitons
             var definitions = _baseScope.GetAllDefinitionsRecursive().ToArray();
 
+            // Expand class fields
+            foreach (var classDef in definitions.OfType<ClassDefinition>())
+            {
+                ExpandClassDefinition(classDef);
+            }
+
             // Expand functions first
             foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => !(d is ClosureDefinition)))
             {
@@ -270,6 +276,28 @@ namespace ZScript.CodeGeneration.Analysis
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Expands the type of a given class definition
+        /// </summary>
+        /// <param name="definition">The class definition to expand</param>
+        private void ExpandClassDefinition(ClassDefinition definition)
+        {
+            // Expand the fields
+            foreach (var classField in definition.GetAllFields())
+            {
+                ExpandValueHolderDefinition(classField);
+            }
+
+            // Expand the functions
+            foreach (var classMethod in definition.GetAllMethods())
+            {
+                ExpandFunctionDefinition(classMethod);
+            }
+
+            // Update the class type def
+            definition.UpdateClassTypeDef();
         }
 
         /// <summary>

@@ -202,7 +202,8 @@ namespace ZScript.CodeGeneration
         /// <returns>A new local variable definition based on the given value holder declaration context</returns>
         public static ClassFieldDefinition GenerateClassField(ZScriptParser.ClassFieldContext context)
         {
-            var def = new ClassFieldDefinition();
+            // TODO: Oh god what is this
+            var def = new ClassFieldDefinition(context.valueDeclareStatement().valueHolderDecl().valueHolderName().memberName().IDENT().GetText());
 
             FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
 

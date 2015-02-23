@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.Runtime.Typing.Elements;
 
@@ -8,8 +9,22 @@ namespace ZScriptTests.Utils
     /// </summary>
     public class TestDefinitionTypeProvider : IDefinitionTypeProvider
     {
+        /// <summary>
+        /// Dictionary of custom type definitions mapped into strings
+        /// </summary>
+        public Dictionary<string, TypeDef> CustomTypes = new Dictionary<string, TypeDef>(); 
+
+        // 
+        // IDefinitionTypeProvider.TypeForDefinition override
+        // 
         public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
         {
+            // Search first on the custom types
+            if (CustomTypes.ContainsKey(definitionName))
+            {
+                return CustomTypes[definitionName];
+            }
+
             if (definitionName == "i")
                 return TypeDef.IntegerType;
             if (definitionName == "f")

@@ -417,10 +417,10 @@ namespace ZScript.CodeGeneration.Analysis
 
                 return ResolveLeftValueAccess(type, context.leftValueAccess());
             }
-            // TODO: Deal with field accesses
+
             if (context.fieldAccess() != null)
             {
-                
+                ResolveFieldAccess(leftValue, context.fieldAccess(), ref type);
             }
 
             if (context.arrayAccess() != null)
@@ -460,7 +460,10 @@ namespace ZScript.CodeGeneration.Analysis
                 ResolveFunctionCall(leftValue, context.functionCall(), ref type);
             }
 
-            // TODO: Deal with field access
+            if (context.fieldAccess() != null)
+            {
+                ResolveFieldAccess(leftValue, context.fieldAccess(), ref type);
+            }
 
             if (context.valueAccess() != null)
             {
@@ -468,6 +471,31 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             return type;
+        }
+
+        /// <summary>
+        /// Resolves a field access of a given left value, using the given field access as context
+        /// </summary>
+        /// <param name="leftValue">The left value to get</param>
+        /// <param name="context">The context containing the field access to fetch</param>
+        /// <param name="resType">The type to update the resulting field access type to</param>
+        private void ResolveFieldAccess(TypeDef leftValue, ZScriptParser.FieldAccessContext context, ref TypeDef resType)
+        {
+            // Object and 'any' types always resolve to 'any'
+            if (leftValue == _generationContext.TypeProvider.ObjectType() || leftValue == _generationContext.TypeProvider.AnyType())
+            {
+                resType = _generationContext.TypeProvider.AnyType();
+                return;
+            }
+
+            // Try to get the field info
+            var fieldInfo = leftValue.GetField(context.memberName().IDENT().GetText());
+            if (fieldInfo != null)
+            {
+                resType = fieldInfo.FieldType;
+            }
+
+            // TODO: Decide what to do on failure. Raise error? Warning? Do nothing?
         }
 
         /// <summary>
@@ -608,7 +636,11 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ResolveSubscript(leftValue, context.arrayAccess(), ref resType);
             }
-            // TODO: Deal with field access
+            
+            if (context.fieldAccess() != null)
+            {
+                ResolveFieldAccess(leftValue, context.fieldAccess(), ref resType);
+            }
 
             if (context.valueAccess() != null)
             {

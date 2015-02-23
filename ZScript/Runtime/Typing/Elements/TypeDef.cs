@@ -18,9 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -58,12 +59,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Array that contains the available methods of this TypeDef
         /// </summary>
-        protected TypeMethodDef[] methods;
+        protected List<TypeMethodDef> methods;
 
         /// <summary>
         /// Array that contains the available fields of this TypeDef
         /// </summary>
-        protected TypeFieldDef[] fields;
+        protected List<TypeFieldDef> fields;
 
         /// <summary>
         /// Gets the name for this type
@@ -105,6 +106,9 @@ namespace ZScript.Runtime.Typing.Elements
             isAny = name == "any";
             isVoid = name == "void";
             isNative = native;
+
+            fields = new List<TypeFieldDef>();
+            methods = new List<TypeMethodDef>();
         }
 
         /// <summary>
@@ -119,8 +123,8 @@ namespace ZScript.Runtime.Typing.Elements
             : this(name, native)
         {
             this.baseType = baseType;
-            this.fields = fields;
-            this.methods = methods;
+            this.fields = new List<TypeFieldDef>(fields);
+            this.methods = new List<TypeMethodDef>(methods);
         }
 
         /// <summary>
@@ -176,6 +180,74 @@ namespace ZScript.Runtime.Typing.Elements
             }
 
             return f.ToArray();
+        }
+
+        /// <summary>
+        /// Returns a method in this TypeDef that matches the given name
+        /// </summary>
+        /// <param name="methodName">The name of the method to search for</param>
+        /// <returns>The method type definition that was fetched; or null, if none was found</returns>
+        public TypeMethodDef GetMethod(string methodName)
+        {
+            foreach (var methodDef in methods)
+            {
+                if (methodDef.Name == methodName)
+                    return methodDef;
+            }
+
+            return baseType != null ? baseType.GetMethod(methodName) : null;
+        }
+
+        /// <summary>
+        /// Returns a field in this TypeDef that matches the given name
+        /// </summary>
+        /// <param name="fieldName">The name of the field to search for</param>
+        /// <returns>The field type definition that was fetched; or null, if none was found</returns>
+        public TypeFieldDef GetField(string fieldName)
+        {
+            foreach (var fieldDef in fields)
+            {
+                if (fieldDef.Name == fieldName)
+                    return fieldDef;
+            }
+
+            return baseType != null ? baseType.GetField(fieldName) : null;
+        }
+
+        /// <summary>
+        /// Clears all fields defined in this type definition.
+        /// This does not clears fields defined in parent classes
+        /// </summary>
+        public void ClearFields()
+        {
+            fields.Clear();
+        }
+
+        /// <summary>
+        /// Clears all methods defined in this type definition.
+        /// This does not clears methods defined in parent classes
+        /// </summary>
+        public void ClearMethods()
+        {
+            methods.Clear();
+        }
+
+        /// <summary>
+        /// Adds an arbitrary field definition to this type definition
+        /// </summary>
+        /// <param name="fieldDef">The field to add to this type definition</param>
+        public void AddField(TypeFieldDef fieldDef)
+        {
+            fields.Add(fieldDef);
+        }
+
+        /// <summary>
+        /// Adds an arbitrary method definition to this type definition
+        /// </summary>
+        /// <param name="methodDef">The method to add to this type definition</param>
+        public void AddMethod(TypeMethodDef methodDef)
+        {
+            methods.Add(methodDef);
         }
 
         #region Equality members
@@ -292,12 +364,12 @@ namespace ZScript.Runtime.Typing.Elements
             boolType = new TypeDef("bool", objectType, null, null);
             
             var toString = new TypeMethodDef("ToString", new ParameterInfo[0], stringType);
-            var equals = new TypeMethodDef("Equals", new [] { new ParameterInfo("obj", objectType) }, boolType);
+            var equals = new TypeMethodDef("Equals", new [] { new ParameterInfo("obj", objectType, false, false) }, boolType);
 
             // Add the methods to the object type
             var methods = new[] { toString, equals };
 
-            objectType.methods = methods;
+            objectType.methods = new List<TypeMethodDef>(methods);
         }
     }
 
@@ -310,6 +382,14 @@ namespace ZScript.Runtime.Typing.Elements
         /// The name for this member
         /// </summary>
         protected readonly string name;
+
+        /// <summary>
+        /// The name for this member
+        /// </summary>
+        public string Name
+        {
+            get { return name; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the TypeMemberDef class
@@ -357,6 +437,32 @@ namespace ZScript.Runtime.Typing.Elements
     public class TypeMethodDef : TypeMemberDef
     {
         /// <summary>
+        /// The parameters for the method
+        /// </summary>
+        private readonly ParameterInfo[] _parameters;
+
+        /// <summary>
+        /// The return type for the method
+        /// </summary>
+        private readonly TypeDef _returnType;
+
+        /// <summary>
+        /// Gets the array of parameters for the method
+        /// </summary>
+        public ParameterInfo[] Parameters
+        {
+            get { return _parameters; }
+        }
+
+        /// <summary>
+        /// Gets the return type for the method
+        /// </summary>
+        public TypeDef ReturnType
+        {
+            get { return _returnType; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the TypeMethodDef class
         /// </summary>
         /// <param name="name">The name for the method</param>
@@ -365,7 +471,24 @@ namespace ZScript.Runtime.Typing.Elements
         public TypeMethodDef(string name, ParameterInfo[] parameters, TypeDef returnType)
             : base(name)
         {
-            
+            _parameters = parameters;
+            _returnType = returnType;
+        }
+
+        /// <summary>
+        /// Gets the callable type definition that mirrors this type method definition
+        /// </summary>
+        /// <returns>A callable type definition that mirrors this type method definition</returns>
+        public CallableTypeDef CallableTypeDef()
+        {
+            var parameters = new CallableTypeDef.CallableParameterInfo[_parameters.Length];
+
+            for (int i = 0; i < _parameters.Length; i++)
+            {
+                parameters[i] = new CallableTypeDef.CallableParameterInfo(_parameters[i].ParameterType, true, _parameters[i].Optional, _parameters[i].IsVariadic);
+            }
+
+            return new CallableTypeDef(parameters, _returnType, true);
         }
     }
 
@@ -385,6 +508,16 @@ namespace ZScript.Runtime.Typing.Elements
         private readonly string _name;
 
         /// <summary>
+        /// Whether the parameter is variadic in nature
+        /// </summary>
+        private readonly bool _isVariadic;
+
+        /// <summary>
+        /// Whether the parameter is optional
+        /// </summary>
+        private readonly bool _optional;
+
+        /// <summary>
         /// Gets the type for the parameter
         /// </summary>
         public TypeDef ParameterType
@@ -401,14 +534,34 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets a value specifying whether the parameter is variadic in nature
+        /// </summary>
+        public bool IsVariadic
+        {
+            get { return _isVariadic; }
+        }
+
+        /// <summary>
+        /// Gets a value specifying whether the parameter is optional
+        /// </summary>
+        public bool Optional
+        {
+            get { return _optional; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ParameterInfo class
         /// </summary>
         /// <param name="name">The name for this parameter</param>
         /// <param name="type">The type signature for this parameter</param>
-        public ParameterInfo(string name, TypeDef type)
+        /// <param name="isVariadic">Whether the parameter is variadic in nature</param>
+        /// <param name="optional">Whether the parameter is optional</param>
+        public ParameterInfo(string name, TypeDef type, bool isVariadic, bool optional)
         {
             _name = name;
             _type = type;
+            _isVariadic = isVariadic;
+            _optional = optional;
         }
     }
 }
