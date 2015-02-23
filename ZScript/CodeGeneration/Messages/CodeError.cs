@@ -146,6 +146,9 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>Classes are locked in a circular inheritance chain</summary>
         CircularInheritanceChain,
 
+        /// <summary>Trying to override a method that is not present in a base class</summary>
+        NoOverrideTarget,
+
         #endregion
     }
 }

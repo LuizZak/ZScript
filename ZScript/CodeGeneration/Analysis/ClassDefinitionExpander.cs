@@ -47,6 +47,7 @@ namespace ZScript.CodeGeneration.Analysis
             foreach (var classDefinition in classes)
             {
                 CheckMethodCollisions(classDefinition);
+                CreateFieldCollisions(classDefinition);
             }
         }
 
@@ -140,6 +141,47 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
 
                     var message = "Duplicated method definition '" + method.Name + "' not marked as override";
+                    _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
+                }
+                // Missing override target
+                else if (method.IsOverride)
+                {
+                    var message = "Method definition '" + method.Name + "' is marked as override but there's no base method to override";
+                    _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.NoOverrideTarget);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks collisions of fields of a given class definition with its parent classes
+        /// </summary>
+        /// <param name="definition">The definition to check collisions on</param>
+        private void CreateFieldCollisions(ClassDefinition definition)
+        {
+            var methods = definition.Fields;
+            var inheritedMethods = definition.GetAllFields(true);
+
+            for (int i = 0; i < methods.Count; i++)
+            {
+                var method = methods[i];
+
+                // Ignore 'base' methods
+                if (method.Name == "base")
+                    continue;
+
+                // Check inner collisions
+                for (int j = i + 1; j < methods.Count; j++)
+                {
+                    if (methods[j].Name == method.Name)
+                    {
+                        var message = "Duplicated field definition '" + method.Name + "'";
+                        _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
+                    }
+                }
+
+                if (inheritedMethods.Any(m => m.Name == method.Name))
+                {
+                    var message = "Duplicated field definition '" + method.Name + "'";
                     _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
                 }
             }

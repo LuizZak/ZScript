@@ -74,6 +74,23 @@ namespace ZScriptTests.Runtime
         }
 
         /// <summary>
+        /// Tests error raising when creating variables on base and derived classes
+        /// </summary>
+        [TestMethod]
+        public void TestFieldCollisionError()
+        {
+            const string input = "class BaseTest { var f1; } class DerivedTest : BaseTest { var f1; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+        }
+
+        /// <summary>
         /// Tests error raising when trying to extend a class that does not exists
         /// </summary>
         [TestMethod]
@@ -105,6 +122,37 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.CircularInheritanceChain), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests trying to re-assign the 'this' special constant
+        /// </summary>
+        [TestMethod]
+        public void TestConstantThis()
+        {
+            const string input = "var a:any; func f1() { var inst = TestClass(); } class TestClass { func TestClass() { this = null; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+        }
+
+        /// <summary>
+        /// Tests override of methods
+        /// </summary>
+        [TestMethod]
+        public void TestOverrideNoTarget()
+        {
+            const string input = "class TestBaseClass { func access1() { } }" +
+                                 "class TestClass : TestBaseClass { override func access2() { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoOverrideTarget));
         }
 
         #endregion
@@ -221,20 +269,6 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(10L, memory.GetVariable("a"));
         }
 
-        /// <summary>
-        /// Tests trying to re-assign the 'this' special constant
-        /// </summary>
-        [TestMethod]
-        public void TestConstantThis()
-        {
-            const string input = "var a:any; func f1() { var inst = TestClass(); } class TestClass { func TestClass() { this = null; } }";
-
-            var generator = TestUtils.CreateGenerator(input);
-            generator.CollectDefinitions();
-
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
-        }
-
         #region Inheritance tests
 
         /// <summary>
@@ -293,6 +327,29 @@ namespace ZScriptTests.Runtime
             generator.MessageContainer.PrintMessages();
 
             Assert.AreEqual(10L, memory.GetVariable("a"));
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
+
+        /// <summary>
+        /// Tests override of methods
+        /// </summary>
+        [TestMethod]
+        public void TestOverridenMethod()
+        {
+            const string input = "var a:int; func f1() { var inst = TestClass(); inst.access(); }" +
+                                 "class TestBaseClass { func access() { a = 10; } }" +
+                                 "class TestClass : TestBaseClass { override func access() { a = 20; } }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f1");
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(20L, memory.GetVariable("a"));
             Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
 
