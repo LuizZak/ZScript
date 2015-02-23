@@ -489,10 +489,14 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Try to get the field info
-            var fieldInfo = leftValue.GetField(context.memberName().IDENT().GetText());
-            if (fieldInfo != null)
+            var memberInfo = leftValue.GetMember(context.memberName().IDENT().GetText());
+            if (memberInfo is TypeFieldDef)
             {
-                resType = fieldInfo.FieldType;
+                resType = (memberInfo as TypeFieldDef).FieldType;
+            }
+            else if (memberInfo is TypeMethodDef)
+            {
+                resType = (memberInfo as TypeMethodDef).CallableTypeDef();
             }
 
             // TODO: Decide what to do on failure. Raise error? Warning? Do nothing?

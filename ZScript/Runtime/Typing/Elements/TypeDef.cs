@@ -215,6 +215,22 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Returns a member definition in this TypeDef that matches the given name
+        /// </summary>
+        /// <param name="memberName">The name of the mebmer to search for</param>
+        /// <returns>The member type definition that was fetched; or null, if none was found</returns>
+        public TypeMemberDef GetMember(string memberName)
+        {
+            // Search fields first
+            var field = GetField(memberName);
+            if (field != null)
+                return field;
+
+            // Method fetching
+            return GetMethod(memberName);
+        }
+
+        /// <summary>
         /// Clears all fields defined in this type definition.
         /// This does not clears fields defined in parent classes
         /// </summary>

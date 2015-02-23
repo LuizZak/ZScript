@@ -18,9 +18,12 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
+
 using Antlr4.Runtime;
+
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Tokenization;
@@ -127,7 +130,7 @@ namespace ZScriptTests.Utils
 
             var parser = CreateParser(field1Exp);
 
-            classDef.AddMethod(new MethodDefinition("func1", null, new FunctionArgumentDefinition[0]));
+            classDef.AddMethod(new MethodDefinition("func1", null, new FunctionArgumentDefinition[0]) { ReturnType = TypeDef.IntegerType });
             classDef.AddField(new ClassFieldDefinition("field1") { Type = TypeDef.IntegerType, HasValue = true, ValueExpression = new Expression(parser.expression()) });
 
             return classDef;
