@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System.Text;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -63,5 +64,25 @@ namespace ZScript.CodeGeneration.Definitions
         /// Whether this value holder is an instance value
         /// </summary>
         public bool IsInstanceValue;
+
+        /// <summary>
+        /// Returns a string representation of this ValueHolderDefinition
+        /// </summary>
+        /// <returns>A string representation of this ValueHolderDefinition</returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(IsConstant ? "let " : "var ");
+            builder.Append(Name);
+
+            if(Type != null)
+            {
+                builder.Append(":");
+                builder.Append(Type);
+            }
+
+            return builder.ToString();
+        }
     }
 }
