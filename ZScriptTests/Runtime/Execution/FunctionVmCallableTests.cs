@@ -92,7 +92,7 @@ namespace ZScriptTests.Runtime.Execution
         /// Tests nesting multiple callables one next to another
         /// </summary>
         [TestMethod]
-        public void TestNestedMethodCallablecall()
+        public void TestNestedMethodCallableCall()
         {
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
