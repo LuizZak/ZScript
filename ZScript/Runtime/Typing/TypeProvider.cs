@@ -347,7 +347,10 @@ namespace ZScript.Runtime.Typing
 
             if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
             {
-                return nativeTarget.NativeType.IsAssignableFrom(nativeOrigin.NativeType) || CanImplicitCastPrimitive(nativeOrigin.NativeType, nativeTarget.NativeType);
+                Type typeOrigin = NativeTypeForTypeDef(nativeOrigin);
+                Type typeTarget = NativeTypeForTypeDef(nativeTarget);
+
+                return typeTarget.IsAssignableFrom(typeOrigin) || CanImplicitCastPrimitive(typeOrigin, typeTarget);
             }
 
             return false;
