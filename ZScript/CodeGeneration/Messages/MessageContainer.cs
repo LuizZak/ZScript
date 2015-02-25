@@ -96,6 +96,22 @@ namespace ZScript.CodeGeneration.Messages
         }
 
         /// <summary>
+        /// Gets a value specifying whether there are any warnings registered on this message container
+        /// </summary>
+        public bool HasWarnings
+        {
+            get { return _warningList.Count > 0; }
+        }
+
+        /// <summary>
+        /// Gets a value specifying whether there are any type of messages registered on this message container
+        /// </summary>
+        public bool HasMessages
+        {
+            get { return HasErrors || HasWarnings; }
+        }
+
+        /// <summary>
         /// Prints all the errors and warning messages currently stored in this MessageContainer
         /// </summary>
         public void PrintMessages()
