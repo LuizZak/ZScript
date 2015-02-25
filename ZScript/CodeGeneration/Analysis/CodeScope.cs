@@ -360,7 +360,7 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 var scope = scopeQueue.Pop();
 
-                usages.AddRange(_usages);
+                usages.AddRange(scope._usages);
 
                 foreach (var child in scope.ChildrenScopes)
                 {

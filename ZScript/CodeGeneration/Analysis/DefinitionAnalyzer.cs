@@ -48,7 +48,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Stack of class definitions currently being analyzed
         /// </summary>
-        private readonly Stack<ClassDefinition> _classStack; 
+        private readonly Stack<ClassDefinition> _classStack;
 
         /// <summary>
         /// Gest the message container that errors will be reported to
