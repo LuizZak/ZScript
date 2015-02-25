@@ -590,6 +590,10 @@ namespace ZScript.CodeGeneration
             {
                 target.AddDefinition(d);
             }
+            foreach (var usage in source.DefinitionUsages)
+            {
+                target.AddDefinitionUsage(usage);
+            }
         }
 
         /// <summary>
