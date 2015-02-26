@@ -230,6 +230,47 @@ namespace ZScriptTests.CodeGeneration
             Assert.AreEqual(new SequenceFrameRange(false, 2, 3), frame2.FrameRanges[0], "The frame ranges where not read successfully");
         }
 
+        /// <summary>
+        /// Tests collection of labeled sequence frames
+        /// </summary>
+        [TestMethod]
+        public void TestCollectLabeledSequenceFrame()
+        {
+            const string input = "sequence Test1 [ start: 0 { } ]";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var sequence = scope.GetDefinitionByName<SequenceDefinition>("Test1");
+
+            Assert.IsFalse(container.HasErrors);
+
+            Assert.AreEqual("start", sequence.FrameDefinitions[0].Name, "The frame label was not read successfully");
+        }
+
+        /// <summary>
+        /// Tests error raising when defining duplicated frame labels
+        /// </summary>
+        [TestMethod]
+        public void TestDuplicatedFrameLabelError()
+        {
+            const string input = "sequence Test1 [ start: 0 { } start: 1 { } ]";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+        }
+
         #endregion
     }
 }

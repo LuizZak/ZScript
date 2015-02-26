@@ -617,6 +617,8 @@ namespace ZScript.CodeGeneration
         /// <returns>The sequence frame that was defined</returns>
         void DefineSequenceFrame(SequenceFrameDefinition frame)
         {
+            _currentScope.AddDefinition(frame);
+
             var seq = GetSequenceScope();
 
             if(seq != null)
@@ -633,6 +635,8 @@ namespace ZScript.CodeGeneration
             var def = DefinitionGenerator.GenerateSequenceFrameDef(frame);
 
             def.Sequence = GetSequenceScope();
+
+            CheckCollisions(def, frame.frameName());
 
             DefineSequenceFrame(def);
 
@@ -657,8 +661,8 @@ namespace ZScript.CodeGeneration
         /// <param name="context">A context used during analysis to report where the error happened</param>
         void CheckCollisions(Definition definition, ParserRuleContext context)
         {
-            // Sequence frame definitions do not collide with other definitions
-            if (definition is SequenceFrameDefinition)
+            // Unlabeled sequence frame definitions do not collide with other definitions
+            if (definition is SequenceFrameDefinition && definition.Name == "")
                 return;
 
             var defs = _currentScope.GetDefinitionsByName(definition.Name);
