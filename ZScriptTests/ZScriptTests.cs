@@ -221,5 +221,21 @@ namespace ZScriptTests
 
             Assert.AreEqual(0, definition.ZFunctionDefinitions[0].Tokens.Tokens.Length, "The constant, empty if statements inside the function 'a' where expected to be optimized out completely");
         }
+
+        /// <summary>
+        /// Tests implict casting of an array literal's contents
+        /// </summary>
+        [TestMethod]
+        public void TestArrayLiteralCastong()
+        {
+            const string input = "func f1() { var a:[float] = [0]; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.GenerateRuntimeDefinition();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
     }
 }

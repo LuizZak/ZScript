@@ -148,6 +148,12 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.arrayLiteral() != null)
             {
+                var expectedAsList = context.ExpectedType as ListTypeDef;
+                if (expectedAsList != null)
+                {
+                    context.arrayLiteral().ExpectedType = expectedAsList;
+                }
+
                 retType = ResolveArrayLiteral(context.arrayLiteral());
             }
             if (context.objectLiteral() != null)
@@ -825,12 +831,19 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
         {
+            // Expected type for the list
+            var expectedValueType = context.ExpectedType == null ? null : context.ExpectedType.EnclosingType;
+
             // Try to infer the type of items in the array
-            var listItemsType = TypeProvider.AnyType();
+            var listItemsType = expectedValueType ?? TypeProvider.AnyType();
 
             var items = context.expressionList();
 
-            if (items != null)
+            if (items == null)
+                return TypeProvider.ListForType(listItemsType);
+
+            // Type is supposed to be inferred from the array's contents
+            if (expectedValueType == null)
             {
                 bool inferredOne = false;
                 foreach (var exp in items.expression())
@@ -845,9 +858,34 @@ namespace ZScript.CodeGeneration.Analysis
 
                     listItemsType = TypeProvider.FindCommonType(itemType, listItemsType);
                 }
+
+                return TypeProvider.ListForType(listItemsType);
             }
 
-            return TypeProvider.ListForType(listItemsType);
+            // Check type compatibility
+            bool canImplicit = true;
+            foreach (var exp in items.expression())
+            {
+                exp.ExpectedType = expectedValueType;
+
+                var itemType = ResolveExpression(exp);
+
+                if (!TypeProvider.CanImplicitCast(itemType, expectedValueType))
+                {
+                    canImplicit = false;
+                }
+            }
+
+            // Report an error if the types in the list cannot be implicitly cast to the list type
+            if (!canImplicit)
+            {
+                var message = "Cannot implicitly convert source list type to target type " + expectedValueType;
+                MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+
+                return TypeProvider.ListForType(TypeProvider.AnyType());
+            }
+
+            return context.ImplicitCastType = TypeProvider.ListForType(expectedValueType);
         }
 
         #endregion

@@ -341,6 +341,32 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.ListForType(provider.IntegerType()), resolver.ResolveExpression(exp4), "The resolved type did not match the expected type");
         }
 
+        /// <summary>
+        /// Tests implicit array casting
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitArray()
+        {
+            // Set up the test
+            const string input = "lf = [0]";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            var assignment = parser.assignmentExpression();
+
+            resolver.ResolveAssignmentExpression(assignment);
+            container.PrintMessages();
+
+            Assert.IsFalse(container.HasErrors);
+            // Compare the result now
+            Assert.AreEqual(provider.FloatType(), assignment.expression().arrayLiteral().expressionList().expression(0).ImplicitCastType, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ExpectedType, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ImplicitCastType, "The resolved type did not match the expected type");
+        }
+
         #endregion
 
         #region Subscription/function call argument type resolving

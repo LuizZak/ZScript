@@ -133,6 +133,37 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(20.0, expression.ConstantValue, "The expander failed to expand the constants correctly");
         }
 
+        /// <summary>
+        /// Tests implicit casting of contents of an array literal
+        /// </summary>
+        [TestMethod]
+        public void TestCastListLiteral()
+        {
+            const string input = "[10, 1.1]";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
+            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Implicitly set it as a float, and have it converted
+            expression.arrayLiteral().expressionList().expression(0).ImplicitCastType = typeProvider.FloatType();
+            expression.arrayLiteral().expressionList().expression(0).ExpectedType = typeProvider.FloatType();
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.AreEqual(10.0, expression.arrayLiteral().expressionList().expression(0).ConstantValue, "The expander failed to cast the constants in the list literal");
+        }
+
         #endregion
 
         /// <summary>

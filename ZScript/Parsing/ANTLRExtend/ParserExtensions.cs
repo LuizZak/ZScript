@@ -118,6 +118,23 @@ public partial class ZScriptParser
     }
 
     /// <summary>
+    /// Provides extensions to the ArrayLiteralContext for providing implicit casting of array contents
+    /// </summary>
+    partial class ArrayLiteralContext
+    {
+        /// <summary>
+        /// Gets or sets the expected type for this expression, being implicitly set from a parent expression during expression type analysis
+        /// </summary>
+        public ListTypeDef ImplicitCastType { get; set; }
+
+        /// <summary>
+        /// The type that was set as expected by a parent expression when this expression was evaluated.
+        /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
+        /// </summary>
+        public ListTypeDef ExpectedType { get; set; }
+    }
+
+    /// <summary>
     /// Provides extensions to the IfStatementContext for providing constant evaluation flagging
     /// </summary>
     partial class IfStatementContext

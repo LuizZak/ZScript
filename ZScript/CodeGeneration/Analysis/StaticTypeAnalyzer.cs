@@ -345,6 +345,9 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 definition.ValueExpression.ExpressionContext.ExpectedType = definition.HasType ? definition.Type : null;
                 valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
+
+                // Expand the constants in the value
+                
             }
 
             if (!definition.HasType)
@@ -459,6 +462,17 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     var message = "Cannot reassign constant value " + context.leftValue().GetText();
                     _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.ModifyingConstant);
+                }
+            }
+
+            // 
+            // EnterValueDeclareStatement override
+            // 
+            public override void EnterValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
+            {
+                if (context.valueHolderDecl().expression() != null)
+                {
+                    _constantResolver.ExpandConstants(context.valueHolderDecl().expression());
                 }
             }
 

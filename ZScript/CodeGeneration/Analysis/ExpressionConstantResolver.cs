@@ -128,6 +128,10 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     ResolveUnaryExpression(context);
                 }
+                if (context.arrayLiteral() != null)
+                {
+                    ResolveArrayLiteral(context.arrayLiteral());
+                }
             }
 
             // Verify if any implicit casts are in place
@@ -205,6 +209,22 @@ namespace ZScript.CodeGeneration.Analysis
                     context.IsConstantPrimitive = IsValuePrimitive(value);
                     context.IsConstant = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Resolves the array literal contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context to analyze</param>
+        void ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
+        {
+            if (context.expressionList() == null)
+                return;
+
+            // Setup the contents of the expression list
+            foreach (var expression in context.expressionList().expression())
+            {
+                ResolveExpression(expression);
             }
         }
 
