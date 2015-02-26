@@ -62,6 +62,11 @@ namespace ZScript.CodeGeneration
         private Stack<ClassDefinition> _classStack;
 
         /// <summary>
+        /// Stack of sequences used to define methods and members inside classes
+        /// </summary>
+        private Stack<SequenceDefinition> _sequenceStack;
+
+        /// <summary>
         /// Stack of functions used to define arguments
         /// </summary>
         private Stack<FunctionDefinition> _functionStack; 
@@ -93,6 +98,7 @@ namespace ZScript.CodeGeneration
         {
             // Clear stacks
             _classStack = new Stack<ClassDefinition>();
+            _sequenceStack = new Stack<SequenceDefinition>();
             _functionStack = new Stack<FunctionDefinition>();
 
             var walker = new ParseTreeWalker();
@@ -168,11 +174,15 @@ namespace ZScript.CodeGeneration
 
         public override void EnterSequenceBlock(ZScriptParser.SequenceBlockContext context)
         {
+            _sequenceStack.Push(DefineSequence(context));
+
             PushScope(context);
         }
 
         public override void ExitSequenceBlock(ZScriptParser.SequenceBlockContext context)
         {
+            _sequenceStack.Pop();
+
             PopScope();
         }
 
@@ -364,6 +374,16 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Returns the class definition associated with the current sequence being parsed.
+        /// If the collector is currently not inside a sequence context, null is returned
+        /// </summary>
+        /// <returns>A sequence definition for the current scope</returns>
+        SequenceDefinition GetSequenceScope()
+        {
+            return _sequenceStack.Count > 0 ? _sequenceStack.Peek() : null;
+        }
+
+        /// <summary>
         /// Defines a new variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The context containing the variable to define</param>
@@ -392,7 +412,10 @@ namespace ZScript.CodeGeneration
 
             _currentScope.AddDefinition(def);
 
-            GetClassScope().AddField(def);
+            if (GetSequenceScope() != null)
+                GetSequenceScope().AddField(def);
+            else
+                GetClassScope().AddField(def);
         }
 
         /// <summary>
@@ -566,6 +589,24 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Defines a new class definition in the current top-most scope
+        /// </summary>
+        /// <param name="sequence">The object to define</param>
+        /// <returns>The class that was defined</returns>
+        SequenceDefinition DefineSequence(ZScriptParser.SequenceBlockContext sequence)
+        {
+            var def = new SequenceDefinition(sequence.sequenceName().IDENT().GetText())
+            {
+                Context = sequence,
+                SequenceContext = sequence
+            };
+
+            _currentScope.AddDefinition(def);
+
+            return def;
+        }
+
+        /// <summary>
         /// Defines a new type alias definition in the current top-most scope
         /// </summary>
         /// <param name="typeAlias">The type alias to define</param>
@@ -587,22 +628,21 @@ namespace ZScript.CodeGeneration
 
             foreach (var d in defs)
             {
-                // Collisions between exported definitions are ignored
+                // Collisions between exported functions and normal functions are ignored
                 if (d is ExportFunctionDefinition && !(definition is ExportFunctionDefinition))
                     continue;
 
                 // Constructor definition
-                if (d is ClassDefinition && definition is FunctionDefinition && IsContextChildOf(definition.Context, d.Context))
+                if (d is ClassDefinition && definition is MethodDefinition && ((MethodDefinition)definition).Class == d)
                     continue;
 
                 // Shadowing of global variables
-                if (d is GlobalVariableDefinition && !(definition is GlobalVariableDefinition) ||
-                    !(d is GlobalVariableDefinition) && definition is GlobalVariableDefinition)
+                if (d is GlobalVariableDefinition != definition is GlobalVariableDefinition)
                     continue;
 
-                // Class field shadowing
-                if (d is ClassFieldDefinition && (definition is LocalVariableDefinition || definition is FunctionArgumentDefinition) ||
-                    definition is ClassFieldDefinition && (d is LocalVariableDefinition || d is FunctionArgumentDefinition))
+                // Type field shadowing
+                if (d is TypeFieldDefinition && (definition is LocalVariableDefinition || definition is FunctionArgumentDefinition) ||
+                    definition is TypeFieldDefinition && (d is LocalVariableDefinition || d is FunctionArgumentDefinition))
                     continue;
 
                 int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;

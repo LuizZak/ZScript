@@ -31,7 +31,7 @@ namespace ZScriptTests.CodeGeneration.Definitions
         {
             var definition = new ClassDefinition("test1");
 
-            definition.AddField(new ClassFieldDefinition("field1") { Type = TypeDef.IntegerType });
+            definition.AddField(new TypeFieldDefinition("field1") { Type = TypeDef.IntegerType });
 
             definition.FinishDefinition();
 

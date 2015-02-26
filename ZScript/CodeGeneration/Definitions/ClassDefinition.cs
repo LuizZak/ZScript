@@ -27,7 +27,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Defines an object definition that can be instantiated and used in the script
     /// </summary>
-    public class ClassDefinition : Definition
+    public class ClassDefinition : TypeContainerDefinition
     {
         /// <summary>
         /// Dirty flag for the '_classTypeDef' property
@@ -38,11 +38,6 @@ namespace ZScript.CodeGeneration.Definitions
         /// Represents the type that defines this class
         /// </summary>
         private readonly ClassTypeDef _classTypeDef;
-
-        /// <summary>
-        /// Internal list of fields for this class definition
-        /// </summary>
-        private readonly List<ClassFieldDefinition> _fields;
 
         /// <summary>
         /// Internal list of methods for this class definition
@@ -57,9 +52,9 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets the list of fields colelcted in this class definition
         /// </summary>
-        public ClassFieldDefinition[] Fields
+        public override TypeFieldDefinition[] Fields
         {
-            get { return _fields.ToArray(); }
+            get { return fields.ToArray(); }
         }
 
         /// <summary>
@@ -104,7 +99,7 @@ namespace ZScript.CodeGeneration.Definitions
 
             _classTypeDef = new ClassTypeDef(className);
 
-            _fields = new List<ClassFieldDefinition>();
+            fields = new List<TypeFieldDefinition>();
             _methods = new List<MethodDefinition>();
 
             _classTypeDirty = true;
@@ -136,9 +131,9 @@ namespace ZScript.CodeGeneration.Definitions
         /// Adds a new field definition to this class
         /// </summary>
         /// <param name="field">The field to add to this class</param>
-        public void AddField(ClassFieldDefinition field)
+        public override void AddField(TypeFieldDefinition field)
         {
-            _fields.Add(field);
+            fields.Add(field);
 
             _classTypeDirty = true;
         }
@@ -171,9 +166,9 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         /// <param name="inheritedOnly">Whether to only get fields that where inherited</param>
         /// <returns>A list of all the fields inherited and defined by this given class definition</returns>
-        public List<ValueHolderDefinition> GetAllFields(bool inheritedOnly = false)
+        public override List<TypeFieldDefinition> GetAllFields(bool inheritedOnly = false)
         {
-            var functions = new List<ValueHolderDefinition>();
+            var functions = new List<TypeFieldDefinition>();
 
             var curClass = this;
             if (inheritedOnly)
@@ -201,7 +196,7 @@ namespace ZScript.CodeGeneration.Definitions
             _classTypeDef.BaseType = (BaseClass == null ? null : BaseClass._classTypeDef);
 
             // Add the fields
-            foreach (var field in _fields)
+            foreach (var field in fields)
             {
                 var fieldType = new TypeFieldDef(field.Name, field.Type, field.IsConstant);
 

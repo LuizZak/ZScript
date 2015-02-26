@@ -65,6 +65,29 @@ namespace ZScriptTests.CodeGeneration
         }
 
         /// <summary>
+        /// Tests collection of fields on a class definition
+        /// </summary>
+        [TestMethod]
+        public void TestCollectClassField()
+        {
+            const string input = "class Test1 { var field1:int = 0; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
+
+            Assert.IsFalse(container.HasErrors);
+            Assert.AreEqual(1, parsedClass.Fields.Count(f => f.Name == "field1"));
+        }
+
+        /// <summary>
         /// Tests creation of a default class constructor, when none is provided
         /// </summary>
         [TestMethod]
@@ -127,13 +150,17 @@ namespace ZScriptTests.CodeGeneration
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
         }
 
+        #endregion
+
+        #region Sequence parsing
+
         /// <summary>
-        /// Tests collection of fields on a class definition
+        /// Tests collection of a sequence definition
         /// </summary>
         [TestMethod]
-        public void TestCollectClassField()
+        public void TestCollectSequence()
         {
-            const string input = "class Test1 { var field1:int = 0; }";
+            const string input = "sequence Test1 [ ]";
 
             var parser = TestUtils.CreateParser(input);
             var container = new MessageContainer();
@@ -144,10 +171,34 @@ namespace ZScriptTests.CodeGeneration
             var scope = collector.CollectedBaseScope;
 
             // Search for the class that was parsed
-            var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
+            var parsedClass = scope.GetDefinitionByName<SequenceDefinition>("Test1");
 
             Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(1, parsedClass.Fields.Count(f => f.Name == "field1"));
+            Assert.IsNotNull(parsedClass);
+            Assert.IsNotNull(parsedClass.SequenceContext);
+        }
+
+        /// <summary>
+        /// Tests collection of fields on a sequence definition
+        /// </summary>
+        [TestMethod]
+        public void TestCollectSequenceField()
+        {
+            const string input = "sequence Test1 [ var field1:int = 0; ]";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var sequence = scope.GetDefinitionByName<SequenceDefinition>("Test1");
+
+            Assert.IsFalse(container.HasErrors);
+            Assert.AreEqual(1, sequence.Fields.Count(f => f.Name == "field1"));
         }
 
         #endregion
