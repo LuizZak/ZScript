@@ -929,6 +929,28 @@ namespace ZScriptTests.CodeGeneration.Analysis
         #region Error raising
 
         /// <summary>
+        /// Tests error raising for invalid implicit array casting
+        /// </summary>
+        [TestMethod]
+        public void TestFailedImplicitArray()
+        {
+            // Set up the test
+            const string input = "lf = [0, true]";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            var assignment = parser.assignmentExpression();
+
+            resolver.ResolveAssignmentExpression(assignment);
+            container.PrintMessages();
+
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
         /// Tests resolving of types in an assignment expression
         /// </summary>
         [TestMethod]
