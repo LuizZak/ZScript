@@ -80,12 +80,15 @@ namespace ZScript.Runtime.Execution
         /// Gets the return value for the virtual machine execution.
         /// Raises an exception if the VM has no return value associated. Use the HasReturnValue property to verify if a return value is present, first
         /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// The virtual machine had no return value specified. Use <see cref="HasReturnValue"/> to verify the existence of a return value before accessing this property.
+        /// </exception>
         public object ReturnValue
         {
             get
             {
                 if (!_hasReturnValue)
-                    throw new Exception("No return value was specified by the VM code to return");
+                    throw new InvalidOperationException("No return value was specified by the VM code to return");
                 
                 return _returnValue;
             }
