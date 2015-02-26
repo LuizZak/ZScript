@@ -201,6 +201,35 @@ namespace ZScriptTests.CodeGeneration
             Assert.AreEqual(1, sequence.Fields.Count(f => f.Name == "field1"));
         }
 
+        /// <summary>
+        /// Tests collection of sequence frames
+        /// </summary>
+        [TestMethod]
+        public void TestCollectSequenceFrame()
+        {
+            const string input = "sequence Test1 [ 1 { } 2-3 { } ]";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var sequence = scope.GetDefinitionByName<SequenceDefinition>("Test1");
+
+            Assert.IsFalse(container.HasErrors);
+            Assert.AreEqual(2, sequence.FrameDefinitions.Length);
+
+            var frame1 = sequence.FrameDefinitions[0];
+            var frame2 = sequence.FrameDefinitions[1];
+
+            Assert.AreEqual(new SequenceFrameRange(false, 1),    frame1.FrameRanges[0], "The frame ranges where not read successfully");
+            Assert.AreEqual(new SequenceFrameRange(false, 2, 3), frame2.FrameRanges[0], "The frame ranges where not read successfully");
+        }
+
         #endregion
     }
 }

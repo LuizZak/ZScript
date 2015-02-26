@@ -28,9 +28,19 @@ namespace ZScript.CodeGeneration.Definitions
     public class SequenceDefinition : TypeContainerDefinition
     {
         /// <summary>
+        /// The list of frame definitions for this sequence definition
+        /// </summary>
+        private readonly List<SequenceFrameDefinition> _frameDefinitions; 
+
+        /// <summary>
         /// Gets or sets the context containing the sequence definition
         /// </summary>
         public ZScriptParser.SequenceBlockContext SequenceContext { get; set; }
+
+        /// <summary>
+        /// Get an array of frame definitions for this sequence definition
+        /// </summary>
+        public SequenceFrameDefinition[] FrameDefinitions { get { return _frameDefinitions.ToArray(); } }
 
         /// <summary>
         /// Gets all the fields defined in this sequence definition
@@ -48,6 +58,8 @@ namespace ZScript.CodeGeneration.Definitions
         {
             Name = sequenceName;
             fields = new List<TypeFieldDefinition>();
+
+            _frameDefinitions = new List<SequenceFrameDefinition>();
         }
 
         /// <summary>
@@ -57,6 +69,15 @@ namespace ZScript.CodeGeneration.Definitions
         public override void AddField(TypeFieldDefinition field)
         {
             fields.Add(field);
+        }
+
+        /// <summary>
+        /// Adds a frame to this sequence definition
+        /// </summary>
+        /// <param name="frame">The frame to add to this definition</param>
+        public void AddFrame(SequenceFrameDefinition frame)
+        {
+            _frameDefinitions.Add(frame);
         }
 
         /// <summary>

@@ -29,6 +29,24 @@ namespace ZScript.CodeGeneration
     public static class DefinitionGenerator
     {
         /// <summary>
+        /// Generates a new frame sequence definition using the given context
+        /// </summary>
+        /// <param name="context">The context to generate the frame definition from</param>
+        /// <returns>A sequence frame definition generated from the given context</returns>
+        public static SequenceFrameDefinition GenerateSequenceFrameDef(ZScriptParser.SequenceFrameContext context)
+        {
+            var frameName = context.frameName() == null ? "" : context.frameName().GetText();
+
+            var m = new SequenceFrameDefinition(frameName, context.functionBody(), CollectFrameRanges(context.frameRange()))
+            {
+                Context = context,
+                HasReturnType = false
+            };
+
+            return m;
+        }
+
+        /// <summary>
         /// Generates a new method definition using the given context
         /// </summary>
         /// <param name="context">The context to generate the method definition from</param>
@@ -148,7 +166,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to collect the function arguments from</param>
         /// <returns>An array of function arguments that were collected</returns>
-        private static FunctionArgumentDefinition[] CollectFunctionArguments(ZScriptParser.FunctionArgumentsContext context)
+        public static FunctionArgumentDefinition[] CollectFunctionArguments(ZScriptParser.FunctionArgumentsContext context)
         {
             if (context == null || context.argumentList() == null)
                 return new FunctionArgumentDefinition[0];
@@ -165,6 +183,40 @@ namespace ZScript.CodeGeneration
             }
 
             return args;
+        }
+
+        /// <summary>
+        /// Returns an array of sequence frame ranges from a given frame range context
+        /// </summary>
+        /// <param name="context">The context to collect the frame ranges from</param>
+        /// <returns>An array of sequence frame ranges that were collected</returns>
+        public static SequenceFrameRange[] CollectFrameRanges(ZScriptParser.FrameRangeContext context)
+        {
+            var elements = context.frameRangeElement();
+            var ranges = new SequenceFrameRange[elements.Length];
+
+            for (int i = 0; i < elements.Length; i++)
+            {
+                bool relative = elements[i].relative != null;
+                var frameNumbers = elements[i].frameNumber();
+
+                int startFrame = int.Parse(frameNumbers[0].INT().GetText());
+
+                // Two frames detected: this is a ranged frame range
+                if (frameNumbers.Length == 2)
+                {
+                    var endFrame = int.Parse(frameNumbers[1].INT().GetText());
+
+                    ranges[i] = new SequenceFrameRange(relative, startFrame, endFrame);
+                }
+                // One frame detected: This is a single frame range
+                else
+                {
+                    ranges[i] = new SequenceFrameRange(relative, startFrame);
+                }
+            }
+
+            return ranges;
         }
 
         /// <summary>

@@ -188,11 +188,15 @@ namespace ZScript.CodeGeneration
 
         public override void EnterSequenceFrame(ZScriptParser.SequenceFrameContext context)
         {
+            _functionStack.Push(DefineSequenceFrame(context));
+
             PushScope(context);
         }
 
         public override void ExitSequenceFrame(ZScriptParser.SequenceFrameContext context)
         {
+            _functionStack.Pop();
+
             PopScope();
         }
 
@@ -573,7 +577,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Defines a new class definition in the current top-most scope
         /// </summary>
-        /// <param name="classDefinition">The object to define</param>
+        /// <param name="classDefinition">The class to define</param>
         /// <returns>The class that was defined</returns>
         ClassDefinition DefineClass(ZScriptParser.ClassDefinitionContext classDefinition)
         {
@@ -589,10 +593,10 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Defines a new class definition in the current top-most scope
+        /// Defines a new sequence definition in the current top-most scope
         /// </summary>
-        /// <param name="sequence">The object to define</param>
-        /// <returns>The class that was defined</returns>
+        /// <param name="sequence">The sequence to define</param>
+        /// <returns>The sequence that was defined</returns>
         SequenceDefinition DefineSequence(ZScriptParser.SequenceBlockContext sequence)
         {
             var def = new SequenceDefinition(sequence.sequenceName().IDENT().GetText())
@@ -602,6 +606,35 @@ namespace ZScript.CodeGeneration
             };
 
             _currentScope.AddDefinition(def);
+
+            return def;
+        }
+
+        /// <summary>
+        /// Defines a new sequence frame definition in the current top-most scope
+        /// </summary>
+        /// <param name="frame">The sequence frame to define</param>
+        /// <returns>The sequence frame that was defined</returns>
+        void DefineSequenceFrame(SequenceFrameDefinition frame)
+        {
+            var seq = GetSequenceScope();
+
+            if(seq != null)
+                seq.AddFrame(frame);
+        }
+
+        /// <summary>
+        /// Defines a new sequence frame definition in the current top-most scope
+        /// </summary>
+        /// <param name="frame">The sequence frame to define</param>
+        /// <returns>The sequence frame that was defined</returns>
+        SequenceFrameDefinition DefineSequenceFrame(ZScriptParser.SequenceFrameContext frame)
+        {
+            var def = DefinitionGenerator.GenerateSequenceFrameDef(frame);
+
+            def.Sequence = GetSequenceScope();
+
+            DefineSequenceFrame(def);
 
             return def;
         }
@@ -624,6 +657,10 @@ namespace ZScript.CodeGeneration
         /// <param name="context">A context used during analysis to report where the error happened</param>
         void CheckCollisions(Definition definition, ParserRuleContext context)
         {
+            // Sequence frame definitions do not collide with other definitions
+            if (definition is SequenceFrameDefinition)
+                return;
+
             var defs = _currentScope.GetDefinitionsByName(definition.Name);
 
             foreach (var d in defs)
@@ -657,25 +694,6 @@ namespace ZScript.CodeGeneration
 
                 _messageContainer.RegisterError(context, message, ErrorCode.DuplicatedDefinition);
             }
-        }
-
-        /// <summary>
-        /// Returns whether a rule context is child of another context.
-        /// </summary>
-        /// <param name="context">The context to check</param>
-        /// <param name="parent">The context to check for parenting</param>
-        /// <returns>Whether 'context' is child of 'parent'</returns>
-        bool IsContextChildOf(RuleContext context, RuleContext parent)
-        {
-            while (context != null)
-            {
-                context = context.Parent;
-
-                if (context == parent)
-                    return true;
-            }
-
-            return false;
         }
     }
 }

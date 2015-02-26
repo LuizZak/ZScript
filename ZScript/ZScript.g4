@@ -37,10 +37,11 @@ globalVariable : valueDeclareStatement;
 sequenceBlock       : 'sequence' sequenceName sequenceBody;
 sequenceName        : IDENT;
 sequenceBody        : '[' (classField | sequenceFrame | sequenceFrameChange)* ']';
-sequenceFrame       : frameRange? blockStatement;
+sequenceFrame       : (frameName ':')? frameRange? functionBody;
 sequenceFrameChange : '=' frameNumber | ('-' frameNumber);
+frameName           : IDENT;
 frameRange          : frameRangeElement (',' frameRangeElement)*;
-frameRangeElement   : '+'? frameNumber ('-' frameNumber)?;
+frameRangeElement   : relative='+'? frameNumber ('-' frameNumber)?;
 frameNumber         : INT;
 
 ////

@@ -54,6 +54,7 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
+    <Compile Include="CodeGeneration\Definitions\SequenceFrameDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\TypeFieldDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\MethodDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\LocalVariableDefinition.cs" />

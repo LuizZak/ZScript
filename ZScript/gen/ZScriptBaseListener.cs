@@ -201,6 +201,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitSequenceFrameChange([NotNull] ZScriptParser.SequenceFrameChangeContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.frameName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFrameName([NotNull] ZScriptParser.FrameNameContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.frameName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFrameName([NotNull] ZScriptParser.FrameNameContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.frameRange"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
