@@ -23,7 +23,7 @@ namespace ZScript.CodeGeneration.Sourcing
     /// <summary>
     /// Represents a ZScript source that comes from a provided string
     /// </summary>
-    public class ZScriptStringSource : ZScriptDefinitionsSource
+    public sealed class ZScriptStringSource : ZScriptDefinitionsSource
     {
         /// <summary>
         /// The script string
