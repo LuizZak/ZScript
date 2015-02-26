@@ -650,7 +650,7 @@ namespace ZScript.CodeGeneration
                     var objDef = def as ClassDefinition;
                     if (objDef != null)
                     {
-                        // Object definitions cannot be reassigned
+                        // Class definitions cannot be reassigned
                         context.IsConstant = true;
                         
                         return objDef.PublicConstructor.CallableTypeDef;
@@ -676,6 +676,29 @@ namespace ZScript.CodeGeneration
                 }
 
                 _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
+
+                return _context.TypeProvider.AnyType();
+            }
+
+            // 
+            // IDefinitionTypeProvider.TypeForThis
+            // 
+            public TypeDef TypeForThis(ParserRuleContext context)
+            {
+                // Search for the inner-most scope that contains the context, and search the definition from there
+                var scope = _context.BaseScope.GetScopeContainingContext(context);
+
+                // Iterate back until we hit the scope for a class definition
+                while (scope != null)
+                {
+                    var definitionContext = scope.Context as ZScriptParser.ClassDefinitionContext;
+                    if (definitionContext != null)
+                    {
+                        return definitionContext.ClassDefinition.ClassTypeDef;
+                    }
+
+                    scope = scope.ParentScope;
+                }
 
                 return _context.TypeProvider.AnyType();
             }

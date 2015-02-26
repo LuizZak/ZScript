@@ -42,6 +42,81 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     [TestClass]
     public class PostfixExpressionTokenizerTests
     {
+        #region Primary expression parsing
+
+        /// <summary>
+        /// Tests generation of primary 'this' expressions
+        /// </summary>
+        [TestMethod]
+        public void TestThisPrimary()
+        {
+            const string message = "The tokens generated for the 'this' primary expression where not generated as expected";
+
+            const string input = "this.field";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("this", true),
+                TokenFactory.CreateMemberNameToken("field"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of assignments to fields of 'this' constants
+        /// </summary>
+        [TestMethod]
+        public void TestAssignThisField()
+        {
+            const string message = "The tokens generated for the 'this' field assignment where not generated as expected";
+
+            const string input = "this.field = 10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.assignmentExpression();
+
+            var generatedTokens = tokenizer.TokenizeAssignmentExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateVariableToken("this", true),
+                TokenFactory.CreateMemberNameToken("field"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
         #region Implicit casting
 
         /// <summary>

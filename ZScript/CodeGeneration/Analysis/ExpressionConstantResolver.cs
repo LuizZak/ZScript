@@ -102,7 +102,11 @@ namespace ZScript.CodeGeneration.Analysis
                 // Verify if any implicit casts are in place
                 if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && _typeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
                 {
-                    value = _typeProvider.CastObject(value, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
+                    // TODO: Deal with native types that are not present
+                    var nativeType = _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
+
+                    if(nativeType != null)
+                        value = _typeProvider.CastObject(value, nativeType);
                 }
 
                 context.IsConstant = true;
@@ -137,7 +141,9 @@ namespace ZScript.CodeGeneration.Analysis
             // Verify if any implicit casts are in place
             if (context.IsConstant && context.ImplicitCastType != null && !context.ImplicitCastType.IsAny)
             {
-                if (_typeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType))
+                var nativeType = _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
+
+                if (_typeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType) && nativeType != null)
                     context.ConstantValue = _typeProvider.CastObject(context.ConstantValue, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
             }
         }

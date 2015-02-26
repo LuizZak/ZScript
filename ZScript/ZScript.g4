@@ -128,6 +128,8 @@ callableArgType  : type variadic='...'?;
 ////
 expression:  '(' expression ')' valueAccess?
            | '(' assignmentExpression ')'
+           // Primary expressions
+           |  T_THIS objectAccess?
            // Prefix and postfix
            |  prefixOperator leftValue
            |  leftValue postfixOperator
@@ -184,7 +186,7 @@ assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~='
 funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
 
-leftValue : memberName leftValueAccess?;
+leftValue : (memberName | 'this') leftValueAccess?;
 leftValueAccess : (functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
 functionCall : funcCallArguments;
 fieldAccess  : '.' memberName;
@@ -230,6 +232,7 @@ T_FUNCTION : 'func';
 T_OVERRIDE : 'override';
 T_OBJECT   : 'object';
 T_SEQUENCE : 'sequence';
+T_THIS     : 'this';
 
 // Statements
 T_VAR   : 'var';

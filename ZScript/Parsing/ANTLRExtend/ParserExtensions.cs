@@ -149,4 +149,26 @@ public partial class ZScriptParser
         /// </summary>
         public bool ConstantValue { get; set; }
     }
+
+    /// <summary>
+    /// Provides extensions to the ClassDefinitionContext for binding class definitions to contexts
+    /// </summary>
+    partial class ClassDefinitionContext
+    {
+        /// <summary>
+        /// Gets or sets the class definition binded to this ClassDefinitionContext
+        /// </summary>
+        public ClassDefinition ClassDefinition { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the SequenceBlockContext for binding sequence definitions to contexts
+    /// </summary>
+    partial class SequenceBlockContext
+    {
+        /// <summary>
+        /// Gets or sets the sequence definition binded to this SequenceBlockContext
+        /// </summary>
+        public SequenceDefinition SequenceDefinition { get; set; }
+    }
 }

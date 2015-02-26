@@ -47,11 +47,6 @@ namespace ZScript.CodeGeneration
         private readonly MessageContainer _messageContainer;
 
         /// <summary>
-        /// The current stack of variable scopes
-        /// </summary>
-        private CodeScope _baseScope;
-
-        /// <summary>
         /// The current scope for the definitions
         /// </summary>
         private CodeScope _currentScope;
@@ -74,10 +69,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Gets the collected base scope containing the scopes defined
         /// </summary>
-        public CodeScope CollectedBaseScope
-        {
-            get { return _baseScope; }
-        }
+        public CodeScope CollectedBaseScope { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the ScopeCollector class
@@ -85,8 +77,8 @@ namespace ZScript.CodeGeneration
         /// <param name="messageContainer">The message container that errors will be reported to</param>
         public DefinitionsCollector(MessageContainer messageContainer)
         {
-            _baseScope = new CodeScope();
-            _currentScope = _baseScope;
+            CollectedBaseScope = new CodeScope();
+            _currentScope = CollectedBaseScope;
             _messageContainer = messageContainer;
         }
 
@@ -112,7 +104,7 @@ namespace ZScript.CodeGeneration
         {
             // Push the default global scope
             //PushScope(context);
-            _currentScope = _baseScope = new CodeScope { Context = context };
+            _currentScope = CollectedBaseScope = new CodeScope { Context = context };
         }
 
         public override void EnterExportDefinition(ZScriptParser.ExportDefinitionContext context)
@@ -569,7 +561,7 @@ namespace ZScript.CodeGeneration
             def.Name = ClosureDefinition.ClosureNamePrefix + (_closuresCount++);
 
             // Closures are always defined at the base scope
-            _baseScope.AddDefinition(def);
+            CollectedBaseScope.AddDefinition(def);
 
             return def;
         }
@@ -589,6 +581,8 @@ namespace ZScript.CodeGeneration
 
             _currentScope.AddDefinition(def);
 
+            classDefinition.ClassDefinition = def;
+
             return def;
         }
 
@@ -606,6 +600,8 @@ namespace ZScript.CodeGeneration
             };
 
             _currentScope.AddDefinition(def);
+
+            sequence.SequenceDefinition = def;
 
             return def;
         }

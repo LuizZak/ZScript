@@ -196,6 +196,12 @@ namespace ZScript.CodeGeneration.Analysis
                 retType = ResolveMemberName(context.memberName());
             }
 
+            // 'this' priamry expression
+            if (context.T_THIS() != null)
+            {
+                retType = ResolveThisType(context);
+            }
+
             // New type
             if (context.newExpression() != null)
             {
@@ -377,9 +383,18 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveLeftValue(ZScriptParser.LeftValueContext context)
         {
             var memberName = context.memberName();
-            var type = ResolveMemberName(memberName);
+            TypeDef type;
+            
+            if(memberName != null)
+            {
+                type = ResolveMemberName(memberName);
+            }
+            else
+            {
+                type = ResolveThisType(context);
+            }
 
-            context.IsConstant = memberName.IsConstant;
+            context.IsConstant = memberName == null || memberName.IsConstant;
 
             // Evaluate the access
             if (context.leftValueAccess() != null)
@@ -389,7 +404,7 @@ namespace ZScript.CodeGeneration.Analysis
                 // Disable constant checking when making accesses
                 context.IsConstant = false;
             }
-
+            
             return type;
         }
 
@@ -404,6 +419,19 @@ namespace ZScript.CodeGeneration.Analysis
                 throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
 
             return DefinitionTypeProvider.TypeForDefinition(context, context.IDENT().GetText());
+        }
+
+        /// <summary>
+        /// Resolves the type of a 'this' expression contained within a given context
+        /// </summary>
+        /// <param name="context">The context containing the 'this' target</param>
+        /// <returns>The type for the 'this' value</returns>
+        public TypeDef ResolveThisType(ParserRuleContext context)
+        {
+            if (DefinitionTypeProvider == null)
+                throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
+
+            return DefinitionTypeProvider.TypeForThis(context);
         }
 
         /// <summary>
@@ -1089,6 +1117,13 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definitionName">The name of the definition to get</param>
         /// <returns>The type for the given definition</returns>
         TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName);
+
+        /// <summary>
+        /// Returns a type for the 'this' special variable contained within a given context
+        /// </summary>
+        /// <param name="context">The context containing the 'this' value to parse</param>
+        /// <returns>The value for the 'this' target</returns>
+        TypeDef TypeForThis(ParserRuleContext context);
     }
 
     /// <summary>

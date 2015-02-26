@@ -219,9 +219,17 @@ namespace ZScript.CodeGeneration.Tokenization
 
         void VisitLeftValue(ZScriptParser.LeftValueContext context)
         {
-            // leftValue : memberName leftValueAccess?;
+            // leftValue : (memberName | 'this') leftValueAccess?;
             // leftValueAccess : (funcCallArguments leftValueAccess) | ('.' leftValue) | (arrayAccess leftValueAccess?);
-            VisitMemberName(context.memberName());
+            if(context.memberName() != null)
+            {
+                VisitMemberName(context.memberName());
+            }
+            // 'this' special constant access
+            else
+            {
+                _tokens.Add(TokenFactory.CreateVariableToken("this", true));
+            }
 
             _isRootMember = false;
 
@@ -306,6 +314,17 @@ namespace ZScript.CodeGeneration.Tokenization
             else if (context.assignmentExpression() != null)
             {
                 VisitAssignmentExpression(context.assignmentExpression());
+            }
+            // Primary expressions
+            else if (context.T_THIS() != null)
+            {
+                // TODO: Move this to a separate method
+                _tokens.Add(TokenFactory.CreateVariableToken("this", true));
+
+                if (context.objectAccess() != null)
+                {
+                    VisitObjectAccess(context.objectAccess());
+                }
             }
             else if (context.prefixOperator() != null)
             {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Antlr4.Runtime;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.Runtime.Typing.Elements;
 
@@ -12,7 +13,12 @@ namespace ZScriptTests.Utils
         /// <summary>
         /// Dictionary of custom type definitions mapped into strings
         /// </summary>
-        public Dictionary<string, TypeDef> CustomTypes = new Dictionary<string, TypeDef>(); 
+        public Dictionary<string, TypeDef> CustomTypes = new Dictionary<string, TypeDef>();
+
+        /// <summary>
+        /// Gets or sets the type to issue on 'this' expressions
+        /// </summary>
+        public TypeDef ThisType { get; set; }
 
         // 
         // IDefinitionTypeProvider.TypeForDefinition override
@@ -43,6 +49,14 @@ namespace ZScriptTests.Utils
                 return new ListTypeDef(definitionName.Length == 0 ? TypeDef.IntegerType : TypeForDefinition(context, definitionName.Substring(1)));
 
             return TypeDef.AnyType;
+        }
+
+        // 
+        // IDefinitionTypeProvider.TypeForDefinition override
+        // 
+        public TypeDef TypeForThis(ParserRuleContext context)
+        {
+            return ThisType;
         }
     }
 }

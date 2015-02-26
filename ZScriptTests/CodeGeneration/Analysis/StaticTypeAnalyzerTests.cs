@@ -166,6 +166,21 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(generator.HasErrors);
         }
 
+        /// <summary>
+        /// Tests correct type verification of 'this' expressions
+        /// </summary>
+        [TestMethod]
+        public void TestThisExpressionTyping()
+        {
+            const string input = "class TestClass { var field:int; func f1() { this.field = 'sneakyString'; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
         #endregion
 
         #region Implicit casting
