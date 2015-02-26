@@ -395,7 +395,7 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveMemberName(ZScriptParser.MemberNameContext context)
         {
             if(DefinitionTypeProvider == null)
-                throw new Exception("No definition type provider was provided when constructing this ExpressionTypeResolver. No member name can be resolved to type!");
+                throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
 
             return DefinitionTypeProvider.TypeForDefinition(context, context.IDENT().GetText());
         }

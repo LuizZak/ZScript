@@ -136,6 +136,38 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Class type support
+
+        /// <summary>
+        /// Tests using a class name as a valid type
+        /// </summary>
+        [TestMethod]
+        public void TestClassTypeNaming()
+        {
+            const string input = "var a:TestClass; class TestClass { }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.HasErrors);
+        }
+
+        /// <summary>
+        /// Tests using a base class and assigning a derived class
+        /// </summary>
+        [TestMethod]
+        public void TestClassInheritanceSupport()
+        {
+            const string input = "var a:Base = Derived(); class Base { } class Derived : Base { }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.HasErrors);
+        }
+
+        #endregion
+
         #region Implicit casting
 
         /// <summary>
@@ -183,7 +215,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             const string input = "var a:int = 0; func f() { f2(a); } func f2(i:int) { }";
             var generator = TestUtils.CreateGenerator(input);
-            var provider = generator.TypeProvider;
             var definition = generator.GenerateRuntimeDefinition();
 
             var function = definition.ZFunctionDefinitions[0];

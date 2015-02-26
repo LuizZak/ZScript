@@ -41,6 +41,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\dev\Antlr\Antlr4.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\packages\RhinoMocks.4.0.0-alpha3\lib\net40\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -111,9 +114,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="acknowledgements.txt" />
+    <Content Include="license.txt" />
     <Content Include="ZScript sample.zs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="packages.config" />
     <None Include="ZScript.licenseheader" />
   </ItemGroup>
   <Choose>

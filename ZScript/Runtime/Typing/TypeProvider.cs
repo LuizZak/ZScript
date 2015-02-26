@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using System.Reflection;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Runtime.Typing
@@ -45,6 +46,11 @@ namespace ZScript.Runtime.Typing
         {
             get { return _binaryExpressionProvider; }
         }
+
+        /// <summary>
+        /// Gets or sets the custom type source for this type provider
+        /// </summary>
+        public ICustomTypeSource CustomTypeSource { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the TypeProvider class
@@ -108,6 +114,10 @@ namespace ZScript.Runtime.Typing
                 case "object":
                     return ObjectType();
             }
+            
+            // Search the custom type source
+            if (CustomTypeSource != null && CustomTypeSource.HasType(typeName))
+                return CustomTypeSource.TypeNamed(typeName);
 
             return new TypeDef(typeName, true);
         }
@@ -293,6 +303,10 @@ namespace ZScript.Runtime.Typing
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
+            // Class typing
+            if (origin is ClassTypeDef && target is ClassTypeDef)
+                return CanExplicitCastClass((ClassTypeDef)origin, (ClassTypeDef)target);
+
             // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
             NativeTypeDef nativeTarget = target as NativeTypeDef;
@@ -341,6 +355,10 @@ namespace ZScript.Runtime.Typing
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
+            // Class typing
+            if (origin is ClassTypeDef && target is ClassTypeDef)
+                return CanImplicitCastClass((ClassTypeDef)origin, (ClassTypeDef)target);
+
             // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
             NativeTypeDef nativeTarget = target as NativeTypeDef;
@@ -357,11 +375,59 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
-        /// Whether the two primitive types can be implicitly casted from one to another
+        /// Returns whether the two class types can be implicitly casted from one to another
         /// </summary>
         /// <param name="origin">The origin type to cast from</param>
         /// <param name="target">The type target to cast to</param>
-        /// <returns>Whether the values can be implicitly caster</returns>
+        /// <returns>Whether the types can be implicitly casted</returns>
+        private bool CanImplicitCastClass(ClassTypeDef origin, ClassTypeDef target)
+        {
+            // Check if origin is in the inheritance chain of target
+            var curC = origin;
+
+            while (curC != null)
+            {
+                if (curC == target)
+                    return true;
+                
+                curC = curC.BaseType as ClassTypeDef;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns whether the two class types can be explicitly casted from one to another
+        /// </summary>
+        /// <param name="origin">The origin type to cast from</param>
+        /// <param name="target">The type target to cast to</param>
+        /// <returns>Whether the types can be explicitly casted</returns>
+        private bool CanExplicitCastClass(ClassTypeDef origin, ClassTypeDef target)
+        {
+            // Implicit casts enable explicit casts by default
+            if (CanImplicitCastClass(origin, target))
+                return true;
+
+            // Check if target is derived from origin by checking if it's in the inheritance chain of origin
+            var curC = target;
+
+            while (curC != null)
+            {
+                if (curC == origin)
+                    return true;
+
+                curC = curC.BaseType as ClassTypeDef;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns whether the two primitive types can be implicitly casted from one to another
+        /// </summary>
+        /// <param name="origin">The origin type to cast from</param>
+        /// <param name="target">The type target to cast to</param>
+        /// <returns>Whether the types can be implicitly casted</returns>
         private bool CanImplicitCastPrimitive(Type origin, Type target)
         {
             // int -> long
@@ -381,11 +447,11 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
-        /// Whether the two primitive types can be explicitly casted from one to another
+        /// Returns whether the two primitive types can be explicitly casted from one to another
         /// </summary>
         /// <param name="origin">The origin type to cast from</param>
         /// <param name="target">The type target to cast to</param>
-        /// <returns>Whether the values can be implicitly caster</returns>
+        /// <returns>Whether the types can be explicitly casted</returns>
         private bool CanExplicitCastPrimitive(Type origin, Type target)
         {
             // If they can be implicitly casted, they can also be explicitly casted
@@ -433,7 +499,7 @@ namespace ZScript.Runtime.Typing
             // Callable types are compatible
             return true;
         }
-        
+
         /// <summary>
         /// Returns the type to associate with 'any' values in the runtime
         /// </summary>

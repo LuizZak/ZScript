@@ -20,10 +20,10 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rhino.Mocks;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
@@ -41,6 +41,31 @@ namespace ZScriptTests.Runtime.Typing
     [TestClass]
     public class TypeProviderTests
     {
+        #region Custom type support
+
+        /// <summary>
+        /// Tests storaging and fetching of custom types
+        /// </summary>
+        [TestMethod]
+        public void TestCustomType()
+        {
+            var typeProvider = new TypeProvider();
+            var expectedType = TypeDef.StringType;
+
+            var typeSource = MockRepository.Mock<ICustomTypeSource>();
+
+            typeSource.Stub(x => x.HasType("CustomType")).Return(true);
+            typeSource.Stub(x => x.TypeNamed("CustomType")).Return(expectedType);
+
+            typeProvider.CustomTypeSource = typeSource;
+
+            var type = typeProvider.TypeNamed("CustomType");
+
+            Assert.AreEqual(expectedType, type);
+        }
+
+        #endregion
+
         #region NativeTypeForTypeDf
 
         [TestMethod]

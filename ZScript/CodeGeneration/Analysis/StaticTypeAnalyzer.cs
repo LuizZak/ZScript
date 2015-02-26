@@ -53,6 +53,11 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly ExpressionTypeResolver _typeResolver;
 
         /// <summary>
+        /// Type source for classes
+        /// </summary>
+        private readonly ClassTypeSource _classTypeSource;
+
+        /// <summary>
         /// Gets the type provider for this static type analyzer
         /// </summary>
         private TypeProvider TypeProvider
@@ -79,6 +84,7 @@ namespace ZScript.CodeGeneration.Analysis
             _generationContext = generationContext;
 
             _typeResolver = new ExpressionTypeResolver(generationContext);
+            _classTypeSource = new ClassTypeSource();
         }
 
         /// <summary>
@@ -86,6 +92,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         public void Expand()
         {
+            // Assign the type source for the type provider
+            TypeProvider.CustomTypeSource = _classTypeSource;
+
             // Get all definitons
             var definitions = _baseScope.GetAllDefinitionsRecursive().ToArray();
 
@@ -298,6 +307,9 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Update the class type def
             definition.UpdateClassTypeDef();
+
+            // Register the class
+            _classTypeSource.Classes.Add(definition);
         }
 
         /// <summary>
@@ -738,6 +750,47 @@ namespace ZScript.CodeGeneration.Analysis
 
                     _typeResolver.MessageContainer.RegisterWarning(expression, message, WarningCode.ConstantIfCondition);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Custom type source that can feed types based on class names
+        /// </summary>
+        class ClassTypeSource : ICustomTypeSource
+        {
+            /// <summary>
+            /// List of classes registered on this ClassTypeSource
+            /// </summary>
+            public List<ClassDefinition> Classes;
+
+            /// <summary>
+            /// Initializes a new instance of the ClassTypeSource class
+            /// </summary>
+            public ClassTypeSource()
+            {
+                Classes = new List<ClassDefinition>();
+            }
+
+            // 
+            // ICustomTypeSource.HasType implementation
+            // 
+            public bool HasType(string typeName)
+            {
+                return Classes.Any(c => c.Name == typeName);
+            }
+
+            // 
+            // ICustomTypeSource.TypeNamed implementation
+            // 
+            public TypeDef TypeNamed(string typeName)
+            {
+                foreach (var definition in Classes)
+                {
+                    if (definition.Name == typeName)
+                        return definition.ClassTypeDef;
+                }
+
+                return null;
             }
         }
     }

@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -46,6 +46,14 @@ namespace ZScript.CodeGeneration.Messages
         /// A list of all the syntax errors reported
         /// </summary>
         private readonly List<SyntaxError> _syntaxErrors = new List<SyntaxError>();
+
+        /// <summary>
+        /// Gets a list containing all of the code messages stored in this message container
+        /// </summary>
+        public CodeMessage[] AllMessages
+        {
+            get { return _syntaxErrors.Concat(_errorList.Concat<CodeMessage>(_warningList)).ToArray(); }
+        }
 
         /// <summary>
         /// Returns the array of all the syntax errors that were found during the parsing of the script
