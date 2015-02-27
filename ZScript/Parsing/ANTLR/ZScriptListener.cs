@@ -619,6 +619,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitListType([NotNull] ZScriptParser.ListTypeContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDictionaryType([NotNull] ZScriptParser.DictionaryTypeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDictionaryType([NotNull] ZScriptParser.DictionaryTypeContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.callableTypeList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -929,6 +939,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -948,6 +968,26 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryEntryList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDictionaryEntryList([NotNull] ZScriptParser.DictionaryEntryListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryEntryList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDictionaryEntryList([NotNull] ZScriptParser.DictionaryEntryListContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDictionaryEntry([NotNull] ZScriptParser.DictionaryEntryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDictionaryEntry([NotNull] ZScriptParser.DictionaryEntryContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectEntryList"/>.
 	/// </summary>

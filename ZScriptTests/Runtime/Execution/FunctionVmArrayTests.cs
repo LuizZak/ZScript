@@ -19,7 +19,7 @@
 */
 #endregion
 using System.Collections;
-
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
@@ -51,7 +51,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, "def"),
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, 5),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray)
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(object))
             };
 
             var tokenList = new TokenList(t);
@@ -62,9 +62,9 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ArrayList));
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(List<object>));
 
-            var array = (ArrayList)functionVm.Stack.Pop();
+            var array = (List<object>)functionVm.Stack.Pop();
 
             Assert.AreEqual(10,    array[0], "The array was not created successfully");
             Assert.AreEqual("abc", array[1], "The array was not created successfully");
@@ -82,15 +82,15 @@ namespace ZScriptTests.Runtime.Execution
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
             {
-                new Token(TokenType.Value, 10),
-                new Token(TokenType.Value, "abc"),
-                new Token(TokenType.Value, 10.0),
-                new Token(TokenType.Value, "def"),
+                new Token(TokenType.Value, 1),
+                new Token(TokenType.Value, 2),
+                new Token(TokenType.Value, 3),
                 new Token(TokenType.Value, 4),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray),
+                new Token(TokenType.Value, 4),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(int)),
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, 2),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray)
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(object))
             };
 
             var tokenList = new TokenList(t);
@@ -101,19 +101,19 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ArrayList));
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(List<object>));
 
-            var array = (ArrayList)functionVm.Stack.Pop();
+            var array = (List<object>)functionVm.Stack.Pop();
 
-            Assert.IsInstanceOfType(array[0], typeof(ArrayList));
+            Assert.IsInstanceOfType(array[0], typeof(List<object>));
             Assert.AreEqual(true, array[1], "The array was not created successfully");
 
-            array = (ArrayList)array[0];
+            var innerArray = (List<int>)array[0];
 
-            Assert.AreEqual(10, array[0], "The array was not created successfully");
-            Assert.AreEqual("abc", array[1], "The array was not created successfully");
-            Assert.AreEqual(10.0, array[2], "The array was not created successfully");
-            Assert.AreEqual("def", array[3], "The array was not created successfully");
+            Assert.AreEqual(1, innerArray[0], "The array was not created successfully");
+            Assert.AreEqual(2, innerArray[1], "The array was not created successfully");
+            Assert.AreEqual(3, innerArray[2], "The array was not created successfully");
+            Assert.AreEqual(4, innerArray[3], "The array was not created successfully");
         }
 
         #endregion

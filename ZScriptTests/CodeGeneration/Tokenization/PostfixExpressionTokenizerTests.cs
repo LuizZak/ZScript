@@ -29,6 +29,7 @@ using ZScript.CodeGeneration.Tokenization.Helpers;
 
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 
@@ -457,6 +458,51 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
             Assert.AreEqual(3L, memory.GetVariable("d"), "Ternary operator did not behave as expected");
+        }
+
+        #endregion
+
+        #region Dictionary literal
+
+        /// <summary>
+        /// Tests tokenization of a dictionary literal
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryLiteral()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[0:'abc', 1:'def']";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
+            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateStringToken("abc"),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateStringToken("def"),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { typeof(long), typeof(string) })
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
         #endregion

@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Typing.Elements;
 
@@ -132,6 +133,33 @@ public partial class ZScriptParser
         /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
         /// </summary>
         public ListTypeDef ExpectedType { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the DictionaryLiteralContext for providing implicit casting of dictionary contents
+    /// </summary>
+    partial class DictionaryLiteralContext
+    {
+        /// <summary>
+        /// Gets or sets the expected type for this expression, being implicitly set from a parent expression during expression type analysis
+        /// </summary>
+        public DictionaryTypeDef ImplicitCastType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the evaluated type for the keys in the dictionary
+        /// </summary>
+        public Type EvaluatedKeyType { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the evaluated type for the values in the dictionary
+        /// </summary>
+        public Type EvaluatedValueType { get; set; }
+
+        /// <summary>
+        /// The type that was set as expected by a parent expression when this expression was evaluated.
+        /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
+        /// </summary>
+        public DictionaryTypeDef ExpectedType { get; set; }
     }
 
     /// <summary>

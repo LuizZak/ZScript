@@ -113,13 +113,14 @@ valueHolderDecl : (var='var' | let='let') valueHolderName (':' type)? ('=' expre
 valueHolderName : memberName;
 
 // Types
-type : objectType | typeName | callableType | listType;
+type : objectType | typeName | callableType | listType | dictionaryType;
 objectType       : 'object';
 typeName         : primitiveType | complexTypeName;
 complexTypeName  : IDENT ('.' IDENT)*;
 primitiveType    : T_INT | T_FLOAT | T_VOID | T_ANY | T_STRING | T_BOOL;
 callableType     : '(' callableTypeList? '->' type? ')';
 listType         : '[' type ']';
+dictionaryType   : '[' keyType=type ':' valueType=type ']';
 callableTypeList : callableArgType (',' callableArgType)*;
 callableArgType  : type variadic='...'?;
 
@@ -138,6 +139,7 @@ expression:  '(' expression ')' valueAccess?
            |  memberName valueAccess?
            |  objectLiteral objectAccess?
            |  arrayLiteral valueAccess?
+           |  dictionaryLiteral valueAccess?
            // 'new' expression
            |  newExpression valueAccess?
            // Type casting
@@ -199,8 +201,12 @@ memberName : IDENT;
 
 // Literal values
 arrayLiteral : '[' expressionList? ']';
+dictionaryLiteral : '[' dictionaryEntryList ']';
 objectLiteral: '{' objectEntryList? '}';
 stringLiteral : StringLiteral;
+
+dictionaryEntryList: ':' | (dictionaryEntry (',' dictionaryEntry)*);
+dictionaryEntry : expression ':' expression;
 
 objectEntryList: objectEntryDefinition (',' objectEntryDefinition)*;
 objectEntryDefinition: entryName ':' expression;

@@ -81,8 +81,10 @@
     <Compile Include="Runtime\ArrayTests.cs" />
     <Compile Include="Runtime\ClassTests.cs" />
     <Compile Include="Runtime\ClosureTests.cs" />
+    <Compile Include="Runtime\DictionaryTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmArrayTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmCallableTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmDictionaryTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmMemberTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmNewTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmObjectTests.cs" />

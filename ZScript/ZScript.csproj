@@ -75,6 +75,7 @@
     <Compile Include="Runtime\Execution\Wrappers\Members\ZClassMember.cs" />
     <Compile Include="Runtime\Typing\Elements\AnyTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\CallableTypeDef.cs" />
+    <Compile Include="Runtime\Typing\Elements\DictionaryTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\IListTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\ListTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\NativeTypeDef.cs" />

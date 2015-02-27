@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -82,6 +83,30 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(TypeDef.IntegerType, type1.EnclosingType, "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.IntegerType, type2.EnclosingType, "The resolved type did not match the expected type");
             Assert.AreEqual(provider.ListForType(TypeDef.IntegerType), type3.EnclosingType, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests dictionary type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryType()
+        {
+            // Set up the test
+            const string input = "[int:string] [[int]:[string]]";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type1 = resolver.ResolveDictionaryType(parser.dictionaryType());
+            var type2 = resolver.ResolveDictionaryType(parser.dictionaryType());
+
+            // Compare the result now
+            Assert.AreEqual(TypeDef.IntegerType, type1.SubscriptType, "The resolved type did not match the expected type");
+            Assert.AreEqual(TypeDef.StringType, type1.EnclosingType, "The resolved type did not match the expected type");
+
+            Assert.AreEqual(provider.ListForType(TypeDef.IntegerType), type2.SubscriptType, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(TypeDef.StringType), type2.EnclosingType, "The resolved type did not match the expected type");
         }
 
         /// <summary>
@@ -230,12 +255,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "{ x:10 }";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
 
             var type = parser.objectLiteral();
 
             // Compare the result now
-            Assert.AreEqual(new ObjectTypeDef(), resolver.ResolveObjectLiteral(type), "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.ObjectType(), resolver.ResolveObjectLiteral(type), "The resolved type did not match the expected type");
         }
 
         /// <summary>
@@ -248,12 +274,36 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "[0, 1, 2]";
 
             var parser = TestUtils.CreateParser(input);
-            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider()));
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
 
             var type = parser.arrayLiteral();
 
             // Compare the result now
-            Assert.AreEqual(new ListTypeDef(TypeDef.IntegerType), resolver.ResolveArrayLiteral(type), "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolver.ResolveArrayLiteral(type), "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests dictionary literal type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryLiteral()
+        {
+            // Set up the test
+            const string input = "[0: 'apples', 1: 'oranges']";
+
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
+
+            var type = parser.dictionaryLiteral();
+
+            var resolvedType = resolver.ResolveDictionaryLiteral(type);
+
+            // Compare the result now
+            Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.StringType()), resolvedType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeof(long), type.EvaluatedKeyType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeof(string), type.EvaluatedValueType, "The resolved type did not match the expected type");
         }
 
         #endregion
@@ -392,6 +442,27 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
 
             Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+        }
+
+        /// <summary>
+        /// Tests checking of dictionary types
+        /// </summary>
+        [TestMethod]
+        public void TestDictionarySubscriptionTypeChecking()
+        {
+            // Set up the test
+            const string input = "[0:'']['invalid!']; [0:0][1.0]; [0.0:1][0]; [:]['anyType'];";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider()));
+
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
         }
 
         #endregion

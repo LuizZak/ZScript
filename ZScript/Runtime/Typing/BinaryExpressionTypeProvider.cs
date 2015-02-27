@@ -55,11 +55,6 @@ namespace ZScript.Runtime.Typing
         private readonly TypeDef _stringType;
 
         /// <summary>
-        /// Cached null type for faster check
-        /// </summary>
-        private readonly TypeDef _nullType;
-
-        /// <summary>
         /// Initializes a new instance of the BinaryExpressionTypeProvider class
         /// </summary>
         /// <param name="provider">The type provider to use when searching types to return</param>
@@ -70,7 +65,6 @@ namespace ZScript.Runtime.Typing
             _floatType = provider.FloatType();
             _boolType = provider.BooleanType();
             _stringType = provider.StringType();
-            _nullType = provider.NullType();
         }
 
         /// <summary>

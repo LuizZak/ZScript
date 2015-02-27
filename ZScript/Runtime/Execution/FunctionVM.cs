@@ -179,7 +179,7 @@ namespace ZScript.Runtime.Execution
                                 }
                                 break;
                             default:
-                                PerformInstruction(token.Instruction);
+                                PerformInstruction(token.Instruction, token.TokenObject);
                                 break;
                         }
 
@@ -389,8 +389,9 @@ namespace ZScript.Runtime.Execution
         /// If the instruction provided is not a valid command/control instruction (e.g. it's an operator)
         /// </summary>
         /// <param name="instruction">The instruction to perform</param>
+        /// <param name="parameter">The parameter for the instruction</param>
         /// <exception cref="ArgumentException">The provided instruction is not a valid command instruction</exception>
-        void PerformInstruction(VmInstruction instruction)
+        void PerformInstruction(VmInstruction instruction, object parameter)
         {
             switch (instruction)
             {
@@ -442,11 +443,16 @@ namespace ZScript.Runtime.Execution
                     PerformFunctionCall();
                     break;
 
-                // Array Luteral creation
+                // Array literal creation
                 case VmInstruction.CreateArray:
                     PerformArrayCreation();
                     break;
                     
+                // Dictionary literal creation
+                case VmInstruction.CreateDictionary:
+                    PerformDictionaryCreation(parameter);
+                    break;
+
                 // Subscripter fetching
                 case VmInstruction.GetSubscript:
                     PerformGetSubscripter();
@@ -584,6 +590,36 @@ namespace ZScript.Runtime.Execution
 
             // Push the array back into the stack
             _stack.Push(arguments);
+        }
+
+        /// <summary>
+        /// Performs a dictionary creation using the values on the stack, pushing the created dictionary back into the top of the stack
+        /// </summary>
+        /// <param name="parameter">The parameter for the dictionary creation, taken directly from a valid dictionary creation instruction token</param>
+        void PerformDictionaryCreation(object parameter)
+        {
+            // Pop the argument count
+            int argCount = (int)_stack.Pop();
+
+            // Get the types for the dictionary key and values
+            var types = (Type[])parameter;
+            var keyType = types[0];
+            var valueType = types[1];
+
+            // Create the dictionary
+            var dict = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+
+            // Pop the entries from the stack
+            for (int i = 0; i < argCount; i++)
+            {
+                var value = PopValueImplicit();
+                var key = PopValueImplicit();
+
+                dict.Add(key, value);
+            }
+
+            // Push the array back into the stack
+            _stack.Push(dict);
         }
 
         /// <summary>
@@ -1068,6 +1104,8 @@ namespace ZScript.Runtime.Execution
 
         /// <summary>Creates an array using the values on the stack and pushes the result back into the stack</summary>
         CreateArray,
+        /// <summary>Creates a dictionary using the values on the stack and pushes the result back into the stack</summary>
+        CreateDictionary,
 
         /// <summary>Creates an object using the values on the stack and pushes the result back into the stack</summary>
         CreateObject,

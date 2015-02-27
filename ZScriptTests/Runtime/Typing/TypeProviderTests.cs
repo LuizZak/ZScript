@@ -23,7 +23,9 @@ using System;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Rhino.Mocks;
+
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
@@ -31,6 +33,7 @@ using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Typing
@@ -146,6 +149,16 @@ namespace ZScriptTests.Runtime.Typing
             var native = provider.NativeTypeForTypeDef(provider.ListForType(provider.AnyType()));
 
             Assert.AreEqual(typeof(List<object>), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeDictionary()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(provider.DictionaryForTypes(provider.StringType(), provider.FloatType()));
+
+            Assert.AreEqual(typeof(Dictionary<string, double>), native);
         }
 
         [TestMethod]
@@ -268,7 +281,7 @@ namespace ZScriptTests.Runtime.Typing
         }
 
         /// <summary>
-        /// Tests the FindCommonType method with callable types
+        /// Tests the FindCommonType method with array of callable types
         /// </summary>
         [TestMethod]
         public void TestArrayFindCommonType()
@@ -283,6 +296,29 @@ namespace ZScriptTests.Runtime.Typing
 
             Assert.AreEqual(new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true)), provider.FindCommonType(array1, array2),
                 "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
+        }
+
+        /// <summary>
+        /// Tests the FindCommonType method with dictionary types
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryFindCommonType()
+        {
+            var provider = new TypeProvider();
+
+            var dict1 = provider.DictionaryForTypes(provider.StringType(), provider.IntegerType());
+            var dict2 = provider.DictionaryForTypes(provider.StringType(), provider.IntegerType());
+
+            var expected1 = provider.DictionaryForTypes(provider.StringType(), provider.IntegerType());
+
+            Assert.AreEqual(expected1, provider.FindCommonType(dict1, dict2));
+
+            var dict3 = provider.DictionaryForTypes(provider.StringType(), provider.IntegerType());
+            var dict4 = provider.DictionaryForTypes(provider.IntegerType(), provider.IntegerType());
+
+            var expected2 = provider.AnyType();
+
+            Assert.AreEqual(expected2, provider.FindCommonType(dict3, dict4));
         }
 
         #endregion

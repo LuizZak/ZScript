@@ -127,9 +127,11 @@ namespace ZScript.Runtime.Typing
         /// If no equivalent native type is found, null is returned
         /// </summary>
         /// <param name="typeDef">The type to get the native equivalent of</param>
+        /// <param name="anyAsObject">Whether to resolve 'any' types as 'object'. If left false, 'any' types return null</param>
         /// <returns>A Type that represents a native equivalent for the given type</returns>
-        public Type NativeTypeForTypeDef(TypeDef typeDef)
+        public Type NativeTypeForTypeDef(TypeDef typeDef, bool anyAsObject = false)
         {
+            // Lists
             var listTypeDef = typeDef as ListTypeDef;
             if (listTypeDef != null)
             {
@@ -140,13 +142,32 @@ namespace ZScript.Runtime.Typing
                 return listType.MakeGenericType(innerType ?? typeof(object));
             }
 
+            // Dictionaries
+            var dictTypeDef = typeDef as DictionaryTypeDef;
+            if (dictTypeDef != null)
+            {
+                var keyType = NativeTypeForTypeDef(dictTypeDef.SubscriptType);
+                var valueType = NativeTypeForTypeDef(dictTypeDef.EnclosingType);
+                var dictType = typeof(Dictionary<,>);
+
+                return dictType.MakeGenericType(keyType ?? typeof(object), valueType ?? typeof(object));
+            }
+
+            // Native types
             var nativeTypeDef = typeDef as NativeTypeDef;
             if (nativeTypeDef != null)
             {
                 return nativeTypeDef.NativeType;
             }
 
+            // Null
             if (typeDef == NullType())
+            {
+                return typeof(object);
+            }
+
+            // Any
+            if (anyAsObject && typeDef == AnyType())
             {
                 return typeof(object);
             }
@@ -163,6 +184,17 @@ namespace ZScript.Runtime.Typing
         public ListTypeDef ListForType(TypeDef type)
         {
             return new ListTypeDef(type) { SubscriptType = IntegerType() };
+        }
+
+        /// <summary>
+        /// Returns a type that represents a dictionary of keys mapped into values of given types
+        /// </summary>
+        /// <param name="keyType">The type of the keys that will map the dictionary</param>
+        /// <param name="valueType">The type of values that will be mapped in the dictionary</param>
+        /// <returns>A new DictionaryTypeDef that represents the created dictionary type</returns>
+        public DictionaryTypeDef DictionaryForTypes(TypeDef keyType, TypeDef valueType)
+        {
+            return new DictionaryTypeDef(keyType, valueType);
         }
 
         /// <summary>
@@ -188,6 +220,7 @@ namespace ZScript.Runtime.Typing
             if(type1.IsAny || type2.IsAny)
                 return AnyType();
 
+            // Null interaction: Return the non-null type, and if both are null, return null as well
             if (type1 == NullType())
                 return type2;
             if (type2 == NullType())
@@ -252,8 +285,8 @@ namespace ZScript.Runtime.Typing
             }
 
             // Inferring lists
-            var list1 = type1 as IListTypeDef;
-            var list2 = type2 as IListTypeDef;
+            var list1 = type1 as ListTypeDef;
+            var list2 = type2 as ListTypeDef;
             if (list1 != null && list2 != null)
             {
                 return new ListTypeDef(FindCommonType(list1.EnclosingType, list2.EnclosingType));

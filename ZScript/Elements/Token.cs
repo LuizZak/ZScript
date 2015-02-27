@@ -19,6 +19,7 @@
 */
 #endregion
 using System;
+using System.Linq;
 using ZScript.Runtime.Execution;
 
 namespace ZScript.Elements
@@ -91,7 +92,21 @@ namespace ZScript.Elements
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             if (other.GetType() != GetType()) return false;
-            return Type == other.Type && Equals(TokenObject, other.TokenObject) && Instruction == other.Instruction;
+
+            if (TokenObject.GetType() != other.TokenObject.GetType()) return false;
+
+            // Array of objects checking
+            if (TokenObject is object[])
+            {
+                if (!((object[])TokenObject).SequenceEqual((object[])other.TokenObject))
+                    return false;
+            }
+            else if (!Equals(TokenObject, other.TokenObject))
+            {
+                return false;
+            }
+
+            return Type == other.Type && Instruction == other.Instruction;
         }
 
         public override bool Equals(object obj)

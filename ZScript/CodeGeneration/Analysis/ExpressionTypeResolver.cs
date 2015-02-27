@@ -156,6 +156,16 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveArrayLiteral(context.arrayLiteral());
             }
+            if (context.dictionaryLiteral() != null)
+            {
+                var expectedAsList = context.ExpectedType as DictionaryTypeDef;
+                if (expectedAsList != null)
+                {
+                    context.dictionaryLiteral().ExpectedType = expectedAsList;
+                }
+
+                retType = ResolveDictionaryLiteral(context.dictionaryLiteral());
+            }
             if (context.objectLiteral() != null)
             {
                 retType = ResolveObjectLiteral(context.objectLiteral());
@@ -667,6 +677,10 @@ namespace ZScript.CodeGeneration.Analysis
 
                 // Check the subscript type
                 var subType = listType.SubscriptType;
+
+                // Set the expected type, so implicit type conversions can take place
+                context.expression().ExpectedType = subType;
+
                 var accessValue = ResolveExpression(context.expression());
 
                 if (!TypeProvider.CanImplicitCast(accessValue, subType))
@@ -916,6 +930,86 @@ namespace ZScript.CodeGeneration.Analysis
             return context.ImplicitCastType = TypeProvider.ListForType(expectedValueType);
         }
 
+        /// <summary>
+        /// Returns a DictionaryTypeDef describing the type for a given dictionary literal context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The dictionary type for the context</returns>
+        public DictionaryTypeDef ResolveDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
+        {
+            // Expected type for the list
+            var expectedValueType = context.ExpectedType == null ? null : context.ExpectedType.EnclosingType;
+            var expectedKeyType = context.ExpectedType == null ? null : context.ExpectedType.SubscriptType;
+
+            // Try to infer the type of items in the array
+            var dictKeyType = expectedKeyType ?? TypeProvider.AnyType();
+            var dictValueType = expectedValueType ?? TypeProvider.AnyType();
+
+            var entries = context.dictionaryEntryList().dictionaryEntry();
+
+            if (entries.Length == 0)
+                return TypeProvider.DictionaryForTypes(dictKeyType, dictValueType);
+
+            // Type is supposed to be inferred from the array's contents
+            if (expectedValueType == null || expectedKeyType == null)
+            {
+                bool inferredOne = false;
+                foreach (var exp in entries)
+                {
+                    var keyType = ResolveExpression(exp.expression(0));
+                    var valueType = ResolveExpression(exp.expression(1));
+                    if (!inferredOne)
+                    {
+                        dictKeyType = keyType;
+                        dictValueType = valueType;
+                        inferredOne = true;
+                        continue;
+                    }
+
+                    dictKeyType = TypeProvider.FindCommonType(keyType, dictKeyType);
+                    dictValueType = TypeProvider.FindCommonType(valueType, dictValueType);
+                }
+
+                context.EvaluatedKeyType = TypeProvider.NativeTypeForTypeDef(dictKeyType, true);
+                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(dictValueType, true);
+
+                return TypeProvider.DictionaryForTypes(dictKeyType, dictValueType);
+            }
+
+            // Check type compatibility
+            bool canImplicit = true;
+            foreach (var exp in entries)
+            {
+                exp.expression(0).ExpectedType = expectedKeyType;
+                exp.expression(1).ExpectedType = expectedValueType;
+
+                var keyType = ResolveExpression(exp.expression(0));
+                var valueType = ResolveExpression(exp.expression(1));
+
+                if (!TypeProvider.CanImplicitCast(keyType, expectedKeyType) || !TypeProvider.CanImplicitCast(valueType, expectedValueType))
+                {
+                    canImplicit = false;
+                }
+            }
+
+            // Report an error if the types in the list cannot be implicitly cast to the list type
+            if (!canImplicit)
+            {
+                var message = "Cannot implicitly convert source dictionary type to target type " + TypeProvider.DictionaryForTypes(expectedKeyType, expectedValueType);
+                MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+
+                context.EvaluatedKeyType = typeof(object);
+                context.EvaluatedValueType = typeof(object);
+
+                return TypeProvider.DictionaryForTypes(TypeProvider.AnyType(), TypeProvider.AnyType());
+            }
+
+            context.EvaluatedKeyType = TypeProvider.NativeTypeForTypeDef(expectedKeyType, true);
+            context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(expectedValueType, true);
+
+            return context.ImplicitCastType = TypeProvider.DictionaryForTypes(expectedKeyType, expectedValueType);
+        }
+
         #endregion
 
         #region Primitives
@@ -1020,25 +1114,43 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 return ResolveListType(context.listType());
             }
+            if (context.dictionaryType() != null)
+            {
+                return ResolveDictionaryType(context.dictionaryType());
+            }
 
             throw new Exception("Cannot resolve type for type " + context);
         }
 
         /// <summary>
-        /// Returns a TypeDef describing the type for a given context
+        /// Returns a ListTypeDef describing the list type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
-        /// <returns>The type for the context</returns>
+        /// <returns>The list type for the context</returns>
         public ListTypeDef ResolveListType(ZScriptParser.ListTypeContext context)
         {
             return TypeProvider.ListForType(ResolveType(context.type()));
         }
 
         /// <summary>
-        /// Returns a TypeDef describing the type for a given context
+        /// Returns a DictionaryTypeDef describing the type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
-        /// <returns>The type for the context</returns>
+        /// <returns>The dictionary type for the context</returns>
+        public DictionaryTypeDef ResolveDictionaryType(ZScriptParser.DictionaryTypeContext context)
+        {
+            // Key type
+            var keyType = ResolveType(context.keyType);
+            var valueType = ResolveType(context.valueType);
+
+            return TypeProvider.DictionaryForTypes(keyType, valueType);
+        }
+
+        /// <summary>
+        /// Returns a CallableTypeDef describing the callable type for a given context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The callable type for the context</returns>
         public CallableTypeDef ResolveCallableType(ZScriptParser.CallableTypeContext context)
         {
             var parameterTypes = new List<TypeDef>();

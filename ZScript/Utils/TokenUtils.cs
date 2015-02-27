@@ -118,10 +118,8 @@ namespace ZScript.Utils
                 case TokenType.Instruction:
                     Console.Write(token.Instruction);
 
-                    // Print jump address along with jump instructions
-                    if (token.Instruction == VmInstruction.Jump || token.Instruction == VmInstruction.JumpIfFalse ||
-                        token.Instruction == VmInstruction.JumpIfTrue || token.Instruction == VmInstruction.Is ||
-                        token.Instruction == VmInstruction.Cast)
+                    // Print operand for token
+                    if (token.TokenObject != null)
                     {
                         Console.Write(" ");
                         Console.Write(token.TokenObject);

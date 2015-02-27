@@ -741,6 +741,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitListType([NotNull] ZScriptParser.ListTypeContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDictionaryType([NotNull] ZScriptParser.DictionaryTypeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDictionaryType([NotNull] ZScriptParser.DictionaryTypeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.callableTypeList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -1113,6 +1125,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -1136,6 +1160,30 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitStringLiteral([NotNull] ZScriptParser.StringLiteralContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryEntryList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDictionaryEntryList([NotNull] ZScriptParser.DictionaryEntryListContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryEntryList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDictionaryEntryList([NotNull] ZScriptParser.DictionaryEntryListContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.dictionaryEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDictionaryEntry([NotNull] ZScriptParser.DictionaryEntryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.dictionaryEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDictionaryEntry([NotNull] ZScriptParser.DictionaryEntryContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.objectEntryList"/>.
 	/// <para>The default implementation does nothing.</para>

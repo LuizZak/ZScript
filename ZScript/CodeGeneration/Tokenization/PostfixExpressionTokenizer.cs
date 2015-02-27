@@ -378,6 +378,15 @@ namespace ZScript.CodeGeneration.Tokenization
                     VisitValueAccess(context.valueAccess());
                 }
             }
+            else if (context.dictionaryLiteral() != null)
+            {
+                VisitDictionaryLiteral(context.dictionaryLiteral());
+
+                if (context.valueAccess() != null)
+                {
+                    VisitValueAccess(context.valueAccess());
+                }
+            }
             else if (context.objectLiteral() != null)
             {
                 VisitObjectLiteral(context.objectLiteral());
@@ -709,6 +718,46 @@ namespace ZScript.CodeGeneration.Tokenization
 
             // Add the array creation token
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray));
+        }
+
+        private void VisitDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
+        {
+            // Get the type for the key and value
+            var keyType = context.EvaluatedKeyType;
+            var valueType = context.EvaluatedValueType;
+
+            if (keyType == null)
+                throw new InvalidOperationException("Dictionary literal context lacked required type for key of dictionary.");
+            if (valueType == null)
+                throw new InvalidOperationException("Dictionary literal context lacked required type for values of dictionary.");
+
+            // Collect the entries
+            VisitDictionaryEntryList(context.dictionaryEntryList());
+
+            // Add the dictionary creation token
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { keyType, valueType }));
+        }
+
+        private void VisitDictionaryEntryList(ZScriptParser.DictionaryEntryListContext context)
+        {
+            var entryDefs = context.dictionaryEntry();
+
+            if (entryDefs.Length == 0)
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
+                return;
+            }
+
+            int argCount = 0;
+            foreach (var entry in entryDefs)
+            {
+                VisitExpression(entry.expression(0));
+                VisitExpression(entry.expression(1));
+
+                argCount++;
+            }
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
         }
 
         private void VisitObjectLiteral(ZScriptParser.ObjectLiteralContext context)
