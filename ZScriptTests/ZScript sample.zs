@@ -493,9 +493,9 @@ let ENEMY_TOUGHZOMBIE = 'ToughZombie';
 @setAnim(obj)
 @createGDAnim(anim)
 @createGDImage(text)
-@getAnimFrame(anim=null)
-@getAnimFrameInt(anim=null)
-@getAnimFrameCount(anim=null)
+@getAnimFrame(anim=null) : float
+@getAnimFrameInt(anim=null) : int
+@getAnimFrameCount(anim=null) : int
 @setAnimFrame(anim, frame)
 @pauseAnim(obj=null)
 @resumeAnim(obj=null)
@@ -508,8 +508,6 @@ let ENEMY_TOUGHZOMBIE = 'ToughZombie';
 @setStatic(cls : any, field : any, value : any) : void
 @getStaticProp(cls : any, prop : any) : any
 @setStaticProp(cls : any, prop : any, value : any) : any
-//@is(obj : any, type) : bool
-//@new(class, args=null, types=null)
 @hasField(obj : any, field) : bool
 @hasProperty(obj : any, prop) : bool
 @hasMethod(obj : any, method) : bool
