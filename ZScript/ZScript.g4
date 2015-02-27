@@ -131,7 +131,7 @@ expression:  '(' expression ')' valueAccess?
            | '(' assignmentExpression ')'
            // Primary expressions
            |  T_THIS objectAccess?
-           |  T_BASE objectAccess?
+           |  T_BASE valueAccess?
            // Prefix and postfix
            |  prefixOperator leftValue
            |  leftValue postfixOperator
