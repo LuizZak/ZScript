@@ -192,6 +192,12 @@ namespace ZScript.CodeGeneration
         /// <returns>An array of sequence frame ranges that were collected</returns>
         public static SequenceFrameRange[] CollectFrameRanges(ZScriptParser.FrameRangeContext context)
         {
+            // If the context is null, return a default '+1' frame range
+            if (context == null)
+            {
+                return new [] { new SequenceFrameRange(true, 1) };
+            }
+
             var elements = context.frameRangeElement();
             var ranges = new SequenceFrameRange[elements.Length];
 

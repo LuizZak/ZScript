@@ -54,6 +54,24 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(baseTest, derivedTest.BaseClass, "Failed to link inherited classes correctly");
         }
 
+        /// <summary>
+        /// Tests parsing and collecting a base constructor call
+        /// </summary>
+        [TestMethod]
+        public void TestBaseConstructor()
+        {
+            const string input = "class Base { } class Derived : Base { func Derived() { base(); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.IsFalse(collector.HasErrors);
+        }
+
         #region Parsing Errors
 
         /// <summary>
@@ -257,7 +275,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestThisVariable()
         {
-            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.f(); } class TestClass { var field:int = 10; func f() { return this.field; } }";
+            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.f(); } class TestClass { var field:int = 10; func f() : int { return this.field; } }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);

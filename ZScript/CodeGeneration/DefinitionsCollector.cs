@@ -155,6 +155,10 @@ namespace ZScript.CodeGeneration
             _classStack.Push(DefineClass(context));
 
             PushScope(context);
+
+            // Add a definition pointing to the base overriden function.
+            // The analysis of whether this is a valid call is done in a separate analysis phase
+            DefineMethod(new MethodDefinition("base", null, new FunctionArgumentDefinition[0]) { Class = GetClassScope() });
         }
 
         public override void ExitClassDefinition(ZScriptParser.ClassDefinitionContext context)
@@ -271,10 +275,6 @@ namespace ZScript.CodeGeneration
         public override void EnterClassMethod(ZScriptParser.ClassMethodContext context)
         {
             PushScope(context);
-
-            // Add a definition pointing to the base overriden function.
-            // The analysis of whether this is a valid call is done in a separate analysis phase
-            DefineMethod(new MethodDefinition("base", null, new FunctionArgumentDefinition[0]) { Class = GetClassScope() });
 
             // Define the method
             _functionStack.Push(DefineMethod(context));
@@ -530,6 +530,8 @@ namespace ZScript.CodeGeneration
             else
             {
                 GetClassScope().AddMethod(method);
+
+                _currentScope.AddDefinition(method);
             }
         }
 
@@ -680,6 +682,11 @@ namespace ZScript.CodeGeneration
                 // Type field shadowing
                 if (d is TypeFieldDefinition && (definition is LocalVariableDefinition || definition is FunctionArgumentDefinition) ||
                     definition is TypeFieldDefinition && (d is LocalVariableDefinition || d is FunctionArgumentDefinition))
+                    continue;
+
+                // Value holder and class/sequence name
+                if (d is ValueHolderDefinition && (definition is ClassDefinition || definition is SequenceDefinition) ||
+                    definition is ValueHolderDefinition && (d is ClassDefinition || d is SequenceDefinition))
                     continue;
 
                 int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;
