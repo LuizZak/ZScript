@@ -131,6 +131,7 @@ expression:  '(' expression ')' valueAccess?
            | '(' assignmentExpression ')'
            // Primary expressions
            |  T_THIS objectAccess?
+           |  T_BASE objectAccess?
            // Prefix and postfix
            |  prefixOperator leftValue
            |  leftValue postfixOperator
@@ -239,6 +240,7 @@ T_OVERRIDE : 'override';
 T_OBJECT   : 'object';
 T_SEQUENCE : 'sequence';
 T_THIS     : 'this';
+T_BASE     : 'base';
 
 // Statements
 T_VAR   : 'var';
