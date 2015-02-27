@@ -27,17 +27,17 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Represents a type alias, which is a collection of fields and functions that expose native classes and structs
     /// </summary>
-    public class TypeAliasDefinition : Definition
+    public class TypeAliasDefinition : TypeContainerDefinition
     {
         /// <summary>
         /// List of fields accessible on this TypeAliasDefinition
         /// </summary>
-        private readonly List<ValueHolderDefinition> _fields = new List<ValueHolderDefinition>();
+        private readonly List<TypeFieldDefinition> _fields = new List<TypeFieldDefinition>();
 
         /// <summary>
-        /// List of function definitions accessible on this TypeAliasDefinition
+        /// List of method definitions accessible on this TypeAliasDefinition
         /// </summary>
-        private readonly List<FunctionDefinition> _functions = new List<FunctionDefinition>();
+        private readonly List<TypeAliasMethodDefinition> _methods = new List<TypeAliasMethodDefinition>();
 
         /// <summary>
         /// Gets or sets a value specifying whether this TypeAliasDefinition represents a value type
@@ -45,44 +45,54 @@ namespace ZScript.CodeGeneration.Definitions
         public bool IsValueType { get; set; }
 
         /// <summary>
+        /// Gets or sets the underlying runtime type this type alias definition refers to
+        /// </summary>
+        public string TypeName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the base type name for the type alias definition
+        /// </summary>
+        public string BaseTypeName { get; set; }
+
+        /// <summary>
         /// Gets an array of all fields accessible on this TypeAliasDefinition
         /// </summary>
-        public ValueHolderDefinition[] Fields
+        public override TypeFieldDefinition[] Fields
         {
             get { return _fields.ToArray(); }
         }
 
         /// <summary>
-        /// Gets an array of all function definitions accessible on this TypeAliasDefinition
+        /// Gets an array of all method definitions accessible on this TypeAliasDefinition
         /// </summary>
-        public FunctionDefinition[] Functions
+        public TypeAliasMethodDefinition[] Functions
         {
-            get { return _functions.ToArray(); }
+            get { return _methods.ToArray(); }
         }
 
         /// <summary>
-        /// Adds a function definition on this TypeAliasDefinition
+        /// Adds a method definition on this TypeAliasDefinition
         /// </summary>
-        /// <param name="definition">The function definition to add to this alias</param>
-        public void AddFunctionDefinition(FunctionDefinition definition)
+        /// <param name="definition">The method definition to add to this alias</param>
+        public void AddMethod(TypeAliasMethodDefinition definition)
         {
-            _functions.Add(definition);
+            _methods.Add(definition);
         }
 
         /// <summary>
-        /// Removes a function definition from this TypeAliasDefinition instance
+        /// Removes a method definition from this TypeAliasDefinition instance
         /// </summary>
-        /// <param name="definition">The function definition to remove from this TypeAliasDefinition</param>
-        public void RemoveFunctionDefinition(FunctionDefinition definition)
+        /// <param name="definition">The method definition to remove from this TypeAliasDefinition</param>
+        public void RemoveMethod(TypeAliasMethodDefinition definition)
         {
-            _functions.Remove(definition);
+            _methods.Remove(definition);
         }
 
         /// <summary>
         /// Adds a field definition on this TypeAliasDefinition
         /// </summary>
         /// <param name="definition">The field definition to add to this alias</param>
-        public void AddFieldDefinition(ValueHolderDefinition definition)
+        public override void AddField(TypeFieldDefinition definition)
         {
             _fields.Add(definition);
         }
@@ -91,9 +101,19 @@ namespace ZScript.CodeGeneration.Definitions
         /// Removes a field definition from this TypeAliasDefinition instance
         /// </summary>
         /// <param name="definition">The field definition to remove from this TypeAliasDefinition</param>
-        public void RemoveFieldDefinition(ValueHolderDefinition definition)
+        public void RemoveFieldDefinition(TypeFieldDefinition definition)
         {
             _fields.Remove(definition);
+        }
+        
+        /// <summary>
+        /// Gets all the fields defined in this type alias definition
+        /// </summary>
+        /// <param name="inheritedOnly">Whether to get only fields that where inherited</param>
+        /// <returns>A list of fields from this type definition</returns>
+        public override List<TypeFieldDefinition> GetAllFields(bool inheritedOnly = false)
+        {
+            return _fields;
         }
 
         /// <summary>

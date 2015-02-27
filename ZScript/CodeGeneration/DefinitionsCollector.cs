@@ -57,9 +57,14 @@ namespace ZScript.CodeGeneration
         private Stack<ClassDefinition> _classStack;
 
         /// <summary>
-        /// Stack of sequences used to define methods and members inside classes
+        /// Stack of sequences used to define methods and members inside sequences
         /// </summary>
         private Stack<SequenceDefinition> _sequenceStack;
+
+        /// <summary>
+        /// Stack of type aliasses used to define methods and members inside type aliases
+        /// </summary>
+        private Stack<TypeAliasDefinition> _typeAliasStack;
 
         /// <summary>
         /// Stack of functions used to define arguments
@@ -92,6 +97,7 @@ namespace ZScript.CodeGeneration
             _classStack = new Stack<ClassDefinition>();
             _sequenceStack = new Stack<SequenceDefinition>();
             _functionStack = new Stack<FunctionDefinition>();
+            _typeAliasStack = new Stack<TypeAliasDefinition>();
 
             var walker = new ParseTreeWalker();
             walker.Walk(this, context);
@@ -263,12 +269,15 @@ namespace ZScript.CodeGeneration
 
         public override void EnterTypeAlias(ZScriptParser.TypeAliasContext context)
         {
-            DefineTypeAlias(context);
+            _typeAliasStack.Push(DefineTypeAlias(context));
+
             PushScope(context);
         }
 
         public override void ExitTypeAlias(ZScriptParser.TypeAliasContext context)
         {
+            _typeAliasStack.Pop();
+
             PopScope();
         }
 
@@ -285,6 +294,16 @@ namespace ZScript.CodeGeneration
             PopScope();
 
             _functionStack.Pop();
+        }
+
+        public override void EnterTypeAliasVariable(ZScriptParser.TypeAliasVariableContext context)
+        {
+            DefineTypeAliasField(context);
+        }
+
+        public override void EnterTypeAliasFunction(ZScriptParser.TypeAliasFunctionContext context)
+        {
+            DefineTypeAliasFunction(context);
         }
 
         #endregion
@@ -370,13 +389,23 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Returns the class definition associated with the current sequence being parsed.
+        /// Returns the sequence definition associated with the current sequence being parsed.
         /// If the collector is currently not inside a sequence context, null is returned
         /// </summary>
         /// <returns>A sequence definition for the current scope</returns>
         SequenceDefinition GetSequenceScope()
         {
             return _sequenceStack.Count > 0 ? _sequenceStack.Peek() : null;
+        }
+
+        /// <summary>
+        /// Returns the type alias definition associated with the current sequence being parsed.
+        /// If the collector is currently not inside a type alias context, null is returned
+        /// </summary>
+        /// <returns>A type alias definition for the current scope</returns>
+        TypeAliasDefinition GetTypeAliasScope()
+        {
+            return _typeAliasStack.Count > 0 ? _typeAliasStack.Peek() : null;
         }
 
         /// <summary>
@@ -645,11 +674,43 @@ namespace ZScript.CodeGeneration
         /// Defines a new type alias definition in the current top-most scope
         /// </summary>
         /// <param name="typeAlias">The type alias to define</param>
-        void DefineTypeAlias(ZScriptParser.TypeAliasContext typeAlias)
+        TypeAliasDefinition DefineTypeAlias(ZScriptParser.TypeAliasContext typeAlias)
         {
             var def = TypeAliasDefinitionGenerator.GenerateTypeAlias(typeAlias);
 
             _currentScope.AddTypeAliasDefinition(def);
+
+            return def;
+        }
+
+        /// <summary>
+        /// Defines a new type alias field in the current type alias context
+        /// </summary>
+        /// <param name="variable">The variable to define in the type alias</param>
+        void DefineTypeAliasField(ZScriptParser.TypeAliasVariableContext variable)
+        {
+            var def = TypeAliasDefinitionGenerator.GenerateTypeField(variable);
+
+            var typeAlias = GetTypeAliasScope();
+
+            _currentScope.AddDefinition(def);
+
+            typeAlias.AddField(def);
+        }
+
+        /// <summary>
+        /// Defines a new type alias field in the current type alias context
+        /// </summary>
+        /// <param name="method">The variable to define in the type alias</param>
+        void DefineTypeAliasFunction(ZScriptParser.TypeAliasFunctionContext method)
+        {
+            var def = TypeAliasDefinitionGenerator.GenerateTypeMethod(method);
+
+            var typeAlias = GetTypeAliasScope();
+
+            _currentScope.AddDefinition(def);
+
+            typeAlias.AddMethod(def);
         }
 
         /// <summary>

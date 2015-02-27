@@ -72,13 +72,13 @@ namespace ZScript.Runtime.Typing
         /// <param name="alias">The alias to populate</param>
         private static void PopulateWithDefaultMembers(TypeAliasDefinition alias)
         {
-            var toString = new FunctionDefinition("ToString", null, new FunctionArgumentDefinition[0]);
-            var getType  = new FunctionDefinition("GetType", null, new FunctionArgumentDefinition[0]);
-            var equals = new FunctionDefinition("Equals", null, new[] { new FunctionArgumentDefinition { Name = "object", Type = _objectTypeDef } }) { ReturnType = _boolTypeDef };
+            var toString = new TypeAliasMethodDefinition("ToString", new FunctionArgumentDefinition[0]);
+            var getType = new TypeAliasMethodDefinition("GetType", new FunctionArgumentDefinition[0]);
+            var equals = new TypeAliasMethodDefinition("Equals", new[] { new FunctionArgumentDefinition { Name = "object", Type = _objectTypeDef } }) { ReturnType = _boolTypeDef };
 
-            alias.AddFunctionDefinition(toString);
-            alias.AddFunctionDefinition(getType);
-            alias.AddFunctionDefinition(equals);
+            alias.AddMethod(toString);
+            alias.AddMethod(getType);
+            alias.AddMethod(equals);
         }
     }
 }

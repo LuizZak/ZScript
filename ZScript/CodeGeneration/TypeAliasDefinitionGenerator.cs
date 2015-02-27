@@ -20,6 +20,7 @@
 #endregion
 
 using ZScript.CodeGeneration.Definitions;
+using ZScript.Parsing;
 
 namespace ZScript.CodeGeneration
 {
@@ -35,9 +36,45 @@ namespace ZScript.CodeGeneration
         /// <returns>A type alias definition generated from the given type alias context</returns>
         public static TypeAliasDefinition GenerateTypeAlias(ZScriptParser.TypeAliasContext context)
         {
-            TypeAliasDefinition definition = new TypeAliasDefinition { Name = context.typeAliasName().GetText() };
+            var runtimeTypeName = ConstantAtomParser.ParseStringAtom(context.stringLiteral());
+            var definition = new TypeAliasDefinition
+            {
+                Context = context,
+                Name = context.typeAliasName().GetText(),
+                TypeName = runtimeTypeName,
+                BaseTypeName = context.typeAliasInherit() == null ? "" : context.typeAliasInherit().typeAliasName().GetText()
+            };
 
             return definition;
+        }
+
+        /// <summary>
+        /// Generates a type alias variable from a given type alias context
+        /// </summary>
+        /// <param name="context">The context containing the type alias variable to get</param>
+        /// <returns>A new TypeFieldDefinition that corresponds to the given type alias variable context</returns>
+        public static TypeFieldDefinition GenerateTypeField(ZScriptParser.TypeAliasVariableContext context)
+        {
+            var declare = context.valueDeclareStatement();
+            var name = declare.valueHolderDecl().valueHolderName().memberName().GetText();
+
+            var definition = new TypeFieldDefinition(name);
+
+            DefinitionGenerator.FillValueHolderDef(definition, declare.valueHolderDecl());
+
+            return definition;
+        }
+
+        /// <summary>
+        /// Generates a type alias method from a given type alias context
+        /// </summary>
+        /// <param name="context">The context containing the type alias method to get</param>
+        /// <returns>A new TypeAliasMethodDefinition that corresponds to the given type alias method context</returns>
+        public static TypeAliasMethodDefinition GenerateTypeMethod(ZScriptParser.TypeAliasFunctionContext context)
+        {
+            var args = DefinitionGenerator.CollectFunctionArguments(context.functionArguments());
+
+            return new TypeAliasMethodDefinition(context.functionName().IDENT().GetText(), args) { HasReturnType = true, ReturnTypeContext = context.returnType() };
         }
     }
 }

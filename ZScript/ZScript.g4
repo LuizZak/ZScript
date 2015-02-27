@@ -64,7 +64,7 @@ argumentName : IDENT;
 typeAlias : 'typeAlias' typeAliasName typeAliasInherit? ':' stringLiteral (';' | typeAliasBody);
 typeAliasBody : '{' (typeAliasVariable | typeAliasFunction ';')* '}';
 typeAliasVariable : valueDeclareStatement;
-typeAliasFunction : 'func' functionName functionArguments? returnType;
+typeAliasFunction : 'func' functionName functionArguments returnType;
 typeAliasName     : complexTypeName;
 typeAliasInherit  : '<-' typeAliasName;
 

@@ -287,7 +287,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="def">The definition to fill</param>
         /// <param name="context">The value declaration context that the definition will be filled with</param>
-        private static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDeclContext context)
+        public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDeclContext context)
         {
             def.Name = context.valueHolderName().memberName().IDENT().GetText();
             def.Context = context;
