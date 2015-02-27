@@ -93,7 +93,7 @@ namespace ZScript.Elements
             if (ReferenceEquals(this, other)) return true;
             if (other.GetType() != GetType()) return false;
 
-            if (TokenObject.GetType() != other.TokenObject.GetType()) return false;
+            if ((TokenObject != null) && (other.TokenObject != null) && (TokenObject.GetType() != other.TokenObject.GetType())) return false;
 
             // Array of objects checking
             if (TokenObject is object[])
