@@ -445,7 +445,7 @@ namespace ZScript.Runtime.Execution
 
                 // Array literal creation
                 case VmInstruction.CreateArray:
-                    PerformArrayCreation();
+                    PerformArrayCreation(parameter);
                     break;
                     
                 // Dictionary literal creation
@@ -572,24 +572,22 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs an array creation using the values on the stack, pushing the created array back into the top of the stack
         /// </summary>
-        void PerformArrayCreation()
+        /// <param name="parameter">The parameter for the array creation, taken directly from a valid array creation instruction token</param>
+        void PerformArrayCreation(object parameter)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
 
-            // Pop the arguments from the stack
-            ArrayList arguments = new ArrayList();
+            // Create the list
+            var array = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType((Type)parameter));
 
             for (int i = 0; i < argCount; i++)
             {
-                arguments.Add(PopValueImplicit());
+                array.Insert(0, PopValueImplicit());
             }
 
-            // Reverse the resulting array so the items pushed first appear first
-            arguments.Reverse();
-
             // Push the array back into the stack
-            _stack.Push(arguments);
+            _stack.Push(array);
         }
 
         /// <summary>

@@ -53,7 +53,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, "def"),
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, 5),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(object)),
                 new Token(TokenType.Value, 1),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript)
             };
@@ -84,7 +84,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, "def"),
                 new Token(TokenType.Value, true),
                 new Token(TokenType.Value, 5),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(object)),
                 new Token(TokenType.MemberName, "a"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
                 new Token(TokenType.Value, 1),
@@ -103,7 +103,7 @@ namespace ZScriptTests.Runtime.Execution
             functionVm.Execute();
 
             Assert.IsInstanceOfType(context.Memory.GetVariable("a"), typeof(IList), "The value set on memory for the array created is no an IList as expected");
-            Assert.AreEqual(1, ((ArrayList)context.Memory.GetVariable("a"))[1], "The subscription set operation failed to set the correct value on the underlying array");
+            Assert.AreEqual(1, ((List<object>)context.Memory.GetVariable("a"))[1], "The subscription set operation failed to set the correct value on the underlying array");
         }
 
         #endregion

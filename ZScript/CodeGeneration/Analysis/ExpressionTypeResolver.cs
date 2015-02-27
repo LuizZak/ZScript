@@ -901,6 +901,8 @@ namespace ZScript.CodeGeneration.Analysis
                     listItemsType = TypeProvider.FindCommonType(itemType, listItemsType);
                 }
 
+                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(listItemsType, true);
+
                 return TypeProvider.ListForType(listItemsType);
             }
 
@@ -924,8 +926,12 @@ namespace ZScript.CodeGeneration.Analysis
                 var message = "Cannot implicitly convert source list type to target type " + expectedValueType;
                 MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
 
+                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(TypeProvider.AnyType(), true);
+
                 return TypeProvider.ListForType(TypeProvider.AnyType());
             }
+
+            context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(expectedValueType, true);
 
             return context.ImplicitCastType = TypeProvider.ListForType(expectedValueType);
         }

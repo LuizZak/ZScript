@@ -278,9 +278,11 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
 
             var type = parser.arrayLiteral();
+            var resolvedType = resolver.ResolveArrayLiteral(type);
 
             // Compare the result now
-            Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolver.ResolveArrayLiteral(type), "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolvedType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeof(long), type.EvaluatedValueType, "The resolved type did not match the expected type");
         }
 
         /// <summary>

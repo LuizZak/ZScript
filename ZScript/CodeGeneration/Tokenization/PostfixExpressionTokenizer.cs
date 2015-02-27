@@ -716,8 +716,11 @@ namespace ZScript.CodeGeneration.Tokenization
             // Collect the expressions
             VisitExpressionList(context.expressionList());
 
+            if (context.EvaluatedValueType == null)
+                throw new InvalidOperationException("Array literal context lacked required type for values of the array.");
+
             // Add the array creation token
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray));
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, context.EvaluatedValueType));
         }
 
         private void VisitDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)

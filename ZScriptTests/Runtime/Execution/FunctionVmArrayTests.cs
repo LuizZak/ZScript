@@ -18,9 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections;
+
 using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -105,7 +107,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var array = (List<object>)functionVm.Stack.Pop();
 
-            Assert.IsInstanceOfType(array[0], typeof(List<object>));
+            Assert.IsInstanceOfType(array[0], typeof(List<int>));
             Assert.AreEqual(true, array[1], "The array was not created successfully");
 
             var innerArray = (List<int>)array[0];

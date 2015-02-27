@@ -129,6 +129,11 @@ public partial class ZScriptParser
         public ListTypeDef ImplicitCastType { get; set; }
 
         /// <summary>
+        /// Gets or sets the evaluated type for the values in the array
+        /// </summary>
+        public Type EvaluatedValueType { get; set; }
+
+        /// <summary>
         /// The type that was set as expected by a parent expression when this expression was evaluated.
         /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
         /// </summary>
