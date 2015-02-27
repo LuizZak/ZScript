@@ -93,7 +93,7 @@ namespace ZScript.CodeGeneration.Analysis
         public void Expand()
         {
             // Assign the type source for the type provider
-            TypeProvider.CustomTypeSource = _classTypeSource;
+            TypeProvider.RegisterCustomTypeSource(_classTypeSource);
 
             // Get all definitons
             var definitions = _baseScope.GetAllDefinitionsRecursive().ToArray();

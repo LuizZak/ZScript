@@ -60,7 +60,7 @@ namespace ZScriptTests.Runtime.Typing
             typeSource.Stub(x => x.HasType("CustomType")).Return(true);
             typeSource.Stub(x => x.TypeNamed("CustomType")).Return(expectedType);
 
-            typeProvider.CustomTypeSource = typeSource;
+            typeProvider.RegisterCustomTypeSource(typeSource);
 
             var type = typeProvider.TypeNamed("CustomType");
 

@@ -40,6 +40,11 @@ namespace ZScript.Runtime.Typing
         private readonly BinaryExpressionTypeProvider _binaryExpressionProvider;
 
         /// <summary>
+        /// List of custom type sources for the program
+        /// </summary>
+        private readonly List<ICustomTypeSource> _customTypeSources;
+
+        /// <summary>
         /// Gets type provider used to resolve binary expressions
         /// </summary>
         public BinaryExpressionTypeProvider BinaryExpressionProvider
@@ -48,16 +53,32 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
-        /// Gets or sets the custom type source for this type provider
-        /// </summary>
-        public ICustomTypeSource CustomTypeSource { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the TypeProvider class
         /// </summary>
         public TypeProvider()
         {
             _binaryExpressionProvider = new BinaryExpressionTypeProvider(this);
+            _customTypeSources = new List<ICustomTypeSource>();
+        }
+
+        /// <summary>
+        /// Registers a new custom type source in this type provider
+        /// </summary>
+        /// <param name="source">The type source to register on this provider</param>
+        public void RegisterCustomTypeSource(ICustomTypeSource source)
+        {
+            _customTypeSources.Add(source);
+        }
+
+        /// <summary>
+        /// Unregisters a new custom type source in this type provider, returning a value that
+        /// specifies whether the source was registered on this type provider before being removed
+        /// </summary>
+        /// <param name="source">The type source to register on this provider</param>
+        /// <returns>true if the source was registered before the call; false otherwise</returns>
+        public bool UnregisterCustomTypeSource(ICustomTypeSource source)
+        {
+            return _customTypeSources.Remove(source);
         }
 
         /// <summary>
@@ -68,15 +89,7 @@ namespace ZScript.Runtime.Typing
         /// <returns></returns>
         public object CastObject(object value, Type newType)
         {
-            // No casting necessary
-            if (value != null && value.GetType() == newType)
-                return value;
-
-            if (value is IConvertible)
-            {
-                return Convert.ChangeType(value, newType);
-            }
-
+            if (newType == null) throw new ArgumentNullException("newType");
             // Resolve nulls
             if (value == null)
             {
@@ -84,6 +97,15 @@ namespace ZScript.Runtime.Typing
                     throw new Exception("Cannot convert 'null' to value type " + newType);
 
                 return null;
+            }
+
+            // No casting necessary
+            if (value.GetType() == newType)
+                return value;
+
+            if (value is IConvertible)
+            {
+                return Convert.ChangeType(value, newType);
             }
 
             MethodInfo castMethod = GetType().GetMethod("Cast").MakeGenericMethod(newType);
@@ -115,9 +137,12 @@ namespace ZScript.Runtime.Typing
                     return ObjectType();
             }
             
-            // Search the custom type source
-            if (CustomTypeSource != null && CustomTypeSource.HasType(typeName))
-                return CustomTypeSource.TypeNamed(typeName);
+            // Search the custom type sources
+            foreach (var customSource in _customTypeSources)
+            {
+                if (customSource.HasType(typeName))
+                    return customSource.TypeNamed(typeName);
+            }
 
             return new TypeDef(typeName, true);
         }
