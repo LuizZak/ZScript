@@ -132,7 +132,7 @@ namespace ZScript.CodeGeneration.Analysis
                 if (func.HasReturnType && !func.IsVoid)
                 {
                     Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                        "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
+                        "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
                 }
 
                 return;
@@ -144,12 +144,12 @@ namespace ZScript.CodeGeneration.Analysis
             if (state == ReturnStatementState.Partial)
             {
                 Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                    "Not all code paths of function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
+                    "Not all code paths of function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
             }
             else if (func.HasReturnType && !func.IsVoid && state != ReturnStatementState.Complete)
             {
                 Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                    "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, context);
+                    "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
             }
 
             // Check inconsistencies on return types
@@ -174,13 +174,13 @@ namespace ZScript.CodeGeneration.Analysis
                 if (inconsistentReturn)
                 {
                     Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                        "Function '" + func.Name + "' has inconsistent returns: Some returns are void, some are valued.", ErrorCode.InconsistentReturns, context);
+                        "Function '" + func.Name + "' has inconsistent returns: Some returns are void, some are valued.", ErrorCode.InconsistentReturns, func.Context);
                 }
                 // Check for early-returns on functions that have a missing return value
                 else if (!func.HasReturnType && valuedReturn && state != ReturnStatementState.Complete)
                 {
                     Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                        "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, context);
+                        "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, func.Context);
                 }
             }
 

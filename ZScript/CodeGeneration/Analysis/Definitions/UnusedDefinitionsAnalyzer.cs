@@ -113,7 +113,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         static void RegisterDefinitionNotUsed(Definition definition, MessageContainer messageContainer)
         {
             var warning = "Unused definition '" + definition.Name + "'.";
-            messageContainer.RegisterWarning(definition.Context.Start.Line, definition.Context.Start.Column, warning, WarningCode.UnusedDefinition, definition.IdentifierContext);
+            messageContainer.RegisterWarning(definition.IdentifierContext.Start.Line, definition.IdentifierContext.Start.Column, warning, WarningCode.UnusedDefinition, definition.IdentifierContext);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         static void RegisterDefinitionOnlySet(Definition definition, MessageContainer messageContainer)
         {
             var warning = "Definition '" + definition.Name + "' has its value set, but never used.";
-            messageContainer.RegisterWarning(definition.Context.Start.Line, definition.Context.Start.Column, warning, WarningCode.DefinitionOnlySet, definition.IdentifierContext);
+            messageContainer.RegisterWarning(definition.IdentifierContext.Start.Line, definition.IdentifierContext.Start.Column, warning, WarningCode.DefinitionOnlySet, definition.IdentifierContext);
         }
     }
 }

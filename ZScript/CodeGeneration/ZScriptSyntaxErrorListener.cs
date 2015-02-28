@@ -56,7 +56,7 @@ namespace ZScript.CodeGeneration
         // 
         public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
-            _messageContainer.RegisterSyntaxError(new SyntaxError(line, charPositionInLine, msg));
+            _messageContainer.RegisterSyntaxError(new SyntaxError(line, charPositionInLine, msg) { Token = offendingSymbol });
         }
     }
 }

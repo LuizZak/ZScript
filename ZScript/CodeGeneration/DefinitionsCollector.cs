@@ -607,9 +607,10 @@ namespace ZScript.CodeGeneration
             var def = new ClassDefinition(classDefinition.className().IDENT().GetText())
             {
                 Context = classDefinition,
-                ClassContext = classDefinition
+                ClassContext = classDefinition,
+                IdentifierContext = classDefinition.className()
             };
-
+            
             _currentScope.AddDefinition(def);
 
             classDefinition.ClassDefinition = def;
@@ -627,7 +628,8 @@ namespace ZScript.CodeGeneration
             var def = new SequenceDefinition(sequence.sequenceName().IDENT().GetText())
             {
                 Context = sequence,
-                SequenceContext = sequence
+                SequenceContext = sequence,
+                IdentifierContext = sequence.sequenceName()
             };
 
             _currentScope.AddDefinition(def);
