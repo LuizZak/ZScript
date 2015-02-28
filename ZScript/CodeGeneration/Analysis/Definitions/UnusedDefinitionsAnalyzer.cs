@@ -77,7 +77,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                 if (usage.Context == null)
                     continue;
 
-                if (!(usage.Context.Parent is ZScriptParser.LeftValueContext))
+                if (!(usage.Context.Parent is ZScriptParser.LeftValueContext) || !(usage.Context.Parent.Parent.Parent is ZScriptParser.StatementContext))
                 {
                     get = true;
                 }
