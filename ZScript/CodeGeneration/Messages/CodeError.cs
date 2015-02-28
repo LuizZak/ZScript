@@ -149,6 +149,8 @@ namespace ZScript.CodeGeneration.Messages
         CircularInheritanceChain,
         /// <summary>Trying to override a method that is not present in a base class</summary>
         NoOverrideTarget,
+        /// <summary>Overriding a base method with a different signature than the one overriden with</summary>
+        MismatchedOverrideSignatures,
 
         #endregion
     }

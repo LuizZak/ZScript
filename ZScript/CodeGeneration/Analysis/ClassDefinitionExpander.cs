@@ -52,7 +52,7 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Expands the classes on the generation context this class was initialized with
+        /// Expands the classes on the generation context this object was initialized with
         /// </summary>
         public void Expand()
         {
@@ -63,6 +63,15 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 SetupInheritance(classDefinition);
             }
+        }
+
+        /// <summary>
+        /// Verifies the validity of the methods from the classes on the generation context this object was initialized with
+        /// </summary>
+        public void VerifyMethods()
+        {
+            // Get the classes to expand
+            var classes = _baseScope.GetDefinitionsByTypeRecursive<ClassDefinition>().ToArray();
 
             foreach (var classDefinition in classes)
             {
@@ -154,13 +163,25 @@ namespace ZScript.CodeGeneration.Analysis
                     }
                 }
 
-                if (inheritedMethods.Any(m => m.Name == method.Name))
-                {
-                    // Check if method is not marked as override
-                    if (method.IsOverride)
-                        continue;
+                var baseMethod = inheritedMethods.FirstOrDefault(m => m.Name == method.Name);
 
-                    var message = "Duplicated method definition '" + method.Name + "' not marked as override";
+                if (baseMethod != null)
+                {
+                    string message;
+
+                    // Check overriden type signature matching
+                    if (method.IsOverride)
+                    {
+                        if (baseMethod.CallableTypeDef != method.CallableTypeDef)
+                        {
+                            message = "Overriden method definition '" + method.Name + "' has a different signature than base method";
+                            _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.MismatchedOverrideSignatures);
+                        }
+
+                        continue;
+                    }
+
+                    message = "Duplicated method definition '" + method.Name + "' not marked as override";
                     _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
                 }
                 // Missing override target

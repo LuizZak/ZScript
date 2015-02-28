@@ -157,7 +157,7 @@ namespace ZScriptTests.Runtime
         }
 
         /// <summary>
-        /// Tests override of methods
+        /// Tests trying to override methods with no matching base method to override
         /// </summary>
         [TestMethod]
         public void TestOverrideNoTarget()
@@ -171,6 +171,23 @@ namespace ZScriptTests.Runtime
             generator.MessageContainer.PrintMessages();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoOverrideTarget));
+        }
+
+        /// <summary>
+        /// Tests overriding a method with a different signature
+        /// </summary>
+        [TestMethod]
+        public void TestMismatchedOverride()
+        {
+            const string input = "class TestBaseClass { func f1() : int { return 0; } }" +
+                                 "class TestClass : TestBaseClass { override func f1() : void { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MismatchedOverrideSignatures));
         }
 
         #endregion
