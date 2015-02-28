@@ -199,7 +199,7 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 var name = context.leftValue().memberName().IDENT().GetText();
 
-                RegisterDefinitionUsage(name, context.memberName());
+                RegisterDefinitionUsage(name, context.leftValue().memberName());
             }
         }
 
