@@ -19,6 +19,7 @@
 */
 #endregion
 
+using Antlr4.Runtime;
 using ZScript.CodeGeneration.Definitions;
 
 namespace ZScript.CodeGeneration
@@ -40,7 +41,8 @@ namespace ZScript.CodeGeneration
             var m = new SequenceFrameDefinition(frameName, context.functionBody(), CollectFrameRanges(context.frameRange()))
             {
                 Context = context,
-                HasReturnType = false
+                HasReturnType = false,
+                IdentifierContext = frameName == "" ? context.frameRange() : (ParserRuleContext)context.frameName()
             };
 
             return m;
@@ -59,7 +61,8 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 HasReturnType = context.functionDefinition().returnType() != null,
                 ReturnTypeContext = context.functionDefinition().returnType(),
-                IsOverride = context.@override != null
+                IsOverride = context.@override != null,
+                IdentifierContext = context.functionDefinition().functionName()
             };
 
             return m;
@@ -78,6 +81,7 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 HasReturnType = context.returnType() != null,
                 ReturnTypeContext = context.returnType(),
+                IdentifierContext = context.functionName()
             };
 
             return f;
@@ -124,6 +128,7 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 HasReturnType = context.returnType() != null,
                 ReturnTypeContext = context.returnType(),
+                IdentifierContext = context.functionName()
             };
 
             return e;
@@ -140,7 +145,8 @@ namespace ZScript.CodeGeneration
             {
                 Name = context.argumentName().IDENT().GetText(),
                 HasValue = context.compileConstant() != null,
-                Context = context
+                Context = context,
+                IdentifierContext = context.argumentName()
             };
 
             if (context.type() != null)
@@ -295,6 +301,7 @@ namespace ZScript.CodeGeneration
             def.HasType = context.type() != null;
             def.ValueExpression = new Expression(context.expression());
             def.IsConstant = context.let != null;
+            def.IdentifierContext = context.valueHolderName().memberName();
 
             if (def.HasType)
             {

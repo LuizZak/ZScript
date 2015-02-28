@@ -326,7 +326,7 @@ namespace ZScript.CodeGeneration.Analysis
             
             error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, ErrorCode.UndeclaredDefinition);
             error.Message += " '" + member.IDENT().GetText() + "'";
-            error.Context = CurrentScope().Context;
+            error.Context = member;
 
             Container.RegisterError(error);
         }

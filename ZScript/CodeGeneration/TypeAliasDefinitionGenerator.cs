@@ -42,7 +42,8 @@ namespace ZScript.CodeGeneration
                 Context = context,
                 Name = context.typeAliasName().GetText(),
                 TypeName = runtimeTypeName,
-                BaseTypeName = context.typeAliasInherit() == null ? "" : context.typeAliasInherit().typeAliasName().GetText()
+                BaseTypeName = context.typeAliasInherit() == null ? "" : context.typeAliasInherit().typeAliasName().GetText(),
+                IdentifierContext = context.typeAliasName().complexTypeName()
             };
 
             return definition;
@@ -74,7 +75,12 @@ namespace ZScript.CodeGeneration
         {
             var args = DefinitionGenerator.CollectFunctionArguments(context.functionArguments());
 
-            return new TypeAliasMethodDefinition(context.functionName().IDENT().GetText(), args) { HasReturnType = true, ReturnTypeContext = context.returnType() };
+            return new TypeAliasMethodDefinition(context.functionName().IDENT().GetText(), args)
+            {
+                HasReturnType = true,
+                ReturnTypeContext = context.returnType(),
+                IdentifierContext = context.functionName()
+            };
         }
     }
 }

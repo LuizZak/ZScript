@@ -37,5 +37,10 @@ namespace ZScript.CodeGeneration.Definitions
         /// Gets or sets the context for the definition
         /// </summary>
         public ParserRuleContext Context { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parse rule context that specifies the identifier name for the definition
+        /// </summary>
+        public ParserRuleContext IdentifierContext { get; set; }
     }
 }
