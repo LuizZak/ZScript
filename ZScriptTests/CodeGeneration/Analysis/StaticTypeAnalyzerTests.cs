@@ -755,6 +755,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingValueOnSwitchValueDefinition), "Failed to raise expected warnings");
         }
 
+        /// <summary>
+        /// Tests the raising of warnings when using the switch variable as case labels
+        /// </summary>
+        [TestMethod]
+        public void TestCaseValueIsSwitchVariableSwitchStatementWarning()
+        {
+            // Set up the test
+            const string input = "func f() { switch(let a = 10) { case a: break; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected errors");
+        }
+
         #endregion
 
         #endregion

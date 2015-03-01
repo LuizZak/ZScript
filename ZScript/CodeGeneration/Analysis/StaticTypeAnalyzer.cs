@@ -632,6 +632,35 @@ namespace ZScript.CodeGeneration.Analysis
                 walker.Walk(this, _switchContext);
                 
                 AnalyzeConstantSwitch();
+                AnalyzeSwitchVariable();
+            }
+
+            /// <summary>
+            /// Analyzes the switch variable against case labels, and issue warnings when a case label uses the variable as an expression
+            /// </summary>
+            private void AnalyzeSwitchVariable()
+            {
+                if (_switchContext.expression() != null)
+                    return;
+
+                if (_switchContext.valueHolderDecl().expression() == null)
+                {
+                    const string message = "Value holder declarations in switch statements require a starting value";
+                    _typeResolver.MessageContainer.RegisterError(_switchContext.valueHolderDecl(), message, ErrorCode.MissingValueOnSwitchValueDefinition);
+                    return;
+                }
+
+                var varName = _switchContext.valueHolderDecl() == null ? null : _switchContext.valueHolderDecl().valueHolderName().GetText();
+
+                foreach (var caseContext in _processedCases)
+                {
+                    if (caseContext.expression().GetText() == varName)
+                    {
+                        const string message = "Using the switch variable as a case expression always evaluates to true";
+                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message, WarningCode.ConstantSwitchExpression);
+                        break;
+                    }
+                }
             }
 
             /// <summary>
@@ -642,18 +671,10 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 var expression = _switchContext.expression() ?? _switchContext.valueHolderDecl().expression();
 
-                if (expression == null)
+                if (expression == null || !expression.IsConstant)
                 {
-                    if (_switchContext.valueHolderDecl() != null)
-                    {
-                        const string message = "Value holder declarations in switch statements require a starting value";
-                        _typeResolver.MessageContainer.RegisterError(_switchContext.valueHolderDecl(), message, ErrorCode.MissingValueOnSwitchValueDefinition);
-                    }
                     return;
                 }
-
-                if (!expression.IsConstant)
-                    return;
 
                 // Whether the switch matches another constant case
                 bool matched = false;
