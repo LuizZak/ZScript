@@ -83,7 +83,7 @@ ifStatement : 'if' '(' expression ')' statement elseStatement?;
 elseStatement : 'else' statement;
 
 // Switch
-switchStatement : 'switch' '(' expression ')' switchBlock;
+switchStatement : 'switch' '(' (valueHolderDecl | expression) ')' switchBlock;
 switchBlock : '{' caseBlock* defaultBlock? '}';
 caseBlock : 'case' expression ':' statement*;
 defaultBlock : 'default' ':' statement+;

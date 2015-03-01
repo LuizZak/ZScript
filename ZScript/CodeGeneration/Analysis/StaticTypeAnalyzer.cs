@@ -610,9 +610,20 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             public void Process()
             {
-                // Expand switch statement's expression
-                var type = _typeResolver.ResolveExpression(_switchContext.expression());
-                _constantResolver.ExpandConstants(_switchContext.expression());
+                TypeDef type;
+
+                if (_switchContext.expression() != null)
+                {
+                    // Expand switch statement's expression
+                    type = _typeResolver.ResolveExpression(_switchContext.expression());
+                    _constantResolver.ExpandConstants(_switchContext.expression());
+                }
+                else
+                {
+                    // Expand switch statement's expression
+                    type = _typeResolver.ResolveExpression(_switchContext.valueHolderDecl().expression());
+                    _constantResolver.ExpandConstants(_switchContext.valueHolderDecl().expression());
+                }
 
                 // Push the type of the switch statement into the switch type stack so the EnterCaseBlock can utilize the value
                 _switchType = type;
@@ -629,13 +640,27 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             private void AnalyzeConstantSwitch()
             {
-                if (!_switchContext.expression().IsConstant)
+                var expression = _switchContext.expression() ?? _switchContext.valueHolderDecl().expression();
+
+                if (expression == null)
+                {
+                    if (_switchContext.valueHolderDecl() != null)
+                    {
+                        const string message = "Value holder declarations in switch statements require a starting value";
+                        _typeResolver.MessageContainer.RegisterError(_switchContext.valueHolderDecl(), message, ErrorCode.MissingValueOnSwitchValueDefinition);
+                    }
+                    return;
+                }
+
+                if (!expression.IsConstant)
                     return;
 
                 // Whether the switch matches another constant case
                 bool matched = false;
                 // Whether all of the cases are constant values
                 bool allConstant = true;
+
+                var switchValue = (_switchContext.expression() ?? _switchContext.valueHolderDecl().expression()).ConstantValue;
 
                 foreach (var caseContext in _processedCases)
                 {
@@ -645,7 +670,7 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
                     }
 
-                    if (caseContext.expression().ConstantValue.Equals(_switchContext.expression().ConstantValue))
+                    if (caseContext.expression().ConstantValue.Equals(switchValue))
                     {
                         const string message = "Constant case label that always matches constant switch expression";
                         _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message, WarningCode.ConstantSwitchExpression);
@@ -662,7 +687,8 @@ namespace ZScript.CodeGeneration.Analysis
                 if (!matched && allConstant)
                 {
                     const string message = "Constant switch statement that matches no case never executes";
-                    _typeResolver.MessageContainer.RegisterWarning(_switchContext.expression(), message, WarningCode.ConstantSwitchExpression);
+                    var target = _switchContext.expression() ?? (ParserRuleContext)_switchContext.valueHolderDecl();
+                    _typeResolver.MessageContainer.RegisterWarning(target, message, WarningCode.ConstantSwitchExpression);
                 }
             }
 

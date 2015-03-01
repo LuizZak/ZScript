@@ -1100,6 +1100,286 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             Assert.AreEqual(10L, memory.GetVariable("c"), "The statement did not execute as expected");
         }
 
+        [TestMethod]
+        public void TestValuedSwitchStatement()
+        {
+            const string input = "var a = 5; var b = 20; var d; func f() { switch(let c = a + b) { case 10: case 25: case 30: d = c; break; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(25L, memory.GetVariable("d"), "The statement did not execute as expected");
+        }
+
+        #region Tokenization tests
+
+        [TestMethod]
+        public void TestBasicSwitchStatementGeneration()
+        {
+            const string message = "Faild to produce expected tokens for the switch statement";
+
+            const string input = "switch(a) { case 10: a; break; case 11: b; break; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.switchStatement();
+            var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
+
+            // Create the expected list
+            var jtEnd = new JumpTargetToken();
+            var jtCase1 = new JumpTargetToken();
+            var jtCase2 = new JumpTargetToken();
+            var jtDefault = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // Switch expression
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+
+                // Case condition #1
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                // True condition jump
+                new JumpToken(jtCase1, true),
+
+                // Duplicate switch expression before entering case condition #2
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+
+                // Case condition #2
+                TokenFactory.CreateBoxedValueToken(11L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                // False condition jump
+                new JumpToken(jtCase2, true),
+
+                // No case matched: default jump
+                new JumpToken(jtDefault),
+
+                // Case body #1
+                jtCase1,
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // Case body #2
+                jtCase2,
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // Default body
+                jtDefault,
+
+                // End of IF block
+                jtEnd
+            };
+
+            /*
+            0000000: a
+            0000001: Duplicate
+            
+            0000002: 10
+            0000003: Equals
+            0000004: [10 JUMPIfTrue]
+            0000005: Duplicate
+            
+            0000006: 11
+            0000007: Equals
+            0000008: [14 JUMPIfTrue]
+            0000009: [18 JUMP]
+            
+            0000010: JUMP_TARGET
+            0000011: a
+            0000012: ClearStack
+            0000013: [19 JUMP]
+           
+            0000014: JUMP_TARGET
+            0000015: b
+            0000016: ClearStack
+            0000017: [19 JUMP]
+            
+            0000018: JUMP_TARGET
+            0000019: JUMP_TARGET
+            */
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestDefaultSwitchStatementGeneration()
+        {
+            const string message = "Faild to produce expected tokens for the switch statement";
+
+            const string input = "switch(a) { case 10: a; break; case 11: b; break; default: c; break; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.switchStatement();
+            var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
+
+            // Create the expected list
+            var jtEnd = new JumpTargetToken();
+            var jtCase1 = new JumpTargetToken();
+            var jtCase2 = new JumpTargetToken();
+            var jtDefault = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // Switch expression
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+
+                // Case condition #1
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                // True condition jump
+                new JumpToken(jtCase1, true),
+
+                // Duplicate switch expression before entering case condition #2
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+
+                // Case condition #2
+                TokenFactory.CreateBoxedValueToken(11L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                // False condition jump
+                new JumpToken(jtCase2, true),
+
+                // No case matched: default jump
+                new JumpToken(jtDefault),
+
+                // Case body #1
+                jtCase1,
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // Case body #2
+                jtCase2,
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // Default body
+                jtDefault,
+                TokenFactory.CreateVariableToken("c", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // End of IF block
+                jtEnd
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestValuedSwitchStatementGeneration()
+        {
+            const string message = "Faild to produce expected tokens for the switch statement";
+
+            const string input = "switch(let a = b) { case 10: a; break; case 11: b; break; default: c; break; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.switchStatement();
+            var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
+
+            // Create the expected list
+            var jtEnd = new JumpTargetToken();
+            var jtCase1 = new JumpTargetToken();
+            var jtCase2 = new JumpTargetToken();
+            var jtDefault = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // Switch expression
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+
+                // Case condition #1
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                // True condition jump
+                new JumpToken(jtCase1, true),
+
+                // Duplicate switch expression before entering case condition #2
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+
+                // Case condition #2
+                TokenFactory.CreateBoxedValueToken(11L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Equals),
+                // False condition jump
+                new JumpToken(jtCase2, true),
+
+                // No case matched: default jump
+                new JumpToken(jtDefault),
+
+                // Case body #1
+                jtCase1,
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // Case body #2
+                jtCase2,
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // Default body
+                jtDefault,
+                TokenFactory.CreateVariableToken("c", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                // End jump
+                new JumpToken(jtEnd),
+
+                // End of IF block
+                jtEnd
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
         #endregion
 
         #region BREAK/CONTINUE statement error raising

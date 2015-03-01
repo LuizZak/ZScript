@@ -628,6 +628,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests checking expressions contained within switch statements which have a variable declaration as an expression
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchValuedExpressionTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { switch(let a = 10 > true) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
+        }
+
+        /// <summary>
         /// Tests checking expressions contained within switch case statements
         /// </summary>
         [TestMethod]

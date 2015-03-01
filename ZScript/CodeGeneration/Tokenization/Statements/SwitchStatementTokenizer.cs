@@ -74,7 +74,14 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             var tokens = new IntermediaryTokenList();
 
             // Add the switch expression
-            tokens.AddRange(_context.TokenizeExpression(context.expression()));
+            if(context.expression() != null)
+            {
+                tokens.AddRange(_context.TokenizeExpression(context.expression()));
+            }
+            else
+            {
+                tokens.AddRange(_context.TokenizeValueDeclaration(context.valueHolderDecl()));
+            }
 
             // Add the cases' comparisions
             foreach (var caseStatement in cases)
