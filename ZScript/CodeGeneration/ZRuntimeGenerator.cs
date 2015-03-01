@@ -632,6 +632,7 @@ namespace ZScript.CodeGeneration
 
                     // Bind the definition to the member name
                     context.Definition = def;
+                    context.HasDefinition = (def != null);
 
                     var holderDefinition = def as ValueHolderDefinition;
                     if (holderDefinition != null)

@@ -23,6 +23,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Typing;
 
 using ZScriptTests.Utils;
@@ -49,8 +50,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -81,8 +83,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -113,8 +116,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -145,8 +149,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -178,8 +183,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -207,8 +213,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -234,8 +241,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -263,8 +271,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -292,8 +301,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -321,8 +331,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -350,8 +361,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -379,8 +391,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var typeResolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, null, typeProvider));
-            var constantResolver = new ExpressionConstantResolver(typeProvider, new TypeOperationProvider());
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
             // Generate the expression
             var expression = parser.expression();
@@ -394,6 +407,53 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
             Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
             Assert.AreEqual(-10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
+        /// Tests constant propagation
+        /// </summary>
+        [TestMethod]
+        public void TestConstantPropagation()
+        {
+            const string iConst = "10 + 10";
+            const string input = "i";
+
+            var parserA = TestUtils.CreateParser(iConst);
+            var parserExp = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider, new TestDefinitionTypeProvider());
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parserExp.expression();
+            var iExpr = parserA.expression();
+
+            iExpr.expression(0).EvaluatedType = typeProvider.IntegerType();
+            iExpr.expression(1).EvaluatedType = typeProvider.IntegerType();
+
+            expression.memberName().HasDefinition = true;
+            expression.memberName().Definition = new LocalVariableDefinition
+            {
+                IsConstant = true,
+                Context = iExpr,
+                HasType = true,
+                HasValue = true,
+                ValueExpression = new Expression(iExpr),
+                Name = "a"
+            };
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(20L, expression.ConstantValue, "The expander failed to expand the constants correctly");
         }
     }
 }

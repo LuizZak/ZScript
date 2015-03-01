@@ -22,7 +22,7 @@
 using System;
 
 using Antlr4.Runtime.Tree;
-
+using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
@@ -37,9 +37,17 @@ namespace ZScript.CodeGeneration.Analysis
     public class ExpressionConstantResolver : ZScriptBaseListener
     {
         /// <summary>
-        /// The type provider which will be used to check expression solvability
+        /// The runtime generation context to get the type provider from
         /// </summary>
-        private readonly TypeProvider _typeProvider;
+        private readonly RuntimeGenerationContext _context;
+
+        /// <summary>
+        /// Gets the type provider which will be usd to check expression solvability
+        /// </summary>
+        private TypeProvider TypeProvider
+        {
+            get { return _context.TypeProvider; }
+        }
 
         /// <summary>
         /// The type provider which will be used to perform the operations on the constants
@@ -49,11 +57,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Initializes a new instance of the ExpressionConstantResolver class
         /// </summary>
-        /// <param name="typeProvider">A type provider which will be used to check expression solvability</param>
+        /// <param name="context">The runtime generation context to get the type provider from</param>
         /// <param name="typeOperationProvider">A type provider which will be used to perform the operations on the constants</param>
-        public ExpressionConstantResolver(TypeProvider typeProvider, TypeOperationProvider typeOperationProvider)
+        public ExpressionConstantResolver(RuntimeGenerationContext context, TypeOperationProvider typeOperationProvider)
         {
-            _typeProvider = typeProvider;
+            _context = context;
             _typeOperationProvider = typeOperationProvider;
         }
 
@@ -100,13 +108,13 @@ namespace ZScript.CodeGeneration.Analysis
                 var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
 
                 // Verify if any implicit casts are in place
-                if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && _typeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
+                if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && TypeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
                 {
                     // TODO: Deal with native types that are not present
-                    var nativeType = _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
+                    var nativeType = TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
 
                     if(nativeType != null)
-                        value = _typeProvider.CastObject(value, nativeType);
+                        value = TypeProvider.CastObject(value, nativeType);
                 }
 
                 context.IsConstant = true;
@@ -136,15 +144,19 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     ResolveArrayLiteral(context.arrayLiteral());
                 }
+                if (context.memberName() != null)
+                {
+                    ResolveMemberNameExpression(context);
+                }
             }
 
             // Verify if any implicit casts are in place
             if (context.IsConstant && context.ImplicitCastType != null && !context.ImplicitCastType.IsAny)
             {
-                var nativeType = _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
+                var nativeType = TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
 
-                if (_typeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType) && nativeType != null)
-                    context.ConstantValue = _typeProvider.CastObject(context.ConstantValue, _typeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
+                if (TypeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType) && nativeType != null)
+                    context.ConstantValue = TypeProvider.CastObject(context.ConstantValue, TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
             }
         }
 
@@ -174,7 +186,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Resosolve the operand
             ResolveExpression(exp1);
 
-            if (exp1.IsConstant && exp1.EvaluatedType != null && _typeProvider.BinaryExpressionProvider.CanUnary(exp1.EvaluatedType, inst))
+            if (exp1.IsConstant && exp1.EvaluatedType != null && TypeProvider.BinaryExpressionProvider.CanUnary(exp1.EvaluatedType, inst))
             {
                 var value = PerformUnaryExpression(exp1.ConstantValue, inst, _typeOperationProvider);
 
@@ -206,7 +218,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var inst = TokenFactory.InstructionForOperator(ExpressionUtils.OperatorOnExpression(context));
 
                 // Check the possibility of performing an operation on the two types with the type operator
-                if (_typeProvider.BinaryExpressionProvider.CanPerformOperation(inst, exp1.EvaluatedType, exp2.EvaluatedType))
+                if (TypeProvider.BinaryExpressionProvider.CanPerformOperation(inst, exp1.EvaluatedType, exp2.EvaluatedType))
                 {
                     object value = PerformBinaryExpression(expV1, expV2, inst, _typeOperationProvider);
 
@@ -232,6 +244,51 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ResolveExpression(expression);
             }
+        }
+
+        /// <summary>
+        /// Resolves a context that contains a member name assigned to it
+        /// </summary>
+        /// <param name="context">The member name context to analyze</param>
+        /// <returns>true if the member name resolved to a valid constant; false otherwise</returns>
+        void ResolveMemberNameExpression(ZScriptParser.ExpressionContext context)
+        {
+            object value;
+
+            if (context.memberName() == null || context.valueAccess() != null || !ResolveMemberName(context.memberName(), out value))
+                return;
+
+            context.IsConstant = true;
+            context.IsConstantPrimitive = IsValuePrimitive(value);
+            context.ConstantValue = value;
+        }
+
+        /// <summary>
+        /// Resolves a member name context, searching for the definition that is specified by the context,
+        /// and trying to resolve a constant value, in case it is a constant variable definition.
+        /// The method returns a boolean specifying whether the constant value was evaluated successfully,
+        /// as well as returning the value in the out parameter 'value'. It gets set to null, if no constant
+        /// was resolved from the member name context, though
+        /// </summary>
+        /// <param name="context">The member name context to analyze</param>
+        /// <param name="value">The value the member name was resolved to</param>
+        /// <returns>true if the member name resolved to a valid constant; false otherwise</returns>
+        bool ResolveMemberName(ZScriptParser.MemberNameContext context, out object value)
+        {
+            var valueHolderDef = context.Definition as ValueHolderDefinition;
+            if (context.HasDefinition && valueHolderDef != null && valueHolderDef.IsConstant && valueHolderDef.HasValue)
+            {
+                ExpandConstants(valueHolderDef.ValueExpression.ExpressionContext);
+
+                if (valueHolderDef.ValueExpression.ExpressionContext.IsConstant)
+                {
+                    value = valueHolderDef.ValueExpression.ExpressionContext.ConstantValue;
+                    return true;
+                }
+            }
+
+            value = null;
+            return false;
         }
 
         /// <summary>
