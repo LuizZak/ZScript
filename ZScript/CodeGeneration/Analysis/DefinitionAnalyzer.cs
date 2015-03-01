@@ -182,6 +182,16 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
+        public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            EnterContextScope(context);
+        }
+
+        public override void ExitSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            ExitContextScope();
+        }
+
         #endregion
 
         #region Definition checking

@@ -202,6 +202,16 @@ namespace ZScript.CodeGeneration
             PopScope();
         }
 
+        public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            PushScope(context);
+        }
+
+        public override void ExitSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            PopScope();
+        }
+
         #endregion
 
         #region Definition collection
