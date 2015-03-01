@@ -59,6 +59,11 @@ public partial class ZScriptParser
         public object ConstantValue { get; set; }
 
         /// <summary>
+        /// Gets or sets a value specifying whether the type for this expression has been evaluated already
+        /// </summary>
+        public bool HasTypeBeeEvaluated { get; set; }
+
+        /// <summary>
         /// Gets or sets the evaluated type associated with this expression context
         /// </summary>
         public TypeDef EvaluatedType { get; set; }
@@ -84,6 +89,11 @@ public partial class ZScriptParser
         /// Gets or sets the evaluated type associated with this assignment expression context
         /// </summary>
         public TypeDef EvaluatedType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the type for this assignment expression has been evaluated already
+        /// </summary>
+        public bool HasTypeBeeEvaluated { get; set; }
     }
 
     /// <summary>

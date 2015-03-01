@@ -85,6 +85,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
         {
+            if (context.HasTypeBeeEvaluated)
+            {
+                return context.EvaluatedType;
+            }
+
             TypeDef variableType = ResolveLeftValue(context.leftValue());
             TypeDef valueType;
 
@@ -125,6 +130,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             context.EvaluatedType = variableType;
+            context.HasTypeBeeEvaluated = true;
 
             return variableType;
         }
@@ -136,6 +142,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveExpression(ZScriptParser.ExpressionContext context)
         {
+            if (context.HasTypeBeeEvaluated)
+            {
+                return context.EvaluatedType;
+            }
+
             TypeDef retType = null;
 
             if (context.assignmentExpression() != null)
@@ -264,6 +275,8 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.ExpectedType != null)
                 context.ImplicitCastType = context.ExpectedType;
+
+            context.HasTypeBeeEvaluated = true;
 
             return retType;
         }
