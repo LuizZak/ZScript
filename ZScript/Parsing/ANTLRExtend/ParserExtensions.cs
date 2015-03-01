@@ -61,7 +61,7 @@ public partial class ZScriptParser
         /// <summary>
         /// Gets or sets a value specifying whether the type for this expression has been evaluated already
         /// </summary>
-        public bool HasTypeBeeEvaluated { get; set; }
+        public bool HasTypeBeenEvaluated { get; set; }
 
         /// <summary>
         /// Gets or sets the evaluated type associated with this expression context

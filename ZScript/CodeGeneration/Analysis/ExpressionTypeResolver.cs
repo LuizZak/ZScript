@@ -142,7 +142,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveExpression(ZScriptParser.ExpressionContext context)
         {
-            if (context.HasTypeBeeEvaluated)
+            if (context.HasTypeBeenEvaluated)
             {
                 return context.EvaluatedType;
             }
@@ -276,7 +276,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.ExpectedType != null)
                 context.ImplicitCastType = context.ExpectedType;
 
-            context.HasTypeBeeEvaluated = true;
+            context.HasTypeBeenEvaluated = true;
 
             return retType;
         }
