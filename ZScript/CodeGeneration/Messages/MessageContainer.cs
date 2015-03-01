@@ -194,7 +194,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterError(int line, int position, string errorMessage, ErrorCode errorCode, ParserRuleContext context = null)
         {
-            _errorList.Add(new CodeError(line, position, errorCode) { Message = errorMessage, Context = context });
+            RegisterError(new CodeError(line, position, errorCode) { Message = errorMessage, Context = context });
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterError(ITerminalNode context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
         {
-            _errorList.Add(new CodeError(context.Symbol.Line, context.Symbol.Column, errorMessage));
+            RegisterError(new CodeError(context.Symbol.Line, context.Symbol.Column, errorMessage));
         }
 
         /// <summary>
@@ -212,11 +212,11 @@ namespace ZScript.CodeGeneration.Messages
         {
             if(context == null)
             {
-                _errorList.Add(new CodeError(0, 0, errorMessage) { ErrorCode = errorCode });
+                RegisterError(new CodeError(0, 0, errorMessage) { ErrorCode = errorCode });
                 return;
             }
 
-            _errorList.Add(new CodeError(context.Start.Line, context.Start.Column, errorMessage) { ErrorCode = errorCode, Context = context });
+            RegisterError(new CodeError(context.Start.Line, context.Start.Column, errorMessage) { ErrorCode = errorCode, Context = context });
         }
 
         /// <summary>

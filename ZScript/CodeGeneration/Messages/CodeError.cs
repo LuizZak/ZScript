@@ -134,6 +134,9 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>Trying to modify the value of a constant declaration, either through assignment or through postfix/prefix operators</summary>
         ModifyingConstant,
 
+        /// <summary>A switch has a let/var declaration, but it misses a starting expression value to evaluate</summary>
+        MissingValueOnSwitchValueDefinition,
+
         #endregion
 
         #region Function analysis errors
