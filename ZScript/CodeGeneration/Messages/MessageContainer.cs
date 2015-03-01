@@ -52,7 +52,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public CodeMessage[] AllMessages
         {
-            get { return _syntaxErrors.Concat(_errorList.Concat<CodeMessage>(_warningList)).ToArray(); }
+            get { return _warningList.Concat(_errorList.Concat<CodeMessage>(_syntaxErrors)).ToArray(); }
         }
 
         /// <summary>
