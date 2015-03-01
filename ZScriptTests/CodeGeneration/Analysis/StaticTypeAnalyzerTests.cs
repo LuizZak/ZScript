@@ -739,6 +739,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(2, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected warnings");
         }
 
+        /// <summary>
+        /// Tests reporting errors when a switch expression is a value declaration with no value specified
+        /// </summary>
+        [TestMethod]
+        public void TestValuelessValuedSwitchStatement()
+        {
+            // Set up the test
+            const string input = "func f() { switch(let a) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingValueOnSwitchValueDefinition), "Failed to raise expected warnings");
+        }
+
         #endregion
 
         #endregion

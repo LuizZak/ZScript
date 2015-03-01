@@ -610,7 +610,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             public void Process()
             {
-                TypeDef type;
+                TypeDef type = _typeResolver.TypeProvider.AnyType();
 
                 if (_switchContext.expression() != null)
                 {
@@ -618,7 +618,7 @@ namespace ZScript.CodeGeneration.Analysis
                     type = _typeResolver.ResolveExpression(_switchContext.expression());
                     _constantResolver.ExpandConstants(_switchContext.expression());
                 }
-                else
+                else if (_switchContext.valueHolderDecl().expression() != null)
                 {
                     // Expand switch statement's expression
                     type = _typeResolver.ResolveExpression(_switchContext.valueHolderDecl().expression());
