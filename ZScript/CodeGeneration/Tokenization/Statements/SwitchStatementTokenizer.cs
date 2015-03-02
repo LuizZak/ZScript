@@ -32,7 +32,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
     public class SwitchStatementTokenizer
     {
         /// <summary>
-        /// The context used to tokenize the statements, in case a different statement appears
+        /// The context used to tokenize the statements, in case a nested switch statement appears inside one of the cases
         /// </summary>
         private readonly StatementTokenizerContext _context;
 

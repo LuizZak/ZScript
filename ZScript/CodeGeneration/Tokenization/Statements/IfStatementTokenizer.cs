@@ -95,7 +95,8 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             if (context.elseStatement() != null)
             {
-                // 3. Pin a jump to the end
+                // 3. Pin a jump to the end (which goes before the else statement, and after the
+                //    statements of the IF block, and is used to skip over the else statement)
                 retTokens.Add(new JumpToken(endJump));
 
                 // 
