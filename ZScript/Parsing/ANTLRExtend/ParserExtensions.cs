@@ -74,7 +74,7 @@ public partial class ZScriptParser
         public TypeDef ImplicitCastType { get; set; }
 
         /// <summary>
-        /// The type that was set as expected by a parent expression when this expression was evaluated.
+        /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
         /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
         /// </summary>
         public TypeDef ExpectedType { get; set; }
@@ -144,7 +144,7 @@ public partial class ZScriptParser
         public Type EvaluatedValueType { get; set; }
 
         /// <summary>
-        /// The type that was set as expected by a parent expression when this expression was evaluated.
+        /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
         /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
         /// </summary>
         public ListTypeDef ExpectedType { get; set; }
@@ -171,7 +171,7 @@ public partial class ZScriptParser
         public Type EvaluatedValueType { get; set; }
 
         /// <summary>
-        /// The type that was set as expected by a parent expression when this expression was evaluated.
+        /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
         /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
         /// </summary>
         public DictionaryTypeDef ExpectedType { get; set; }
@@ -183,14 +183,31 @@ public partial class ZScriptParser
     partial class IfStatementContext
     {
         /// <summary>
-        /// Whether the evaluation of this IF statement is constant
+        /// Gets or sets a value specifying whether the evaluation of this IF statement is constant
         /// </summary>
         public bool IsConstant { get; set; }
 
         /// <summary>
-        /// The constant value that is always evaluated for the IF statement
+        /// Gets or sets the constant value that is always evaluated for the IF statement
         /// </summary>
         public bool ConstantValue { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the SwitchStatementContext for providing constant evaluation flagging
+    /// </summary>
+    partial class SwitchStatementContext
+    {
+        /// <summary>
+        /// Gets or sets a value specifying whether this switch statement is constant
+        /// </summary>
+        public bool IsConstant { get; set; }
+
+        /// <summary>
+        /// Gets or sets the index of the case that will always be executed, if the <see cref="IsConstant"/> flag is set to true.
+        /// If the value is -1, no case is executed ever, and the switch always falls to the default case, if it exists
+        /// </summary>
+        public int ConstantCaseIndex { get; set; }
     }
 
     /// <summary>

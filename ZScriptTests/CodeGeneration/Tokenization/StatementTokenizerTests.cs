@@ -1119,6 +1119,44 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             Assert.AreEqual(25L, memory.GetVariable("d"), "The statement did not execute as expected");
         }
 
+        [TestMethod]
+        public void TestConstantSwitchStatement()
+        {
+            const string input = "let a = 5; let b = 20; var c = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(10L, memory.GetVariable("c"), "The statement did not execute as expected");
+        }
+
+        [TestMethod]
+        public void TestConstantDefaultSwitchStatement()
+        {
+            const string input = "let a = 5; let b = 20; var c = null; func f() { switch(a + b) { case 30: c = 10; break; case 31: c = 5; break; default: c = 1; break; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(1L, memory.GetVariable("c"), "The statement did not execute as expected");
+        }
+
         #region Tokenization tests
 
         [TestMethod]
@@ -1184,33 +1222,113 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 jtEnd
             };
 
-            /*
-            0000000: a
-            0000001: Duplicate
-            
-            0000002: 10
-            0000003: Equals
-            0000004: [10 JUMPIfTrue]
-            0000005: Duplicate
-            
-            0000006: 11
-            0000007: Equals
-            0000008: [14 JUMPIfTrue]
-            0000009: [18 JUMP]
-            
-            0000010: JUMP_TARGET
-            0000011: a
-            0000012: ClearStack
-            0000013: [19 JUMP]
-           
-            0000014: JUMP_TARGET
-            0000015: b
-            0000016: ClearStack
-            0000017: [19 JUMP]
-            
-            0000018: JUMP_TARGET
-            0000019: JUMP_TARGET
-            */
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestStaticTrueSwitchStatementGeneration()
+        {
+            const string message = "Faild to produce expected tokens for the switch statement";
+
+            const string input = "switch(a) { case 10: a; break; case 11: b; break; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.switchStatement();
+
+            // Staticize the switch statement
+            stmt.IsConstant = true;
+            stmt.ConstantCaseIndex = 0;
+
+            var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
+
+            // Create the expected list
+            var jtEnd = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                new JumpToken(jtEnd),
+                jtEnd,
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestStaticFalseDefaultlessSwitchStatementGeneration()
+        {
+            const string message = "Faild to produce expected tokens for the switch statement";
+
+            const string input = "switch(a) { case 10: a; break; case 11: b; break; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.switchStatement();
+
+            // Staticize the switch statement
+            stmt.IsConstant = true;
+            stmt.ConstantCaseIndex = -1;
+
+            var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
+
+            // Create the expected list
+            var jtEnd = new JumpTargetToken();
+            var expectedTokens = new List<Token> { jtEnd };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestStaticFalseDefaultedSwitchStatementGeneration()
+        {
+            const string message = "Faild to produce expected tokens for the switch statement";
+
+            const string input = "switch(a) { case 10: a; break; case 11: b; break; default: c; break; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var tokenizer = new StatementTokenizerContext(null, null);
+
+            var stmt = parser.switchStatement();
+
+            // Staticize the switch statement
+            stmt.IsConstant = true;
+            stmt.ConstantCaseIndex = -1;
+
+            var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
+
+            // Create the expected list
+            var jtEnd = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("c", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                new JumpToken(jtEnd),
+                jtEnd,
+            };
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");

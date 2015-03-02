@@ -73,6 +73,31 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             var tokens = new IntermediaryTokenList();
 
+            // Constant switch evaluation
+            if (context.IsConstant)
+            {
+                if (context.ConstantCaseIndex == -1)
+                {
+                    // Add the default block now
+                    if (context.switchBlock().defaultBlock() != null)
+                    {
+                        foreach (var stmt in context.switchBlock().defaultBlock().statement())
+                        {
+                            tokens.AddRange(_context.TokenizeStatement(stmt));
+                        }
+                    }
+                }
+                else
+                {
+                    tokens.AddRange(cases[context.ConstantCaseIndex].CaseStatementTokens);
+                }
+
+                // Stick the switch block end target at the end of the list so break statements don't result in invalid jumps
+                tokens.Add(_switchBlockEndTarget);
+
+                return tokens;
+            }
+
             // Add the switch expression
             if(context.expression() != null)
             {

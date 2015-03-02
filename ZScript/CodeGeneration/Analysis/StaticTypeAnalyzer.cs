@@ -683,8 +683,9 @@ namespace ZScript.CodeGeneration.Analysis
 
                 var switchValue = (_switchContext.expression() ?? _switchContext.valueHolderDecl().expression()).ConstantValue;
 
-                foreach (var caseContext in _processedCases)
+                for (int i = 0; i < _processedCases.Count; i++)
                 {
+                    var caseContext = _processedCases[i];
                     if (!caseContext.expression().IsConstant)
                     {
                         allConstant = false;
@@ -694,21 +695,40 @@ namespace ZScript.CodeGeneration.Analysis
                     if (caseContext.expression().ConstantValue.Equals(switchValue))
                     {
                         const string message = "Constant case label that always matches constant switch expression";
-                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message, WarningCode.ConstantSwitchExpression);
+                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message,
+                            WarningCode.ConstantSwitchExpression);
+
+                        // If this is the first constant case and it always evaluates to true, set it as the default case
+                        if (!allConstant && !matched)
+                        {
+                            _switchContext.IsConstant = true;
+                            _switchContext.ConstantCaseIndex = i;
+                        }
 
                         matched = true;
                     }
                     else
                     {
                         const string message = "Constant case label that never matches constant switch expression";
-                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message, WarningCode.ConstantSwitchExpression);
+                        _typeResolver.MessageContainer.RegisterWarning(caseContext.expression(), message,
+                            WarningCode.ConstantSwitchExpression);
                     }
                 }
 
                 if (!matched && allConstant)
                 {
-                    const string message = "Constant switch statement that matches no case never executes";
+                    _switchContext.IsConstant = true;
+                    _switchContext.ConstantCaseIndex = -1;
+
                     var target = _switchContext.expression() ?? (ParserRuleContext)_switchContext.valueHolderDecl();
+
+                    string message = "Constant switch statement with no default case that matches no case never executes";
+
+                    if (_switchContext.switchBlock().defaultBlock() != null)
+                    {
+                        message = "Constant switch statement wtih a default case that matches no case always executes the default case";
+                    }
+                    
                     _typeResolver.MessageContainer.RegisterWarning(target, message, WarningCode.ConstantSwitchExpression);
                 }
             }
