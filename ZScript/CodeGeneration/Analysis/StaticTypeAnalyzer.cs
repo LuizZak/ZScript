@@ -842,7 +842,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// <summary>
             /// List of classes registered on this ClassTypeSource
             /// </summary>
-            public List<ClassDefinition> Classes;
+            public readonly List<ClassDefinition> Classes;
 
             /// <summary>
             /// Initializes a new instance of the ClassTypeSource class
