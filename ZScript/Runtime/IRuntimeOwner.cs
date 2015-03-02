@@ -36,6 +36,14 @@ namespace ZScript.Runtime
         object CallFunction(ZExportFunction func, params object[] parameters);
 
         /// <summary>
+        /// Called by the runtime when an export function was invoked by the script, used to verify whether
+        /// the runtime owner can atually respond to a given export function
+        /// </summary>
+        /// <param name="func">The export function to verify</param>
+        /// <returns>Whether the runtime owner responds to this function</returns>
+        bool RespondsToFunction(ZExportFunction func);
+
+        /// <summary>
         /// Called by the runtime when a 'new' instruction has been hit
         /// </summary>
         /// <param name="typeName">The name of the type trying to be instantiated</param>

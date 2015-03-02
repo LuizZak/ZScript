@@ -66,6 +66,17 @@ namespace ZScriptTests.Utils
         }
 
         /// <summary>
+        /// Called by the runtime when an export function was invoked by the script, used to verify whether
+        /// the runtime owner can atually respond to a given export function
+        /// </summary>
+        /// <param name="func">The export function to verify</param>
+        /// <returns>Whether the runtime owner responds to this function</returns>
+        public bool RespondsToFunction(ZExportFunction func)
+        {
+            return func.Name == "print" || func.Name == "__trace";
+        }
+
+        /// <summary>
         /// Called by the runtime when a 'new' instruction has been hit
         /// </summary>
         /// <param name="typeName">The name of the type trying to be instantiated</param>

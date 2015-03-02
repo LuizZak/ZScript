@@ -200,7 +200,10 @@ namespace ZScript.Runtime
             var exportFunction = funcDef as ZExportFunction;
             if (exportFunction != null)
             {
-                return _owner.CallFunction(exportFunction, arguments);
+                if(_owner.RespondsToFunction(exportFunction))
+                    return _owner.CallFunction(exportFunction, arguments);
+
+                throw new UnrecognizedExportFunctionException("The runtime owner responded false to RespondsToFunction: It does not recognizes the export function " + funcDef);
             }
 
             IMemory<string> localMemory = Memory.CreateMemoryFromArgs(funcDef, arguments);
@@ -432,6 +435,22 @@ namespace ZScript.Runtime
             }
 
             _expandedGlobals = true;
+        }
+    }
+
+    /// <summary>
+    /// Represents an exception raisd when trying to execute an export function not recognized by a runtime owner
+    /// </summary>
+    public class UnrecognizedExportFunctionException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the UnrecognizedExportFunctionException class
+        /// </summary>
+        /// <param name="message">The message for the exception</param>
+        public UnrecognizedExportFunctionException(string message)
+            : base(message)
+        {
+
         }
     }
 }

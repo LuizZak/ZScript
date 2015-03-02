@@ -18,7 +18,12 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rhino.Mocks;
+using ZScript.Elements;
+using ZScript.Runtime;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -76,6 +81,31 @@ namespace ZScriptTests.Runtime
         }
 
         #endregion
+
+        /// <summary>
+        /// Tests calling an export function not recognized by a runtime owner
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(UnrecognizedExportFunctionException),
+            "Trying to execute an unrecognizeable export function must raise an UnrecognizedExportFunctionException exception"
+            )]
+        public void TestUnrecognizedExportfunction()
+        {
+            const string input = "@invalid func f1() { invalid(); }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.Debug = true;
+            generator.ParseSources();
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = MockRepository.Mock<IRuntimeOwner>();
+            owner.Stub(x => x.RespondsToFunction(Arg<ZExportFunction>.Is.Anything)).Return(false);
+
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f1");
+        }
 
         /// <summary>
         /// Tests calling a function that expects parameters
