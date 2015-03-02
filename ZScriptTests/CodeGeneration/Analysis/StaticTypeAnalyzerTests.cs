@@ -762,7 +762,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestCaseValueIsSwitchVariableSwitchStatementWarning()
         {
             // Set up the test
-            const string input = "func f() { switch(let a = 10) { case a: break; } }";
+            const string input = "func f() { switch(var a = 10) { case a: break; } }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
