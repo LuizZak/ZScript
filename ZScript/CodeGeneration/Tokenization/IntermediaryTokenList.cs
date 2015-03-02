@@ -231,6 +231,9 @@ namespace ZScript.CodeGeneration.Tokenization
                 if (jumpToken == null || jumpToken.TargetToken is JumpTargetToken)
                     continue;
 
+                // Analyze the jump's validity
+                AnalyzeJump(jumpToken);
+
                 // Find address of jump
                 int address = OffsetForJump(expandedTokens, jumpToken);
                 if (address == -1)
