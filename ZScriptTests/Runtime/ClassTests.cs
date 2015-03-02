@@ -226,6 +226,22 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MismatchedOverrideSignatures));
         }
 
+        /// <summary>
+        /// Tests trying to call 'base' on a method or function that has no base
+        /// </summary>
+        [TestMethod]
+        public void TestMissingBaseMethod()
+        {
+            const string input = "class TestClass { func f2() { base(); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoBaseTarget));
+        }
+
         #endregion
 
         #endregion

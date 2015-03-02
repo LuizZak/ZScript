@@ -71,5 +71,13 @@ namespace ZScriptTests.Utils
         {
             return BaseType;
         }
+
+        // 
+        // IDefinitionTypeProvider.HasBaseTarget override
+        // 
+        public bool HasBaseTarget(ParserRuleContext context)
+        {
+            return BaseType != null;
+        }
     }
 }

@@ -325,6 +325,12 @@ namespace ZScript.CodeGeneration.Analysis
             if (DefinitionTypeProvider == null)
                 throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
 
+            if (!DefinitionTypeProvider.HasBaseTarget(context))
+            {
+                const string message = "There's no base method to target with the 'base' keyword";
+                MessageContainer.RegisterError(context, message, ErrorCode.NoBaseTarget);
+            }
+
             return DefinitionTypeProvider.TypeForBase(context);
         }
 
@@ -1286,6 +1292,14 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context containing the 'base' value to parse</param>
         /// <returns>The value for the 'base' target</returns>
         TypeDef TypeForBase(ParserRuleContext context);
+
+        /// <summary>
+        /// Returns a value that specifies whether the 'base' expression contained within a given parser rule
+        /// context contains a valid base method target
+        /// </summary>
+        /// <param name="context">The context containing the 'base' value to check</param>
+        /// <returns>true if the base has a target; false otherwise</returns>
+        bool HasBaseTarget(ParserRuleContext context);
     }
 
     /// <summary>

@@ -708,7 +708,7 @@ namespace ZScript.CodeGeneration
             }
 
             // 
-            // IDefinitionTypeProvider.TypeForThis
+            // IDefinitionTypeProvider.TypeForBase
             // 
             public TypeDef TypeForBase(ParserRuleContext context)
             {
@@ -731,6 +731,32 @@ namespace ZScript.CodeGeneration
                 }
 
                 return _context.TypeProvider.AnyType();
+            }
+
+            // 
+            // IDefinitionTypeProvider.HasBaseTarget
+            // 
+            public bool HasBaseTarget(ParserRuleContext context)
+            {
+                // Search for the inner-most scope that contains the context, and search the definition from there
+                var scope = _context.BaseScope.GetScopeContainingContext(context);
+
+                // Iterate back until we hit the scope for a class definition
+                while (scope != null)
+                {
+                    var definitionContext = scope.Context as ZScriptParser.ClassMethodContext;
+                    if (definitionContext != null)
+                    {
+                        if (definitionContext.MethodDefinition.BaseMethod != null)
+                            return true;
+
+                        break;
+                    }
+
+                    scope = scope.ParentScope;
+                }
+
+                return false;
             }
 
             /// <summary>
