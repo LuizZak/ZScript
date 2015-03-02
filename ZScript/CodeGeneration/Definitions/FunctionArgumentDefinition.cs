@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System.Text;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -47,6 +48,38 @@ namespace ZScript.CodeGeneration.Definitions
         public CallableTypeDef.CallableParameterInfo ToArgumentInfo()
         {
             return new CallableTypeDef.CallableParameterInfo(Type, HasType, HasValue, IsVariadic);
+        }
+
+        /// <summary>
+        /// Returns a string representation of this function argument
+        /// </summary>
+        /// <returns>A string representation of this function argument</returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(Name);
+
+            // Type
+            builder.Append(": ");
+            if (IsVariadic && Type is IListTypeDef)
+            {
+                builder.Append(((IListTypeDef)Type).EnclosingType);
+                builder.Append("...");
+            }
+            else
+            {
+                builder.Append(Type);
+            }
+
+            // Return type
+            if (HasValue)
+            {
+                builder.Append(" = ");
+                builder.Append(DefaultValue);
+            }
+
+            return builder.ToString();
         }
     }
 }

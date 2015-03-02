@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -128,6 +129,36 @@ namespace ZScript.CodeGeneration.Definitions
         public void RecreateCallableDefinition()
         {
             _callableTypeDef = new CallableTypeDef(_parameters.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.VoidType, HasReturnType);
+        }
+
+        /// <summary>
+        /// Returns a string representation of this FunctionDefinition
+        /// </summary>
+        /// <returns>A string representation of this FunctionDefinition</returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(Name);
+
+            // Arguments
+            builder.Append("(");
+
+            foreach (var parameter in _parameters)
+            {
+                builder.Append(parameter);
+            }
+
+            builder.Append(")");
+
+            // Return type
+            if (HasReturnType)
+            {
+                builder.Append(" : ");
+                builder.Append(ReturnType);
+            }
+
+            return builder.ToString();
         }
     }
 }
