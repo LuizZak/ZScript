@@ -326,6 +326,17 @@ namespace ZScript.CodeGeneration.Tokenization
                     VisitObjectAccess(context.objectAccess());
                 }
             }
+            else if (context.T_THIS() != null)
+            {
+                // TODO: Move this to a separate method
+                _tokens.Add(TokenFactory.CreateVariableToken("base", true));
+
+                if (context.valueAccess() != null)
+                {
+                    VisitValueAccess(context.valueAccess());
+                }
+            }
+            // Prefix/postfix operations
             else if (context.prefixOperator() != null)
             {
                 _isGetAccess = context.leftValue().leftValueAccess() != null;

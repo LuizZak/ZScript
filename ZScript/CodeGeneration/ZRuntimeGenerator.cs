@@ -707,6 +707,32 @@ namespace ZScript.CodeGeneration
                 return _context.TypeProvider.AnyType();
             }
 
+            // 
+            // IDefinitionTypeProvider.TypeForThis
+            // 
+            public TypeDef TypeForBase(ParserRuleContext context)
+            {
+                // Search for the inner-most scope that contains the context, and search the definition from there
+                var scope = _context.BaseScope.GetScopeContainingContext(context);
+
+                // Iterate back until we hit the scope for a class definition
+                while (scope != null)
+                {
+                    var definitionContext = scope.Context as ZScriptParser.ClassMethodContext;
+                    if (definitionContext != null)
+                    {
+                        if(definitionContext.MethodDefinition.BaseMethod != null)
+                            return definitionContext.MethodDefinition.BaseMethod.CallableTypeDef;
+
+                        break;
+                    }
+
+                    scope = scope.ParentScope;
+                }
+
+                return _context.TypeProvider.AnyType();
+            }
+
             /// <summary>
             /// Gets the inner-most class definition described by the given context.
             /// Returns null, when not in a class definition context

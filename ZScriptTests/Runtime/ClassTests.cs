@@ -75,6 +75,42 @@ namespace ZScriptTests.Runtime
         #region Parsing Errors
 
         /// <summary>
+        /// Tests error raising when parsing a constructor that contains a return type
+        /// </summary>
+        [TestMethod]
+        public void TestReturnTypedConstructor()
+        {
+            const string input = "class TestClass { func TestClass() : int { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ReturnTypeOnConstructor));
+        }
+
+        /// <summary>
+        /// Tests error raising when parsing a base constructor call that contains a mismatched argument count
+        /// </summary>
+        [TestMethod]
+        public void TestMissmatchedBaseCall()
+        {
+            const string input = "class Base { func Base(i:int) { } } class Derived : Base { func Derived() { base(); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments));
+        }
+
+        /// <summary>
         /// Tests error raising when creating functions on base and derived classes that are not marked as override
         /// </summary>
         [TestMethod]

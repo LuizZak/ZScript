@@ -65,6 +65,8 @@ namespace ZScript.CodeGeneration
                 IdentifierContext = context.functionDefinition().functionName()
             };
 
+            context.MethodDefinition = m;
+
             return m;
         }
 

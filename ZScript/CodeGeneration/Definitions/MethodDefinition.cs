@@ -36,6 +36,11 @@ namespace ZScript.CodeGeneration.Definitions
         public ClassDefinition Class { get; set; }
 
         /// <summary>
+        /// Gets or sets the method this method definition is overriding
+        /// </summary>
+        public MethodDefinition BaseMethod { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the MethodDefinition class
         /// </summary>
         /// <param name="name">The name of the method to create</param>

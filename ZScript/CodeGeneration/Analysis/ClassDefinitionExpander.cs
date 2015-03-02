@@ -62,6 +62,7 @@ namespace ZScript.CodeGeneration.Analysis
             foreach (var classDefinition in classes)
             {
                 SetupInheritance(classDefinition);
+                VerifyConstructor(classDefinition);
             }
         }
 
@@ -76,7 +77,7 @@ namespace ZScript.CodeGeneration.Analysis
             foreach (var classDefinition in classes)
             {
                 CheckMethodCollisions(classDefinition);
-                CreateFieldCollisions(classDefinition);
+                CheckFieldCollisions(classDefinition);
             }
         }
 
@@ -134,6 +135,25 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Set inheritance
             definition.BaseClass = baseClass;
+            // Set constructor inheritance
+            definition.PublicConstructor.BaseMethod = (baseClass != null ? baseClass.PublicConstructor : null);
+        }
+
+        /// <summary>
+        /// Verifies the constructor of the given class
+        /// </summary>
+        /// <param name="definition">The class definition to verify the constructor of</param>
+        private void VerifyConstructor(ClassDefinition definition)
+        {
+            if (definition.PublicConstructor.Context == null)
+                return;
+
+            var constructor = ((ZScriptParser.ClassMethodContext)definition.PublicConstructor.Context);
+            if (constructor.functionDefinition().returnType() != null)
+            {
+                const string message = "Constructors cannot specify a return type";
+                _generationContext.MessageContainer.RegisterError(constructor.functionDefinition().returnType(), message, ErrorCode.ReturnTypeOnConstructor);
+            }
         }
 
         /// <summary>
@@ -164,6 +184,8 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 var baseMethod = inheritedMethods.FirstOrDefault(m => m.Name == method.Name);
+
+                method.BaseMethod = baseMethod;
 
                 if (baseMethod != null)
                 {
@@ -197,7 +219,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Checks collisions of fields of a given class definition with its parent classes
         /// </summary>
         /// <param name="definition">The definition to check collisions on</param>
-        private void CreateFieldCollisions(ClassDefinition definition)
+        private void CheckFieldCollisions(ClassDefinition definition)
         {
             var methods = definition.Fields;
             var inheritedMethods = definition.GetAllFields(true);

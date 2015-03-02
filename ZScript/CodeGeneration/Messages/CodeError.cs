@@ -154,6 +154,8 @@ namespace ZScript.CodeGeneration.Messages
         NoOverrideTarget,
         /// <summary>Overriding a base method with a different signature than the one overriden with</summary>
         MismatchedOverrideSignatures,
+        /// <summary>Adding an explicit return type to a constructor</summary>
+        ReturnTypeOnConstructor,
 
         #endregion
     }

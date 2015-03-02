@@ -114,6 +114,8 @@ namespace ZScript.CodeGeneration.Definitions
             {
                 PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0]) { ReturnType = _classTypeDef, HasReturnType = true };
             }
+
+            PublicConstructor.Class = this;
         }
 
         /// <summary>
@@ -237,6 +239,11 @@ namespace ZScript.CodeGeneration.Definitions
         }
 
         /// <summary>
+        /// The type for the constructor pointed by this ClassTypeDef
+        /// </summary>
+        public CallableTypeDef ConstructorType;
+
+        /// <summary>
         /// Initializes a new instance of the ClassTypeDef class
         /// </summary>
         /// <param name="name">The name for the class type definition</param>
@@ -249,7 +256,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Represents a class constructor
     /// </summary>
-    public class ConstructorDefinition : FunctionDefinition
+    public class ConstructorDefinition : MethodDefinition
     {
         /// <summary>
         /// Initializes a new instance of the ConstructorDefinition class

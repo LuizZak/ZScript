@@ -47,7 +47,7 @@ namespace ZScript.Elements
 
         /// <summary>
         /// Gets or sets a value specifying the reachability of this token.
-        /// This is a meta-data type property used by IntermediaryTokenLists to mark the reachability of instruction tokens
+        /// This is a meta-data type property used by IntermediaryTokenLists to mark the reachability of instruction tokens during reachability analysis
         /// </summary>
         public bool Reachable { get; set; }
 

@@ -222,6 +222,17 @@ public partial class ZScriptParser
     }
 
     /// <summary>
+    /// Provides extensions to the ClassMethodContext for binding class definitions to contexts
+    /// </summary>
+    partial class ClassMethodContext
+    {
+        /// <summary>
+        /// Gets or sets the class definition binded to this MethodDefinition
+        /// </summary>
+        public MethodDefinition MethodDefinition { get; set; }
+    }
+
+    /// <summary>
     /// Provides extensions to the SequenceBlockContext for binding sequence definitions to contexts
     /// </summary>
     partial class SequenceBlockContext

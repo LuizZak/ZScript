@@ -80,7 +80,10 @@ namespace ZScript.CodeGeneration.Messages
                     var sf = context as ZScriptParser.SequenceFrameContext;
                     if (sf != null)
                     {
-                        return "sequence '" + ((ZScriptParser.SequenceBlockContext)sf.Parent.Parent).sequenceName().IDENT() + "' frame range " + sf.frameRange().GetText();
+                        if(sf.frameRange() != null)
+                            return "sequence '" + ((ZScriptParser.SequenceBlockContext)sf.Parent.Parent).sequenceName().IDENT() + "' frame range " + sf.frameRange().GetText();
+
+                        return "sequence '" + ((ZScriptParser.SequenceBlockContext)sf.Parent.Parent).sequenceName().IDENT() + "' frame range +1";
                     }
 
                     var sb = context as ZScriptParser.SequenceBodyContext;

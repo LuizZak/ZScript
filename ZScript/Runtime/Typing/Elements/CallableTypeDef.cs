@@ -27,7 +27,7 @@ namespace ZScript.Runtime.Typing.Elements
     /// <summary>
     /// Specifies a callable type definition
     /// </summary>
-    public class CallableTypeDef : TypeDef, IEquatable<CallableTypeDef>
+    public class CallableTypeDef : TypeDef, IEquatable<CallableTypeDef>, ICallableTypeDef
     {
         /// <summary>
         /// The types for the parameter of this callable type definition

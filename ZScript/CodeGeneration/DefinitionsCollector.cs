@@ -555,7 +555,13 @@ namespace ZScript.CodeGeneration
             // Constructor detection
             if (method.Name == GetClassScope().Name)
             {
-                var constructor = new ConstructorDefinition(GetClassScope(), method.BodyContext, method.Parameters);
+                var constructor = new ConstructorDefinition(GetClassScope(), method.BodyContext, method.Parameters)
+                {
+                    Context = method.Context,
+                    HasReturnType = method.HasReturnType,
+                    IdentifierContext = method.IdentifierContext
+                };
+                ((ZScriptParser.ClassMethodContext)method.Context).MethodDefinition = constructor;
 
                 if (GetClassScope().PublicConstructor != null)
                 {

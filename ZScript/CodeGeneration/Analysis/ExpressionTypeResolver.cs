@@ -149,10 +149,12 @@ namespace ZScript.CodeGeneration.Analysis
 
             TypeDef retType = null;
 
+            // Assignment expressions
             if (context.assignmentExpression() != null)
             {
                 retType = ResolveAssignmentExpression(context.assignmentExpression());
             }
+            // Literals
             if (context.closureExpression() != null)
             {
                 retType = ResolveClosureExpression(context.closureExpression());
@@ -221,6 +223,11 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.T_THIS() != null)
             {
                 retType = ResolveThisType(context);
+            }
+            // 'base' priamry expression
+            if (context.T_BASE() != null)
+            {
+                retType = ResolveBaseType(context);
             }
 
             // New type
@@ -292,6 +299,36 @@ namespace ZScript.CodeGeneration.Analysis
 
             return TypeProvider.TypeNamed(typeName);
         }
+
+        #region Primary expressions
+
+        /// <summary>
+        /// Resolves the type of a 'this' expression contained within a given context
+        /// </summary>
+        /// <param name="context">The context containing the 'this' target</param>
+        /// <returns>The type for the 'this' value</returns>
+        public TypeDef ResolveThisType(ParserRuleContext context)
+        {
+            if (DefinitionTypeProvider == null)
+                throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
+
+            return DefinitionTypeProvider.TypeForThis(context);
+        }
+
+        /// <summary>
+        /// Resolves the type of a 'base' expression contained within a given context
+        /// </summary>
+        /// <param name="context">The context containing the 'base' target</param>
+        /// <returns>The type for the 'base' value</returns>
+        public TypeDef ResolveBaseType(ParserRuleContext context)
+        {
+            if (DefinitionTypeProvider == null)
+                throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
+
+            return DefinitionTypeProvider.TypeForBase(context);
+        }
+
+        #endregion
 
         #region Prefix, Postfix and Unary
 
@@ -445,19 +482,6 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Resolves the type of a 'this' expression contained within a given context
-        /// </summary>
-        /// <param name="context">The context containing the 'this' target</param>
-        /// <returns>The type for the 'this' value</returns>
-        public TypeDef ResolveThisType(ParserRuleContext context)
-        {
-            if (DefinitionTypeProvider == null)
-                throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
-
-            return DefinitionTypeProvider.TypeForThis(context);
-        }
-
-        /// <summary>
         /// Resolves a left value access
         /// </summary>
         /// <param name="leftValue">The type of the value being accessed</param>
@@ -584,7 +608,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="resType">The type to update the resulting function call return type to</param>
         private void ResolveFunctionCall(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.FunctionCallContext context, ref TypeDef resType)
         {
-            var callableType = leftValue as CallableTypeDef;
+            var callableType = leftValue as ICallableTypeDef;
             if (callableType != null)
             {
                 // Analyze type of the parameters
@@ -608,7 +632,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="callableType">A callable type used to verify the argument types correctly</param>
         /// <param name="context">The context containing the function call arguments</param>
         /// <returns>An array of types related to the function call</returns>
-        public TypeDef[] ResolveFunctionCallArguments(CallableTypeDef callableType, ZScriptParser.FuncCallArgumentsContext context)
+        public TypeDef[] ResolveFunctionCallArguments(ICallableTypeDef callableType, ZScriptParser.FuncCallArgumentsContext context)
         {
             // Collect the list of arguments
             var argTypes = new List<TypeDef>();
@@ -1255,6 +1279,13 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context containing the 'this' value to parse</param>
         /// <returns>The value for the 'this' target</returns>
         TypeDef TypeForThis(ParserRuleContext context);
+
+        /// <summary>
+        /// Returns a type for the 'base' special variable contained within a given context
+        /// </summary>
+        /// <param name="context">The context containing the 'base' value to parse</param>
+        /// <returns>The value for the 'base' target</returns>
+        TypeDef TypeForBase(ParserRuleContext context);
     }
 
     /// <summary>

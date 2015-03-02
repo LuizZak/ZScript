@@ -20,6 +20,11 @@ namespace ZScriptTests.Utils
         /// </summary>
         public TypeDef ThisType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type to issue on 'base' expressions
+        /// </summary>
+        public TypeDef BaseType { get; set; }
+
         // 
         // IDefinitionTypeProvider.TypeForDefinition override
         // 
@@ -52,11 +57,19 @@ namespace ZScriptTests.Utils
         }
 
         // 
-        // IDefinitionTypeProvider.TypeForDefinition override
+        // IDefinitionTypeProvider.TypeForThis override
         // 
         public TypeDef TypeForThis(ParserRuleContext context)
         {
             return ThisType;
+        }
+
+        // 
+        // IDefinitionTypeProvider.TypeForBase override
+        // 
+        public TypeDef TypeForBase(ParserRuleContext context)
+        {
+            return BaseType;
         }
     }
 }
