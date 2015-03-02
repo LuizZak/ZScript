@@ -546,6 +546,9 @@ namespace ZScript.Runtime.Execution
                 arguments.Add(PopValueImplicit());
             }
 
+            // Reverse the array, so early arguments come first
+            arguments.Reverse();
+
             // Pop the function to call
             var callable = PopCallable();
 
