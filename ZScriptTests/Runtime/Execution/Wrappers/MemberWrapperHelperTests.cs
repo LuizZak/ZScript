@@ -22,6 +22,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Elements;
+using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers;
@@ -109,7 +110,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
             var target = TestUtils.CreateTestClassInstance();
 
             var member = MemberWrapperHelper.CreateCallableWrapper(target, "func1");
-            var context = new VmContext(new Memory(), null, null, null, null);
+            var runtime = new ZRuntime(new ZRuntimeDefinition(), null);
+            var context = new VmContext(new Memory(), null, runtime, null, null);
 
             Assert.AreEqual(10L, member.Call(context), "The value returned by the callable is incorrect");
         }

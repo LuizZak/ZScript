@@ -137,6 +137,23 @@ namespace ZScript.CodeGeneration.Analysis
             definition.BaseClass = baseClass;
             // Set constructor inheritance
             definition.PublicConstructor.BaseMethod = (baseClass != null ? baseClass.PublicConstructor : null);
+
+            // Setup method overloading
+            var methods = definition.Methods;
+            var inheritedMethods = definition.GetAllMethods(true);
+
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var method = methods[i];
+
+                // Ignore 'base' methods
+                if (method.Name == "base")
+                    continue;
+
+                var baseMethod = inheritedMethods.FirstOrDefault(m => m.Name == method.Name);
+
+                method.BaseMethod = baseMethod;
+            }
         }
 
         /// <summary>

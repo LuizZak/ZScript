@@ -392,6 +392,11 @@ namespace ZScript.CodeGeneration
             var classDefs = scope.Definitions.OfType<ClassDefinition>();
             List<ZClass> classes = new List<ZClass>();
 
+            // Temporary dictionary used to help sort base methods
+            var baseMethodQueue = new Dictionary<ZMethod, MethodDefinition>();
+            // Dictionary of method definitions and their target transformed ZMethods. Used to setup the base calls
+            var transformedMethods = new Dictionary<MethodDefinition, ZMethod>();
+
             foreach (var classDef in classDefs)
             {
                 // Iterate over the methods
@@ -413,6 +418,11 @@ namespace ZScript.CodeGeneration
                     };
 
                     methods.Add(method);
+
+                    transformedMethods[methodDef] = method;
+
+                    if (methodDef.BaseMethod != null)
+                        baseMethodQueue[method] = methodDef.BaseMethod;
                 }
 
                 List<ZClassField> fields = new List<ZClassField>();
@@ -443,6 +453,12 @@ namespace ZScript.CodeGeneration
                                                     GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
 
                 classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor));
+            }
+
+            // Run over the base methods, setting the correct base methods now
+            foreach (var zMethod in baseMethodQueue.Keys)
+            {
+                zMethod.BaseMethod = transformedMethods[baseMethodQueue[zMethod]];
             }
 
             return classes.ToArray();

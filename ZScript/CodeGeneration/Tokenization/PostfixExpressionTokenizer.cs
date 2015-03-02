@@ -326,7 +326,7 @@ namespace ZScript.CodeGeneration.Tokenization
                     VisitObjectAccess(context.objectAccess());
                 }
             }
-            else if (context.T_THIS() != null)
+            else if (context.T_BASE() != null)
             {
                 // TODO: Move this to a separate method
                 _tokens.Add(TokenFactory.CreateVariableToken("base", true));

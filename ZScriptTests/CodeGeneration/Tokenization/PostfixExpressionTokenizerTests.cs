@@ -29,7 +29,6 @@ using ZScript.CodeGeneration.Tokenization.Helpers;
 
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
-using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 
@@ -104,6 +103,40 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateMemberNameToken("field"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of primary 'base' expressions
+        /// </summary>
+        [TestMethod]
+        public void TestBasePrimary()
+        {
+            const string message = "The tokens generated for the 'base' primary expression where not generated as expected";
+
+            const string input = "base()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("base", true),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
             };
 
             Console.WriteLine("Dump of tokens: ");
