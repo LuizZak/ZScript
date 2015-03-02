@@ -21,7 +21,6 @@
 using System;
 
 using ZScript.Elements;
-using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
@@ -60,17 +59,12 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 if (typedToken == null)
                     continue;
 
-                TypeDef typeDef;
+                var typeDef = typedToken.TypeDef;
 
                 if(typedToken.TypeContext != null)
                 {
                     // Substitute the token
                     typeDef = _context.ContextTypeProvider.TypeForContext(typedToken.TypeContext);
-                }
-                else
-                {
-                    // Substitute the token
-                    typeDef = typedToken.TypeDef;
                 }
 
                 Type type = _context.TypeProvider.NativeTypeForTypeDef(typeDef);
