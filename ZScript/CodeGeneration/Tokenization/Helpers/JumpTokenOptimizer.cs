@@ -143,10 +143,13 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     }
                 }
 
-                int nextToken = tokens.OffsetForJump(jumpToken);
-                if (i + 1 == nextToken && TryRemoveJumpInstruction(jumpToken, tokens))
+                int jumpOffset = tokens.OffsetForJump(jumpToken);
+                
+                // Immediate unconditional/peeking jumps
+                if (i + 1 == jumpOffset && TryRemoveJumpInstruction(jumpToken, tokens))
                 {
                     i--;
+                    optimized = true;
                     continue;
                 }
                 
@@ -188,6 +191,26 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     }
 
                     optimized = true;
+                    continue;
+                }
+
+                // If a conditional jump jumps immediately after an immediate unconditional jump, remove the unconditional jump and flip the conditional jump's condition
+                if (i < tokens.Count - 2 && jumpToken.Conditional && jumpToken.ConsumesStack && tokens[i + 1] is JumpToken)
+                {
+                    var immediateJump = (JumpToken)tokens[i + 1];
+
+                    // Can only apply optimization to unconditional immediate jumps, and when the conditional jump jumps over this immediate jump
+                    if (immediateJump.Conditional || jumpOffset != i + 2)
+                        continue;
+
+                    // Flip the conditionality of the current jump
+                    var newJump = new JumpToken(immediateJump.TargetToken, true, !jumpToken.Conditional);
+                    TryRemoveJumpInstruction(jumpToken, tokens, true);
+                    tokens.Insert(i, newJump);
+
+                    // Remove the immediate jump
+                    TryRemoveJumpInstruction(immediateJump, tokens);
+
                     continue;
                 }
 

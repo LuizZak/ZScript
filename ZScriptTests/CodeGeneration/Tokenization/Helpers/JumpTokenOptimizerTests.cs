@@ -836,5 +836,60 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             // Now verify the results
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
+
+        /// <summary>
+        /// Tests optimizing a conditional jump that jumps over an immediate jump token by replacing both jumps with a reversed conditional jump
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalJumpOverUnconditionalJumpHopping()
+        {
+            var tJt1 = TokenFactory.CreateBoxedValueToken(12);
+
+            var tJump1 = new JumpToken(null, true);
+            var tJump2 = new JumpToken(tJt1);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("a"),
+                tJump1,
+                tJump2,
+                TokenFactory.CreateBoxedValueToken(11),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                tJt1,
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            tJump1.TargetToken = tokens[3];
+
+            var eJt1 = TokenFactory.CreateBoxedValueToken(12);
+
+            var eJump1 = new JumpToken(eJt1, true, false);
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("a"),
+                eJump1,
+                TokenFactory.CreateBoxedValueToken(11),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                eJt1,
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            // Expand the jumps
+            JumpTokenOptimizer.OptimizeJumps(tokens);
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(tokens);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
+        }
     }
 }
