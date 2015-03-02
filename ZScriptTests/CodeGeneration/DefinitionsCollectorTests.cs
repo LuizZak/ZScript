@@ -15,7 +15,7 @@ namespace ZScriptTests.CodeGeneration
     [TestClass]
     public class DefinitionsCollectorTests
     {
-        #region Class parsing
+        #region Class collection
 
         /// <summary>
         /// Tests collection of a class definition
@@ -152,7 +152,7 @@ namespace ZScriptTests.CodeGeneration
 
         #endregion
 
-        #region Sequence parsing
+        #region Sequence collection
 
         /// <summary>
         /// Tests collection of a sequence definition
@@ -269,6 +269,61 @@ namespace ZScriptTests.CodeGeneration
             collector.Collect(parser.program());
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+        }
+
+        #endregion
+
+        #region Top-level function collection
+
+        /// <summary>
+        /// Tests collection of a top-level function definition
+        /// </summary>
+        [TestMethod]
+        public void TestCollectTopLevelFunction()
+        {
+            const string input = "func f1() { }";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var parsedFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("f1");
+
+            Assert.IsFalse(container.HasErrors);
+            Assert.IsNotNull(parsedFunction);
+            Assert.IsNotNull(parsedFunction.BodyContext);
+        }
+
+        /// <summary>
+        /// Tests distinction of top-level functions from other types of functions (exports and closures)
+        /// </summary>
+        [TestMethod]
+        public void TestTopLevelFunctionDistinction()
+        {
+            const string input = "@f1 func f2() { var a = () => { }; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var exportFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("f1");
+            var normalFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("f2");
+            var closureFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("$__closure0");
+
+            Assert.IsFalse(container.HasErrors);
+            Assert.IsNull(exportFunction);
+            Assert.IsNotNull(normalFunction);
+            Assert.IsNull(closureFunction);
         }
 
         #endregion

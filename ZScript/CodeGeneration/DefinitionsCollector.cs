@@ -132,7 +132,7 @@ namespace ZScript.CodeGeneration
         {
             // Define the function, but only if it's not a class method
             if(!(context.Parent is ZScriptParser.ClassMethodContext))
-                _functionStack.Push(DefineFunction(context));
+                _functionStack.Push(DefineTopLevelFunction(context));
 
             PushScope(context);
         }
@@ -519,13 +519,13 @@ namespace ZScript.CodeGeneration
         /// Defines a new function in the current top-most scope
         /// </summary>
         /// <param name="function">The function to define</param>
-        FunctionDefinition DefineFunction(ZScriptParser.FunctionDefinitionContext function)
+        TopLevelFunctionDefinition DefineTopLevelFunction(ZScriptParser.FunctionDefinitionContext function)
         {
-            var def = DefinitionGenerator.GenerateFunctionDef(function);
+            var def = DefinitionGenerator.GenerateTopLevelFunctionDef(function);
 
             CheckCollisions(def, function.functionName());
 
-            DefineFunction(def);
+            DefineTopLevelFunction(def);
 
             return def;
         }
@@ -534,7 +534,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new function in the current top-most scope
         /// </summary>
         /// <param name="function">The function to define</param>
-        void DefineFunction(FunctionDefinition function)
+        void DefineTopLevelFunction(TopLevelFunctionDefinition function)
         {
             _currentScope.AddDefinition(function);
         }

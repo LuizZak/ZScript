@@ -75,9 +75,9 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to generate the function definition from</param>
         /// <returns>A function definition generated from the given context</returns>
-        public static FunctionDefinition GenerateFunctionDef(ZScriptParser.FunctionDefinitionContext context)
+        public static TopLevelFunctionDefinition GenerateTopLevelFunctionDef(ZScriptParser.FunctionDefinitionContext context)
         {
-            var f = new FunctionDefinition(context.functionName().IDENT().GetText(), context.functionBody(),
+            var f = new TopLevelFunctionDefinition(context.functionName().IDENT().GetText(), context.functionBody(),
                 CollectFunctionArguments(context.functionArguments()))
             {
                 Context = context,
