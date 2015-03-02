@@ -50,6 +50,17 @@ namespace ZScriptTests.Utils
                 TraceObjects.AddRange(parameters);
                 return parameters;
             }
+            if (func.Name == "print")
+            {
+                foreach (var parameter in parameters)
+                {
+                    Console.Write(parameter);
+                    Console.Write(" ");
+                }
+                Console.WriteLine();
+
+                return parameters;
+            }
 
             throw new ArgumentException("Unkown or invalid export function '" + func.Name + "' that is not recognized by this runtime owner");
         }
