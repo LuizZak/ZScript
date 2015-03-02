@@ -23,6 +23,7 @@ using System;
 
 using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Definitions;
+using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
@@ -220,12 +221,20 @@ namespace ZScript.CodeGeneration.Analysis
                 // Check the possibility of performing an operation on the two types with the type operator
                 if (TypeProvider.BinaryExpressionProvider.CanPerformOperation(inst, exp1.EvaluatedType, exp2.EvaluatedType))
                 {
-                    object value = PerformBinaryExpression(expV1, expV2, inst, _typeOperationProvider);
+                    try
+                    {
+                        object value = PerformBinaryExpression(expV1, expV2, inst, _typeOperationProvider);
 
-                    context.ConstantValue = value;
+                        context.ConstantValue = value;
 
-                    context.IsConstantPrimitive = IsValuePrimitive(value);
-                    context.IsConstant = true;
+                        context.IsConstantPrimitive = IsValuePrimitive(value);
+                        context.IsConstant = true;
+                    }
+                    catch (SystemException e)
+                    {
+                        var message = e.Message;
+                        _context.MessageContainer.RegisterError(context, message, ErrorCode.InvalidConstantOperation);
+                    }
                 }
             }
         }

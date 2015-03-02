@@ -19,11 +19,13 @@
 */
 #endregion
 
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
+using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
 
 using ZScriptTests.Utils;
@@ -454,6 +456,35 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
             Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
             Assert.AreEqual(20L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
+        /// Tests exception raising when executing invalid operations during constant resolving
+        /// </summary>
+        [TestMethod]
+        public void TestExceptionRaising()
+        {
+            const string input = "10 / 0";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var container = new MessageContainer();
+            var generationContext = new RuntimeGenerationContext(null, container, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidConstantOperation), "Failed to raise expected errors");
         }
     }
 }

@@ -118,6 +118,8 @@ namespace ZScript.CodeGeneration.Messages
         TooFewArguments,
         /// <summary>Trying to provide more arguments than a callable accepts</summary>
         TooManyArguments,
+        /// <summary>Invalid operation during constant resolving</summary>
+        InvalidConstantOperation,
 
         #endregion
 
