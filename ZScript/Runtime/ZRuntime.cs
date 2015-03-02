@@ -52,6 +52,11 @@ namespace ZScript.Runtime
         private readonly Stack<IMemory<string>> _localMemoriesStack;
 
         /// <summary>
+        /// Stack of functions being executed currently
+        /// </summary>
+        private readonly Stack<ZFunction> _functionStack; 
+
+        /// <summary>
         /// The type provider for runtime type conversions
         /// </summary>
         private readonly TypeProvider _typeProvider;
@@ -115,6 +120,8 @@ namespace ZScript.Runtime
             _definition = definition;
             _zFunctions = definition.GetFunctions();
             _localMemoriesStack = new Stack<IMemory<string>>();
+            _functionStack = new Stack<ZFunction>();
+
             _owner = owner;
             _globalMemory = new Memory();
             _globalAddressedMemory = new IntegerMemory();
@@ -225,15 +232,58 @@ namespace ZScript.Runtime
                 constructor.InitFields(new VmContext(constructorMapper, _globalAddressedMemory, this, _owner, _typeProvider));
             }
 
+            var ret = CallFunctionWithMemory(funcDef, localMemory);
+
+            /*MemoryMapper mapper = new MemoryMapper();
+            mapper.AddMemory(_globalMemory);
+            mapper.AddMemory(localMemory);
+
+            _localMemoriesStack.Push(localMemory);
+            _functionStack.Push(funcDef);
+
+            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider));
+            vm.Execute();
+
+            _functionStack.Pop();
+            _localMemoriesStack.Pop();
+
+            mapper.Clear();*/
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Calls a specified function, using a given memory to map local variables.
+        /// The method raises an exception when the function call fails for any reason
+        /// </summary>
+        /// <param name="funcDef">The function to execute</param>
+        /// <param name="localMemory">The local memory for the method to call</param>
+        /// <returns>The return of the function that was called</returns>
+        /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
+        /// <exception cref="Exception">The function call failed</exception>
+        public object CallFunctionWithMemory(ZFunction funcDef, IMemory<string> localMemory)
+        {
+            // TODO: Clean the clutter on this method
+            if (funcDef == null) throw new ArgumentNullException("funcDef");
+
+            if (!_expandedGlobals)
+            {
+                ExpandGlobalVariables();
+            }
+
+            var constructor = funcDef as ZConstructor;
+
             MemoryMapper mapper = new MemoryMapper();
             mapper.AddMemory(_globalMemory);
             mapper.AddMemory(localMemory);
 
             _localMemoriesStack.Push(localMemory);
+            _functionStack.Push(funcDef);
 
             FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider));
             vm.Execute();
 
+            _functionStack.Pop();
             _localMemoriesStack.Pop();
 
             mapper.Clear();
@@ -263,6 +313,19 @@ namespace ZScript.Runtime
         /// <returns>The function definition with the given name, or null, if none was found</returns>
         public ZFunction FunctionWithName(string functionName, bool captureClosures = true)
         {
+            // TODO: Deal with this special 'base' case here
+            if (functionName == "base" && _functionStack.Count > 0)
+            {
+                var topMethod = _functionStack.Peek() as ZMethod;
+                if (topMethod != null)
+                {
+                    var cloneBaseMethod = topMethod.BaseMethod.Clone();
+                    cloneBaseMethod.LocalMemory = topMethod.LocalMemory;
+
+                    return cloneBaseMethod;
+                }
+            }
+
             foreach (ZFunction func in _zFunctions)
             {
                 if (func.Name == functionName)

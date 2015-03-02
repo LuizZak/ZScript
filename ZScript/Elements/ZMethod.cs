@@ -36,6 +36,11 @@ namespace ZScript.Elements
         public Memory LocalMemory { get; set; }
 
         /// <summary>
+        /// Gets or sets the base method for this ZMethod
+        /// </summary>
+        public ZMethod BaseMethod { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the ZMethod class
         /// </summary>
         /// <param name="name">The name for the method</param>

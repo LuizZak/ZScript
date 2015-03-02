@@ -80,22 +80,12 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
             // Wrap the context's local memory
             MemoryMapper mapper = new MemoryMapper();
 
-            mapper.AddMemory(context.Memory);
+            // Add the local memory of the class object
             mapper.AddMemory(_target.LocalMemory);
-
             // Create the arguments for the function and wrap them too
             mapper.AddMemory(Memory.CreateMemoryFromArgs(_method, arguments));
 
-            var newContext = new VmContext(mapper, context.AddressedMemory, context.Runtime, context.Owner, context.TypeProvider);
-
-            FunctionVM vm = new FunctionVM(_method.Tokens, newContext);
-
-            vm.Execute();
-
-            if (vm.HasReturnValue)
-                return vm.ReturnValue;
-
-            return null;
+            return context.Runtime.CallFunctionWithMemory(_method, mapper);
         }
 
         /// <summary>
