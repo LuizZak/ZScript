@@ -653,13 +653,13 @@ namespace ZScript.CodeGeneration.Analysis
                 // Verify argument count
                 if (argCount < callableType.RequiredArgumentsCount)
                 {
-                    var message = "Trying to pass " + argTypes.Count + " arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
+                    var message = "Trying to pass " + argCount + " arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
                     MessageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
                     mismatchedCount = true;
                 }
                 if (argCount > callableType.MaximumArgumentsCount)
                 {
-                    var message = "Trying to pass " + argTypes.Count + " arguments to callable that accepts at most " + callableType.MaximumArgumentsCount;
+                    var message = "Trying to pass " + argCount + " arguments to callable that accepts at most " + callableType.MaximumArgumentsCount;
                     MessageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
                     mismatchedCount = true;
                 }
