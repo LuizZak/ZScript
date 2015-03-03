@@ -167,7 +167,7 @@ namespace ZScript.CodeGeneration.Analysis
                     context.arrayLiteral().ExpectedType = expectedAsList;
                 }
 
-                retType = ResolveArrayLiteral(context.arrayLiteral());
+                retType = ResolveArrayLiteral(context.arrayLiteral(), context.valueAccess() != null && context.valueAccess().arrayAccess() != null);
             }
             if (context.dictionaryLiteral() != null)
             {
@@ -920,11 +920,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// Returns a TypeDef describing the type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
+        /// <param name="hasSubscript">Whether the array literal being resolved contains a subscript</param>
         /// <returns>The type for the context</returns>
-        public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
+        public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context, bool hasSubscript = false)
         {
             // Expected type for the list
-            var expectedValueType = context.ExpectedType == null ? null : context.ExpectedType.EnclosingType;
+            var expectedValueType = context.ExpectedType == null ? null : (hasSubscript ? context.ExpectedType : context.ExpectedType.EnclosingType);
 
             // Try to infer the type of items in the array
             var listItemsType = expectedValueType ?? TypeProvider.AnyType();
@@ -1004,7 +1005,12 @@ namespace ZScript.CodeGeneration.Analysis
             var entries = context.dictionaryEntryList().dictionaryEntry();
 
             if (entries.Length == 0)
+            {
+                context.EvaluatedKeyType = TypeProvider.NativeTypeForTypeDef(dictKeyType, true);
+                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(dictValueType, true);
+
                 return TypeProvider.DictionaryForTypes(dictKeyType, dictValueType);
+            }
 
             // Type is supposed to be inferred from the array's contents
             if (expectedValueType == null || expectedKeyType == null)
