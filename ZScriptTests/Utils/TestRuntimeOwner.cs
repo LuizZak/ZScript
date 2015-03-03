@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using ZScript.Elements;
 using ZScript.Runtime;
+using ZScript.Runtime.Execution.VirtualMemory;
 
 namespace ZScriptTests.Utils
 {
@@ -47,15 +48,42 @@ namespace ZScriptTests.Utils
         {
             if (func.Name == "__trace")
             {
-                TraceObjects.AddRange(parameters);
+                foreach (var parameter in parameters)
+                {
+                    var varArgs = parameter as Memory.VarArgsArrayList;
+                    if (varArgs != null)
+                    {
+                        foreach (var var in varArgs)
+                        {
+                            TraceObjects.Add(var);
+                        }
+                    }
+                    else
+                    {
+                        TraceObjects.Add(parameter);
+                    }
+                }
+
                 return parameters;
             }
             if (func.Name == "print")
             {
                 foreach (var parameter in parameters)
                 {
-                    Console.Write(parameter);
-                    Console.Write(" ");
+                    var varArgs = parameter as Memory.VarArgsArrayList;
+                    if (varArgs != null)
+                    {
+                        foreach (var var in varArgs)
+                        {
+                            Console.Write(var);
+                            Console.Write(" ");
+                        }
+                    }
+                    else
+                    {
+                        Console.Write(parameter);
+                        Console.Write(" ");
+                    }
                 }
                 Console.WriteLine();
 

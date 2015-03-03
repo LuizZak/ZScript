@@ -107,6 +107,7 @@
     <Compile Include="Runtime\MemberTests.cs" />
     <Compile Include="Runtime\ObjectLiteralTests.cs" />
     <Compile Include="Runtime\SubscriptingTests.cs" />
+    <Compile Include="Runtime\TopLevelFunctionTests.cs" />
     <Compile Include="Runtime\Typing\Operators\DoubleOperatorTests.cs" />
     <Compile Include="Runtime\Typing\Operators\IntegerOperatorTests.cs" />
     <Compile Include="Runtime\Typing\Operators\LongOperatorTests.cs" />

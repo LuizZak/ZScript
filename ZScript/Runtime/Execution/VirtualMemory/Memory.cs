@@ -59,6 +59,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// </summary>
         /// <param name="variableName">The variable ID to get the value form</param>
         /// <returns>The current value stored on the variable</returns>
+        /// <exception cref="System.Collections.Generic.KeyNotFoundException">The variable name was not found on this memory object</exception>
         public object GetVariable(string variableName)
         {
             return _memory[variableName];
@@ -139,6 +140,11 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                 if (arg.HasValue)
                 {
                     mem.SetVariable(arg.Name, arg.DefaultValue);
+                }
+                // Variadic
+                if (arg.IsVariadic)
+                {
+                    mem.SetVariable(arg.Name, new VarArgsArrayList());
                 }
             }
 
