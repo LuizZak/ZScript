@@ -547,13 +547,6 @@ namespace ZScript.Runtime.Execution
             if (wrapper != null)
             {
                 _stack.Push(_context.Runtime.CallFunction(wrapper, arguments.ToArray()));
-                return;
-            }
-
-            var s = callable as string;
-            if(s != null)
-            {
-                _stack.Push(_context.Runtime.CallFunction(s, arguments));
             }
         }
 
