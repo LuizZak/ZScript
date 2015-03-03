@@ -76,11 +76,6 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             var str = ExpressionUtils.OperatorOnExpression(context);
-            if (str == "")
-            {
-                throw new Exception("Failed to analyze binary expression correctly");
-            }
-
             var instruction = TokenFactory.InstructionForOperator(str);
 
             // Arithmetic instructions with any operands propagate anys
