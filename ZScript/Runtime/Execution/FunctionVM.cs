@@ -330,34 +330,19 @@ namespace ZScript.Runtime.Execution
 
             switch (type)
             {
-                case NumberType.Short:
-                    short valueShort = (short)value;
-                    _stack.Push((short)(valueShort + changeOnStack));
-                    SetValue(variable, (short)(valueShort + changeOnMemory));
-                    return;
-                case NumberType.UShort:
-                    ushort valueUShort = (ushort)value;
-                    _stack.Push((ushort)(valueUShort + changeOnStack));
-                    SetValue(variable, (ushort)(valueUShort + changeOnMemory));
-                    return;
                 case NumberType.Integer:
                     _stack.Push((int)value + changeOnStack);
                     SetValue(variable, (int)value + changeOnMemory);
-                    return;
-                case NumberType.UInteger:
-                    uint valueUInt = (uint)value;
-                    _stack.Push((uint)(valueUInt + changeOnStack));
-                    SetValue(variable, (uint)(valueUInt + changeOnMemory));
                     return;
                 case NumberType.Long:
                     long valueLong = (long)value;
                     _stack.Push(valueLong + changeOnStack);
                     SetValue(variable, valueLong + changeOnMemory);
                     return;
-                case NumberType.ULong:
-                    ulong valueULong = (ulong)value;
-                    _stack.Push((valueULong + (ulong)changeOnStack));
-                    SetValue(variable, valueULong + (ulong)changeOnMemory);
+                case NumberType.Double:
+                    double valueDouble = (double)value;
+                    _stack.Push(valueDouble + changeOnStack);
+                    SetValue(variable, valueDouble + changeOnMemory);
                     return;
             }
 
