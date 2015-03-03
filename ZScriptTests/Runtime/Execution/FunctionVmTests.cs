@@ -1514,6 +1514,92 @@ namespace ZScriptTests.Runtime.Execution
 
         #endregion
 
+        #region Error raising
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to execute an operator-type token with a non operation instruction must raise an ArgumentException")]
+        public void TestInvalidOperation()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateOperatorToken(VmInstruction.Noop),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to execute an instruction-type token with a non instruction instruction must raise an ArgumentException")]
+        public void TestInvalidInstruction()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateInstructionToken(VmInstruction.Add),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(VirtualMachineException), "Trying to execute an Get instruction with an invalid value container must raise an VirtualMachineException")]
+        public void TestInvalidGet()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken("Thing1"),
+                TokenFactory.CreateBoxedValueToken("Thing2"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(VirtualMachineException), "Trying to execute an Set instruction with an invalid value container must raise an VirtualMachineException")]
+        public void TestInvalidSet()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken("Thing1"),
+                TokenFactory.CreateBoxedValueToken("Thing2"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
+        #endregion
+
         class LocalAddressed : IMemory<int>
         {
             /// <summary>
