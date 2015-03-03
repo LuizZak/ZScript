@@ -38,8 +38,9 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// Initializes a new instance of the MemoryMapper class
         /// </summary>
         public MemoryMapper()
+            : this(new List<IMemory<string>>())
         {
-            _memoryList = new List<IMemory<string>>();
+            
         }
 
         /// <summary>
