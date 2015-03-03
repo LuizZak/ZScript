@@ -1002,6 +1002,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
         #region Error raising
 
         /// <summary>
+        /// Tests dictionary literal type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestFailedDictionaryLiteralCasting()
+        {
+            // Set up the test
+            const string input = "[0: 'apples', 1: 'oranges']";
+
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, typeProvider));
+
+            var dictionary = parser.dictionaryLiteral();
+
+            dictionary.ExpectedType = typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.IntegerType());
+
+            resolver.ResolveDictionaryLiteral(dictionary);
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
         /// Tests error raising for invalid implicit array casting
         /// </summary>
         [TestMethod]
