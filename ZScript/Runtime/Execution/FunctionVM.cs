@@ -523,7 +523,7 @@ namespace ZScript.Runtime.Execution
             // Pop the argument count
             int argCount = (int)_stack.Pop();
 
-            // Pop the arguments from the stack
+            // Pop the arguments from the stackh
             ArrayList arguments = new ArrayList();
 
             for (int i = 0; i < argCount; i++)
@@ -955,15 +955,6 @@ namespace ZScript.Runtime.Execution
         /// <param name="message">The message for the exception</param>
         public VirtualMachineException(string message)
             : base(message)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instnace of the VirtualMachineException class
-        /// </summary>
-        /// <param name="message">The message for the exception</param>
-        /// <param name="innerException">The inner exception for this exception</param>
-        public VirtualMachineException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }
