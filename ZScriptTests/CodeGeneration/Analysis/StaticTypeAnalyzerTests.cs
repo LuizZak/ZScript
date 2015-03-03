@@ -134,6 +134,21 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
         }
 
+        /// <summary>
+        /// Tests raising errors when resolving implicit closures to void
+        /// </summary>
+        [TestMethod]
+        public void TestVoidClosureParsing()
+        {
+            const string input = "func f2() { var a = () => { }(); }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
         #endregion
 
         #region Class type support

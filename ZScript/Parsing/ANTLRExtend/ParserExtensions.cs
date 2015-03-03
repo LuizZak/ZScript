@@ -93,7 +93,29 @@ public partial class ZScriptParser
         /// <summary>
         /// Gets or sets a value specifying whether the type for this assignment expression has been evaluated already
         /// </summary>
-        public bool HasTypeBeeEvaluated { get; set; }
+        public bool HasTypeBeenEvaluated { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the ClosureExpressionContext for binding closure definitions to contexts
+    /// </summary>
+    partial class ClosureExpressionContext
+    {
+        /// <summary>
+        /// Gets or sets the closure definition associated with this closure expression
+        /// </summary>
+        public ClosureDefinition Definition { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the ValueHolderDeclContext for binding value holder definitions to contexts
+    /// </summary>
+    partial class ValueHolderDeclContext
+    {
+        /// <summary>
+        /// Gets or sets the value holder definition associated with this value holder declaration context
+        /// </summary>
+        public ValueHolderDefinition Definition { get; set; }
     }
 
     /// <summary>

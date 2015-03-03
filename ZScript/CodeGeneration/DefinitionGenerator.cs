@@ -114,6 +114,8 @@ namespace ZScript.CodeGeneration
                 ReturnTypeContext = context.returnType(),
             };
 
+            context.Definition = c;
+
             return c;
         }
 
@@ -304,6 +306,8 @@ namespace ZScript.CodeGeneration
             def.ValueExpression = new Expression(context.expression());
             def.IsConstant = context.let != null;
             def.IdentifierContext = context.valueHolderName().memberName();
+
+            context.Definition = def;
 
             if (def.HasType)
             {

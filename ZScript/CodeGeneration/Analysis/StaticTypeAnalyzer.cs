@@ -152,16 +152,19 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ExpandClosureDefinition(definition);
             }
+
+            ProcessExpressions(_baseScope, true);
         }
 
         /// <summary>
         /// Performs deeper analysis of types by exploring expression nodes and deriving their types, as well as pre-evaluating any constants
         /// </summary>
         /// <param name="scope">The code scope to process expressions on</param>
-        private void ProcessExpressions(CodeScope scope)
+        /// <param name="valueHoldersOnly">Whether to only process value holders during the pass</param>
+        private void ProcessExpressions(CodeScope scope, bool valueHoldersOnly = false)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver);
+            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, valueHoldersOnly);
             var definitions = scope.Definitions;
 
             foreach (var definition in definitions)
@@ -180,6 +183,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Find the context the closure was defined in
             var definedContext = (ZScriptParser.ClosureExpressionContext)definition.Context;
             var contextType = FindExpectedTypeForClosure(definedContext);
+            bool returnModified = false;
 
             // Get the parameter types
             foreach (var argumentDefinition in definition.Parameters)
@@ -207,12 +211,22 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     definition.ReturnType = newType.ReturnType;
                     definition.HasReturnType = true;
+
+                    returnModified = true;
                 }
             }
 
             // Now expand the closure like a normal function
             ExpandFunctionDefinition(definition);
-            
+
+            if (!definition.HasReturnType)
+            {
+                definition.ReturnType = _generationContext.TypeProvider.VoidType();
+                definition.HasReturnType = true;
+
+                returnModified = true;
+            }
+
             // Get all of the local variables and expand them now
             var scope = _baseScope.GetScopeContainingContext(definition.Context);
 
@@ -226,6 +240,28 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Analyze the return type of the closure now
             AnalyzeReturns(definition);
+            
+            // If the closure's return type was inferred and it is contained within a function call
+            // expression, mark the type of the statement it is contained within to be resolved again
+            var context = definition.Context.Parent;
+            var expContext = ((ZScriptParser.ExpressionContext)context);
+
+            if (returnModified && expContext.valueAccess() != null && expContext.valueAccess().functionCall() != null)
+            {
+                while (context != null)
+                {
+                    var expressionContext = context as ZScriptParser.ExpressionContext;
+                    if (expressionContext != null)
+                        expressionContext.HasTypeBeenEvaluated = false;
+
+                    if (context is ZScriptParser.StatementContext)
+                    {
+                        break;
+                    }
+
+                    context = context.Parent;
+                }
+            }
         }
 
         /// <summary>
@@ -344,10 +380,8 @@ namespace ZScript.CodeGeneration.Analysis
             else
             {
                 definition.ValueExpression.ExpressionContext.ExpectedType = definition.HasType ? definition.Type : null;
+                definition.ValueExpression.ExpressionContext.HasTypeBeenEvaluated = false;
                 valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
-
-                // Expand the constants in the value
-                
             }
 
             if (!definition.HasType)
@@ -394,14 +428,21 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly ExpressionConstantResolver _constantResolver;
 
             /// <summary>
+            /// Whether to only evaluate value holder statements during the pass
+            /// </summary>
+            private readonly bool _valueHoldersOnly;
+
+            /// <summary>
             /// Initializes a new instance of the ExpressionStatementsTraverser class
             /// </summary>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            /// <param name="valueHoldersOnly">Whether to only evaluate value holder statements during the pass</param>
+            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver, bool valueHoldersOnly)
             {
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
+                _valueHoldersOnly = valueHoldersOnly;
             }
 
             /// <summary>
@@ -435,8 +476,10 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="context">The context containig the expression to analyze</param>
             private void AnalyzeExpression(ZScriptParser.ExpressionContext context)
             {
-                _typeResolver.ResolveExpression(context);
+                if (context.HasTypeBeenEvaluated)
+                    return;
 
+                _typeResolver.ResolveExpression(context);
                 _constantResolver.ExpandConstants(context);
 
                 // Check if a left value is trying to be modified
@@ -453,6 +496,9 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="context">The context containig the assignment expression to analyze</param>
             private void AnalyzeAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
             {
+                if (context.HasTypeBeenEvaluated)
+                    return;
+
                 _typeResolver.ResolveAssignmentExpression(context);
 
                 _constantResolver.ExpandConstants(context);
@@ -470,9 +516,31 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
             {
-                if (context.valueHolderDecl().expression() != null)
+                var expression = context.valueHolderDecl().expression();
+
+                if (expression == null)
+                    return;
+
+                if (expression.HasTypeBeenEvaluated)
                 {
-                    _constantResolver.ExpandConstants(context.valueHolderDecl().expression());
+                    _constantResolver.ExpandConstants(expression);
+                    return;
+                }
+
+                var valueType = _typeResolver.ResolveExpression(expression);
+                _constantResolver.ExpandConstants(expression);
+
+                var definition = context.valueHolderDecl().Definition;
+                if (definition == null)
+                    return;
+                
+                // Verify type compatibility once again
+                var varType = definition.Type;
+
+                if (varType != null && valueType != null && !_typeResolver.TypeProvider.CanImplicitCast(valueType, varType))
+                {
+                    var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
+                    _typeResolver.MessageContainer.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
                 }
             }
 
@@ -481,6 +549,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterIfStatement(ZScriptParser.IfStatementContext context)
             {
+                if (_valueHoldersOnly)
+                    return;
+
                 var analyzer = new IfStatementAnalyzer(context, _typeResolver, _constantResolver);
                 analyzer.Process();
             }
@@ -490,6 +561,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterWhileStatement(ZScriptParser.WhileStatementContext context)
             {
+                if (_valueHoldersOnly)
+                    return;
+
                 var provider = _typeResolver.TypeProvider;
 
                 // Check if expression has a boolean type
@@ -507,6 +581,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
             {
+                if (_valueHoldersOnly)
+                    return;
+                
                 var analyzer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver);
                 analyzer.Process();
             }
@@ -516,6 +593,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterForInit(ZScriptParser.ForInitContext context)
             {
+                if (_valueHoldersOnly)
+                    return;
+
                 // For loops can ommit the init expression
                 if (context.expression() == null)
                     return;
@@ -529,6 +609,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterForCondition(ZScriptParser.ForConditionContext context)
             {
+                if (_valueHoldersOnly)
+                    return;
+
                 // For loops can ommit the condition expression
                 if (context.expression() == null)
                     return;
@@ -552,6 +635,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterForIncrement(ZScriptParser.ForIncrementContext context)
             {
+                if (_valueHoldersOnly)
+                    return;
+
                 // For loops can ommit the increment expression
                 if (context.expression() == null)
                     return;

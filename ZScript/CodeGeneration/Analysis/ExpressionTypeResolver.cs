@@ -85,7 +85,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
         {
-            if (context.HasTypeBeeEvaluated)
+            if (context.HasTypeBeenEvaluated)
             {
                 return context.EvaluatedType;
             }
@@ -130,7 +130,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             context.EvaluatedType = variableType;
-            context.HasTypeBeeEvaluated = true;
+            context.HasTypeBeenEvaluated = true;
 
             return variableType;
         }
@@ -849,6 +849,11 @@ namespace ZScript.CodeGeneration.Analysis
             if (hasReturnType)
             {
                 returnType = ResolveType(context.returnType().type());
+            }
+            
+            if (context.Definition != null && context.Definition.HasReturnType && context.Definition.ReturnType != null)
+            {
+                returnType = context.Definition.ReturnType;
             }
 
             return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType, hasReturnType);
