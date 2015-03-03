@@ -246,7 +246,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 // Cyclic references of jumps
                 if (!pointingJump.Conditional && ReferenceEquals(pointedJump.TargetToken, pointingJump))
                 {
-                    throw new Exception("Two inconditional jumps pointing at each other generates infinite loops");
+                    throw new Exception("Two unconditional jumps pointing at each other generates infinite loops");
                 }
 
                 pointingJump.TargetToken = pointedJump.TargetToken;
