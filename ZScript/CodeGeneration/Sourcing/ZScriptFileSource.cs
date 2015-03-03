@@ -79,7 +79,11 @@ namespace ZScript.CodeGeneration.Sourcing
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return string.Equals(_filePath, other._filePath);
+
+            string source1 = Path.GetFullPath(_filePath);
+            string source2 = Path.GetFullPath(other._filePath);
+
+            return string.Equals(source1, source2);
         }
 
         public override bool Equals(object obj)
@@ -92,7 +96,7 @@ namespace ZScript.CodeGeneration.Sourcing
 
         public override int GetHashCode()
         {
-            return (_filePath != null ? _filePath.GetHashCode() : 0);
+            return (_filePath != null ? Path.GetFullPath(_filePath).GetHashCode() : 0);
         }
 
         public static bool operator==(ZScriptFileSource left, ZScriptFileSource right)

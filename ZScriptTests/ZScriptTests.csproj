@@ -70,6 +70,8 @@
     <Compile Include="CodeGeneration\DefinitionsCollectorTests.cs" />
     <Compile Include="CodeGeneration\Definitions\ClassDefinitionTests.cs" />
     <Compile Include="CodeGeneration\MultipleSourcesTests.cs" />
+    <Compile Include="CodeGeneration\Sourcing\SourceProviderTests.cs" />
+    <Compile Include="CodeGeneration\Sourcing\ZScriptFileSourceTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTokenOptimizerTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedTokenExpanderTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenListTests.cs" />
