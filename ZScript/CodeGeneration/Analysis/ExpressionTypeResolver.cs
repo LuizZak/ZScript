@@ -932,7 +932,11 @@ namespace ZScript.CodeGeneration.Analysis
             var items = context.expressionList();
 
             if (items == null)
+            {
+                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(listItemsType, true);
+
                 return TypeProvider.ListForType(listItemsType);
+            }
 
             // Type is supposed to be inferred from the array's contents
             if (expectedValueType == null)
