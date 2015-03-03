@@ -898,22 +898,31 @@ namespace ZScript.Runtime.Execution
         /// <returns>The number type for the given boxed number</returns>
         public static NumberType NumberTypeForBoxedNumber(object boxedNumber)
         {
+            // Leave the most common types first to decrease useless lookup times
+            if (boxedNumber is long)
+                return NumberType.Long;
+            if (boxedNumber is double)
+                return NumberType.Double;
+            if (boxedNumber is int)
+                return NumberType.Integer;
+
+            
+            if(boxedNumber is byte)
+                return NumberType.Byte;
+            if (boxedNumber is sbyte)
+                return NumberType.SByte;
+            if (boxedNumber is decimal)
+                return NumberType.Decimal;
             if(boxedNumber is short)
                 return NumberType.Short;
             if(boxedNumber is ushort)
                 return NumberType.UShort;
-            if (boxedNumber is int)
-                return NumberType.Integer;
             if (boxedNumber is uint)
                 return NumberType.UInteger;
-            if (boxedNumber is long)
-                return NumberType.Long;
             if (boxedNumber is ulong)
                 return NumberType.ULong;
             if (boxedNumber is float)
                 return NumberType.Float;
-            if (boxedNumber is double)
-                return NumberType.Double;
 
             return NumberType.Unspecified;
         }
@@ -923,6 +932,10 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         public enum NumberType
         {
+            /// <summary>A byte type</summary>
+            Byte,
+            /// <summary>A signed byte type</summary>
+            SByte,
             /// <summary>An Int16 type</summary>
             Short,
             /// <summary>An UInt16 type</summary>
@@ -935,6 +948,8 @@ namespace ZScript.Runtime.Execution
             Long,
             /// <summary>An Int64 type</summary>
             ULong,
+            /// <summary>A decimal type</summary>
+            Decimal,
             /// <summary>A single precision floating point type</summary>
             Float,
             /// <summary>A double precision floating point type</summary>

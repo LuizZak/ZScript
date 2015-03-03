@@ -1842,6 +1842,38 @@ namespace ZScriptTests.Runtime.Execution
 
         #endregion
 
+        #region NumberTypeForBoxedNumber
+
+        /// <summary>
+        /// Tests the NumberTypeForBoxedNumber method
+        /// </summary>
+        [TestMethod]
+        public void TestNumberTypeForBoxedNumber()
+        {
+            Assert.AreEqual(FunctionVM.NumberType.Byte, FunctionVM.NumberTypeForBoxedNumber((byte)0));
+            Assert.AreEqual(FunctionVM.NumberType.SByte, FunctionVM.NumberTypeForBoxedNumber((sbyte)0));
+
+            Assert.AreEqual(FunctionVM.NumberType.Short, FunctionVM.NumberTypeForBoxedNumber((short)0));
+            Assert.AreEqual(FunctionVM.NumberType.UShort, FunctionVM.NumberTypeForBoxedNumber((ushort)0));
+
+            Assert.AreEqual(FunctionVM.NumberType.UShort, FunctionVM.NumberTypeForBoxedNumber((ushort)0));
+
+            Assert.AreEqual(FunctionVM.NumberType.Integer, FunctionVM.NumberTypeForBoxedNumber(0));
+            Assert.AreEqual(FunctionVM.NumberType.UInteger, FunctionVM.NumberTypeForBoxedNumber(0U));
+
+            Assert.AreEqual(FunctionVM.NumberType.Long, FunctionVM.NumberTypeForBoxedNumber(0L));
+            Assert.AreEqual(FunctionVM.NumberType.ULong, FunctionVM.NumberTypeForBoxedNumber(0UL));
+
+            Assert.AreEqual(FunctionVM.NumberType.Decimal, FunctionVM.NumberTypeForBoxedNumber(0M));
+
+            Assert.AreEqual(FunctionVM.NumberType.Float, FunctionVM.NumberTypeForBoxedNumber(0.0f));
+            Assert.AreEqual(FunctionVM.NumberType.Double, FunctionVM.NumberTypeForBoxedNumber(0.0));
+
+            Assert.AreEqual(FunctionVM.NumberType.Unspecified, FunctionVM.NumberTypeForBoxedNumber(true));
+        }
+
+        #endregion
+
         #region Error raising
 
         [TestMethod]
