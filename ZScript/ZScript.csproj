@@ -164,7 +164,6 @@
     <Compile Include="Runtime\Execution\VmContext.cs" />
     <Compile Include="Runtime\IRuntimeOwner.cs" />
     <Compile Include="Runtime\Typing\Operators\DoubleOperator.cs" />
-    <Compile Include="Runtime\Typing\Operators\FloatOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\IntegerOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\LongOperator.cs" />
     <Compile Include="Runtime\Typing\TypeOperationProvider.cs" />
