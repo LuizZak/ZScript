@@ -162,12 +162,12 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.arrayLiteral() != null)
             {
                 var expectedAsList = context.ExpectedType as ListTypeDef;
-                if (expectedAsList != null)
+                if (expectedAsList != null && (context.valueAccess() == null || context.valueAccess().arrayAccess() == null))
                 {
                     context.arrayLiteral().ExpectedType = expectedAsList;
                 }
 
-                retType = ResolveArrayLiteral(context.arrayLiteral(), context.valueAccess() != null && context.valueAccess().arrayAccess() != null);
+                retType = ResolveArrayLiteral(context.arrayLiteral());
             }
             if (context.dictionaryLiteral() != null)
             {
