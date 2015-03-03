@@ -664,32 +664,34 @@ namespace ZScript.CodeGeneration.Analysis
                     mismatchedCount = true;
                 }
 
-
-                int ci = 0;
-                var curArgInfo = callableType.ParameterInfos[ci];
-                foreach (var exp in context.expressionList().expression())
+                if (callableType.ParameterInfos.Length > 0)
                 {
-                    // Set expected type
-                    if(!mismatchedCount)
-                        exp.ExpectedType = curArgInfo.RawParameterType;
-
-                    var argType = ResolveExpression(exp);
-                    argTypes.Add(argType);
-
-                    if (mismatchedCount)
-                        continue;
-
-                    // Match the argument types
-                    if (!TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
+                    int ci = 0;
+                    var curArgInfo = callableType.ParameterInfos[ci];
+                    foreach (var exp in context.expressionList().expression())
                     {
-                        var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
-                        MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
-                    }
+                        // Set expected type
+                        if (!mismatchedCount)
+                            exp.ExpectedType = curArgInfo.RawParameterType;
 
-                    // Jump to the next callable argument information
-                    if (!curArgInfo.IsVariadic && ci < callableType.ParameterInfos.Length - 1)
-                    {
-                        curArgInfo = callableType.ParameterInfos[++ci];
+                        var argType = ResolveExpression(exp);
+                        argTypes.Add(argType);
+
+                        if (mismatchedCount)
+                            continue;
+
+                        // Match the argument types
+                        if (!TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
+                        {
+                            var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
+                            MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                        }
+
+                        // Jump to the next callable argument information
+                        if (!curArgInfo.IsVariadic && ci < callableType.ParameterInfos.Length - 1)
+                        {
+                            curArgInfo = callableType.ParameterInfos[++ci];
+                        }
                     }
                 }
             }
