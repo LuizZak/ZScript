@@ -731,12 +731,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
                                  "10 - 5; 5.5 - 6; 6.0 - 7.0;" +
                                  "10 * 5; 5.5 * 6; 6.0 * 7.0;" +
                                  "10 / 5; 5.5 / 6; 6.0 / 7.0;" +
-                                 "10 % 5; 5.5 % 6; 6.0 % 7.0;";
+                                 "10 % 5; 5.5 % 6; 6.0 % 7.0;" +
+                                 "a + a; a / a; a - a; a * a;";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
-            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
             var type1 = resolver.ResolveExpression(parser.statement().expression());
@@ -759,6 +760,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type14 = resolver.ResolveExpression(parser.statement().expression());
             var type15 = resolver.ResolveExpression(parser.statement().expression());
 
+            var type16 = resolver.ResolveExpression(parser.statement().expression());
+            var type17 = resolver.ResolveExpression(parser.statement().expression());
+            var type18 = resolver.ResolveExpression(parser.statement().expression());
+
             // Compare the result now
             Assert.AreEqual(provider.IntegerType(), type1, "Failed to evaluate the result of SUM expression correctly");
             Assert.AreEqual(provider.FloatType(), type2, "Failed to evaluate the result of SUM expression correctly");
@@ -779,6 +784,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.IntegerType(), type13, "Failed to evaluate the result of MODULO expression correctly");
             Assert.AreEqual(provider.FloatType(), type14, "Failed to evaluate the result of MODULO expression correctly");
             Assert.AreEqual(provider.FloatType(), type15, "Failed to evaluate the result of MODULO expression correctly");
+
+            Assert.AreEqual(provider.AnyType(), type16, "Failed to evaluate the result of MODULO expression correctly");
+            Assert.AreEqual(provider.AnyType(), type17, "Failed to evaluate the result of MODULO expression correctly");
+            Assert.AreEqual(provider.AnyType(), type18, "Failed to evaluate the result of MODULO expression correctly");
 
             Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
         }
