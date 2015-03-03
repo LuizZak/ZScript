@@ -465,8 +465,10 @@ namespace ZScriptTests.Runtime.Execution
 
         #region Increment/decrement
 
+        #region Integer
+
         [TestMethod]
-        public void TestPrefixIncrement()
+        public void TestIntegerPrefixIncrement()
         {
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
@@ -492,7 +494,7 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         [TestMethod]
-        public void TestPostfixIncrement()
+        public void TestIntegerPostfixIncrement()
         {
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
@@ -518,7 +520,7 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         [TestMethod]
-        public void TestPrefixDecrement()
+        public void TestIntegerPrefixDecrement()
         {
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
@@ -544,7 +546,7 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         [TestMethod]
-        public void TestPostfixDecrement()
+        public void TestIntegerPostfixDecrement()
         {
             // Create the set of tokens
             IntermediaryTokenList t = new IntermediaryTokenList
@@ -568,6 +570,332 @@ namespace ZScriptTests.Runtime.Execution
 
             Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
         }
+
+        #endregion
+
+        #region Long
+
+        [TestMethod]
+        public void TestLongPrefixIncrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(11L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestLongPostfixIncrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestLongPrefixDecrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(9L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestLongPostfixDecrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        #endregion
+
+        #region Double
+
+        [TestMethod]
+        public void TestDoublePrefixIncrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10.0),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(11.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestDoublePostfixIncrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10.0),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestDoublePrefixDecrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10.0),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(9.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestDoublePostfixDecrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10.0),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        #endregion
+
+        #region Others
+
+        [TestMethod]
+        public void TestUnsignedPrefixIncrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10U),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(11U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestUnsignedPostfixIncrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10U),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestUnsignedPrefixDecrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10U),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPrefix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(9U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestUnsignedPostfixDecrement()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10U),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPostfix),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(10U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        #endregion
 
         #endregion
 
