@@ -204,7 +204,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                         continue;
 
                     // Flip the conditionality of the current jump
-                    var newJump = new JumpToken(immediateJump.TargetToken, true, !jumpToken.Conditional);
+                    var newJump = new JumpToken(immediateJump.TargetToken, true, !jumpToken.ConditionToJump);
                     TryRemoveJumpInstruction(jumpToken, tokens, true);
                     tokens.Insert(i, newJump);
 
