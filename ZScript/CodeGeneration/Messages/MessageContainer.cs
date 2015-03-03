@@ -22,8 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
 
 namespace ZScript.CodeGeneration.Messages
 {
@@ -152,14 +152,6 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Registers a warning at a context
         /// </summary>
-        public void RegisterWarning(int line, int position, string warningMessage)
-        {
-            _warningList.Add(new Warning(line, position, warningMessage));
-        }
-
-        /// <summary>
-        /// Registers a warning at a context
-        /// </summary>
         public void RegisterWarning(int line, int position, string warningMessage, WarningCode code, ParserRuleContext context = null)
         {
             _warningList.Add(new Warning(line, position, warningMessage, code) { Context = context });
@@ -171,14 +163,6 @@ namespace ZScript.CodeGeneration.Messages
         public void RegisterWarning(ParserRuleContext context, string warningMessage, WarningCode code)
         {
             _warningList.Add(new Warning(context.Start.Line, context.Start.Column, warningMessage, code) { Context = context });
-        }
-
-        /// <summary>
-        /// Registers a warning at a context
-        /// </summary>
-        public void RegisterWarning(ITerminalNode context, string warningMessage)
-        {
-            _warningList.Add(new Warning(context.Symbol.Line, context.Symbol.Column, warningMessage));
         }
 
         /// <summary>
@@ -195,14 +179,6 @@ namespace ZScript.CodeGeneration.Messages
         public void RegisterError(int line, int position, string errorMessage, ErrorCode errorCode, ParserRuleContext context = null)
         {
             RegisterError(new CodeError(line, position, errorCode) { Message = errorMessage, Context = context });
-        }
-
-        /// <summary>
-        /// Registers an error at a context
-        /// </summary>
-        public void RegisterError(ITerminalNode context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
-        {
-            RegisterError(new CodeError(context.Symbol.Line, context.Symbol.Column, errorMessage));
         }
 
         /// <summary>

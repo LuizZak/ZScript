@@ -18,7 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using Antlr4.Runtime;
+
 using ZScript.CodeGeneration.Messages;
 
 namespace ZScript.CodeGeneration
@@ -56,7 +58,7 @@ namespace ZScript.CodeGeneration
         // 
         public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
-            _messageContainer.RegisterSyntaxError(new SyntaxError(line, charPositionInLine, msg) { Token = offendingSymbol });
+            _messageContainer.RegisterSyntaxError(new SyntaxError(offendingSymbol, line, charPositionInLine, msg));
         }
     }
 }

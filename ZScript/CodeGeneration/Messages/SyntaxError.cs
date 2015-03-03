@@ -18,6 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using Antlr4.Runtime;
+
 namespace ZScript.CodeGeneration.Messages
 {
     /// <summary>
@@ -28,11 +31,13 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Initializes a new instance of the SyntaxError class
         /// </summary>
+        /// <param name="token">The token in which the syntax error occurred</param>
         /// <param name="line">The line the error occurred at</param>
         /// <param name="column">The offset in the line the error occurred at</param>
         /// <param name="message">The message for the error</param>
-        public SyntaxError(int line, int column, string message)
+        public SyntaxError(IToken token, int line, int column, string message)
         {
+            Token = token;
             Column = column;
             Line = line;
             Message = message;

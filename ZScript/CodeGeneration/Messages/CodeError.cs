@@ -62,13 +62,16 @@ namespace ZScript.CodeGeneration.Messages
         /// <returns>The error message for the specified code error type</returns>
         public static string MessageForErrorType(ErrorCode errorType)
         {
+            string message = "";
+
             switch (errorType)
             {
                 case ErrorCode.UndeclaredDefinition:
-                    return "Trying to access undeclared definition";
-                default:
-                    return "";
+                    message = "Trying to access undeclared definition";
+                    break;
             }
+
+            return message;
         }
     }
 

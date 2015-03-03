@@ -36,18 +36,6 @@ namespace ZScript.CodeGeneration.Messages
         /// <param name="line">The line the error occurred at</param>
         /// <param name="column">The offset in the line the error occurred at</param>
         /// <param name="message">The message for the error</param>
-        public Warning(int line, int column, string message)
-            : this(line, column, message, WarningCode.Undefined)
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the Warning class
-        /// </summary>
-        /// <param name="line">The line the error occurred at</param>
-        /// <param name="column">The offset in the line the error occurred at</param>
-        /// <param name="message">The message for the error</param>
         /// <param name="warningCode">The code for the warning</param>
         public Warning(int line, int column, string message, WarningCode warningCode)
         {
