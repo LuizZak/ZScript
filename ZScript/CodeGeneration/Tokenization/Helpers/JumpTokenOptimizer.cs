@@ -51,8 +51,6 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         public static void OptimizeJumps(IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
             tokens.BindJumpTargets(endJumpTargetInstruction);
-            
-            RemoveSequentialInterrupts(tokens);
 
             // Optimize the jump flow
             bool optimize = true;
@@ -296,28 +294,6 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             tokens.RemoveToken(jmp, newTarget ?? jmp.TargetToken);
 
             return true;
-        }
-
-        /// <summary>
-        /// Removes any multiple trailing Interrupt instructions located at the end of the given list of tokens.
-        /// This operation must be performed before and jump token expansion
-        /// </summary>
-        /// <param name="tokens">The list of tokens to remove the sequential trailing interrupts from</param>
-        private static void RemoveSequentialInterrupts(IntermediaryTokenList tokens)
-        {
-            if (tokens.Count < 2 || tokens[tokens.Count - 1].Instruction != VmInstruction.Interrupt)
-                return;
-
-            while (tokens[tokens.Count - 2].Instruction != VmInstruction.Interrupt)
-            {
-                if (tokens[tokens.Count - 2].Instruction != VmInstruction.Interrupt)
-                {
-                    break;
-                }
-
-                // Remove the token
-                tokens.RemoveToken(tokens[tokens.Count - 2], tokens[tokens.Count - 1]);
-            }
         }
     }
 }
