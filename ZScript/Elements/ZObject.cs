@@ -58,6 +58,8 @@ namespace ZScript.Elements
         /// Checks the type of the given object, raising an exception in case it is not a valid subscripter value for a ZObject
         /// </summary>
         /// <param name="obj">The object to check</param>
+        /// <exception cref="ArgumentException">The given object is not a string type</exception>
+        /// <exception cref="ArgumentNullException">The provided obj argument is null</exception>
         private static void CheckType(object obj)
         {
             if (obj == null)
@@ -65,7 +67,7 @@ namespace ZScript.Elements
 
             if (!(obj is string))
             {
-                throw new Exception("ZObjects can only be indexed with string types");
+                throw new ArgumentException("ZObjects can only be indexed with string types");
             }
         }
 
