@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -1366,6 +1367,48 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.expression());
 
             Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+        }
+
+        #endregion
+
+        #region Exception raising
+
+        /// <summary>
+        /// Tests exception raising during 'this' type resolving with no definition type provider defined
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Trying to resolve a 'this' type with no definition type provider speciifed should result in an exception")]
+        public void TestFailedThisResolvingException()
+        {
+            // Set up the test
+            const string input = "this;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            resolver.ResolveExpression(parser.statement().expression());
+        }
+
+        /// <summary>
+        /// Tests exception raising during 'base' type resolving with no definition type provider defined
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Trying to resolve a 'base' type with no definition type provider speciifed should result in an exception")]
+        public void TestFailedBaseResolvingException()
+        {
+            // Set up the test
+            const string input = "base;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            resolver.ResolveExpression(parser.statement().expression());
         }
 
         #endregion

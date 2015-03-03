@@ -306,6 +306,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the type of a 'this' expression contained within a given context
         /// </summary>
         /// <param name="context">The context containing the 'this' target</param>
+        /// <exception cref="Exception">No definition type provider defined in this expression type resolver</exception>
         /// <returns>The type for the 'this' value</returns>
         public TypeDef ResolveThisType(ParserRuleContext context)
         {
@@ -319,6 +320,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the type of a 'base' expression contained within a given context
         /// </summary>
         /// <param name="context">The context containing the 'base' target</param>
+        /// <exception cref="Exception">No definition type provider defined in this expression type resolver</exception>
         /// <returns>The type for the 'base' value</returns>
         public TypeDef ResolveBaseType(ParserRuleContext context)
         {
