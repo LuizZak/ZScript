@@ -172,7 +172,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.dictionaryLiteral() != null)
             {
                 var expectedAsList = context.ExpectedType as DictionaryTypeDef;
-                if (expectedAsList != null)
+                if (expectedAsList != null && (context.valueAccess() == null || context.valueAccess().arrayAccess() == null))
                 {
                     context.dictionaryLiteral().ExpectedType = expectedAsList;
                 }
