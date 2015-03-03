@@ -290,6 +290,7 @@ namespace ZScript.CodeGeneration
         private RuntimeGenerationContext CreateContext(CodeScope scope)
         {
             var context = new RuntimeGenerationContext(scope, _messageContainer, _typeProvider);
+            context.ContextTypeProvider = new ExpressionTypeResolver(context);
             var definitionTypeProvider = new DefaultDefinitionTypeProvider(context);
 
             // Assign the context
