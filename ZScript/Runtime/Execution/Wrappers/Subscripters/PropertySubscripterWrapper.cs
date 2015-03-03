@@ -26,7 +26,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
     /// <summary>
     /// Wraps a subscripter that binds to a public indexed property of a target object
     /// </summary>
-    public class ProperySubscripterWrapper : ISubscripterWrapper
+    public class PropertySubscripterWrapper : ISubscripterWrapper
     {
         /// <summary>
         /// The object being subscripted
@@ -68,7 +68,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// </summary>
         /// <param name="target">The object to subscript</param>
         /// <param name="property">The indexed property to index with</param>
-        public ProperySubscripterWrapper(object target, PropertyInfo property)
+        public PropertySubscripterWrapper(object target, PropertyInfo property)
         {
             _target = target;
             _property = property;

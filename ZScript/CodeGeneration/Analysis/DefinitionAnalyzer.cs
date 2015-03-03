@@ -230,6 +230,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Enters a scope with the given context binded. If the context is not found, an exception is raised
         /// </summary>
         /// <param name="context">The context to enter</param>
+        /// <exception cref="ArgumentException">The context is not nested in any child code scope of the current code scope</exception>
         void EnterContextScope(ParserRuleContext context)
         {
             // Get the scope on the current scope tree that matches the context
@@ -242,7 +243,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            throw new Exception("Trying to move to analysis context '" + context + "' that was not defined in any children scope");
+            throw new ArgumentException("Trying to move to analysis context '" + context + "' that was not defined in any children scope");
         }
 
         /// <summary>

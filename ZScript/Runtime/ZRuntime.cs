@@ -237,21 +237,6 @@ namespace ZScript.Runtime
 
             var ret = CallFunctionWithMemory(funcDef, localMemory);
 
-            /*MemoryMapper mapper = new MemoryMapper();
-            mapper.AddMemory(_globalMemory);
-            mapper.AddMemory(localMemory);
-
-            _localMemoriesStack.Push(localMemory);
-            _functionStack.Push(funcDef);
-
-            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider));
-            vm.Execute();
-
-            _functionStack.Pop();
-            _localMemoriesStack.Pop();
-
-            mapper.Clear();*/
-
             return ret;
         }
 

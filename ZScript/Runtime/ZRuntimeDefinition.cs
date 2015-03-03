@@ -31,11 +31,6 @@ namespace ZScript.Runtime
     public class ZRuntimeDefinition
     {
         /// <summary>
-        /// The type provider for this runtime definition containing the reference for the collected types
-        /// </summary>
-        private readonly ZTypeProvider _typeProvider;
-
-        /// <summary>
         /// The list of function definitions
         /// </summary>
         private readonly List<ZFunction> _functionDefinitions;
@@ -58,15 +53,7 @@ namespace ZScript.Runtime
         /// <summary>
         /// The list of class definitions
         /// </summary>
-        private readonly List<ZClass> _classDefinitions; 
-
-        /// <summary>
-        /// Gets the type provider for this runtime definition containing the reference for the collected types
-        /// </summary>
-        public ZTypeProvider TypeProvider
-        {
-            get { return _typeProvider; }
-        }
+        private readonly List<ZClass> _classDefinitions;
 
         /// <summary>
         /// Gets an array of all the function definitions stored in this ZRuntimeDefinition
@@ -113,7 +100,6 @@ namespace ZScript.Runtime
         /// </summary>
         public ZRuntimeDefinition()
         {
-            _typeProvider = new ZTypeProvider();
             _functionDefinitions = new List<ZFunction>();
             _closureDefinitions = new List<ZClosureFunction>();
             _exportFunctionDefinitions = new List<ZExportFunction>();
@@ -136,7 +122,10 @@ namespace ZScript.Runtime
         /// <param name="defs">A valid enumerable if ZFunction values</param>
         public void AddFunctionDefs(IEnumerable<ZFunction> defs)
         {
-            _functionDefinitions.AddRange(defs);
+            foreach (var function in defs)
+            {
+                AddFunctionDef(function);
+            }
         }
 
         /// <summary>
@@ -172,7 +161,10 @@ namespace ZScript.Runtime
         /// <param name="definitions">A valid enumerable of global variable definitions</param>
         public void AddGlobalVariables(IEnumerable<GlobalVariable> definitions)
         {
-            _globalVariableDefinitions.AddRange(definitions);
+            foreach (var definition in definitions)
+            {
+                AddGlobalVariable(definition);
+            }
         }
 
         /// <summary>
@@ -194,13 +186,5 @@ namespace ZScript.Runtime
         {
             return _functionDefinitions.Concat(_exportFunctionDefinitions).Concat(_closureDefinitions).ToArray();
         }
-    }
-
-    /// <summary>
-    /// Represents a type provider for a ZRuntime
-    /// </summary>
-    public class ZTypeProvider
-    {
-        
     }
 }

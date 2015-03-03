@@ -145,6 +145,40 @@ namespace ZScriptTests.Runtime
         }
 
         /// <summary>
+        /// Tests error raising when creating same variables on the same class
+        /// </summary>
+        [TestMethod]
+        public void TestDuplicatedFieldError()
+        {
+            const string input = "class DerivedTest { var f1; var f1; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests error raising when creating same methods on the same class
+        /// </summary>
+        [TestMethod]
+        public void TestDuplicatedMethodError()
+        {
+            const string input = "class DerivedTest { func f1() { } func f1() { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+        }
+
+        /// <summary>
         /// Tests error raising when trying to extend a class that does not exists
         /// </summary>
         [TestMethod]

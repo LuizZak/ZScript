@@ -932,37 +932,6 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
-        /// Returns the type that equates to the specified number type
-        /// </summary>
-        /// <param name="type">The type of number to get the type of</param>
-        /// <returns>The type that equates to the specified number type</returns>
-        public static Type GetTypeForNumberType(NumberType type)
-        {
-            switch (type)
-            {
-                case NumberType.Short:
-                    return typeof(short);
-                case NumberType.UShort:
-                    return typeof(ushort);
-                case NumberType.Integer:
-                    return typeof(int);
-                case NumberType.UInteger:
-                    return typeof(uint);
-                case NumberType.Long:
-                    return typeof(long);
-                case NumberType.ULong:
-                    return typeof(ulong);
-                case NumberType.Float:
-                    return typeof(float);
-                case NumberType.Double:
-                    return typeof(double);
-
-                default:
-                    return null;
-            }
-        }
-
-        /// <summary>
         /// Specified the type of a number
         /// </summary>
         public enum NumberType

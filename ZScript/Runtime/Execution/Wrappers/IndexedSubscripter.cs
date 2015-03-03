@@ -150,9 +150,9 @@ namespace ZScript.Runtime.Execution.Wrappers
             var properties = target.GetType().GetProperties();
             foreach (var property in properties)
             {
-                if (property.GetIndexParameters().Length == 1)
+                if (property.GetIndexParameters().Length == 1 && property.GetIndexParameters()[0].ParameterType == subscriptType)
                 {
-                    return new ProperySubscripterWrapper(target, property);
+                    return new PropertySubscripterWrapper(target, property);
                 }
             }
 

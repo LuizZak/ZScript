@@ -135,7 +135,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
         public void TestDictionarySubscripting()
         {
             var dict = new Dictionary<string, object> { {"abc", 10} };
-
+            
             var indexed = IndexedSubscripter.CreateSubscripter(dict, "abc");
 
             Assert.AreEqual(10, indexed.GetValue(), "The dictionary subscripter failed to fetch the expected value");

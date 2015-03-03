@@ -46,7 +46,7 @@ namespace ZScript.Parsing
             */
             if (context.numericAtom() != null)
             {
-                return ParseNumericAtom(context.numericAtom(), context.GetChild(0).GetText() == "-");
+                return ParseNumericAtom(context.numericAtom(), context.ChildCount == 2);
             }
             if (context.T_FALSE() != null)
                 return false;

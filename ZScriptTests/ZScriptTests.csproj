@@ -96,6 +96,7 @@
     <Compile Include="Runtime\Execution\Wrappers\Members\ZObjectMemberTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\MemberWrapperHelperTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\ListSubscripterTests.cs" />
+    <Compile Include="Runtime\Execution\Wrappers\Subscripters\PropertySubscripterWrapperTests.cs" />
     <Compile Include="Runtime\ExportFunctionTests.cs" />
     <Compile Include="Runtime\FunctionAccessTests.cs" />
     <Compile Include="Runtime\MemberTests.cs" />

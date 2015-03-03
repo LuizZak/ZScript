@@ -120,6 +120,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given statement into a list of tokens
         /// </summary>
         /// <param name="statement">The statement to tokenize</param>
+        /// <exception cref="ArgumentException">The statement context contains a statement not recognized by this statement tokenizer</exception>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.StatementContext statement)
         {
             if (statement.expression() != null || statement.assignmentExpression() != null)
@@ -170,7 +171,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 return new IntermediaryTokenList();
             }
 
-            throw new Exception("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
+            throw new ArgumentException("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
         }
 
         #region Statements

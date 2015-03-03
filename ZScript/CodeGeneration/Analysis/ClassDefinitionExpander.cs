@@ -238,31 +238,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The definition to check collisions on</param>
         private void CheckFieldCollisions(ClassDefinition definition)
         {
-            var methods = definition.Fields;
-            var inheritedMethods = definition.GetAllFields(true);
+            var fields = definition.Fields;
+            var inheritedFields = definition.GetAllFields(true);
 
-            for (int i = 0; i < methods.Length; i++)
+            for (int i = 0; i < fields.Length; i++)
             {
-                var method = methods[i];
+                var field = fields[i];
 
-                // Ignore 'base' methods
-                if (method.Name == "base")
-                    continue;
-
-                // Check inner collisions
-                for (int j = i + 1; j < methods.Length; j++)
+                if (inheritedFields.Any(f => f.Name == field.Name))
                 {
-                    if (methods[j].Name == method.Name)
-                    {
-                        var message = "Duplicated field definition '" + method.Name + "'";
-                        _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
-                    }
-                }
-
-                if (inheritedMethods.Any(m => m.Name == method.Name))
-                {
-                    var message = "Duplicated field definition '" + method.Name + "'";
-                    _generationContext.MessageContainer.RegisterError(method.Context, message, ErrorCode.DuplicatedDefinition);
+                    var message = "Duplicated field definition '" + field.Name + "'";
+                    _generationContext.MessageContainer.RegisterError(field.Context, message, ErrorCode.DuplicatedDefinition);
                 }
             }
         }

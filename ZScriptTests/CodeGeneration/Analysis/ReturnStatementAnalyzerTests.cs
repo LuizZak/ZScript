@@ -177,7 +177,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests reporting missing return values on non-void contexts
         /// </summary>
         [TestMethod]
-        public void TestMissingReturnsOnNonVoid()
+        public void TestMissingReturnValueOnNonVoid()
         {
             const string input = "func f() : int { return; }";
             var generator = TestUtils.CreateGenerator(input);
@@ -185,6 +185,20 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingReturnValueOnNonvoid));
+        }
+
+        /// <summary>
+        /// Tests reporting missing return values on non-void contexts
+        /// </summary>
+        [TestMethod]
+        public void TestIncompleteReturnsOnNonVoid()
+        {
+            const string input = "func f() : int { var a = 0; if(a) { return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
         }
 
         /// <summary>

@@ -170,7 +170,23 @@ namespace ZScriptTests.Parsing
             var value2 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
 
             Assert.AreEqual((long)-100, value1, "The numeric constant was not parsed correctly");
-            Assert.AreEqual(-10.0, value2, "The string was not parsed correctly");
+            Assert.AreEqual(-10.0, value2, "The numeric constant was not parsed correctly");
+        }
+
+        [TestMethod]
+        public void TestCompileConstants()
+        {
+            var parser = CreateParser("true false null 'stringyString'");
+
+            var value1 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
+            var value2 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
+            var value3 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
+            var value4 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
+
+            Assert.AreEqual(true, value1, "The 'true' compile-time constant was not parsed correctly");
+            Assert.AreEqual(false, value2, "The 'false' compile-time constant was not parsed correctly");
+            Assert.AreEqual(null, value3, "The 'null' compile-time constant was not parsed correctly");
+            Assert.AreEqual("stringyString", value4, "The stirng compile-time constant was not parsed correctly");
         }
 
         /// <summary>

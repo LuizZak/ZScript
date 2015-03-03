@@ -151,150 +151,431 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #endregion
 
-        #region Implicit casting
+        #region New expression
 
         /// <summary>
-        /// Tests generation of implicit cast operations on expressions containing a non-null ImplicitCastType entry
+        /// Tests generation of a new expression
         /// </summary>
         [TestMethod]
-        public void TestImplicitIntegerCast()
+        public void TestNewExpression()
         {
-            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+            const string message = "The tokens generated for the new expression where not generated as expected";
 
-            const string input = "10";
+            const string input = "new Test(1, 2)";
             var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(null);
 
             var exp = parser.expression();
-
-            // Setup the implicit cast
-            exp.EvaluatedType = TypeDef.IntegerType;
-            exp.ImplicitCastType = TypeDef.FloatType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
             var expectedTokens = new List<Token>
             {
-                TokenFactory.CreateBoxedValueToken(10L),
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
-            };
-
-            Console.WriteLine("Dump of tokens: ");
-            Console.WriteLine("Expected:");
-            TokenUtils.PrintTokens(expectedTokens);
-            Console.WriteLine("Actual:");
-            TokenUtils.PrintTokens(generatedTokens);
-
-            // Assert the tokens where generated correctly
-            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
-        }
-
-        /// <summary>
-        /// Tests non-generation of implicit cast operations on expressions when an expression has an expected type of 'any'
-        /// </summary>
-        [TestMethod]
-        public void TestImplicitAnyCast()
-        {
-            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
-
-            const string input = "10";
-            var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
-
-            var exp = parser.expression();
-
-            // Setup the implicit cast
-            exp.EvaluatedType = TypeDef.IntegerType;
-            exp.ImplicitCastType = TypeDef.AnyType;
-
-            var generatedTokens = tokenizer.TokenizeExpression(exp);
-
-            // Create the expected list
-            var expectedTokens = new List<Token>
-            {
-                TokenFactory.CreateBoxedValueToken(10L)
-            };
-
-            Console.WriteLine("Dump of tokens: ");
-            Console.WriteLine("Expected:");
-            TokenUtils.PrintTokens(expectedTokens);
-            Console.WriteLine("Actual:");
-            TokenUtils.PrintTokens(generatedTokens);
-
-            // Assert the tokens where generated correctly
-            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
-        }
-
-        /// <summary>
-        /// Tests non-generation of implicit cast operations on expressions when an expression is already of the desired type
-        /// </summary>
-        [TestMethod]
-        public void TestNoImplicitCasting()
-        {
-            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
-
-            const string input = "10";
-            var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
-
-            var exp = parser.expression();
-
-            // Setup the implicit cast
-            exp.EvaluatedType = TypeDef.IntegerType;
-            exp.ImplicitCastType = TypeDef.IntegerType;
-
-            var generatedTokens = tokenizer.TokenizeExpression(exp);
-
-            // Create the expected list
-            var expectedTokens = new List<Token>
-            {
-                TokenFactory.CreateBoxedValueToken(10L)
-            };
-
-            Console.WriteLine("Dump of tokens: ");
-            Console.WriteLine("Expected:");
-            TokenUtils.PrintTokens(expectedTokens);
-            Console.WriteLine("Actual:");
-            TokenUtils.PrintTokens(generatedTokens);
-
-            // Assert the tokens where generated correctly
-            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
-        }
-
-        /// <summary>
-        /// Tests implicit casts that have expressions nested within
-        /// </summary>
-        [TestMethod]
-        public void TestNestedImplicitCasting()
-        {
-            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
-
-            const string input = "true ? 1 : 0";
-            var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
-
-            var exp = parser.expression();
-
-            // Setup the implicit cast
-            exp.EvaluatedType = TypeDef.IntegerType;
-            exp.ImplicitCastType = TypeDef.FloatType;
-
-            var generatedTokens = tokenizer.TokenizeExpression(exp);
-
-            // Create the expected list
-            var jtt1 = new JumpTargetToken();
-            var jtt2 = new JumpTargetToken();
-            var expectedTokens = new List<Token>
-            {
-                TokenFactory.CreateBoxedValueToken(true),
-                new JumpToken(jtt1, true, false),
+                TokenFactory.CreateStringToken("Test"),
                 TokenFactory.CreateBoxedValueToken(1L),
-                new JumpToken(jtt2),
-                jtt1,
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.New),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Assignment expression
+
+        /// <summary>
+        /// Tests generation of an assignment expression within an expression
+        /// </summary>
+        [TestMethod]
+        public void TestAssignmentExpression()
+        {
+            const string message = "The tokens generated for the assignment expression where not generated as expected";
+
+            const string input = "(a = 2 + 2)";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a nested assignment expression
+        /// </summary>
+        [TestMethod]
+        public void TestSequentialAssignment()
+        {
+            const string message = "The tokens generated for the assignment expression where not generated as expected";
+
+            const string input = "(a = b = c)";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("c", true),
+                TokenFactory.CreateVariableToken("b", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a nested assignment expression
+        /// </summary>
+        [TestMethod]
+        public void TestSequentialCompoundAssignment()
+        {
+            const string message = "The tokens generated for the assignment expression where not generated as expected";
+
+            const string input = "(a += b -= c)";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            /*
+                0000000: a
+                0000001: Duplicate
+                0000002: b
+                0000003: Duplicate
+                0000004: c
+                0000005: Swap
+                0000006: Subtract
+                0000007: Swap
+                0000008: Set
+                0000009: Swap
+                0000010: Add
+                0000011: Swap
+                0000012: Set
+            */
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateVariableToken("b", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateVariableToken("c", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap),
+                TokenFactory.CreateOperatorToken(VmInstruction.Subtract),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateInstructionToken(VmInstruction.Swap),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Left Value expression
+
+        /// <summary>
+        /// Tests generation of a left value expression which has a field access
+        /// </summary>
+        [TestMethod]
+        public void TestLeftValueFieldAccess()
+        {
+            const string message = "The tokens generated for the left value where not generated as expected";
+
+            const string input = "a.b.c++";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a left value expression which has a function access
+        /// </summary>
+        [TestMethod]
+        public void TestLeftValueFunctionAccess()
+        {
+            const string message = "The tokens generated for the left value where not generated as expected";
+
+            const string input = "a().b().c++";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a left value expression which has a function access
+        /// </summary>
+        [TestMethod]
+        public void TestLeftValueArrayAccess()
+        {
+            const string message = "The tokens generated for the left value where not generated as expected";
+
+            const string input = "a[0].b()[0]++";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
                 TokenFactory.CreateBoxedValueToken(0L),
-                jtt2,
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Ternary/binary/unary/prefix/postfix
+
+        #region Prefix/postfix
+
+        /// <summary>
+        /// Tests generation of a decrement prefix operation
+        /// </summary>
+        [TestMethod]
+        public void TestDecrementPrefixOpertion()
+        {
+            const string message = "The tokens generated for the prefix decrement expression where not generated as expected";
+
+            const string input = "--a";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPrefix),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a increment prefix operation
+        /// </summary>
+        [TestMethod]
+        public void TestIncrementPrefixOpertion()
+        {
+            const string message = "The tokens generated for the prefix increment expression where not generated as expected";
+
+            const string input = "++a";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPrefix),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a decrement postfix operation
+        /// </summary>
+        [TestMethod]
+        public void TestDecrementPostixOpertion()
+        {
+            const string message = "The tokens generated for the postfix decrement expression where not generated as expected";
+
+            const string input = "a--";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateOperatorToken(VmInstruction.DecrementPostfix),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a increment postfix operation
+        /// </summary>
+        [TestMethod]
+        public void TestIncrementPostfixOpertion()
+        {
+            const string message = "The tokens generated for the postfix increment expression where not generated as expected";
+
+            const string input = "a++";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -469,7 +750,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TokenUtils.PrintTokens(expectedTokens);
             Console.WriteLine("Actual:");
             TokenUtils.PrintTokens(generatedTokens);
-            
+
             // Assert the tokens where generated correctly
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
@@ -491,6 +772,400 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
             Assert.AreEqual(3L, memory.GetVariable("d"), "Ternary operator did not behave as expected");
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests generation of an expression that is parenthesized
+        /// </summary>
+        [TestMethod]
+        public void TestParenthesizedExpression()
+        {
+            const string message = "The tokens generated for the parenthesized expression where not generated as expected";
+
+            const string input = "((5 + 5) * (((7))))";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(5L),
+                TokenFactory.CreateBoxedValueToken(5L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateBoxedValueToken(7L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Multiply),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of an expression that is parenthesized and is followed by an access
+        /// </summary>
+        [TestMethod]
+        public void TestParenthesizedExpressionAccess()
+        {
+            const string message = "The tokens generated for the parenthesized expression access where not generated as expected";
+
+            const string input = "(('' + '').Length)";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateStringToken(""),
+                TokenFactory.CreateStringToken(""),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateMemberNameToken("Length"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of an arithmetic negate operation
+        /// </summary>
+        [TestMethod]
+        public void TestArithmeticNegate()
+        {
+            const string message = "The tokens generated for the arithmetic negate expression where not generated as expected";
+
+            const string input = "-a";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateOperatorToken(VmInstruction.ArithmeticNegate),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of a logical negate operation
+        /// </summary>
+        [TestMethod]
+        public void TestLogicalNegate()
+        {
+            const string message = "The tokens generated for the logical negate expression where not generated as expected";
+
+            const string input = "!a";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", false),
+                TokenFactory.CreateOperatorToken(VmInstruction.LogicalNegate),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Implicit casting
+
+        /// <summary>
+        /// Tests generation of implicit cast operations on expressions containing a non-null ImplicitCastType entry
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitIntegerCast()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.FloatType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests non-generation of implicit cast operations on expressions when an expression has an expected type of 'any'
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitAnyCast()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.AnyType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests non-generation of implicit cast operations on expressions when an expression is already of the desired type
+        /// </summary>
+        [TestMethod]
+        public void TestNoImplicitCasting()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.IntegerType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests implicit casts that have expressions nested within
+        /// </summary>
+        [TestMethod]
+        public void TestNestedImplicitCasting()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "true ? 1 : 0";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.IntegerType;
+            exp.ImplicitCastType = TypeDef.FloatType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jtt1 = new JumpTargetToken();
+            var jtt2 = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(true),
+                new JumpToken(jtt1, true, false),
+                TokenFactory.CreateBoxedValueToken(1L),
+                new JumpToken(jtt2),
+                jtt1,
+                TokenFactory.CreateBoxedValueToken(0L),
+                jtt2,
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, exp.ImplicitCastType),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Array literal
+
+        /// <summary>
+        /// Tests tokenization of an array literal literal
+        /// </summary>
+        [TestMethod]
+        public void TestArrayLiteral()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[0, 1, 2]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.arrayLiteral().EvaluatedValueType = typeof(long);
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(3),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long))
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests tokenization of an empty array literal
+        /// </summary>
+        [TestMethod]
+        public void TestEmptyArrayLiteral()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.arrayLiteral().EvaluatedValueType = typeof(long);
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long))
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests exception raising when tokenizing an array literal with no EvaluatedValueType set
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse an array that has a null EvaluatedValueType should raise an InvalidOperationException")]
+        public void TestArrayMissingValueKeyException()
+        {
+            const string input = "[0, 1, 2]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            tokenizer.TokenizeExpression(exp);
         }
 
         #endregion
@@ -538,9 +1213,172 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
+        /// <summary>
+        /// Tests tokenization of an empty dictionary literal
+        /// </summary>
+        [TestMethod]
+        public void TestEmptyDictionaryLiteral()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[:]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
+            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { typeof(long), typeof(string) })
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests tokenization of a dictionary literal followed by a subscript access
+        /// </summary>
+        [TestMethod]
+        public void TestSubscriptDictionaryLiteral()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[0:'abc', 1:'def'][0]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
+            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateStringToken("abc"),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateStringToken("def"),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { typeof(long), typeof(string) }),
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests tokenization of a dictionary literal followed by a member access
+        /// </summary>
+        [TestMethod]
+        public void TestMemberAccessDictionaryLiteral()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[0:'abc', 1:'def'].Count";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
+            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateStringToken("abc"),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateStringToken("def"),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { typeof(long), typeof(string) }),
+                TokenFactory.CreateMemberNameToken("Count"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests exception raising when tokenizing a dictionary literal with no EvaluatedKeyType set
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse a dictionary that has a null EvaluatedKeyType should raise an InvalidOperationException")]
+        public void TestDictionaryMissingKeyTypeException()
+        {
+            const string input = "[0:'abc', 1:'def']";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+
+            tokenizer.TokenizeExpression(exp);
+        }
+
+        /// <summary>
+        /// Tests exception raising when tokenizing a dictionary literal with no EvaluatedValueType set
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse a dictionary that has a null EvaluatedValueType should raise an InvalidOperationException")]
+        public void TestDictionaryMissingValueTypeException()
+        {
+            const string input = "[0:'abc', 1:'def']";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(null);
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteral().EvaluatedKeyType = typeof(string);
+
+            tokenizer.TokenizeExpression(exp);
+        }
+
         #endregion
 
-        #region cast instruction and 'is' operator
+        #region Cast instruction and 'is' operator
 
         /// <summary>
         /// Tests generation of cast operation

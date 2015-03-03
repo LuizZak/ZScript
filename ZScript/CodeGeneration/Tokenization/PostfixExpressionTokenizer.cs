@@ -165,6 +165,8 @@ namespace ZScript.CodeGeneration.Tokenization
                 }
                 else if (context.assignmentExpression() != null)
                 {
+                    _isRootMember = true;
+
                     VisitAssignmentExpression(context.assignmentExpression());
                 }
 
@@ -185,6 +187,8 @@ namespace ZScript.CodeGeneration.Tokenization
                 }
                 else if (context.assignmentExpression() != null)
                 {
+                    _isRootMember = true;
+
                     VisitAssignmentExpression(context.assignmentExpression());
                 }
 
