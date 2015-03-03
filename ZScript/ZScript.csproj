@@ -167,7 +167,6 @@
     <Compile Include="Runtime\Typing\Operators\FloatOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\IntegerOperator.cs" />
     <Compile Include="Runtime\Typing\Operators\LongOperator.cs" />
-    <Compile Include="Runtime\Typing\TypeFactory.cs" />
     <Compile Include="Runtime\Typing\TypeOperationProvider.cs" />
     <Compile Include="Runtime\Typing\TypeProvider.cs" />
     <Compile Include="Runtime\ZClassInstance.cs" />
