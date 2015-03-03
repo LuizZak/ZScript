@@ -840,6 +840,7 @@ namespace ZScript.Runtime.Execution
         /// The object must either be a boxed token containing a variable name from memory, FieldInfo or PropertyInfo
         /// </summary>
         /// <param name="valueContainer">The value containing the object to get</param>
+        /// <exception cref="VirtualMachineException">The value container cannot have its value get</exception>
         object GetValue(object valueContainer)
         {
             var token = valueContainer as Token;
@@ -857,7 +858,7 @@ namespace ZScript.Runtime.Execution
                 return valueHolder.GetValue();
             }
 
-            throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value get");
+            throw new VirtualMachineException("Unexpected variable '" + valueContainer + "' that cannot have its value get");
         }
 
         /// <summary>
@@ -866,6 +867,7 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="valueContainer">The value containing the object to get</param>
         /// <param name="value">The value to set</param>
+        /// <exception cref="VirtualMachineException">The value container cannot have its value set</exception>
         void SetValue(object valueContainer, object value)
         {
             var token = valueContainer as Token;
@@ -885,8 +887,8 @@ namespace ZScript.Runtime.Execution
                 valueHolder.SetValue(value);
                 return;
             }
-            
-            throw new Exception("Unexpected variable '" + valueContainer + "' that cannot have its value set");
+
+            throw new VirtualMachineException("Unexpected variable '" + valueContainer + "' that cannot have its value set");
         }
 
         /// <summary>
@@ -939,6 +941,30 @@ namespace ZScript.Runtime.Execution
             Double,
             /// <summary>An unspecified numeric type</summary>
             Unspecified
+        }
+    }
+
+    /// <summary>
+    /// Represents a general virtual machine exception
+    /// </summary>
+    public class VirtualMachineException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the VirtualMachineException class
+        /// </summary>
+        /// <param name="message">The message for the exception</param>
+        public VirtualMachineException(string message)
+            : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instnace of the VirtualMachineException class
+        /// </summary>
+        /// <param name="message">The message for the exception</param>
+        /// <param name="innerException">The inner exception for this exception</param>
+        public VirtualMachineException(string message, Exception innerException) : base(message, innerException)
+        {
         }
     }
 
