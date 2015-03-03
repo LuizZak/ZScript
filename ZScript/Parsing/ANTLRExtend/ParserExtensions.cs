@@ -216,6 +216,38 @@ public partial class ZScriptParser
     }
 
     /// <summary>
+    /// Provides extensions to the WhileStatementContext for providing constant evaluation flagging
+    /// </summary>
+    partial class WhileStatementContext
+    {
+        /// <summary>
+        /// Gets or sets a value specifying whether the evaluation of this WHILE statement is constant
+        /// </summary>
+        public bool IsConstant { get; set; }
+
+        /// <summary>
+        /// Gets or sets the constant value that is always evaluated for the WHILE statement
+        /// </summary>
+        public bool ConstantValue { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the ForConditionContext for providing constant evaluation flagging
+    /// </summary>
+    partial class ForConditionContext
+    {
+        /// <summary>
+        /// Gets or sets a value specifying whether the evaluation of this FOR condition expression is constant
+        /// </summary>
+        public bool IsConstant { get; set; }
+
+        /// <summary>
+        /// Gets or sets the constant value that is always evaluated for the FOR condition expression
+        /// </summary>
+        public bool ConstantValue { get; set; }
+    }
+
+    /// <summary>
     /// Provides extensions to the SwitchStatementContext for providing constant evaluation flagging
     /// </summary>
     partial class SwitchStatementContext
@@ -230,6 +262,12 @@ public partial class ZScriptParser
         /// If the value is -1, no case is executed ever, and the switch always falls to the default case, if it exists
         /// </summary>
         public int ConstantCaseIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets the case that will always be executed, if the <see cref="IsConstant"/> flag is set to true.
+        /// If the value is null, no case is executed ever, and the switch always falls to the default case, if it exists
+        /// </summary>
+        public CaseBlockContext ConstanteCase { get; set; }
     }
 
     /// <summary>

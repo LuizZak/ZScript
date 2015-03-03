@@ -34,12 +34,147 @@ namespace ZScriptTests.CodeGeneration.Analysis
     public class ReturnStatementAnalyzerTests
     {
         /// <summary>
+        /// Tests reporting complete return paths on constant IF statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantIf()
+        {
+            const string input = "func f() : int { if(true) { return 10; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant ELSE IF statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantElseIf()
+        {
+            const string input = "func f() : int { if(false) { } else if(true) { return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant ELSE statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantElse()
+        {
+            const string input = "func f() : int { if(false) { } else { return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant while statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantWhile()
+        {
+            const string input = "func f() : int { while(true) { return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant for statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFor()
+        {
+            const string input = "func f() : int { for(;;) { return 0; } } func f1() : int { for(;true;) { return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting incomplete return paths on constant for statements which have a flow break statement within
+        /// </summary>
+        [TestMethod]
+        public void TestFailedConstantForWithBreak()
+        {
+            const string input = "func f() : int { for(;;) { return 0; } } func f1() : int { for(;true;) { break; return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant switch case labels
+        /// </summary>
+        [TestMethod]
+        public void TestConstantSwitchCase()
+        {
+            const string input = "func f() : int { switch(10) { case 10: return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant switch case label that fallsthrough another case label with a return statement within
+        /// </summary>
+        [TestMethod]
+        public void TestConstantSwitchCaseFallthrough()
+        {
+            const string input = "func f() : int { switch(10) { case 10: case 11: return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on constant switch default labels
+        /// </summary>
+        [TestMethod]
+        public void TestConstantSwitchDefault()
+        {
+            const string input = "func f() : int { switch(10) { default: return 0; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
         /// Tests reporting partial return paths on IF statements
         /// </summary>
         [TestMethod]
         public void TestIfMissingReturnPaths()
         {
-            const string input = "func f() { if(true) { return 10; } else { } }";
+            const string input = "func f() : int { var a = true; if(a) { return 10; } else { } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -53,7 +188,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestComplexIfMissingReturnPaths()
         {
-            const string input = "func f() { if(true) { return 10; } else if(true) { } else { return 10; } }";
+            const string input = "func f() : int { var a = true; if(a) { return 10; } else if(a) { } else { return 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -67,7 +202,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingIfReturnPaths()
         {
-            const string input = "func f() : int { if(true) { return 10; } else if(true) { return 5; } else { return 10; } }";
+            const string input = "func f() : int { var a = true; if(a) { return 10; } else if(a) { return 5; } else { return 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -81,7 +216,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestSwitchMissingReturnPaths()
         {
-            const string input = "func f() { switch(10) { case 10: return 10; case 11: return 11; } }";
+            const string input = "func f() : int { var a = 10; switch(a) { case 10: return 10; case 11: return 11; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -95,7 +230,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestSwitchFallthroughMissingReturnPaths()
         {
-            const string input = "func f() { switch(10) { case 9: break; case 10: case 11: return 11; } }";
+            const string input = "func f() : int { var a = 10; switch(a) { case 9: break; case 10: case 11: return 11; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -109,7 +244,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingSwitchReturnPaths()
         {
-            const string input = "func f() : int { switch(10) { case 10: return 10; case 11: return 11; default: return 11; } }";
+            const string input = "func f() : int { var a = 10; switch(a) { case 10: return 10; case 11: return 11; default: return 11; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -123,7 +258,21 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingSwitchFallthroughReturnPaths()
         {
-            const string input = "func f() : int { switch(10) { case 9: break; case 10: case 11: return 11; default: return 11; } }";
+            const string input = "func f() : int { var a = 10; switch(a) { case 9: break; case 10: case 11: return 11; default: return 11; } }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests complete return paths on SWITCH statements with case fallthrough that falls to the default case
+        /// </summary>
+        [TestMethod]
+        public void TestWorkingSwitchFallthroughToDefaultReturnPaths()
+        {
+            const string input = "func f() : int { var a = 10; switch(a) { case 9: break; case 10: case 11: default: return 11; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -137,10 +286,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingEarlyReturns()
         {
-            const string input = "func f() { if(true) { return; } }";
+            const string input = "func f() { var a = true; if(a) { return; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
         }
@@ -151,7 +302,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestFailedEarlyReturns()
         {
-            const string input = "func f() { if(true) { return 10; } }";
+            const string input = "func f() { var a = true; if(a) { return 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -165,7 +316,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestInconsistentReturns()
         {
-            const string input = "func f() { if(true) { return 10; } else { return; } }";
+            const string input = "func f() { var a = true; if(a) { return 10; } else { return; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -193,7 +344,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestIncompleteReturnsOnNonVoid()
         {
-            const string input = "func f() : int { var a = 0; if(a) { return 0; } }";
+            const string input = "func f() : int { var a = false; if(a) { return 0; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();

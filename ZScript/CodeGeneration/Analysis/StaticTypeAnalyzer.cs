@@ -139,6 +139,8 @@ namespace ZScript.CodeGeneration.Analysis
                 ExpandValueHolderDefinition(valueHolderDefinition);
             }
 
+            ProcessStatements(_baseScope);
+
             // Verify return types now
             foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => d.BodyContext != null && !(d is ClosureDefinition)))
             {
@@ -153,18 +155,35 @@ namespace ZScript.CodeGeneration.Analysis
                 ExpandClosureDefinition(definition);
             }
 
-            ProcessExpressions(_baseScope, true);
+            ProcessExpressions(_baseScope, ExpressionAnalysisMode.ExpressionResolving);
+        }
+
+        /// <summary>
+        /// Performs analysis of constant resolving of statements in a given code scope
+        /// </summary>
+        /// <param name="scope">The code scope to process expressions on</param>
+        private void ProcessStatements(CodeScope scope)
+        {
+            var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
+            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, ExpressionAnalysisMode.ConstantStatementAnalysis);
+            var definitions = scope.Definitions;
+
+            foreach (var definition in definitions)
+            {
+                if (definition.Context != null)
+                    traverser.Traverse(definition.Context);
+            }
         }
 
         /// <summary>
         /// Performs deeper analysis of types by exploring expression nodes and deriving their types, as well as pre-evaluating any constants
         /// </summary>
         /// <param name="scope">The code scope to process expressions on</param>
-        /// <param name="valueHoldersOnly">Whether to only process value holders during the pass</param>
-        private void ProcessExpressions(CodeScope scope, bool valueHoldersOnly = false)
+        /// <param name="analysisMode">The mode of the analysis pass to perform</param>
+        private void ProcessExpressions(CodeScope scope, ExpressionAnalysisMode analysisMode = ExpressionAnalysisMode.Complete)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, valueHoldersOnly);
+            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, analysisMode);
             var definitions = scope.Definitions;
 
             foreach (var definition in definitions)
@@ -314,10 +333,10 @@ namespace ZScript.CodeGeneration.Analysis
 
                     if (!TypeProvider.CanImplicitCast(type, definition.ReturnType))
                     {
-                        var message = "Cannot implicitly convert return value type " + type +
-                                      ", function expects return type of " + definition.ReturnType;
-                        Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message,
-                            ErrorCode.InvalidCast, definition.Context);
+                        var target = statement.expression();
+
+                        var message = "Cannot implicitly convert return value type " + type + ", function expects return type of " + definition.ReturnType;
+                        Container.RegisterError(target.Start.Line, target.Start.Column, message, ErrorCode.InvalidCast, target);
                     }
                 }
             }
@@ -428,21 +447,21 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly ExpressionConstantResolver _constantResolver;
 
             /// <summary>
-            /// Whether to only evaluate value holder statements during the pass
+            /// The type of analysis to perform when using this expression statements traverser
             /// </summary>
-            private readonly bool _valueHoldersOnly;
+            private readonly ExpressionAnalysisMode _analysisMode;
 
             /// <summary>
             /// Initializes a new instance of the ExpressionStatementsTraverser class
             /// </summary>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            /// <param name="valueHoldersOnly">Whether to only evaluate value holder statements during the pass</param>
-            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver, bool valueHoldersOnly)
+            /// <param name="analysisMode">The type of analysis to perform when using this expression statements traverser</param>
+            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver, ExpressionAnalysisMode analysisMode)
             {
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
-                _valueHoldersOnly = valueHoldersOnly;
+                _analysisMode = analysisMode;
             }
 
             /// <summary>
@@ -549,10 +568,10 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterIfStatement(ZScriptParser.IfStatementContext context)
             {
-                if (_valueHoldersOnly)
+                if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
                     return;
 
-                var analyzer = new IfStatementAnalyzer(context, _typeResolver, _constantResolver);
+                var analyzer = new IfStatementAnalyzer(context, _typeResolver, _constantResolver, _analysisMode);
                 analyzer.Process();
             }
 
@@ -561,19 +580,30 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterWhileStatement(ZScriptParser.WhileStatementContext context)
             {
-                if (_valueHoldersOnly)
-                    return;
-
                 var provider = _typeResolver.TypeProvider;
 
                 // Check if expression has a boolean type
-                if (!provider.CanImplicitCast(_typeResolver.ResolveExpression(context.expression()), provider.BooleanType()))
-                {
-                    const string message = "Expressions on while conditions must be of boolean type";
-                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
-                }
+                var expression = context.expression();
+                var expType = _typeResolver.ResolveExpression(expression);
 
-                _constantResolver.ExpandConstants(context.expression());
+                _constantResolver.ExpandConstants(expression);
+
+                if (!provider.CanImplicitCast(expType, provider.BooleanType()))
+                {
+                    if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
+                        return;
+
+                    const string message = "Expressions on while conditions must be of boolean type";
+                    _typeResolver.MessageContainer.RegisterError(expression, message, ErrorCode.InvalidCast);
+                }
+                else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
+                {
+                    if (!_analysisMode.HasFlag(ExpressionAnalysisMode.ConstantStatementAnalysis))
+                        return;
+
+                    context.IsConstant = true;
+                    context.ConstantValue = expression.ConstantValue.Equals(true);
+                }
             }
 
             // 
@@ -581,10 +611,10 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
             {
-                if (_valueHoldersOnly)
+                if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
                     return;
                 
-                var analyzer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver);
+                var analyzer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver, _analysisMode);
                 analyzer.Process();
             }
 
@@ -593,7 +623,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterForInit(ZScriptParser.ForInitContext context)
             {
-                if (_valueHoldersOnly)
+                if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
                     return;
 
                 // For loops can ommit the init expression
@@ -609,25 +639,33 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterForCondition(ZScriptParser.ForConditionContext context)
             {
-                if (_valueHoldersOnly)
-                    return;
-
                 // For loops can ommit the condition expression
-                if (context.expression() == null)
+                var expression = context.expression();
+                if (expression == null)
                     return;
 
                 var provider = _typeResolver.TypeProvider;
 
                 // Check if expression has a boolean type
-                var conditionType = _typeResolver.ResolveExpression(context.expression());
+                var conditionType = _typeResolver.ResolveExpression(expression);
+                _constantResolver.ExpandConstants(expression);
 
                 if (!provider.CanImplicitCast(conditionType, provider.BooleanType()))
                 {
-                    const string message = "Expression on for condition must be boolean";
-                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.InvalidCast);
-                }
+                    if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
+                        return;
 
-                _constantResolver.ExpandConstants(context.expression());
+                    const string message = "Expression on for condition must be boolean";
+                    _typeResolver.MessageContainer.RegisterError(expression, message, ErrorCode.InvalidCast);
+                }
+                else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
+                {
+                    if (!_analysisMode.HasFlag(ExpressionAnalysisMode.ConstantStatementAnalysis))
+                        return;
+
+                    context.IsConstant = true;
+                    context.ConstantValue = expression.ConstantValue.Equals(true);
+                }
             }
 
             // 
@@ -635,7 +673,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterForIncrement(ZScriptParser.ForIncrementContext context)
             {
-                if (_valueHoldersOnly)
+                if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
                     return;
 
                 // For loops can ommit the increment expression
@@ -645,6 +683,21 @@ namespace ZScript.CodeGeneration.Analysis
                 _typeResolver.ResolveExpression(context.expression());
                 _constantResolver.ExpandConstants(context.expression());
             }
+        }
+
+        /// <summary>
+        /// Speifies the type of analysis to perform on a run of the expression traverser
+        /// </summary>
+        public enum ExpressionAnalysisMode
+        {
+            /// <summary>Specifies basic expression resolving</summary>
+            ExpressionResolving = 0x1 << 0,
+            /// <summary>Specifies statement expression analysis</summary>
+            StatementAnalysis = 0x1 << 1,
+            /// <summary>Specifies an analysis which tests whether statements have compile-time constant resolving</summary>
+            ConstantStatementAnalysis = 0x1 << 2,
+            /// <summary>Specifies a complete analysis</summary>
+            Complete = 0xFFFF
         }
 
         /// <summary>
@@ -678,16 +731,25 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly List<ZScriptParser.CaseBlockContext> _processedCases;
 
             /// <summary>
+            /// The analysis mode to perform on this statement analyzer
+            /// </summary>
+            private readonly ExpressionAnalysisMode _analysisMode;
+
+            /// <summary>
             /// Initializes a new instance of the SwitchCaseExplorer class
             /// </summary>
             /// <param name="switchContext">The context containing the statement to process</param>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            public SwitchCaseAnalyzer(ZScriptParser.SwitchStatementContext switchContext, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            /// <param name="analysisMode">The analysis mode to perform on this statement analyzer</param>
+            public SwitchCaseAnalyzer(ZScriptParser.SwitchStatementContext switchContext,
+                ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver,
+                ExpressionAnalysisMode analysisMode)
             {
                 _switchContext = switchContext;
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
+                _analysisMode = analysisMode;
                 _processedCases = new List<ZScriptParser.CaseBlockContext>();
             }
 
@@ -736,6 +798,9 @@ namespace ZScript.CodeGeneration.Analysis
                     return;
                 }
 
+                if (!_analysisMode.HasFlag(ExpressionAnalysisMode.ConstantStatementAnalysis))
+                    return;
+
                 var varName = _switchContext.valueHolderDecl() == null ? null : _switchContext.valueHolderDecl().valueHolderName().GetText();
 
                 foreach (var caseContext in _processedCases)
@@ -755,6 +820,9 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             private void AnalyzeConstantSwitch()
             {
+                if (!_analysisMode.HasFlag(ExpressionAnalysisMode.ConstantStatementAnalysis))
+                    return;
+
                 var expression = _switchContext.expression() ?? _switchContext.valueHolderDecl().expression();
 
                 if (expression == null || !expression.IsConstant)
@@ -789,6 +857,7 @@ namespace ZScript.CodeGeneration.Analysis
                         {
                             _switchContext.IsConstant = true;
                             _switchContext.ConstantCaseIndex = i;
+                            _switchContext.ConstanteCase = caseContext;
                         }
 
                         matched = true;
@@ -805,6 +874,7 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     _switchContext.IsConstant = true;
                     _switchContext.ConstantCaseIndex = -1;
+                    _switchContext.ConstanteCase = null;
 
                     var target = _switchContext.expression() ?? (ParserRuleContext)_switchContext.valueHolderDecl();
 
@@ -871,6 +941,11 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly ExpressionConstantResolver _constantResolver;
 
             /// <summary>
+            /// The analysis mode to perform on this statement analyzer
+            /// </summary>
+            private readonly ExpressionAnalysisMode _analysisMode;
+
+            /// <summary>
             /// The context for the statement to analyze
             /// </summary>
             private readonly ZScriptParser.IfStatementContext _ifContext;
@@ -881,11 +956,14 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="ifContext">The context containing the statement to process</param>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            public IfStatementAnalyzer(ZScriptParser.IfStatementContext ifContext, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            /// <param name="analysisMode">The analysis mode to perform on this statement analyzer</param>
+            public IfStatementAnalyzer(ZScriptParser.IfStatementContext ifContext, ExpressionTypeResolver typeResolver,
+                ExpressionConstantResolver constantResolver, ExpressionAnalysisMode analysisMode)
             {
                 _ifContext = ifContext;
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
+                _analysisMode = analysisMode;
             }
 
             /// <summary>
@@ -908,6 +986,9 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
                 {
+                    if (!_analysisMode.HasFlag(ExpressionAnalysisMode.ConstantStatementAnalysis))
+                        return;
+
                     _ifContext.IsConstant = true;
                     _ifContext.ConstantValue = expression.ConstantValue.Equals(true);
 

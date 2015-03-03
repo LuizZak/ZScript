@@ -535,7 +535,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
         
         /// <summary>
-        /// Tsts checking constant condition expressions on if statements
+        /// Tests checking constant condition expressions on if statements
         /// </summary>
         [TestMethod]
         public void TestConstantIfStatementChecking()

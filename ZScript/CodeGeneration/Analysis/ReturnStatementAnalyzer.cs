@@ -32,6 +32,11 @@ namespace ZScript.CodeGeneration.Analysis
     public class ReturnStatementAnalyzer
     {
         /// <summary>
+        /// Whether to enable constant statements resolving
+        /// </summary>
+        private readonly bool _constantStatements = false;
+
+        /// <summary>
         /// List of all the return statements of the currently processed function
         /// </summary>
         private List<ZScriptParser.ReturnStatementContext> _returnStatements;
@@ -141,7 +146,7 @@ namespace ZScript.CodeGeneration.Analysis
             var block = context.blockStatement();
             var state = AnalyzeBlockStatement(block);
 
-            if (state == ReturnStatementState.Partial)
+            if (state == ReturnStatementState.Partial && !func.IsVoid)
             {
                 Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
                     "Not all code paths of function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
@@ -270,14 +275,31 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private ReturnStatementState AnalyzeIfStatement(ZScriptParser.IfStatementContext context)
         {
-            // If's are always partial
-            var state = AnalyzeStatement(context.statement());
-
             var elseStatement = context.elseStatement();
+            
+            // Constant ifs simply return the state of the statements within; the result is only NotPresent if an else is not present
+            if (_constantStatements && context.IsConstant)
+            {
+                if (context.ConstantValue)
+                {
+                    return AnalyzeStatement(context.statement());
+                }
+                if(elseStatement != null)
+                {
+                    return AnalyzeStatement(elseStatement.statement());
+                }
 
+                return ReturnStatementState.NotPresent;
+            }
+            
+            // If's start with their state set as the nested statement, and the
+            // final type resolving depends on whether there is an else clause.
+            var state = AnalyzeStatement(context.statement());            
+
+            // In case of missing else clauses, the return is either partial if it is 
             if (elseStatement == null)
             {
-                return state == ReturnStatementState.Partial ? state : ReturnStatementState.NotPresent;
+                return MergeReturnStates(state, ReturnStatementState.NotPresent);
             }
 
             state = MergeReturnStates(state, AnalyzeStatement(elseStatement.statement()));
@@ -290,7 +312,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private ReturnStatementState AnalyzeWhileStatement(ZScriptParser.WhileStatementContext context)
         {
-            // If's are always partial
+            // Constant whiles simply return the state of the statements within
+            if (_constantStatements && context.IsConstant)
+            {
+                if (context.ConstantValue)
+                {
+                    return AnalyzeStatement(context.statement());
+                }
+
+                return ReturnStatementState.NotPresent;
+            }
+
             var state = AnalyzeStatement(context.statement());
 
             // Loop statements are always partial
@@ -302,7 +334,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private ReturnStatementState AnalyzeForStatement(ZScriptParser.ForStatementContext context)
         {
-            // If's are always partial
+            // Constant whiles simply return the state of the statements within
+            if (_constantStatements && (context.forCondition() == null || context.forCondition().IsConstant))
+            {
+                if (context.forCondition() == null || (context.forCondition().IsConstant && context.forCondition().ConstantValue))
+                {
+                    return AnalyzeStatement(context.statement());
+                }
+
+                return ReturnStatementState.NotPresent;
+            }
+            
             var state = AnalyzeStatement(context.statement());
 
             // Loop statements are always partial
@@ -318,6 +360,16 @@ namespace ZScript.CodeGeneration.Analysis
             var cases = block.caseBlock();
             var def = block.defaultBlock();
 
+            // Constant switch case
+            // TODO: Continue implementing constant switch resolving
+            if (_constantStatements && context.IsConstant)
+            {
+                if (context.ConstantCaseIndex > -1)
+                {
+                    
+                }
+            }
+
             var state = ReturnStatementState.DoesNotApply;
             foreach (var cbc in cases)
             {
@@ -327,6 +379,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
+            // Default case: if it's present, merge the returns
             if (def != null)
             {
                 foreach (var statementContext in def.statement())
