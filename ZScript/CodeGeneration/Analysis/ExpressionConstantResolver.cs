@@ -145,6 +145,14 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     ResolveArrayLiteral(context.arrayLiteral());
                 }
+                if (context.objectLiteral() != null)
+                {
+                    ResolveObjectLiteral(context.objectLiteral());
+                }
+                if (context.dictionaryLiteral() != null)
+                {
+                    ResolveDictionaryLiteral(context.dictionaryLiteral());
+                }
                 if (context.memberName() != null)
                 {
                     ResolveMemberNameExpression(context);
@@ -252,6 +260,43 @@ namespace ZScript.CodeGeneration.Analysis
             foreach (var expression in context.expressionList().expression())
             {
                 ResolveExpression(expression);
+            }
+        }
+
+        /// <summary>
+        /// Resolves the dictionary literal contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context to analyze</param>
+        void ResolveDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
+        {
+            var entries = context.dictionaryEntryList().dictionaryEntry();
+
+            if (entries.Length == 0)
+                return;
+
+            // Setup the contents of the expression list
+            foreach (var entry in entries)
+            {
+                ResolveExpression(entry.expression(0));
+                ResolveExpression(entry.expression(1));
+            }
+        }
+
+        /// <summary>
+        /// Resolves the object literal contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context to analyze</param>
+        void ResolveObjectLiteral(ZScriptParser.ObjectLiteralContext context)
+        {
+            var entries = context.objectEntryList();
+
+            if (entries == null)
+                return;
+
+            // Setup the contents of the expression list
+            foreach (var entry in entries.objectEntryDefinition())
+            {
+                ResolveExpression(entry.expression());
             }
         }
 

@@ -59,5 +59,24 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual("apples", dict[0], "The runtime failed to create the expected dictionary");
             Assert.AreEqual("oranges", dict[1], "The runtime failed to create the expected dictionary");
         }
+
+        /// <summary>
+        /// Tests execution of dictionary literals
+        /// </summary>
+        [TestMethod]
+        public void TestExecuteImplicitDictionaryLiteral()
+        {
+            const string input = "var dict:[int: float]; func f() { dict = [0: 0]; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(null);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            var dict = (Dictionary<long, double>)memory.GetVariable("dict");
+
+            Assert.AreEqual(0.0, dict[0], "The runtime failed to create the expected dictionary");
+        }
     }
 }
