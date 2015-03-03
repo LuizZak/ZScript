@@ -30,12 +30,12 @@ namespace ZScript.Elements
     /// <summary>
     /// Class used to create Token instances
     /// </summary>
-    public class TokenFactory
+    public static class TokenFactory
     {
         /// <summary>
         /// Token that represents a GET_SUBSCRIPT call
         /// </summary>
-        public readonly Token GetSubscriptToken = new Token(TokenType.Instruction, null, VmInstruction.GetSubscript);
+        public readonly static Token GetSubscriptToken = new Token(TokenType.Instruction, null, VmInstruction.GetSubscript);
 
         /// <summary>
         /// Creates a new token that represents a member name
