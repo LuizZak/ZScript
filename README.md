@@ -1,4 +1,4 @@
-# ZScript  
+![](http://i.imgur.com/YR3ejlH.png)  
 An (once) game scripting programming language implemented in C#.
 
 
