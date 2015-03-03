@@ -122,28 +122,6 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         }
 
         /// <summary>
-        /// Merges the given list of memory objects into a single memory block
-        /// </summary>
-        /// <param name="memories">The memory blocks to merge</param>
-        /// <returns>A merged memory block</returns>
-        public static Memory MergeMemory(params Memory[] memories)
-        {
-            Memory retMemory = new Memory();
-
-            // Merge the memories one by one
-            foreach (Memory mem in memories)
-            {
-                // Merge using the dictionary keys
-                foreach (string key in mem._memory.Keys)
-                {
-                    retMemory._memory[key] = mem._memory[key];
-                }
-            }
-
-            return retMemory;
-        }
-
-        /// <summary>
         /// Creates a Memory block with the given arguments set as memory spaces
         /// </summary>
         /// <param name="def">Definition to be used as base when replacing variables with their names</param>

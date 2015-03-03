@@ -243,6 +243,8 @@ namespace ZScriptTests.Runtime
 
             // Expands the global variables
             runtime.ExpandGlobalVariables();
+            // Expand again to test resillience against multiple calls
+            runtime.ExpandGlobalVariables();
 
             Assert.AreEqual(0L, memory.GetVariable("a"), "The global variables where not parsed as expected");
             Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
