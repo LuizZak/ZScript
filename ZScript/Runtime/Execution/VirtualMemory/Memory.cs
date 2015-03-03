@@ -187,14 +187,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// </summary>
         public class VarArgsArrayList : ArrayList
         {
-            /// <summary>
-            /// Transforms this VarAgsArrayList into a plain ArrayList object
-            /// </summary>
-            /// <returns>A plain ArrayList object</returns>
-            public ArrayList ToArrayList()
-            {
-                return new ArrayList(this);
-            }
+            
         }
     }
 }
