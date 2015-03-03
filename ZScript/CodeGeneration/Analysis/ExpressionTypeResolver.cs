@@ -920,12 +920,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// Returns a TypeDef describing the type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
-        /// <param name="hasSubscript">Whether the array literal being resolved contains a subscript</param>
         /// <returns>The type for the context</returns>
-        public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context, bool hasSubscript = false)
+        public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
         {
             // Expected type for the list
-            var expectedValueType = context.ExpectedType == null ? null : (hasSubscript ? context.ExpectedType : context.ExpectedType.EnclosingType);
+            var expectedValueType = context.ExpectedType == null ? null : context.ExpectedType.EnclosingType;
 
             // Try to infer the type of items in the array
             var listItemsType = expectedValueType ?? TypeProvider.AnyType();
