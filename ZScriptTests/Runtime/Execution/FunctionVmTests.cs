@@ -1894,6 +1894,18 @@ namespace ZScriptTests.Runtime.Execution
 
         #region Error raising
 
+        /// <summary>
+        /// Tests exception raising when trying to fetch a return value from a function VM that didn't hit a ret instruction
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to fetch the ReturnValue property with no return value rpesent must raise an InvalidOperationException")]
+        public void TestNoReturnValue()
+        {
+            var vm = new FunctionVM(new TokenList(), new VmContext(new Memory(), null, null));
+            // ReSharper disable once UnusedVariable
+            var ret = vm.ReturnValue;
+        }
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Trying to execute an operator-type token with a non operation instruction must raise an ArgumentException")]
         public void TestInvalidOperation()
