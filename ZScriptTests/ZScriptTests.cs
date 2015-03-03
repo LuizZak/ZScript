@@ -149,6 +149,20 @@ namespace ZScriptTests
         }
 
         /// <summary>
+        /// Tests basic syntax error detection
+        /// </summary>
+        [TestMethod]
+        public void TestSyntaxError()
+        {
+            const string input = "func fib(n:int) : int { ";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+
+            Assert.AreEqual(1, generator.MessageContainer.SyntaxErrors.Length);
+        }
+
+        /// <summary>
         /// Tests a recursive Fibonacci implementation in ZScript
         /// </summary>
         [TestMethod]
