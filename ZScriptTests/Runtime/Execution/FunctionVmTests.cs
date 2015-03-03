@@ -27,6 +27,7 @@ using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
+using ZScript.Runtime.Execution.Wrappers.Callables;
 using ZScript.Runtime.Typing;
 using ZScriptTests.Utils;
 
@@ -1842,7 +1843,7 @@ namespace ZScriptTests.Runtime.Execution
 
         #endregion
 
-        #region NumberTypeForBoxedNumber
+        #region Static methods
 
         /// <summary>
         /// Tests the NumberTypeForBoxedNumber method
@@ -1870,6 +1871,23 @@ namespace ZScriptTests.Runtime.Execution
             Assert.AreEqual(FunctionVM.NumberType.Double, FunctionVM.NumberTypeForBoxedNumber(0.0));
 
             Assert.AreEqual(FunctionVM.NumberType.Unspecified, FunctionVM.NumberTypeForBoxedNumber(true));
+        }
+
+        /// <summary>
+        /// Tests the IsCallable method
+        /// </summary>
+        [TestMethod]
+        public void TestIsCallable()
+        {
+            // Test valid inputs
+            Assert.IsTrue(FunctionVM.IsCallable(new ZFunction(null, null, null)));
+            Assert.IsTrue(FunctionVM.IsCallable(new ZClassMethod(null, null)));
+            Assert.IsTrue(FunctionVM.IsCallable(new ClassMethod(null, null)));
+
+            // Test some junk data
+            Assert.IsFalse(FunctionVM.IsCallable(null));
+            Assert.IsFalse(FunctionVM.IsCallable(false));
+            Assert.IsFalse(FunctionVM.IsCallable(10));
         }
 
         #endregion

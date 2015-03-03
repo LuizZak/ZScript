@@ -783,10 +783,13 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="obj">An object to verify</param>
         /// <returns>Whether the given object is a callable object type</returns>
-        bool IsCallable(object obj)
+        public static bool IsCallable(object obj)
         {
             // TODO: deal with different callable types (MethodInfo, etc.)
             if (obj is ZFunction)
+                return true;
+
+            if (obj is ICallableWrapper)
                 return true;
 
             return false;
