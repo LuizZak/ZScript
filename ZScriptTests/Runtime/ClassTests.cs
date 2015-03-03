@@ -75,6 +75,24 @@ namespace ZScriptTests.Runtime
         #region Parsing Errors
 
         /// <summary>
+        /// Tests error raising when trying to call base from inside a closure that is contained within an overriden method
+        /// </summary>
+        [TestMethod]
+        public void TestBaseInClosure()
+        {
+            const string input = "class Base { func f() { } } class Derived : Base { override func f() { () => { base(); }; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoBaseTarget));
+        }
+
+        /// <summary>
         /// Tests error raising when parsing a constructor that contains a return type
         /// </summary>
         [TestMethod]

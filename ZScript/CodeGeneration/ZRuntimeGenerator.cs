@@ -743,6 +743,11 @@ namespace ZScript.CodeGeneration
 
                         break;
                     }
+                    // Break on closures
+                    if (scope.Context is ZScriptParser.ClosureExpressionContext)
+                    {
+                        break;
+                    }
 
                     scope = scope.ParentScope;
                 }
@@ -768,6 +773,11 @@ namespace ZScript.CodeGeneration
                             return true;
 
                         break;
+                    }
+                    // Quit on closures with falsehood
+                    if (scope.Context is ZScriptParser.ClosureExpressionContext)
+                    {
+                        return false;
                     }
 
                     scope = scope.ParentScope;
