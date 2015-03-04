@@ -107,6 +107,11 @@ namespace ZScript.Runtime.Typing
                 case VmInstruction.BitwiseXOr:
                     return CanBitwiseXOr(type1, type2);
 
+                case VmInstruction.ShiftLeft:
+                    return CanShiftLeft(type1, type2);
+                case VmInstruction.ShiftRight:
+                    return CanShiftRight(type1, type2);
+
                 // Equality/Inequality checks
                 case VmInstruction.Equals:
                     return CanEqual(type1, type2);
@@ -165,6 +170,11 @@ namespace ZScript.Runtime.Typing
                     return TypeForBitwiseOr(type1, type2);
                 case VmInstruction.BitwiseXOr:
                     return TypeForBitwiseXOr(type1, type2);
+
+                case VmInstruction.ShiftLeft:
+                    return TypeForShiftLeft(type1, type2);
+                case VmInstruction.ShiftRight:
+                    return TypeForShiftRight(type1, type2);
 
                 // Equality/Inequality checks
                 case VmInstruction.Equals:
