@@ -175,7 +175,7 @@ namespace ZScript.Parsing
                     case '0':
                         break;
                     case '1':
-                        res |= (uint)(1 << (l - 1 - i));
+                        res |= (1U << (l - 1 - i));
                         break;
                     default:
                         throw new FormatException("The binary number has invalid characters");
@@ -205,7 +205,7 @@ namespace ZScript.Parsing
                     case '0':
                         break;
                     case '1':
-                        res |= (uint)(1 << (l - 1 - i));
+                        res |= (1L << (l - 1 - i));
                         break;
                     default:
                         throw new FormatException("The binary number has invalid characters");
