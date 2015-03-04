@@ -148,6 +148,10 @@ namespace ZScript.CodeGeneration.Analysis
                                 // Queue the else
                                 statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget));
                             }
+                            else
+                            {
+                                continue;
+                            }
 
                             quitBranch = true;
                             break;
@@ -214,6 +218,27 @@ namespace ZScript.CodeGeneration.Analysis
                             caseControlFlows.Add(caseFlow);
                         }
 
+                        // Constant switch
+                        if (switchStatement.IsConstant)
+                        {
+                            if (switchStatement.ConstantCaseIndex > -1)
+                            {
+                                statementStack.Push(caseControlFlows[switchStatement.ConstantCaseIndex]);
+                            }
+                            else if (hasDefault)
+                            {
+                                var returnFlow = new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget);
+                                statementStack.Push(new ControlFlowPointer(caseStatementsArray, offsets[offsets.Length - 1], breakTarget, continueTarget, returnFlow));
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            quitBranch = true;
+                            break;
+                        }
+
                         // Deal with default: if it exists, ommit the after-switch control flow resume, if not, append it to the statements
                         if (hasDefault)
                         {
@@ -248,6 +273,20 @@ namespace ZScript.CodeGeneration.Analysis
                     var whileStatement = stmt.whileStatement();
                     if (whileStatement != null)
                     {
+                        if (whileStatement.IsConstant)
+                        {
+                            if (whileStatement.ConstantValue)
+                            {
+                                // Push the while
+                                statementStack.Push(new ControlFlowPointer(new[] {whileStatement.statement()}, 0, breakTarget, continueTarget));
+
+                                quitBranch = true;
+                                break;
+                            }
+
+                            continue;
+                        }
+
                         // Push the next statement after the loop, along with a break statement
                         statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
@@ -265,6 +304,21 @@ namespace ZScript.CodeGeneration.Analysis
                     var forStatement = stmt.forStatement();
                     if (forStatement != null)
                     {
+                        if (forStatement.forCondition() == null || forStatement.forCondition().IsConstant)
+                        {
+                            bool constValue = forStatement.forCondition() == null || forStatement.forCondition().ConstantValue;
+                            if (constValue)
+                            {
+                                // Push the for
+                                statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget));
+
+                                quitBranch = true;
+                                break;
+                            }
+
+                            continue;
+                        }
+
                         // Push the next statement after the loop, along with a break statement
                         statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 

@@ -293,7 +293,7 @@ public partial class ZScriptParser
         /// Gets or sets the case that will always be executed, if the <see cref="IsConstant"/> flag is set to true.
         /// If the value is null, no case is executed ever, and the switch always falls to the default case, if it exists
         /// </summary>
-        public CaseBlockContext ConstanteCase { get; set; }
+        public CaseBlockContext ConstantCase { get; set; }
     }
 
     #endregion

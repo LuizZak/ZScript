@@ -141,6 +141,24 @@ namespace ZScript.CodeGeneration.Analysis
 
             _returnStatements = func.ReturnStatements;
 
+            // Basic loop over returns to verify compatibility
+            foreach (var rsc in _returnStatements)
+            {
+                var context = rsc;
+
+                if (IsCurrentReturnValueVoid())
+                {
+                    if (context.expression() != null)
+                    {
+                        Container.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
+                    }
+                }
+                else if (CurrentDefinition.HasReturnType && context.expression() == null)
+                {
+                    Container.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
+                }
+            }
+
             // Check inconsistencies on return types
             if (!func.HasReturnType && _returnStatements.Count > 0)
             {
@@ -149,20 +167,6 @@ namespace ZScript.CodeGeneration.Analysis
                 bool inconsistentReturn = false;
                 foreach (var rsc in _returnStatements)
                 {
-                    var context = rsc;
-
-                    if (IsCurrentReturnValueVoid())
-                    {
-                        if (context.expression() != null)
-                        {
-                            Container.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
-                        }
-                    }
-                    else if (CurrentDefinition.HasReturnType && context.expression() == null)
-                    {
-                        Container.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
-                    }
-
                     valuedReturn = valuedReturn || (rsc.expression() != null);
                     if ((last.expression() == null) != (rsc.expression() == null))
                     {

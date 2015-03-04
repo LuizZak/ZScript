@@ -258,10 +258,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingSwitchFallthroughReturnPaths()
         {
-            const string input = "func f() : int { var a = 10; switch(a) { case 9: break; case 10: case 11: return 11; default: return 11; } }";
+            const string input = "func f() : int { var a = 10; switch(a) { case 9: return 10; case 10: case 11: return 11; default: return 11; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
 
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
         }
@@ -272,7 +274,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestWorkingSwitchFallthroughToDefaultReturnPaths()
         {
-            const string input = "func f() : int { var a = 10; switch(a) { case 9: break; case 10: case 11: default: return 11; } }";
+            const string input = "func f() : int { var a = 10; switch(a) { case 9: return 10; case 10: case 11: default: return 11; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
@@ -376,6 +378,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
 
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ReturningValueOnVoidFunction));
         }

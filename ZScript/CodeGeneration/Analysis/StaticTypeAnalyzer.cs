@@ -853,11 +853,11 @@ namespace ZScript.CodeGeneration.Analysis
                             WarningCode.ConstantSwitchExpression);
 
                         // If this is the first constant case and it always evaluates to true, set it as the default case
-                        if (!allConstant && !matched)
+                        if (allConstant && !matched)
                         {
                             _switchContext.IsConstant = true;
                             _switchContext.ConstantCaseIndex = i;
-                            _switchContext.ConstanteCase = caseContext;
+                            _switchContext.ConstantCase = caseContext;
                         }
 
                         matched = true;
@@ -874,7 +874,7 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     _switchContext.IsConstant = true;
                     _switchContext.ConstantCaseIndex = -1;
-                    _switchContext.ConstanteCase = null;
+                    _switchContext.ConstantCase = null;
 
                     var target = _switchContext.expression() ?? (ParserRuleContext)_switchContext.valueHolderDecl();
 
