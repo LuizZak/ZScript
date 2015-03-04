@@ -500,7 +500,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>A boxed long or double number cast from the given number object</returns>
         public static object TryCastNumber(object numberObject)
         {
-            var c = NumberClassForNumber(numberObject);
+            var c = NumberClassForNumber(numberObject, false);
             if (c == NumberClass.NotANumber)
             {
                 return numberObject;
