@@ -537,6 +537,12 @@ namespace ZScript.Runtime.Execution
             // Pop the function to call
             var callable = PopCallable();
 
+            var closure = callable as ZClosureFunction;
+            if (closure != null)
+            {
+                callable = closure.Clone();
+            }
+
             var zFunction = callable as ZFunction;
             if (zFunction != null)
             {
@@ -744,6 +750,7 @@ namespace ZScript.Runtime.Execution
                     if (def == null)
                     {
                         var callable = _context.Memory.GetVariable(s);
+
                         if (callable == null)
                         {
                             throw new Exception("Trying to call undefined callable '" + s + "'");
