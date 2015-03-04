@@ -62,14 +62,13 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
-            var statementQueue = new Queue<ControlFlowPointer>();
-            var breakTarget = new Stack<ControlFlowPointer>();
+            var statementStack = new Stack<ControlFlowPointer>();
 
-            statementQueue.Enqueue(new ControlFlowPointer(_bodyContext.blockStatement().statement(), 0));
+            statementStack.Push(new ControlFlowPointer(_bodyContext.blockStatement().statement(), 0));
 
-            while (statementQueue.Count > 0)
+            while (statementStack.Count > 0)
             {
-                var flow = statementQueue.Dequeue();
+                var flow = statementStack.Pop();
                 var index = flow.StatementIndex;
 
                 var stmts = flow.Statements;
@@ -77,6 +76,9 @@ namespace ZScript.CodeGeneration.Analysis
                 bool quitBranch = false;
                 for (int i = index; i < stmts.Length; i++)
                 {
+                    var breakTarget = flow.BreakTarget;
+                    var continueTarget = flow.ContinueTarget;
+
                     var stmt = stmts[i];
                     var t = stmt.GetText();
 
@@ -92,35 +94,57 @@ namespace ZScript.CodeGeneration.Analysis
                     }
 
                     // Break statement
-                    if (stmt.breakStatement() != null)
+                    if (stmt.breakStatement() != null && breakTarget != null)
                     {
-                        statementQueue.Enqueue(breakTarget.Pop());
+                        statementStack.Push(breakTarget);
                         break;
                     }
                     // Continue statement
-                    if (stmt.continueStatement() != null)
+                    if (stmt.continueStatement() != null && continueTarget != null)
                     {
-                        statementQueue.Enqueue(breakTarget.Pop());
+                        statementStack.Push(continueTarget);
                         break;
                     }
 
                     // Block statement
                     if (stmt.blockStatement() != null)
                     {
-                        statementQueue.Enqueue(new ControlFlowPointer(stmt.blockStatement().statement(), 0, flow.BackTarget));
+                        statementStack.Push(new ControlFlowPointer(stmt.blockStatement().statement(), 0, breakTarget, continueTarget, flow.BackTarget));
                         quitBranch = true;
                         break;
                     }
 
-                    // Branching loop
+                    // Branching for loop
                     var forStatement = stmt.forStatement();
                     if (forStatement != null)
                     {
-                        // Queue the for
-                        statementQueue.Enqueue(new ControlFlowPointer(new[] { forStatement.statement() }, 0, new ControlFlowPointer(stmts, i + 1)) { Context = forStatement });
+                        // Queue the next statement before the loop, along with a break statement
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget) { Context = forStatement });
 
-                        // Set the break target
-                        breakTarget.Push(new ControlFlowPointer(stmts, i + 1, flow.BackTarget) { Context = forStatement });
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+
+                        // For statekemtn
+                        statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget));
+
+                        quitBranch = true;
+                        break;
+                    }
+
+                    // Branching while loop
+                    var whileStatement = stmt.whileStatement();
+                    if (whileStatement != null)
+                    {
+                        // Queue the next statement before the loop, along with a break statement
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget) { Context = whileStatement });
+
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
+
+                        statementStack.Push(new ControlFlowPointer(new[] { whileStatement.statement() }, 0, breakTarget, continueTarget));
+
+                        quitBranch = true;
+                        break;
                     }
 
                     // Branching if
@@ -129,20 +153,20 @@ namespace ZScript.CodeGeneration.Analysis
                     {
                         if (ifStatement.elseStatement() != null)
                         {
-                            // Queue the if
-                            statementQueue.Enqueue(new ControlFlowPointer(new[] {ifStatement.statement()}, 0));
-
                             // Queue the else
-                            statementQueue.Enqueue(
-                                new ControlFlowPointer(new[] {ifStatement.elseStatement().statement()}, 0,
+                            statementStack.Push(
+                                new ControlFlowPointer(new[] { ifStatement.elseStatement().statement() }, 0, breakTarget, continueTarget,
                                     new ControlFlowPointer(stmts, i + 1)));
+
+                            // Queue the if
+                            statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget));
 
                             quitBranch = true;
                             break;
                         }
 
                         // Queue the if
-                        statementQueue.Enqueue(new ControlFlowPointer(new[] {ifStatement.statement()}, 0,
+                        statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget,
                             new ControlFlowPointer(stmts, i + 1)));
                     }
                 }
@@ -160,7 +184,7 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
                     }
 
-                    statementQueue.Enqueue(flow.BackTarget);
+                    statementStack.Push(flow.BackTarget);
                 }
             }
         }
@@ -361,12 +385,12 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             /// <param name="statements">The array of statements this control flow is flowing through</param>
             /// <param name="statementIndex">The index of the statement the control flow is pointing to</param>
-            /// <param name="backTarget">The target to point the back jump to, when returning up the code flow</param>
             /// <param name="breakTarget">The control flow to jump to when a break is reached</param>
             /// <param name="continueTarget">The control flow to jump to when a continue is reached</param>
+            /// <param name="backTarget">The target to point the back jump to, when returning up the code flow</param>
             public ControlFlowPointer(ZScriptParser.StatementContext[] statements, int statementIndex,
-                ControlFlowPointer backTarget = null, ControlFlowPointer breakTarget = null,
-                ControlFlowPointer continueTarget = null)
+                ControlFlowPointer breakTarget = null, ControlFlowPointer continueTarget = null,
+                ControlFlowPointer backTarget = null)
             {
                 Statements = statements;
                 StatementIndex = statementIndex;

@@ -285,6 +285,130 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests flow analysis in while loops
+        /// </summary>
+        [TestMethod]
+        public void TestWhileLoopInterruptStatement()
+        {
+            const string input = "{ while(true) { var a; return; var b; } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var whileLoop = blockBody.statement(0).whileStatement().statement().blockStatement();
+
+            Assert.IsTrue(whileLoop.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(whileLoop.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsFalse(whileLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow breaking with the break statement
+        /// </summary>
+        [TestMethod]
+        public void TestSequentialWhileLoopBreakStatement()
+        {
+            const string input = "{ while(true) { var a; var b; } while(true) { var a; break; var b; } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var whileLoop1 = blockBody.statement(0).whileStatement().statement().blockStatement();
+
+            Assert.IsTrue(whileLoop1.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(whileLoop1.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            var whileLoop2 = blockBody.statement(1).whileStatement().statement().blockStatement();
+
+            Assert.IsTrue(whileLoop2.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(whileLoop2.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsFalse(whileLoop2.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(2).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow disrupting with a misplaced break statement
+        /// </summary>
+        [TestMethod]
+        public void TestHangingBreakStatement()
+        {
+            const string input = "{ while(true) { var a; var b; } break; var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var whileLoop1 = blockBody.statement(0).whileStatement().statement().blockStatement();
+
+            Assert.IsTrue(whileLoop1.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(whileLoop1.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(2).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in for loops
+        /// </summary>
+        [TestMethod]
+        public void TestForLoopInterruptStatement()
+        {
+            const string input = "{ for(;;) { var a; return; var b; } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var forLoop = blockBody.statement(0).forStatement().statement().blockStatement();
+
+            Assert.IsTrue(forLoop.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(forLoop.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsFalse(forLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
         /// Tests flow breaking with the break statement
         /// </summary>
         [TestMethod]
