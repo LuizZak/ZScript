@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -147,7 +148,7 @@ namespace ZScript.CodeGeneration.Analysis
                 AnalyzeReturns(definition);
             }
 
-            ProcessExpressions(_baseScope);
+            ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete ^ ExpressionAnalysisMode.InnerClosureExpressionResolving);
 
             // Expand closures now
             foreach (var definition in definitions.OfType<ClosureDefinition>())
@@ -191,6 +192,19 @@ namespace ZScript.CodeGeneration.Analysis
                 if(definition.Context != null)
                     traverser.Traverse(definition.Context);
             }
+        }
+
+        /// <summary>
+        /// Performs deeper analysis of types by exploring expression nodes and deriving their types, as well as pre-evaluating any constants
+        /// </summary>
+        /// <param name="context">The context to process expressions on</param>
+        /// <param name="analysisMode">The mode of the analysis pass to perform</param>
+        private void ProcessExpressions(ParserRuleContext context, ExpressionAnalysisMode analysisMode = ExpressionAnalysisMode.Complete)
+        {
+            var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
+            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, analysisMode);
+
+            traverser.Traverse(context);
         }
 
         /// <summary>
@@ -281,6 +295,8 @@ namespace ZScript.CodeGeneration.Analysis
                     context = context.Parent;
                 }
             }
+
+            ProcessExpressions(((ZScriptParser.ClosureExpressionContext)definition.Context).functionBody(), ExpressionAnalysisMode.ExpressionResolving);
         }
 
         /// <summary>
@@ -452,6 +468,11 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly ExpressionAnalysisMode _analysisMode;
 
             /// <summary>
+            /// The current closure depth
+            /// </summary>
+            private int _closureDepth;
+
+            /// <summary>
             /// Initializes a new instance of the ExpressionStatementsTraverser class
             /// </summary>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
@@ -479,6 +500,9 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterStatement(ZScriptParser.StatementContext context)
             {
+                if (_closureDepth > 0 && !_analysisMode.HasFlag(ExpressionAnalysisMode.InnerClosureExpressionResolving))
+                    return;
+
                 if (context.expression() != null)
                 {
                     AnalyzeExpression(context.expression());
@@ -487,6 +511,22 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     AnalyzeAssignmentExpression(context.assignmentExpression());
                 }
+            }
+
+            // 
+            // EnterClosureExpression override
+            // 
+            public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
+            {
+                _closureDepth++;
+            }
+
+            // 
+            // ExitClosureExpression override
+            // 
+            public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
+            {
+                _closureDepth--;
             }
 
             /// <summary>
@@ -688,14 +728,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Speifies the type of analysis to perform on a run of the expression traverser
         /// </summary>
+        [Flags]
         public enum ExpressionAnalysisMode
         {
             /// <summary>Specifies basic expression resolving</summary>
             ExpressionResolving = 0x1 << 0,
+            /// <summary>Specifies basic expression resolving inside closures</summary>
+            InnerClosureExpressionResolving = 0x1 << 1,
             /// <summary>Specifies statement expression analysis</summary>
-            StatementAnalysis = 0x1 << 1,
+            StatementAnalysis = 0x1 << 2,
             /// <summary>Specifies an analysis which tests whether statements have compile-time constant resolving</summary>
-            ConstantStatementAnalysis = 0x1 << 2,
+            ConstantStatementAnalysis = 0x1 << 3,
             /// <summary>Specifies a complete analysis</summary>
             Complete = 0xFFFF
         }
