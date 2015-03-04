@@ -21,11 +21,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -1497,38 +1495,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         }
 
         #endregion
-
-        #endregion
-
-        #region BREAK/CONTINUE statement error raising
-
-        [TestMethod]
-        public void TestMismatchedBreakStatementError()
-        {
-            const string input = "func f() { break; }";
-            var generator = TestUtils.CreateGenerator(input);
-            var container = generator.MessageContainer;
-
-            // Generate a runtime to force processing of function tokens
-            generator.GenerateRuntimeDefinition();
-
-            Assert.IsFalse(generator.HasSyntaxErrors);
-            Assert.AreEqual(1L, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForBreakStatement), "Faild to raise expected errors");
-        }
-
-        [TestMethod]
-        public void TestMismatchedContinueStatementError()
-        {
-            const string input = "func f() { continue; }";
-            var generator = TestUtils.CreateGenerator(input);
-            var container = generator.MessageContainer;
-
-            // Generate a runtime to force processing of function tokens
-            generator.GenerateRuntimeDefinition();
-
-            Assert.IsFalse(generator.HasSyntaxErrors);
-            Assert.AreEqual(1L, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForContinueStatement), "Faild to raise expected errors");
-        }
 
         #endregion
     }

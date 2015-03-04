@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using ZScript.CodeGeneration.Messages;
+
 using ZScript.CodeGeneration.Tokenization.Helpers;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
@@ -51,7 +51,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         {
             if (_context.CurrentBreakTarget == null)
             {
-                _context.MessageContainer.RegisterError(context, "Break statement has no target", ErrorCode.NoTargetForBreakStatement);
                 return new IntermediaryTokenList();
             }
 
