@@ -32,11 +32,6 @@ namespace ZScript.CodeGeneration.Analysis
     public class ReturnStatementAnalyzer
     {
         /// <summary>
-        /// Whether to enable constant statements resolving
-        /// </summary>
-        private readonly bool _constantStatements = false;
-
-        /// <summary>
         /// List of all the return statements of the currently processed function
         /// </summary>
         private List<ZScriptParser.ReturnStatementContext> _returnStatements;
@@ -50,11 +45,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// The context for the analysis
         /// </summary>
         private RuntimeGenerationContext _context;
-
-        /// <summary>
-        /// Whether the current analysis mode is set to collect or analyze
-        /// </summary>
-        private bool _collecting;
 
         /// <summary>
         /// The current message container for the analyzer
@@ -78,7 +68,6 @@ namespace ZScript.CodeGeneration.Analysis
         public void CollectReturnsOnDefinitions(RuntimeGenerationContext context)
         {
             // Check for inconsistent return statement valuation
-            _collecting = true;
             _context = context;
 
             var funcs = context.BaseScope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
@@ -105,7 +94,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context containing the scope to analyze and message container to report errors and warnings to</param>
         public void Analyze(RuntimeGenerationContext context)
         {
-            _collecting = false;
             _context = context;
 
             var funcs = context.BaseScope.GetAllDefinitionsRecursive().OfType<FunctionDefinition>();
@@ -195,260 +183,100 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Analyzes a given function definition
-        /// </summary>
-        /// <param name="func">The function definition to analyze</param>
-        private void AnalyzeFunction(FunctionDefinition func)
-        {
-            var context = func.BodyContext;
-
-            _returnStatements = new List<ZScriptParser.ReturnStatementContext>();
-            _currentDefinition = func;
-
-            if (context.blockStatement().statement().Length == 0)
-            {
-                if (func.HasReturnType && !func.IsVoid)
-                {
-                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                        "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
-                }
-
-                return;
-            }
-
-            var block = context.blockStatement();
-            var state = AnalyzeBlockStatement(block);
-
-            if (state == ReturnStatementState.Partial && !func.IsVoid)
-            {
-                Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                    "Not all code paths of function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
-            }
-            else if (func.HasReturnType && !func.IsVoid && state != ReturnStatementState.Complete)
-            {
-                Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                    "Not all code paths of non-void function '" + func.Name + "' return a value", ErrorCode.IncompleteReturnPaths, func.Context);
-            }
-
-            // Check inconsistencies on return types
-            if (!func.HasReturnType && _returnStatements.Count > 0)
-            {
-                ZScriptParser.ReturnStatementContext last = _returnStatements[0];
-                bool valuedReturn = false;
-                bool inconsistentReturn = false;
-                foreach (var rsc in _returnStatements)
-                {
-                    valuedReturn = valuedReturn || (rsc.expression() != null);
-                    if ((last.expression() == null) != (rsc.expression() == null))
-                    {
-                        inconsistentReturn = true;
-                        break;
-                    }
-
-                    last = rsc;
-                }
-
-                // Report inconsistent returns
-                if (inconsistentReturn)
-                {
-                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                        "Function '" + func.Name + "' has inconsistent returns: Some returns are void, some are valued.", ErrorCode.InconsistentReturns, func.Context);
-                }
-                // Check for early-returns on functions that have a missing return value
-                else if (!func.HasReturnType && valuedReturn && state != ReturnStatementState.Complete)
-                {
-                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
-                        "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, func.Context);
-                }
-            }
-
-            func.ReturnStatements = _returnStatements;
-        }
-
-        /// <summary>
         /// Analyzes a given block statement
         /// </summary>
-        private ReturnStatementState AnalyzeBlockStatement(ZScriptParser.BlockStatementContext block)
+        private void AnalyzeBlockStatement(ZScriptParser.BlockStatementContext block)
         {
             var statements = block.statement();
 
             if (statements.Length == 0)
-                return ReturnStatementState.NotPresent;
-
-            var state = ReturnStatementState.DoesNotApply;
+                return;
 
             foreach (var stmt in statements)
             {
-                var blockState = AnalyzeStatement(stmt);
-
-                if (blockState == ReturnStatementState.Complete)
-                    return blockState;
-
-                state = MergeReturnStates(state, blockState);
+                AnalyzeStatement(stmt);
             }
-
-            return state;
         }
 
         /// <summary>
         /// Analyzes a given statement context for return statement state
         /// </summary>
-        private ReturnStatementState AnalyzeStatement(ZScriptParser.StatementContext context)
+        private void AnalyzeStatement(ZScriptParser.StatementContext context)
         {
             if (context.returnStatement() != null)
-                return AnalyzeReturnStatement(context.returnStatement());
+                AnalyzeReturnStatement(context.returnStatement());
 
             if (context.ifStatement() != null)
-                return AnalyzeIfStatement(context.ifStatement());
+                AnalyzeIfStatement(context.ifStatement());
 
             if (context.switchStatement() != null)
-                return AnalyzeSwitchStatement(context.switchStatement());
+                AnalyzeSwitchStatement(context.switchStatement());
 
             if (context.whileStatement() != null)
-                return AnalyzeWhileStatement(context.whileStatement());
+                AnalyzeWhileStatement(context.whileStatement());
 
             if (context.forStatement() != null)
-                return AnalyzeForStatement(context.forStatement());
+                AnalyzeForStatement(context.forStatement());
 
             if (context.blockStatement() != null)
-                return AnalyzeBlockStatement(context.blockStatement());
-
-            return ReturnStatementState.DoesNotApply;
+                AnalyzeBlockStatement(context.blockStatement());
         }
 
         /// <summary>
         /// Analyzes a given return statement. Always returns ReturnStatementState.Present
         /// </summary>
-        private ReturnStatementState AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
+        private void AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
         {
-            if(_collecting)
-            {
-                _returnStatements.Add(context);
-                return ReturnStatementState.Complete;
-            }
-
-            if (IsCurrentReturnValueVoid())
-            {
-                if (context.expression() != null)
-                {
-                    Container.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
-                }
-            }
-            else if (CurrentDefinition.HasReturnType && context.expression() == null)
-            {
-                Container.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
-            }
-
             _returnStatements.Add(context);
-            return ReturnStatementState.Complete;
         }
 
         /// <summary>
         /// Analyzes a given IF statement context for return statement state
         /// </summary>
-        private ReturnStatementState AnalyzeIfStatement(ZScriptParser.IfStatementContext context)
+        private void AnalyzeIfStatement(ZScriptParser.IfStatementContext context)
         {
-            var elseStatement = context.elseStatement();
-            
-            // Constant ifs simply return the state of the statements within; the result is only NotPresent if an else is not present
-            if (_constantStatements && context.IsConstant)
-            {
-                if (context.ConstantValue)
-                {
-                    return AnalyzeStatement(context.statement());
-                }
-                if(elseStatement != null)
-                {
-                    return AnalyzeStatement(elseStatement.statement());
-                }
-
-                return ReturnStatementState.NotPresent;
-            }
-            
             // If's start with their state set as the nested statement, and the
             // final type resolving depends on whether there is an else clause.
-            var state = AnalyzeStatement(context.statement());            
+            AnalyzeStatement(context.statement());
 
+            var elseStatement = context.elseStatement();
             // In case of missing else clauses, the return is either partial if it is 
-            if (elseStatement == null)
+            if (elseStatement != null)
             {
-                return MergeReturnStates(state, ReturnStatementState.NotPresent);
+                AnalyzeStatement(elseStatement.statement());
             }
-
-            state = MergeReturnStates(state, AnalyzeStatement(elseStatement.statement()));
-
-            return state;
         }
 
         /// <summary>
         /// Analyzes a given WHILE statement context for return statement state
         /// </summary>
-        private ReturnStatementState AnalyzeWhileStatement(ZScriptParser.WhileStatementContext context)
+        private void AnalyzeWhileStatement(ZScriptParser.WhileStatementContext context)
         {
-            // Constant whiles simply return the state of the statements within
-            if (_constantStatements && context.IsConstant)
-            {
-                if (context.ConstantValue)
-                {
-                    return AnalyzeStatement(context.statement());
-                }
-
-                return ReturnStatementState.NotPresent;
-            }
-
-            var state = AnalyzeStatement(context.statement());
-
-            // Loop statements are always partial
-            return state == ReturnStatementState.Partial ? state : ReturnStatementState.NotPresent;
+            AnalyzeStatement(context.statement());
         }
 
         /// <summary>
         /// Analyzes a given FOR statement context for return statement state
         /// </summary>
-        private ReturnStatementState AnalyzeForStatement(ZScriptParser.ForStatementContext context)
+        private void AnalyzeForStatement(ZScriptParser.ForStatementContext context)
         {
-            // Constant whiles simply return the state of the statements within
-            if (_constantStatements && (context.forCondition() == null || context.forCondition().IsConstant))
-            {
-                if (context.forCondition() == null || (context.forCondition().IsConstant && context.forCondition().ConstantValue))
-                {
-                    return AnalyzeStatement(context.statement());
-                }
-
-                return ReturnStatementState.NotPresent;
-            }
-            
-            var state = AnalyzeStatement(context.statement());
-
-            // Loop statements are always partial
-            return state == ReturnStatementState.Partial ? state : ReturnStatementState.NotPresent;
+            AnalyzeStatement(context.statement());
         }
 
         /// <summary>
         /// Analyzes a given IF statement context for return statement state
         /// </summary>
-        private ReturnStatementState AnalyzeSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        private void AnalyzeSwitchStatement(ZScriptParser.SwitchStatementContext context)
         {
             var block = context.switchBlock();
             var cases = block.caseBlock();
             var def = block.defaultBlock();
 
-            // Constant switch case
-            // TODO: Continue implementing constant switch resolving
-            if (_constantStatements && context.IsConstant)
-            {
-                if (context.ConstantCaseIndex > -1)
-                {
-                    
-                }
-            }
-
-            var state = ReturnStatementState.DoesNotApply;
             foreach (var cbc in cases)
             {
                 foreach (var statementContext in cbc.statement())
                 {
-                    state = MergeReturnStates(state, AnalyzeStatement(statementContext));
+                    AnalyzeStatement(statementContext);
                 }
             }
 
@@ -457,35 +285,9 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 foreach (var statementContext in def.statement())
                 {
-                    state = MergeReturnStates(state, AnalyzeStatement(statementContext));
+                     AnalyzeStatement(statementContext);
                 }
             }
-            else
-            {
-                return MergeReturnStates(ReturnStatementState.NotPresent, state);
-            }
-
-            return state == ReturnStatementState.DoesNotApply ? ReturnStatementState.NotPresent : state;
-        }
-
-        /// <summary>
-        /// Merges two return statement states
-        /// </summary>
-        private ReturnStatementState MergeReturnStates(ReturnStatementState state1, ReturnStatementState state2)
-        {
-            if (state1 == ReturnStatementState.DoesNotApply)
-                return state2;
-
-            if (state2 == ReturnStatementState.DoesNotApply)
-                return state1;
-
-            if (state1 == ReturnStatementState.Complete && state2 == ReturnStatementState.Complete)
-                return ReturnStatementState.Complete;
-
-            if (state1 == ReturnStatementState.NotPresent && state2 == ReturnStatementState.NotPresent)
-                return ReturnStatementState.NotPresent;
-
-            return ReturnStatementState.Partial;
         }
 
         /// <summary>
@@ -495,21 +297,6 @@ namespace ZScript.CodeGeneration.Analysis
         private bool IsCurrentReturnValueVoid()
         {
             return CurrentDefinition.IsVoid;
-        }
-
-        /// <summary>
-        /// Defines the return statement state for a block statement
-        /// </summary>
-        private enum ReturnStatementState
-        {
-            /// <summary>The state does not apply to the statement</summary>
-            DoesNotApply,
-            /// <summary>A return statement is present in all sub statements</summary>
-            Complete,
-            /// <summary>A return statement is not present in any sub statement</summary>
-            NotPresent,
-            /// <summary>A return statement is partial (or conditional) in one or more of the substatements</summary>
-            Partial
         }
     }
 }

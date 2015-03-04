@@ -193,7 +193,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
+            generator.MessageContainer.PrintMessages();
+
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Length);
         }
 
         /// <summary>
