@@ -187,6 +187,16 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Enters the given statement, marking it as unreachable by default.
+        /// This listener override is used during the beginning of the analysis to mark all statements of the block as unreachable
+        /// </summary>
+        /// <param name="context">The context to reset</param>
+        public override void EnterStatement(ZScriptParser.StatementContext context)
+        {
+            context.Reachable = false;
+        }
+
+        /// <summary>
         /// Class used to represent a control flow head
         /// </summary>
         private class ControlFlowPointer
