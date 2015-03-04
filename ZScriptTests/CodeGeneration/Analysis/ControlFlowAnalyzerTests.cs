@@ -758,6 +758,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
 
+        /// <summary>
+        /// Tests flow analysis in constant switch statements that never executes any of the inner statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFalseSwitchStatement()
+        {
+            const string input = "{ switch(a) { case b: var c; }; var e; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            // Set the switch as constant
+            body.blockStatement().statement(0).switchStatement().IsConstant = true;
+            body.blockStatement().statement(0).switchStatement().ConstantCaseIndex = -1;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
         #endregion
 
         #endregion
