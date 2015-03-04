@@ -178,12 +178,13 @@ namespace ZScript.CodeGeneration.Analysis
                             break;
                         }
 
+                        returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, returnFlow);
+
                         if (ifStatement.elseStatement() != null)
                         {
                             var elseStatements = new[] { ifStatement.elseStatement().statement() };
 
                             // Queue the else
-                            returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, returnFlow);
                             statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget, returnFlow));
                         }
                         else
@@ -192,7 +193,7 @@ namespace ZScript.CodeGeneration.Analysis
                         }
 
                         // Queue the if
-                        statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget));
+                        statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
 
                         quitBranch = true;
                         break;

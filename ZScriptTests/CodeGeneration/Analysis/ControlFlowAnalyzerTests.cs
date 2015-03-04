@@ -315,6 +315,47 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(blockBody.statement(3).Reachable, "Failed mark the statement reachability correctly");
         }
 
+        /// <summary>
+        /// Tests analysis of a control flow that passes through an if/else if/else construct, with returns only on the if and else blocks
+        /// </summary>
+        [TestMethod]
+        public void TestIncompleteInterruptedElseIfBranching()
+        {
+            const string input = "{ var a = true; if(a) { return 10; } else if(a) { var a; } else { return 10; } var b; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+
+            var ifStatement = blockBody.statement(1).ifStatement();
+
+            Assert.IsTrue(ifStatement.statement().Reachable, "Failed mark the if statement reachability correctly");
+            Assert.IsTrue(ifStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner if statement reachability correctly");
+
+            var ifElseStatement = ifStatement.elseStatement().statement().ifStatement();
+
+            Assert.IsTrue(ifStatement.statement().Reachable, "Failed mark the if statement reachability correctly");
+            Assert.IsTrue(ifStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner if statement reachability correctly");
+
+            var elseStatement = ifElseStatement.elseStatement();
+            var innerElseStatement = elseStatement.statement();
+
+            Assert.IsTrue(elseStatement.statement().Reachable, "Failed mark the else statement reachability correctly");
+            Assert.IsTrue(innerElseStatement.blockStatement().statement(0).Reachable, "Failed mark the inner else statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(2).Reachable, "Failed mark the statement reachability correctly");
+        }
+
         #region Constant evaluation
 
         /// <summary>
