@@ -338,6 +338,13 @@ namespace ZScript.CodeGeneration
                 }
             }
             
+            _messageContainer.PrintMessages();
+
+            if (HasErrors)
+            {
+                throw new Exception("A runtime definition cannot be created: Errors detected during code parsing and analysis.");
+            }
+            
             return runtimeDefinition;
         }
 
