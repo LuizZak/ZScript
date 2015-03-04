@@ -116,7 +116,8 @@ namespace ZScript.CodeGeneration.Analysis
                 if (func.BodyContext == null)
                     continue;
 
-                AnalyzeFunction(func);
+                //AnalyzeFunction(func);
+                NewAnalyzeFunction(func);
             }
         }
 
@@ -124,7 +125,75 @@ namespace ZScript.CodeGeneration.Analysis
         /// Analyzes a given function definition
         /// </summary>
         /// <param name="func">The function definition to analyze</param>
-        /// <returns>The return statement state for the function</returns>
+        private void NewAnalyzeFunction(FunctionDefinition func)
+        {
+            _currentDefinition = func;
+
+            var analyzer = new ControlFlowAnalyzer(_context, func.BodyContext);
+            analyzer.Analyze();
+
+            // Incomplete return paths
+            if (func.HasReturnType && !func.IsVoid && analyzer.EndReachable)
+            {
+                var message = "Not all code paths of non-void function '" + func.Name + "' return a value";
+                Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column, message, ErrorCode.IncompleteReturnPaths, func.Context);
+            }
+
+            _returnStatements = func.ReturnStatements;
+
+            // Check inconsistencies on return types
+            if (!func.HasReturnType && _returnStatements.Count > 0)
+            {
+                ZScriptParser.ReturnStatementContext last = _returnStatements[0];
+                bool valuedReturn = false;
+                bool inconsistentReturn = false;
+                foreach (var rsc in _returnStatements)
+                {
+                    var context = rsc;
+
+                    if (IsCurrentReturnValueVoid())
+                    {
+                        if (context.expression() != null)
+                        {
+                            Container.RegisterError(context.Start.Line, context.Start.Column, "Trying to return a value on a void context", ErrorCode.ReturningValueOnVoidFunction, context);
+                        }
+                    }
+                    else if (CurrentDefinition.HasReturnType && context.expression() == null)
+                    {
+                        Container.RegisterError(context.Start.Line, context.Start.Column, "Return value is missing in non-void context", ErrorCode.MissingReturnValueOnNonvoid, context);
+                    }
+
+                    valuedReturn = valuedReturn || (rsc.expression() != null);
+                    if ((last.expression() == null) != (rsc.expression() == null))
+                    {
+                        inconsistentReturn = true;
+                        break;
+                    }
+
+                    last = rsc;
+                }
+
+                // Report inconsistent returns
+                if (inconsistentReturn)
+                {
+                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                        "Function '" + func.Name + "' has inconsistent returns: Some returns are void, some are valued.", ErrorCode.InconsistentReturns, func.Context);
+                }
+                // Check for early-returns on functions that have a missing return value
+                /*else if (!func.HasReturnType && valuedReturn && analyzer.EndReachable)
+                {
+                    Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column,
+                        "Function '" + func.Name + "' has inconsistent returns: Not all paths have valued returns.", ErrorCode.IncompleteReturnPathsWithValuedReturn, func.Context);
+                }*/
+            }
+
+            func.ReturnStatements = _returnStatements;
+        }
+
+        /// <summary>
+        /// Analyzes a given function definition
+        /// </summary>
+        /// <param name="func">The function definition to analyze</param>
         private void AnalyzeFunction(FunctionDefinition func)
         {
             var context = func.BodyContext;

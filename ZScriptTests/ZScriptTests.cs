@@ -192,7 +192,7 @@ namespace ZScriptTests
         public void TestIterativeFibonacci()
         {
             const string input = "func fib(n:int) : int {" +
-                                 "  if(n == 0) return 0;" +
+                                 "  if (n == 0) return 0;" +
                                  "  if (n == 1) return 1;" +
                                  "  var prevPrev = 0;" +
                                  "  var prev = 1;" +

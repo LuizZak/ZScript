@@ -77,6 +77,28 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
         }
 
+        /// <summary>
+        /// Tests analyzing a lineary control flow that is interrupted midway through with a return statement
+        /// </summary>
+        [TestMethod]
+        public void TestAnalyzeLinarEndFlowInterrupted()
+        {
+            const string input = "{ var a; var b; return; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
+        }
+
         #endregion
 
         #region If conditional
@@ -85,7 +107,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests analyzing a simple branched flow by analyzing an if statement
         /// </summary>
         [TestMethod]
-        public void TestSimpleBranchedFlow()
+        public void TestSimpleIfFlow()
         {
             const string input = "{ var a; var b; if(a) return; var c; }";
             var parser = TestUtils.CreateParser(input);
@@ -111,7 +133,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests analyzing a simple branched flow by analyzing an if statement with a block statement within
         /// </summary>
         [TestMethod]
-        public void TestBlockedBranchedFlow()
+        public void TestBlockedIfFlow()
         {
             const string input = "{ var a; var b; if(a) { var d; } var c; }";
             var parser = TestUtils.CreateParser(input);
@@ -142,7 +164,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests analyzing a simple branched flow by analyzing an if statement with a block statement within
         /// </summary>
         [TestMethod]
-        public void TestBlockedBranchedFlowInterrupted()
+        public void TestBlockedIfFlowInterrupted()
         {
             const string input = "{ var a; var b; if(a) { var d; return; var e; } var c; }";
             var parser = TestUtils.CreateParser(input);
@@ -291,6 +313,76 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(blockBody.statement(3).Reachable, "Failed mark the statement reachability correctly");
         }
 
+        #region Constant evaluation
+
+        /// <summary>
+        /// Tests analyzing a simple branched flow by analyzing a constant true if statement
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrueIf()
+        {
+            const string input = "{ var a; var b; if(a) return; var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            // Set the if as constant
+            body.blockStatement().statement(2).ifStatement().IsConstant = true;
+            body.blockStatement().statement(2).ifStatement().ConstantValue = true;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(2).ifStatement().statement().Reachable, "Failed mark the inner if statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsFalse(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests analyzing a simple branched flow by analyzing a constant false if statement
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFalseIf()
+        {
+            const string input = "{ var a; var b; if(a) { } else { return; } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            // Set the if as constant
+            var ifStatementContext = body.blockStatement().statement(2).ifStatement();
+
+            ifStatementContext.IsConstant = true;
+            ifStatementContext.ConstantValue = false;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsFalse(ifStatementContext.statement().Reachable, "Failed mark the inner if statement reachability correctly");
+
+            var elseStatement = ifStatementContext.elseStatement().statement().blockStatement();
+            Assert.IsTrue(elseStatement.statement(0).Reachable, "Failed mark the inner else statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsFalse(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+
+        #endregion
+
         #endregion
 
         #region Switch statement
@@ -311,6 +403,37 @@ namespace ZScriptTests.CodeGeneration.Analysis
             analyzer.Analyze();
 
             Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsTrue(case1.statement(1).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsFalse(case1.statement(2).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in switch statements that preceed a return statement
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementBeforeInterrupt()
+        {
+            const string input = "{ switch(a) { case b: var d; break; var e; }; return; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -496,6 +619,41 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
 
+        #region Constant resolving
+
+        /// <summary>
+        /// Tests flow analysis in switch statements
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementReachability()
+        {
+            const string input = "{ switch(a) { case b: var d; break; var e; }; var f; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsTrue(case1.statement(1).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsFalse(case1.statement(2).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        #endregion
+
         #endregion
 
         #region While loop
@@ -526,6 +684,36 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsTrue(whileLoop.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
             Assert.IsTrue(whileLoop.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
             Assert.IsFalse(whileLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in while loops that preceed return statements
+        /// </summary>
+        [TestMethod]
+        public void TestWhileLoopBeforeInterruptStatement()
+        {
+            const string input = "{ while(true) { var a; var b; var c; } return; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var whileLoop = blockBody.statement(0).whileStatement().statement().blockStatement();
+
+            Assert.IsTrue(whileLoop.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(whileLoop.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(whileLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
 
             Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
@@ -580,18 +768,18 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
             Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
 
             var whileLoop1 = blockBody.statement(0).whileStatement().statement().blockStatement();
-
+            
             Assert.IsTrue(whileLoop1.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
             Assert.IsTrue(whileLoop1.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
 
-            Assert.IsTrue(blockBody.statement(2).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsFalse(blockBody.statement(2).Reachable, "Failed mark the statement reachability correctly");
         }
 
         #endregion
@@ -599,7 +787,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         #region For loop
 
         /// <summary>
-        /// Tests flow analysis in for loops
+        /// Tests flow analysis in for loops which contain return statements
         /// </summary>
         [TestMethod]
         public void TestForLoopInterruptStatement()
@@ -624,6 +812,36 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsTrue(forLoop.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
             Assert.IsTrue(forLoop.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
             Assert.IsFalse(forLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in for loops that preceed return statements
+        /// </summary>
+        [TestMethod]
+        public void TestForLoopBeforeInterruptStatement()
+        {
+            const string input = "{ for(;;) { var a; var b; var c; } return; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var forLoop = blockBody.statement(0).forStatement().statement().blockStatement();
+
+            Assert.IsTrue(forLoop.statement(0).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(forLoop.statement(1).Reachable, "Failed mark the inner-loop statement reachability correctly");
+            Assert.IsTrue(forLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
 
             Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
@@ -816,6 +1034,62 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(innerForLoop.statement(2).Reachable, "Failed mark the inner-loop statement reachability correctly");
 
             Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        #endregion
+
+        #region Bug tests
+
+        /// <summary>
+        /// Tests a bug in flow detection related to the fibonacci sample
+        /// </summary>
+        [TestMethod]
+        public void TestFibonacciReturn()
+        {
+            const string input = " {" +
+                                 "  if (n == 0) return 0;" +
+                                 "  if (n == 1) return 1;" +
+                                 "  var prevPrev = 0;" +
+                                 "  var prev = 1;" +
+                                 "  var result = 0;" +
+                                 "  for (var i = 2; i <= n; i++)" +
+                                 "  {" +
+                                 "    result = prev + prevPrev;" +
+                                 "    prevPrev = prev;" +
+                                 "    prev = result;" +
+                                 "  }" +
+                                 "  return result;" +
+                                 "}";
+
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            var ifStatement1 = body.blockStatement().statement(0).ifStatement();
+            var ifStatement2 = body.blockStatement().statement(1).ifStatement();
+            var forStatement = body.blockStatement().statement(5).forStatement();
+
+            Assert.IsTrue(ifStatement1.statement().Reachable, "Failed mark the inner if statement reachability correctly");
+            Assert.IsTrue(ifStatement2.statement().Reachable, "Failed mark the inner if statement reachability correctly");
+
+            Assert.IsTrue(forStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner loop statement reachability correctly");
+            Assert.IsTrue(forStatement.statement().blockStatement().statement(1).Reachable, "Failed mark the inner loop statement reachability correctly");
+            Assert.IsTrue(forStatement.statement().blockStatement().statement(2).Reachable, "Failed mark the inner loop statement reachability correctly");
+
+            // Direct flow reachability
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(4).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(5).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(6).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsFalse(analyzer.EndReachable);
         }
 
         #endregion

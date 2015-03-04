@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -62,6 +63,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
+            var visitedExpressions = new List<ZScriptParser.StatementContext>();
             var statementStack = new Stack<ControlFlowPointer>();
 
             statementStack.Push(new ControlFlowPointer(_bodyContext.blockStatement().statement(), 0));
@@ -76,10 +78,22 @@ namespace ZScript.CodeGeneration.Analysis
                 bool quitBranch = false;
                 for (int i = index; i < stmts.Length; i++)
                 {
+                    quitBranch = false;
                     var breakTarget = flow.BreakTarget;
                     var continueTarget = flow.ContinueTarget;
 
                     var stmt = stmts[i];
+
+                    if (visitedExpressions.ContainsReference(stmt))
+                    {
+                        quitBranch = true;
+                        if(stmt.breakStatement() == null && stmt.returnStatement() == null && stmt.continueStatement() == null)
+                            continue;
+
+                        break;
+                    }
+
+                    visitedExpressions.Add(stmt);
 
                     stmt.Reachable = true;
 
@@ -96,12 +110,14 @@ namespace ZScript.CodeGeneration.Analysis
                     if (stmt.breakStatement() != null && breakTarget != null)
                     {
                         statementStack.Push(breakTarget);
+                        quitBranch = true;
                         break;
                     }
                     // Continue statement
                     if (stmt.continueStatement() != null && continueTarget != null)
                     {
                         statementStack.Push(continueTarget);
+                        quitBranch = true;
                         break;
                     }
 
@@ -117,15 +133,33 @@ namespace ZScript.CodeGeneration.Analysis
                     var ifStatement = stmt.ifStatement();
                     if (ifStatement != null)
                     {
-                        // Push the next statement after the loop, along with a break statement
-                        //statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
+                        // Constant if
+                        if (ifStatement.IsConstant)
+                        {
+                            if(ifStatement.ConstantValue)
+                            {
+                                // Queue the if
+                                statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget));
+                            }
+                            else if(ifStatement.elseStatement() != null)
+                            {
+                                var elseStatements = new[] { ifStatement.elseStatement().statement() };
+
+                                // Queue the else
+                                statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget));
+                            }
+
+                            quitBranch = true;
+                            break;
+                        }
 
                         if (ifStatement.elseStatement() != null)
                         {
                             var elseStatements = new[] { ifStatement.elseStatement().statement() };
 
                             // Queue the else
-                            statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget, new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget)));
+                            var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
+                            statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget, returnFlow));
                         }
                         else
                         {
@@ -144,7 +178,7 @@ namespace ZScript.CodeGeneration.Analysis
                     if (switchStatement != null)
                     {
                         // Set the break target
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget)
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget)
                         {
                             Context = switchStatement
                         };
@@ -176,15 +210,15 @@ namespace ZScript.CodeGeneration.Analysis
 
                         for (int ci = 0; ci < caseBlocks.Length; ci++)
                         {
-                            var caseFlow = new ControlFlowPointer(caseStatementsArray, offsets[ci], breakTarget,
-                                continueTarget);
+                            var caseFlow = new ControlFlowPointer(caseStatementsArray, offsets[ci], breakTarget, continueTarget);
                             caseControlFlows.Add(caseFlow);
                         }
 
                         // Deal with default: if it exists, ommit the after-switch control flow resume, if not, append it to the statements
                         if (hasDefault)
                         {
-                            var defaultFlow = new ControlFlowPointer(caseStatementsArray, offsets[offsets.Length - 1], breakTarget, continueTarget);
+                            var returnFlow = new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget);
+                            var defaultFlow = new ControlFlowPointer(caseStatementsArray, offsets[offsets.Length - 1], breakTarget, continueTarget, returnFlow);
                             caseControlFlows.Add(defaultFlow);
 
                             // Dump the flows on the statements stack
@@ -197,14 +231,17 @@ namespace ZScript.CodeGeneration.Analysis
                             break;
                         }
 
+                        // Push the outer switch
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget, flow.BackTarget));
+
                         // Dump the flows on the statements stack
                         foreach (var caseFlow in caseControlFlows)
                         {
                             statementStack.Push(caseFlow);
                         }
 
-                        // Push the outer switch
-                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
+                        quitBranch = true;
+                        break;
                     }
 
                     // Branching while loop
@@ -217,7 +254,8 @@ namespace ZScript.CodeGeneration.Analysis
                         breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
                         continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
 
-                        statementStack.Push(new ControlFlowPointer(new[] { whileStatement.statement() }, 0, breakTarget, continueTarget));
+                        var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
+                        statementStack.Push(new ControlFlowPointer(new[] { whileStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
 
                         quitBranch = true;
                         break;
@@ -233,8 +271,9 @@ namespace ZScript.CodeGeneration.Analysis
                         breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
                         continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
 
-                        // For statekemtn
-                        statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget));
+                        // For statement
+                        var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
+                        statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
 
                         quitBranch = true;
                         break;
@@ -244,18 +283,15 @@ namespace ZScript.CodeGeneration.Analysis
                 if (quitBranch)
                     continue;
 
-                // Fall back to the top flow
-                if (flow.Statements[0].Parent != null)
+                
+                // End of function - mark end as reachable
+                if (flow.BackTarget == null)
                 {
-                    // End of function - mark end as reachable
-                    if (flow.BackTarget == null)
-                    {
-                        EndReachable = true;
-                        continue;
-                    }
-
-                    statementStack.Push(flow.BackTarget);
+                    EndReachable = true;
+                    continue;
                 }
+
+                statementStack.Push(flow.BackTarget);
             }
         }
 
