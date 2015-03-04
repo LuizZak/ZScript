@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using ZScript.Utils;
 
@@ -62,6 +63,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             var statementQueue = new Queue<ControlFlowPointer>();
+            var breakTarget = new Stack<ControlFlowPointer>();
 
             statementQueue.Enqueue(new ControlFlowPointer(_bodyContext.blockStatement().statement(), 0));
 
@@ -80,18 +82,45 @@ namespace ZScript.CodeGeneration.Analysis
 
                     stmt.Reachable = true;
 
+                    // Return statement
                     if (stmt.returnStatement() != null)
                     {
+                        _returnStatements.Add(stmt.returnStatement());
+
                         quitBranch = true;
+                        break;
+                    }
+
+                    // Break statement
+                    if (stmt.breakStatement() != null)
+                    {
+                        statementQueue.Enqueue(breakTarget.Pop());
+                        break;
+                    }
+                    // Continue statement
+                    if (stmt.continueStatement() != null)
+                    {
+                        statementQueue.Enqueue(breakTarget.Pop());
                         break;
                     }
 
                     // Block statement
                     if (stmt.blockStatement() != null)
                     {
-                        statementQueue.Enqueue(new ControlFlowPointer(stmt.blockStatement().statement(), 0));
+                        statementQueue.Enqueue(new ControlFlowPointer(stmt.blockStatement().statement(), 0, flow.BackTarget));
                         quitBranch = true;
                         break;
+                    }
+
+                    // Branching loop
+                    var forStatement = stmt.forStatement();
+                    if (forStatement != null)
+                    {
+                        // Queue the for
+                        statementQueue.Enqueue(new ControlFlowPointer(new[] { forStatement.statement() }, 0, new ControlFlowPointer(stmts, i + 1)) { Context = forStatement });
+
+                        // Set the break target
+                        breakTarget.Push(new ControlFlowPointer(stmts, i + 1, flow.BackTarget) { Context = forStatement });
                     }
 
                     // Branching if
@@ -297,6 +326,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private class ControlFlowPointer
         {
+            /// <summary>
+            /// Special context that can be attributed to the control flow pointer
+            /// </summary>
+            public ParserRuleContext Context;
+
             /// <summary>
             /// The statements the control flow is flowing throgh
             /// </summary>
