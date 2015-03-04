@@ -1379,6 +1379,58 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(analyzer.EndReachable);
         }
 
+        /// <summary>
+        /// Tests a break preceeding a return statement inside a constant while
+        /// </summary>
+        [TestMethod]
+        public void TestBreakOnConstantTrueWhile()
+        {
+            const string input = "{ while (true) { break; return 0; } }";
+
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var whileStatement = body.blockStatement().statement(0).whileStatement();
+            whileStatement.IsConstant = true;
+            whileStatement.ConstantValue = true;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable);
+
+            Assert.IsTrue(whileStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner loop statement reachability correctly");
+            Assert.IsFalse(whileStatement.statement().blockStatement().statement(1).Reachable, "Failed mark the inner loop statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests a break preceeding a return statement inside a constant for
+        /// </summary>
+        [TestMethod]
+        public void TestBreakOnConstantTrueFor()
+        {
+            const string input = "{ for (;true;) { break; return 0; } }";
+
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var forStatement = body.blockStatement().statement(0).forStatement();
+            forStatement.forCondition().IsConstant = true;
+            forStatement.forCondition().ConstantValue = true;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable);
+
+            Assert.IsTrue(forStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner loop statement reachability correctly");
+            Assert.IsFalse(forStatement.statement().blockStatement().statement(1).Reachable, "Failed mark the inner loop statement reachability correctly");
+        }
+
         #endregion
     }
 }

@@ -273,6 +273,9 @@ namespace ZScript.CodeGeneration.Analysis
                     var whileStatement = stmt.whileStatement();
                     if (whileStatement != null)
                     {
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
+
                         if (whileStatement.IsConstant)
                         {
                             if (whileStatement.ConstantValue)
@@ -290,9 +293,6 @@ namespace ZScript.CodeGeneration.Analysis
                         // Push the next statement after the loop, along with a break statement
                         statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
-                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
-
                         var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
                         statementStack.Push(new ControlFlowPointer(new[] { whileStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
 
@@ -304,6 +304,9 @@ namespace ZScript.CodeGeneration.Analysis
                     var forStatement = stmt.forStatement();
                     if (forStatement != null)
                     {
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+
                         if (forStatement.forCondition() == null || forStatement.forCondition().IsConstant)
                         {
                             bool constValue = forStatement.forCondition() == null || forStatement.forCondition().ConstantValue;
@@ -321,9 +324,6 @@ namespace ZScript.CodeGeneration.Analysis
 
                         // Push the next statement after the loop, along with a break statement
                         statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
-
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
-                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
 
                         // For statement
                         var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
