@@ -25,6 +25,8 @@ using ZScript.Runtime.Typing.Elements;
 
 public partial class ZScriptParser
 {
+    #region Expressions
+
     /// <summary>
     /// Provides extensions to the ExpressionContext for tree weighting and storaging of
     /// context-sensitive information like marking tree portion as constant valued
@@ -199,6 +201,30 @@ public partial class ZScriptParser
         public DictionaryTypeDef ExpectedType { get; set; }
     }
 
+    #endregion
+
+    #region Statements
+
+    /// <summary>
+    /// Provides extensions to the IfStatementContext for providing reachability flagging
+    /// </summary>
+    partial class StatementContext
+    {
+        /// <summary>
+        /// Whether this statement is reachable by any control flow 
+        /// </summary>
+        private bool _reachable = true;
+
+        /// <summary>
+        /// Gets or sets a value specifying whether this statement is reachable by any control flow
+        /// </summary>
+        public bool Reachable
+        {
+            get { return _reachable; }
+            set { _reachable = value; }
+        }
+    }
+
     /// <summary>
     /// Provides extensions to the IfStatementContext for providing constant evaluation flagging
     /// </summary>
@@ -269,6 +295,8 @@ public partial class ZScriptParser
         /// </summary>
         public CaseBlockContext ConstanteCase { get; set; }
     }
+
+    #endregion
 
     /// <summary>
     /// Provides extensions to the ClassDefinitionContext for binding class definitions to contexts

@@ -59,6 +59,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeGeneration\Analysis\ControlFlowAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeScopeTests.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionsAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\FunctionParametersAnalyzerTests.cs" />
