@@ -299,20 +299,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests failed early returns by providing a return value to the early return
-        /// </summary>
-        [TestMethod]
-        public void TestFailedEarlyReturns()
-        {
-            const string input = "func f() { var a = true; if(a) { return 10; } }";
-            var generator = TestUtils.CreateGenerator(input);
-            generator.ParseSources();
-            generator.CollectDefinitions();
-
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPathsWithValuedReturn));
-        }
-
-        /// <summary>
         /// Tests reporting inconsistent return values
         /// </summary>
         [TestMethod]
