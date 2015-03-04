@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Analysis
 {
@@ -21,14 +21,14 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly ZScriptParser.FunctionBodyContext _bodyContext;
 
         /// <summary>
-        /// List of all the return statements of the currently processed function
-        /// </summary>
-        private List<ZScriptParser.ReturnStatementContext> _returnStatements;
-
-        /// <summary>
         /// Gets a value specifying whether the end of the function that was analyzed is reachable by any code path
         /// </summary>
         public bool EndReachable { get; private set; }
+
+        /// <summary>
+        /// Gets a list of all the return statements of the currently processed function
+        /// </summary>
+        public List<ZScriptParser.ReturnStatementContext> ReturnStatements { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the ControlFlowAnalyzer class
@@ -39,7 +39,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             _generationContext = generationContext;
             _bodyContext = bodyContext;
-            _returnStatements = new List<ZScriptParser.ReturnStatementContext>();
+            ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();
         }
 
         /// <summary>
@@ -47,8 +47,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         public void Analyze()
         {
-            //AnalyzeBlockStatement(_bodyContext.blockStatement());
-
             // Visit the statements, resetting their reachability
             var walker = new ParseTreeWalker();
             walker.Walk(this, _bodyContext);
@@ -80,14 +78,13 @@ namespace ZScript.CodeGeneration.Analysis
                     var continueTarget = flow.ContinueTarget;
 
                     var stmt = stmts[i];
-                    var t = stmt.GetText();
 
                     stmt.Reachable = true;
 
                     // Return statement
                     if (stmt.returnStatement() != null)
                     {
-                        _returnStatements.Add(stmt.returnStatement());
+                        ReturnStatements.Add(stmt.returnStatement());
 
                         quitBranch = true;
                         break;
@@ -185,162 +182,6 @@ namespace ZScript.CodeGeneration.Analysis
                     }
 
                     statementStack.Push(flow.BackTarget);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Enters the given statement, marking it as unreachable by default.
-        /// This listener override is used during the beginning of the analysis to mark all statements of the block as unreachable
-        /// </summary>
-        /// <param name="context">The context to reset</param>
-        public override void EnterStatement(ZScriptParser.StatementContext context)
-        {
-            context.Reachable = false;
-        }
-
-        /// <summary>
-        /// Analyzes a given block statement
-        /// </summary>
-        private void AnalyzeBlockStatement(ZScriptParser.BlockStatementContext block)
-        {
-            var statements = block.statement();
-
-            AnalyzeStatements(statements);
-        }
-
-        /// <summary>
-        /// Analyzes a given array of statements
-        /// </summary>
-        private void AnalyzeStatements(ZScriptParser.StatementContext[] statements)
-        {
-            
-        }
-
-        /// <summary>
-        /// Analyzes a given statement context for return statement state
-        /// </summary>
-        private void AnalyzeStatement(ZScriptParser.StatementContext context)
-        {
-            if (context.returnStatement() != null)
-                AnalyzeReturnStatement(context.returnStatement());
-
-            if (context.ifStatement() != null)
-                AnalyzeIfStatement(context.ifStatement());
-
-            if (context.switchStatement() != null)
-                AnalyzeSwitchStatement(context.switchStatement());
-
-            if (context.whileStatement() != null)
-                AnalyzeWhileStatement(context.whileStatement());
-
-            if (context.forStatement() != null)
-                AnalyzeForStatement(context.forStatement());
-
-            if (context.blockStatement() != null)
-                AnalyzeBlockStatement(context.blockStatement());
-        }
-
-        /// <summary>
-        /// Analyzes a given return statement. Always returns ReturnStatementState.Present
-        /// </summary>
-        private void AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
-        {
-            _returnStatements.Add(context);
-        }
-
-        /// <summary>
-        /// Analyzes a given IF statement context for return statement state
-        /// </summary>
-        private void AnalyzeIfStatement(ZScriptParser.IfStatementContext context)
-        {
-            var elseStatement = context.elseStatement();
-
-            // Constant ifs simply return the state of the statements within; the result is only NotPresent if an else is not present
-            if (context.IsConstant)
-            {
-                if (context.ConstantValue)
-                {
-                    AnalyzeStatement(context.statement());
-                }
-                if (elseStatement != null)
-                {
-                    AnalyzeStatement(elseStatement.statement());
-                }
-            }
-
-            // If's start with their state set as the nested statement, and the
-            // final type resolving depends on whether there is an else clause.
-            AnalyzeStatement(context.statement());
-        }
-
-        /// <summary>
-        /// Analyzes a given WHILE statement context for return statement state
-        /// </summary>
-        private void AnalyzeWhileStatement(ZScriptParser.WhileStatementContext context)
-        {
-            // Constant whiles simply return the state of the statements within
-            if (context.IsConstant)
-            {
-                if (context.ConstantValue)
-                {
-                    AnalyzeStatement(context.statement());
-                }
-            }
-
-            AnalyzeStatement(context.statement());
-        }
-
-        /// <summary>
-        /// Analyzes a given FOR statement context for return statement state
-        /// </summary>
-        private void AnalyzeForStatement(ZScriptParser.ForStatementContext context)
-        {
-            // Constant whiles simply return the state of the statements within
-            if ((context.forCondition() == null || context.forCondition().IsConstant))
-            {
-                if (context.forCondition() == null || (context.forCondition().IsConstant && context.forCondition().ConstantValue))
-                {
-                    AnalyzeStatement(context.statement());
-                }
-            }
-
-            AnalyzeStatement(context.statement());
-        }
-
-        /// <summary>
-        /// Analyzes a given IF statement context for return statement state
-        /// </summary>
-        private void AnalyzeSwitchStatement(ZScriptParser.SwitchStatementContext context)
-        {
-            var block = context.switchBlock();
-            var cases = block.caseBlock();
-            var def = block.defaultBlock();
-
-            // Constant switch case
-            // TODO: Continue implementing constant switch resolving
-            if (context.IsConstant)
-            {
-                if (context.ConstantCaseIndex > -1)
-                {
-
-                }
-            }
-
-            foreach (var cbc in cases)
-            {
-                foreach (var statementContext in cbc.statement())
-                {
-                    AnalyzeStatement(statementContext);
-                }
-            }
-
-            // Default case: if it's present, merge the returns
-            if (def != null)
-            {
-                foreach (var statementContext in def.statement())
-                {
-                    AnalyzeStatement(statementContext);
                 }
             }
         }
