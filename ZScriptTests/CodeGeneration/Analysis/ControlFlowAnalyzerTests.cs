@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScriptTests.Utils;
@@ -11,6 +12,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
     [TestClass]
     public class ControlFlowAnalyzerTests
     {
+        #region Linear flow
+
         /// <summary>
         /// Tests analyzing a control flow with an empty code block
         /// </summary>
@@ -73,6 +76,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsFalse(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
         }
+
+        #endregion
+
+        #region If conditional
 
         /// <summary>
         /// Tests analyzing a simple branched flow by analyzing an if statement
@@ -284,6 +291,215 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsFalse(blockBody.statement(3).Reachable, "Failed mark the statement reachability correctly");
         }
 
+        #endregion
+
+        #region Switch statement
+
+        /// <summary>
+        /// Tests flow analysis in switch statements
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementReachability()
+        {
+            const string input = "{ switch(a) { case b: var d; break; var e; }; var f; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsTrue(case1.statement(1).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsFalse(case1.statement(2).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in switch statements that contain fallthrough
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementFallthroughReachability()
+        {
+            const string input = "{ switch(a) { case b: var c; case d: var e; break; var f; }; var g; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            var case2 = switchStatement.caseBlock(1);
+
+            Assert.IsTrue(case2.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsTrue(case2.statement(1).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsFalse(case2.statement(2).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in switch statements that contain a default case
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementDefaultReachability()
+        {
+            const string input = "{ switch(a) { case b: var c; case d: var e; break; default: var f; }; var g; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            var case2 = switchStatement.caseBlock(1);
+
+            Assert.IsTrue(case2.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsTrue(case2.statement(1).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            var defaultCase = switchStatement.defaultBlock();
+
+            Assert.IsTrue(defaultCase.statement(0).Reachable, "Failed mark the inner-default statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in switch statements with an interrupted return
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementReturn()
+        {
+            const string input = "{ switch(a) { case b: var d; return; var e; }; var f; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsTrue(case1.statement(1).Reachable, "Failed mark the inner-case statement reachability correctly");
+            Assert.IsFalse(case1.statement(2).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in switch statements that are completely surrounded with return statements
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementInterruption()
+        {
+            const string input = "{ switch(a) { case b: return 0; default: return 0; }; var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case1 = switchStatement.caseBlock(0);
+
+            Assert.IsTrue(case1.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            var defaultCase = switchStatement.defaultBlock();
+
+            Assert.IsTrue(defaultCase.statement(0).Reachable, "Failed mark the inner-default statement reachability correctly");
+
+            Assert.IsFalse(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests flow analysis in switch statements that are completely surrounded with return statements
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchStatementFallthrough()
+        {
+            const string input = "{ switch(a) { case b: case c: return 0; default: return 0; }; var d; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+
+            var blockBody = body.blockStatement();
+
+            Assert.IsTrue(blockBody.statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            var switchStatement = blockBody.statement(0).switchStatement().switchBlock();
+            var case2 = switchStatement.caseBlock(1);
+
+            Assert.IsTrue(case2.statement(0).Reachable, "Failed mark the inner-case statement reachability correctly");
+
+            var defaultCase = switchStatement.defaultBlock();
+
+            Assert.IsTrue(defaultCase.statement(0).Reachable, "Failed mark the inner-default statement reachability correctly");
+
+            Assert.IsFalse(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        #endregion
+
+        #region While loop
+
         /// <summary>
         /// Tests flow analysis in while loops
         /// </summary>
@@ -377,6 +593,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.IsTrue(blockBody.statement(2).Reachable, "Failed mark the statement reachability correctly");
         }
+
+        #endregion
+
+        #region For loop
 
         /// <summary>
         /// Tests flow analysis in for loops
@@ -597,5 +817,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.IsTrue(blockBody.statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
+
+        #endregion
     }
 }

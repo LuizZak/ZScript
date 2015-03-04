@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -47,6 +47,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         public void Analyze()
         {
+            // TODO: Break this method into smaller, more manageable methods
+
             // Visit the statements, resetting their reachability
             var walker = new ParseTreeWalker();
             walker.Walk(this, _bodyContext);
@@ -111,29 +113,106 @@ namespace ZScript.CodeGeneration.Analysis
                         break;
                     }
 
-                    // Branching for loop
-                    var forStatement = stmt.forStatement();
-                    if (forStatement != null)
+                    // Branching if
+                    var ifStatement = stmt.ifStatement();
+                    if (ifStatement != null)
                     {
-                        // Queue the next statement before the loop, along with a break statement
-                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget) { Context = forStatement });
+                        // Push the next statement after the loop, along with a break statement
+                        //statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
-                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+                        if (ifStatement.elseStatement() != null)
+                        {
+                            var elseStatements = new[] { ifStatement.elseStatement().statement() };
 
-                        // For statekemtn
-                        statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget));
+                            // Queue the else
+                            statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget, new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget)));
+                        }
+                        else
+                        {
+                            statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
+                        }
+
+                        // Queue the if
+                        statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget));
 
                         quitBranch = true;
                         break;
+                    }
+
+                    // Switch statement
+                    var switchStatement = stmt.switchStatement();
+                    if (switchStatement != null)
+                    {
+                        // Set the break target
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget)
+                        {
+                            Context = switchStatement
+                        };
+
+                        bool hasDefault = switchStatement.switchBlock().defaultBlock() != null;
+                        var defaultBlock = switchStatement.switchBlock().defaultBlock();
+
+                        // Build the array of case label statements now
+                        var caseBlocks = switchStatement.switchBlock().caseBlock();
+                        var offsets = new int[caseBlocks.Length + (hasDefault ? 1 : 0)];
+                        var caseStatements = new List<ZScriptParser.StatementContext>();
+
+                        for (int ci = 0; ci < caseBlocks.Length; ci++)
+                        {
+                            offsets[ci] = caseStatements.Count;
+                            caseStatements.AddRange(caseBlocks[ci].statement());
+                        }
+
+                        // Add default block
+                        if (switchStatement.switchBlock().defaultBlock() != null)
+                        {
+                            offsets[caseBlocks.Length] = caseStatements.Count;
+                            caseStatements.AddRange(defaultBlock.statement());
+                        }
+
+                        // Build the case control flows now
+                        var caseStatementsArray = caseStatements.ToArray();
+                        var caseControlFlows = new List<ControlFlowPointer>();
+
+                        for (int ci = 0; ci < caseBlocks.Length; ci++)
+                        {
+                            var caseFlow = new ControlFlowPointer(caseStatementsArray, offsets[ci], breakTarget,
+                                continueTarget);
+                            caseControlFlows.Add(caseFlow);
+                        }
+
+                        // Deal with default: if it exists, ommit the after-switch control flow resume, if not, append it to the statements
+                        if (hasDefault)
+                        {
+                            var defaultFlow = new ControlFlowPointer(caseStatementsArray, offsets[offsets.Length - 1], breakTarget, continueTarget);
+                            caseControlFlows.Add(defaultFlow);
+
+                            // Dump the flows on the statements stack
+                            foreach (var caseFlow in caseControlFlows)
+                            {
+                                statementStack.Push(caseFlow);
+                            }
+
+                            quitBranch = true;
+                            break;
+                        }
+
+                        // Dump the flows on the statements stack
+                        foreach (var caseFlow in caseControlFlows)
+                        {
+                            statementStack.Push(caseFlow);
+                        }
+
+                        // Push the outer switch
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
                     }
 
                     // Branching while loop
                     var whileStatement = stmt.whileStatement();
                     if (whileStatement != null)
                     {
-                        // Queue the next statement before the loop, along with a break statement
-                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget) { Context = whileStatement });
+                        // Push the next statement after the loop, along with a break statement
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
                         breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
                         continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
@@ -144,27 +223,21 @@ namespace ZScript.CodeGeneration.Analysis
                         break;
                     }
 
-                    // Branching if
-                    var ifStatement = stmt.ifStatement();
-                    if (ifStatement != null)
+                    // Branching for loop
+                    var forStatement = stmt.forStatement();
+                    if (forStatement != null)
                     {
-                        if (ifStatement.elseStatement() != null)
-                        {
-                            // Queue the else
-                            statementStack.Push(
-                                new ControlFlowPointer(new[] { ifStatement.elseStatement().statement() }, 0, breakTarget, continueTarget,
-                                    new ControlFlowPointer(stmts, i + 1)));
+                        // Push the next statement after the loop, along with a break statement
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
-                            // Queue the if
-                            statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget));
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
 
-                            quitBranch = true;
-                            break;
-                        }
+                        // For statekemtn
+                        statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget));
 
-                        // Queue the if
-                        statementStack.Push(new ControlFlowPointer(new[] { ifStatement.statement() }, 0, breakTarget, continueTarget,
-                            new ControlFlowPointer(stmts, i + 1)));
+                        quitBranch = true;
+                        break;
                     }
                 }
 
