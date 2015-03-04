@@ -716,7 +716,7 @@ namespace ZScript.Runtime.Execution
         /// Pops a value from the stack, and if it is a token, implicitly fetch the value from the memory
         /// </summary>
         /// <returns>A value popped from the stack, and fetched from memory, if needed</returns>
-        object PopValueImplicit()
+        public object PopValueImplicit()
         {
             return ExpandValue(_stack.Pop());
         }
@@ -725,7 +725,7 @@ namespace ZScript.Runtime.Execution
         /// Pops a callable value from the stack, and if it is a token, implicitly fetch the function from the runtime
         /// </summary>
         /// <returns>A callable popped from the stack, and fetched from memory, if needed</returns>
-        object PopCallable()
+        public object PopCallable()
         {
             var obj = _stack.Pop();
 

@@ -411,7 +411,7 @@ namespace ZScript.Runtime
                     var vm = new FunctionVM(vDef.ExpressionTokens, vmContext);
                     vm.Execute();
 
-                    _globalMemory.SetVariable(vDef.Name, vm.Stack.Pop());
+                    _globalMemory.SetVariable(vDef.Name, vm.PopValueImplicit());
                 }
                 else
                 {
