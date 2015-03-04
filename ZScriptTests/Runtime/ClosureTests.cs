@@ -451,6 +451,28 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
+        /// <summary>
+        /// Tests resolving of parameters nested in two closures
+        /// </summary>
+        [TestMethod]
+        public void TestClosureInClosureParameterResolving()
+        {
+            const string input = "@__trace(v...) func main(){let createMultiplier = (operand1:int):(int->int) => {return (operand2:int):int => {return operand1 * operand2;};};let multBy2 = createMultiplier(2);let multBy3 = createMultiplier(3);__trace(multBy2(3));__trace(multBy3(3));}";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("main");
+
+            // Assert the correct call was made
+            Assert.AreEqual(6L, owner.TraceObjects[0]);
+            Assert.AreEqual(9L, owner.TraceObjects[1]);
+        }
+
         #endregion
         
         #region Helper Methods
