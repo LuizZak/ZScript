@@ -1,7 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
+using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -29,7 +31,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -69,7 +71,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -92,7 +94,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -118,7 +120,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -144,7 +146,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             var blockBody = body.blockStatement();
 
@@ -175,7 +177,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             var blockBody = body.blockStatement();
 
@@ -208,7 +210,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -247,7 +249,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -288,7 +290,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -334,7 +336,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -366,7 +368,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -398,7 +400,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -433,7 +435,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -464,7 +466,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -495,7 +497,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -530,7 +532,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -568,7 +570,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -599,7 +601,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -632,7 +634,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -673,7 +675,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -709,7 +711,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -743,7 +745,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -777,7 +779,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -806,7 +808,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -836,7 +838,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -866,7 +868,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -901,7 +903,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -936,7 +938,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -948,7 +950,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests analyzing a simple branched flow by analyzing a constant true false statement
+        /// Tests analyzing a simple branched flow by analyzing a constant false false statement
         /// </summary>
         [TestMethod]
         public void TestConstantFalseWhile()
@@ -966,7 +968,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -975,6 +977,62 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests analyzing an infinite while loop that does not contains a break statement
+        /// </summary>
+        [TestMethod]
+        public void TestInfiniteWhileLoopUnreachability()
+        {
+            const string input = "{ while(a) { } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            // Set the while as constant
+            body.blockStatement().statement(0).whileStatement().IsConstant = true;
+            body.blockStatement().statement(0).whileStatement().ConstantValue = true;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.IsEndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(0).whileStatement().statement().Reachable, "Failed mark the inner while statement reachability correctly");
+
+            Assert.IsFalse(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests analyzing an infinite while loop that contains a branched break statement
+        /// </summary>
+        [TestMethod]
+        public void TestInfiniteWhileLoopBranchedBreakUnreachability()
+        {
+            const string input = "{ while(true) { if(a) break; } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            // Set the while as constant
+            body.blockStatement().statement(0).whileStatement().IsConstant = true;
+            body.blockStatement().statement(0).whileStatement().ConstantValue = true;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.IsEndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(0).whileStatement().statement().Reachable, "Failed mark the inner while statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
 
         #endregion
@@ -998,7 +1056,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1028,7 +1086,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsFalse(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1058,7 +1116,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1088,7 +1146,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1118,7 +1176,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1148,7 +1206,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1178,7 +1236,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1213,7 +1271,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable, "Failed to detect correct reachability for end");
+            Assert.IsTrue(analyzer.IsEndReachable, "Failed to detect correct reachability for end");
 
             var blockBody = body.blockStatement();
 
@@ -1254,7 +1312,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -1280,7 +1338,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -1310,7 +1368,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
@@ -1319,6 +1377,54 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests analyzing an infinite for loop that does not contains a break statement
+        /// </summary>
+        [TestMethod]
+        public void TestInfiniteForLoopUnreachability()
+        {
+            const string input = "{ for(;;) { } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.IsEndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(0).forStatement().statement().Reachable, "Failed mark the inner for statement reachability correctly");
+
+            Assert.IsFalse(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        /// <summary>
+        /// Tests analyzing an infinite for loop that contains a branched break statement
+        /// </summary>
+        [TestMethod]
+        public void TestInfiniteForLoopBranchedBreakUnreachability()
+        {
+            const string input = "{ for(;;) { if(a) break; } var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.IsEndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(0).forStatement().statement().Reachable, "Failed mark the inner for statement reachability correctly");
+
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
         }
 
         #endregion
@@ -1376,7 +1482,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.IsTrue(body.blockStatement().statement(5).Reachable, "Failed mark the statement reachability correctly");
             Assert.IsTrue(body.blockStatement().statement(6).Reachable, "Failed mark the statement reachability correctly");
 
-            Assert.IsFalse(analyzer.EndReachable);
+            Assert.IsFalse(analyzer.IsEndReachable);
         }
 
         /// <summary>
@@ -1399,7 +1505,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(whileStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner loop statement reachability correctly");
             Assert.IsFalse(whileStatement.statement().blockStatement().statement(1).Reachable, "Failed mark the inner loop statement reachability correctly");
@@ -1425,10 +1531,52 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.Analyze();
 
-            Assert.IsTrue(analyzer.EndReachable);
+            Assert.IsTrue(analyzer.IsEndReachable);
 
             Assert.IsTrue(forStatement.statement().blockStatement().statement(0).Reachable, "Failed mark the inner loop statement reachability correctly");
             Assert.IsFalse(forStatement.statement().blockStatement().statement(1).Reachable, "Failed mark the inner loop statement reachability correctly");
+        }
+
+        #endregion
+
+        #region Error raising
+
+        /// <summary>
+        /// Tests a break statement that does not contains a valid target
+        /// </summary>
+        [TestMethod]
+        public void TestNoBreakTarget()
+        {
+            const string input = "{ break; while(true) { break; } for(;;) { break; } break; switch(a) { case 0: break; break; } }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var container = new MessageContainer();
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(messageContainer: container), body);
+            
+            analyzer.Analyze();
+
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForBreakStatement), "Failed to detect mismatched breaks correctly");
+        }
+
+        /// <summary>
+        /// Tests a continue statement that does not contains a valid target
+        /// </summary>
+        [TestMethod]
+        public void TestNoContinueTarget()
+        {
+            const string input = "{ continue; while(true) { continue; } for(;;) { continue; } continue; switch(a) { case 0: continue; } }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var container = new MessageContainer();
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(messageContainer: container), body);
+
+            analyzer.Analyze();
+
+            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoTargetForContinueStatement), "Failed to detect mismatched continues correctly");
         }
 
         #endregion

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
+
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using ZScript.CodeGeneration.Messages;
 using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Analysis
@@ -17,6 +18,16 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly RuntimeGenerationContext _generationContext;
 
         /// <summary>
+        /// The current break statement depth - used during pre-analysis do detect invalid break statements
+        /// </summary>
+        private int _breakDepth;
+
+        /// <summary>
+        /// The current continue statement depth - used during pre-analysis do detect invalid continue statements
+        /// </summary>
+        private int _continueDepth;
+
+        /// <summary>
         /// The context of the body of the function to analyze
         /// </summary>
         private readonly ZScriptParser.FunctionBodyContext _bodyContext;
@@ -24,7 +35,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets a value specifying whether the end of the function that was analyzed is reachable by any code path
         /// </summary>
-        public bool EndReachable { get; private set; }
+        public bool IsEndReachable { get; private set; }
 
         /// <summary>
         /// Gets a list of all the return statements of the currently processed function
@@ -55,25 +66,34 @@ namespace ZScript.CodeGeneration.Analysis
             walker.Walk(this, _bodyContext);
 
             // Analyze the reachability now
-            EndReachable = false;
+            IsEndReachable = false;
 
             if (_bodyContext.blockStatement().statement().Length == 0)
             {
-                EndReachable = true;
+                IsEndReachable = true;
                 return;
             }
+
+            var endReturnFlow = new ControlFlowPointer(new ZScriptParser.StatementContext[0], 0);
 
             var visitedExpressions = new List<ZScriptParser.StatementContext>();
             var statementStack = new Stack<ControlFlowPointer>();
 
-            statementStack.Push(new ControlFlowPointer(_bodyContext.blockStatement().statement(), 0));
+            statementStack.Push(new ControlFlowPointer(_bodyContext.blockStatement().statement(), 0, backTarget: endReturnFlow));
 
             while (statementStack.Count > 0)
             {
                 var flow = statementStack.Pop();
-                var index = flow.StatementIndex;
+
+                // Reachable end detected
+                if (flow == endReturnFlow)
+                {
+                    IsEndReachable = true;
+                    continue;
+                }
 
                 var stmts = flow.Statements;
+                var index = flow.StatementIndex;
 
                 bool quitBranch = false;
                 for (int i = index; i < stmts.Length; i++)
@@ -81,6 +101,7 @@ namespace ZScript.CodeGeneration.Analysis
                     quitBranch = false;
                     var breakTarget = flow.BreakTarget;
                     var continueTarget = flow.ContinueTarget;
+                    var returnFlow = flow.BackTarget;
 
                     var stmt = stmts[i];
 
@@ -162,7 +183,7 @@ namespace ZScript.CodeGeneration.Analysis
                             var elseStatements = new[] { ifStatement.elseStatement().statement() };
 
                             // Queue the else
-                            var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
+                            returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, returnFlow);
                             statementStack.Push(new ControlFlowPointer(elseStatements, 0, breakTarget, continueTarget, returnFlow));
                         }
                         else
@@ -227,7 +248,7 @@ namespace ZScript.CodeGeneration.Analysis
                             }
                             else if (hasDefault)
                             {
-                                var returnFlow = new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget);
+                                returnFlow = new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget, returnFlow);
                                 statementStack.Push(new ControlFlowPointer(caseStatementsArray, offsets[offsets.Length - 1], breakTarget, continueTarget, returnFlow));
                             }
                             else
@@ -242,7 +263,7 @@ namespace ZScript.CodeGeneration.Analysis
                         // Deal with default: if it exists, ommit the after-switch control flow resume, if not, append it to the statements
                         if (hasDefault)
                         {
-                            var returnFlow = new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget);
+                            returnFlow = new ControlFlowPointer(stmts, i + 1, flow.BackTarget, continueTarget, returnFlow);
                             var defaultFlow = new ControlFlowPointer(caseStatementsArray, offsets[offsets.Length - 1], breakTarget, continueTarget, returnFlow);
                             caseControlFlows.Add(defaultFlow);
 
@@ -293,7 +314,7 @@ namespace ZScript.CodeGeneration.Analysis
                         // Push the next statement after the loop, along with a break statement
                         statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
-                        var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
+                        returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, returnFlow);
                         statementStack.Push(new ControlFlowPointer(new[] { whileStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
 
                         quitBranch = true;
@@ -326,7 +347,7 @@ namespace ZScript.CodeGeneration.Analysis
                         statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
 
                         // For statement
-                        var returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget);
+                        returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, returnFlow);
                         statementStack.Push(new ControlFlowPointer(new[] { forStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
 
                         quitBranch = true;
@@ -341,7 +362,7 @@ namespace ZScript.CodeGeneration.Analysis
                 // End of function - mark end as reachable
                 if (flow.BackTarget == null)
                 {
-                    EndReachable = true;
+                    //IsEndReachable = true;
                     continue;
                 }
 
@@ -358,6 +379,92 @@ namespace ZScript.CodeGeneration.Analysis
         {
             context.Reachable = false;
         }
+
+        #region Continue/break mismatched statement detection
+
+        /// <summary>
+        /// Enters a given break statement, analyzing whether it has a current valid target
+        /// </summary>
+        /// <param name="context">The context for the break statement</param>
+        public override void EnterBreakStatement(ZScriptParser.BreakStatementContext context)
+        {
+            if (_breakDepth <= 0 && _generationContext.MessageContainer != null)
+            {
+                _generationContext.MessageContainer.RegisterError(context, "No target for break statement", ErrorCode.NoTargetForBreakStatement);
+            }
+        }
+
+        /// <summary>
+        /// Enters a given continue statement, analyzing whether it has a current valid target
+        /// </summary>
+        /// <param name="context">The context for the continue statement</param>
+        public override void EnterContinueStatement(ZScriptParser.ContinueStatementContext context)
+        {
+            if (_continueDepth <= 0 && _generationContext.MessageContainer != null)
+            {
+                _generationContext.MessageContainer.RegisterError(context, "No target for continue statement", ErrorCode.NoTargetForContinueStatement);
+            }
+        }
+
+        /// <summary>
+        /// Enters the given for statement, increasing the break and continue depth along the way
+        /// </summary>
+        /// <param name="context">The for statement context to enter</param>
+        public override void EnterForStatement(ZScriptParser.ForStatementContext context)
+        {
+            _breakDepth++;
+            _continueDepth++;
+        }
+
+        /// <summary>
+        /// Exits the given for statement, decreasing the break and continue depth along the way
+        /// </summary>
+        /// <param name="context">The for statement context to exit</param>
+        public override void ExitForStatement(ZScriptParser.ForStatementContext context)
+        {
+            _breakDepth--;
+            _continueDepth--;
+        }
+
+        /// <summary>
+        /// Enters the given while statement, increasing the break and continue depth along the way
+        /// </summary>
+        /// <param name="context">The while statement context to enter</param>
+        public override void EnterWhileStatement(ZScriptParser.WhileStatementContext context)
+        {
+            _breakDepth++;
+            _continueDepth++;
+        }
+
+        /// <summary>
+        /// Exits the given while statement, decreasing the break and continue depth along the way
+        /// </summary>
+        /// <param name="context">The while statement context to exit</param>
+        public override void ExitWhileStatement(ZScriptParser.WhileStatementContext context)
+        {
+            _breakDepth--;
+            _continueDepth--;
+        }
+
+        /// <summary>
+        /// Enters the given switch statement, increasing the break depth along the way
+        /// </summary>
+        /// <param name="context">The switch statement context to enter</param>
+        public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            _breakDepth++;
+        }
+
+        /// <summary>
+        /// Exits the given switch statement, decreasing the break depth along the way
+        /// </summary>
+        /// <param name="context">The switch statement context to exit</param>
+        public override void ExitSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            _breakDepth--;
+        }
+
+        #endregion
 
         /// <summary>
         /// Class used to represent a control flow head

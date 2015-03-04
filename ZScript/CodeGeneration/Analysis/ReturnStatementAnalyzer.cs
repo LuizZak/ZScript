@@ -133,7 +133,7 @@ namespace ZScript.CodeGeneration.Analysis
             analyzer.Analyze();
 
             // Incomplete return paths
-            if (func.HasReturnType && !func.IsVoid && analyzer.EndReachable)
+            if (func.HasReturnType && !func.IsVoid && analyzer.IsEndReachable)
             {
                 var message = "Not all code paths of non-void function '" + func.Name + "' return a value";
                 Container.RegisterError(func.Context.Start.Line, func.Context.Start.Column, message, ErrorCode.IncompleteReturnPaths, func.Context);
