@@ -95,8 +95,19 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="newTarget">A new target for jump instructions that may be pointing to it</param>
         public void RemoveToken(Token token, Token newTarget)
         {
+            RemoveToken(this, token, newTarget);
+        }
+
+        /// <summary>
+        /// Safely removes a token, retargeting any temporary jump instruction point to it
+        /// </summary>
+        /// <param name="source">The source to remove the token from</param>
+        /// <param name="token">The token to remove</param>
+        /// <param name="newTarget">A new target for jump instructions that may be pointing to it</param>
+        public static void RemoveToken(IList<Token> source, Token token, Token newTarget)
+        {
             // Iterate again the jump tokens, now fixing the address of the token pointing
-            foreach (Token t in _tokens)
+            foreach (Token t in source)
             {
                 var j = t as JumpToken;
                 if (j == null)
@@ -108,10 +119,10 @@ namespace ZScript.CodeGeneration.Tokenization
                 }
             }
 
-            for (int i = 0; i < _tokens.Count; i++)
+            for (int i = 0; i < source.Count; i++)
             {
-                if (ReferenceEquals(_tokens[i], token))
-                    _tokens.RemoveAt(i);
+                if (ReferenceEquals(source[i], token))
+                    source.RemoveAt(i);
             }
         }
 
@@ -123,10 +134,14 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             InternalBindJumpTargets(true, VmInstruction.Interrupt);
 
-            // Remove the unreachable tokens
-            RemoveUnreachableTokens();
+            var finalList = new List<Token>(this);
 
-            return new TokenList(CreateExpandedTokenList());
+            // Remove the unreachable tokens
+            RemoveUnreachableTokens(finalList);
+            // Remove duplicater Clear Stack instructions
+            RemoveSequentialClearStacks(finalList);
+
+            return new TokenList(CreateExpandedTokenList(finalList));
         }
 
         /// <summary>
@@ -210,9 +225,9 @@ namespace ZScript.CodeGeneration.Tokenization
         /// tokens, and returning the newly generateed list
         /// </summary>
         /// <exception cref="Exception">One of the jump tokens points to a target token that is not inside the same token list</exception>
-        public List<Token> CreateExpandedTokenList()
+        public static List<Token> CreateExpandedTokenList(IList<Token> source)
         {
-            List<Token> expandedTokens = new List<Token>(_tokens);
+            List<Token> expandedTokens = new List<Token>(source);
             
             // Iterate again the jump tokens, now fixing the address of the token pointing
             for (int i = 0; i < expandedTokens.Count; i++)
@@ -278,9 +293,9 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
         /// <exception cref="ArgumentException">The provided jump token is not part of this token list</exception>
-        public static int OffsetForJump(List<Token> tokens, JumpToken jumpToken)
+        public static int OffsetForJump(IList<Token> tokens, JumpToken jumpToken)
         {
-            if (!tokens.Contains(jumpToken))
+            if (!tokens.ContainsReference(jumpToken))
                 throw new ArgumentException("The provided token does not exists inside this intermediate token list object", "jumpToken");
 
             return tokens.IndexOfReference(jumpToken.TargetToken);
@@ -289,51 +304,55 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <summary>
         /// Analyzes the tokens contained in this intermediary token list, and removes any token that happens to be unreachable by any common code flow
         /// </summary>
+        /// <param name="tokenList">The list of token to remove the unreachable tokens from</param>
         /// <param name="entryIndex">The index of the token to start analyzing from</param>
-        public void RemoveUnreachableTokens(int entryIndex = 0)
+        public static void RemoveUnreachableTokens(IList<Token> tokenList, int entryIndex = 0)
         {
             // Detect the reachability of the tokens
-            DetectReachability(entryIndex);
+            DetectReachability(tokenList, entryIndex);
 
             // Remove the tokens marked as unreachable
-            for (int i = 0; i < _tokens.Count; i++)
+            for (int i = 0; i < tokenList.Count; i++)
             {
-                if (_tokens[i].Reachable)
+                if (tokenList[i].Reachable)
                     continue;
 
-                RemoveToken(_tokens[i], null);
+                // It's safe to remove tokens this way from the list because there are no jumps pointing at it, 
+                // as they where not detected during the reachability test
+                tokenList.RemoveAt(i);
                 i--;
             }
         }
 
         /// <summary>
-        /// Analyzes the tokens contained in this intermediary token list, marking the <see cref="Token.Reachable"/> property of the tokens that are reachable from some code flow.
+        /// Analyzes the tokens contained in a given token list, marking the <see cref="Token.Reachable"/> property of the tokens that are reachable from some code flow.
         /// Code flow is marked in a flood-fill-fashion by sweeping the tokens linearly forward, marking visited tokens as reachable, and stopping when an
         /// interruption instruction is met. The analysis takes into consideration conditional and unconditional jumps to mark all possible instruction paths.
         /// The function returns an array of booleans that marks the tokens reachable.
         /// The entry index parameter is used to specify where to start traversing the tokens from.
         /// If the index is out of bounds of the list (&lt; 0 or &gt;= Count), an exception is raised.
         /// </summary>
+        /// <param name="tokenList">The token list to detect the reachability on</param>
         /// <param name="entryIndex">The index of the token to start analyzing from</param>
         /// <exception cref="ArgumentOutOfRangeException">The entryIndex points outside the list of tokens</exception>
-        public bool[] DetectReachability(int entryIndex = 0)
+        public static bool[] DetectReachability(IList<Token> tokenList, int entryIndex = 0)
         {
-            if (entryIndex == 0 && _tokens.Count == 0)
+            if (entryIndex == 0 && tokenList.Count == 0)
                 return new bool[0];
 
-            if (entryIndex < 0 || entryIndex >= _tokens.Count)
+            if (entryIndex < 0 || entryIndex >= tokenList.Count)
             {
                 throw new ArgumentOutOfRangeException("entryIndex");
             }
 
             // Reset the reachability of the tokens
-            foreach (var token in _tokens)
+            foreach (var token in tokenList)
             {
                 token.Reachable = false;
             }
 
             // Create an array to mark the tokens that have been reached
-            bool[] sweepedFlags = new bool[_tokens.Count];
+            bool[] sweepedFlags = new bool[tokenList.Count];
 
             // Create the queue of tokens to visit
             var visitQueue = new Queue<int>();
@@ -346,25 +365,25 @@ namespace ZScript.CodeGeneration.Tokenization
                 int index = visitQueue.Dequeue();
 
                 // Linearly scan the tokens, until either A: a conditional jump is reached or B: an interruption (interrupt or ret) instruction is met
-                for (; index < _tokens.Count; index++)
+                for (; index < tokenList.Count; index++)
                 {
                     // Break out of the loop, in case the token has been swept already
                     if (sweepedFlags[index])
                         break;
 
                     // Mark the token as swept and flag the array at the index as reachable
-                    _tokens[index].Reachable = sweepedFlags[index] = true;
+                    tokenList[index].Reachable = sweepedFlags[index] = true;
 
                     // Check if the token is an interrupt-type token; break out if it is
-                    if (_tokens[index].Instruction == VmInstruction.Interrupt ||
-                        _tokens[index].Instruction == VmInstruction.Ret)
+                    if (tokenList[index].Instruction == VmInstruction.Interrupt ||
+                        tokenList[index].Instruction == VmInstruction.Ret)
                         break;
 
                     // Check if the token is an unconditional jump; enqueue the jump address
-                    var jump = _tokens[index] as JumpToken;
+                    var jump = tokenList[index] as JumpToken;
                     if (jump != null)
                     {
-                        visitQueue.Enqueue(OffsetForJump(jump));
+                        visitQueue.Enqueue(OffsetForJump(tokenList, jump));
 
                         // If the jump is not conditional, we break now because the index cannot be advanced forward from this point anyway
                         if(!jump.Conditional)
@@ -374,6 +393,34 @@ namespace ZScript.CodeGeneration.Tokenization
             }
 
             return sweepedFlags;
+        }
+
+        /// <summary>
+        /// Removes all instances of dupicated ClearStack instructions
+        /// </summary>
+        /// <param name="tokenList">The list of tokens to remove the duplicate instructions from</param>
+        private static void RemoveSequentialClearStacks(IList<Token> tokenList)
+        {
+            for (int i = 1; i < tokenList.Count; i++)
+            {
+                var last = tokenList[i - 1];
+                var cur = tokenList[i];
+
+                if (last.Type == TokenType.Instruction &&
+                    last.Instruction == VmInstruction.ClearStack &&
+                    cur.Type == TokenType.Instruction &&
+                    cur.Instruction == VmInstruction.ClearStack)
+                {
+                    // If before removal there are no more tokens, add a dummy Interrupt token to the end of the list
+                    if (i + 1 == tokenList.Count)
+                    {
+                        tokenList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Interrupt));
+                    }
+
+                    RemoveToken(tokenList, cur, tokenList[i + 1]);
+                    i--;
+                }
+            }
         }
 
         /// <summary>

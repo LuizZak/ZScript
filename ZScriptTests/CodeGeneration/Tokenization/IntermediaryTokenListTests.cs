@@ -73,7 +73,56 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TokenUtils.PrintTokens(tokens);
 
             // Now verify the results
-            TestUtils.AssertTokenListEquals(expectedTokens, tokens.ToTokenList().Tokens, "The unreachable code removal failed to behave as expected");
+            TestUtils.AssertTokenListEquals(expectedTokens, tokens.ToTokenList().Tokens, "The noop removal failed to behave as expected");
+        }
+
+        /// <summary>
+        /// Tests automatic removal of sequential ClearStack instruction tokens
+        /// </summary>
+        [TestMethod]
+        public void TestClearStackRemoval()
+        {
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateBoxedValueToken(10),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt), // Last clear stack is replaced with an Interrupt automatically
+            };
+
+            var actual = tokens.ToTokenList().Tokens;
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(actual);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, actual, "The sequential ClearStack removal failed to behave as expected");
         }
 
         #region JumpToken/JumpTarget expanding
@@ -111,7 +160,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var expanded = tokens.CreateExpandedTokenList();
+            var expanded = IntermediaryTokenList.CreateExpandedTokenList(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -158,7 +207,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Bind jump targets
             tokens.BindJumpTargets();
 
-            var expanded = tokens.CreateExpandedTokenList();
+            var expanded = IntermediaryTokenList.CreateExpandedTokenList(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -205,7 +254,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Bind jump targets
             tokens.BindJumpTargets();
 
-            var expanded = tokens.CreateExpandedTokenList();
+            var expanded = IntermediaryTokenList.CreateExpandedTokenList(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -246,7 +295,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Bind jump targets
             tokens.BindJumpTargets(VmInstruction.Interrupt);
 
-            var expanded = tokens.CreateExpandedTokenList();
+            var expanded = IntermediaryTokenList.CreateExpandedTokenList(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -278,7 +327,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, true, true, true, true, true };
 
@@ -301,7 +350,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var reachable = tokens.DetectReachability(2);
+            var reachable = IntermediaryTokenList.DetectReachability(tokens, 2);
 
             var expected = new[] { false, false, true, true, true, true };
 
@@ -325,7 +374,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new [] { true, true, true, true, false, false, false };
 
@@ -349,7 +398,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, false, false, false, false, false, false };
 
@@ -373,7 +422,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, true, true, true, false, false, false };
 
@@ -401,7 +450,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             jump.TargetToken = tokens[5]; // Jump over the 'Set' and '10' tokens
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, true, true, false, false, true, true };
 
@@ -429,7 +478,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             jump.TargetToken = tokens[5]; // Jump over the 'Set' and '10' tokens
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, true, true, true, true, true, true };
 
@@ -461,7 +510,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             jump.TargetToken = tokens[8]; // Jump over to the '10 c set' portion of the token list
 
-            var reachable = tokens.DetectReachability();
+            var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, true, true, true, true, true, false, false, true, true, true };
 
@@ -498,7 +547,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            tokens.RemoveUnreachableTokens();
+            IntermediaryTokenList.RemoveUnreachableTokens(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -534,7 +583,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Ret),
             };
 
-            tokens.RemoveUnreachableTokens();
+            IntermediaryTokenList.RemoveUnreachableTokens(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -580,7 +629,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             eJump.TargetToken = expectedTokens[3];
 
-            tokens.RemoveUnreachableTokens();
+            IntermediaryTokenList.RemoveUnreachableTokens(tokens);
 
             Console.WriteLine("Dump of tokens: ");
             Console.WriteLine("Expected:");
@@ -637,7 +686,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            tokens.DetectReachability(-1);
+            IntermediaryTokenList.DetectReachability(tokens, - 1);
         }
 
         #endregion

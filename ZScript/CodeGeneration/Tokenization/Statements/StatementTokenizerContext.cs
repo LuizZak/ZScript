@@ -123,52 +123,58 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <exception cref="ArgumentException">The statement context contains a statement not recognized by this statement tokenizer</exception>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.StatementContext statement)
         {
+            IntermediaryTokenList statementTokens = null;
+
             if (statement.expression() != null || statement.assignmentExpression() != null)
             {
-                var statementTokens = TokenizeExpressionStatement(statement);
+                statementTokens = TokenizeExpressionStatement(statement);
                 statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+            }
+            else if (statement.ifStatement() != null)
+            {
+                statementTokens = TokenizeIfStatement(statement.ifStatement());
+            }
+            else if (statement.forStatement() != null)
+            {
+                statementTokens = TokenizeForStatement(statement.forStatement());
+            }
+            else if (statement.whileStatement() != null)
+            {
+                statementTokens = TokenizeWhileStatement(statement.whileStatement());
+            }
+            else if (statement.switchStatement() != null)
+            {
+                statementTokens = TokenizeSwitchStatement(statement.switchStatement());
+            }
+            else if (statement.blockStatement() != null)
+            {
+                statementTokens = TokenizeBlockStatement(statement.blockStatement());
+            }
+            else if (statement.breakStatement() != null)
+            {
+                statementTokens = TokenizeBreakStatement(statement.breakStatement());
+            }
+            else if (statement.continueStatement() != null)
+            {
+                statementTokens = TokenizeContinueStatement(statement.continueStatement());
+            }
+            else if (statement.valueDeclareStatement() != null)
+            {
+                statementTokens = TokenizeValueDeclareStatement(statement.valueDeclareStatement());
+                statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+            }
+            else if (statement.returnStatement() != null)
+            {
+                statementTokens = TokenizeReturnStatement(statement.returnStatement());
+            }
+            else if (statement.GetText() == ";")
+            {
+                statementTokens = new IntermediaryTokenList();
+            }
 
+            if(statementTokens != null)
+            {
                 return statementTokens;
-            }
-            if (statement.ifStatement() != null)
-            {
-                return TokenizeIfStatement(statement.ifStatement());
-            }
-            if (statement.forStatement() != null)
-            {
-                return TokenizeForStatement(statement.forStatement());
-            }
-            if (statement.whileStatement() != null)
-            {
-                return TokenizeWhileStatement(statement.whileStatement());
-            }
-            if (statement.switchStatement() != null)
-            {
-                return TokenizeSwitchStatement(statement.switchStatement());
-            }
-            if (statement.blockStatement() != null)
-            {
-                return TokenizeBlockStatement(statement.blockStatement());
-            }
-            if (statement.breakStatement() != null)
-            {
-                return TokenizeBreakStatement(statement.breakStatement());
-            }
-            if (statement.continueStatement() != null)
-            {
-                return TokenizeContinueStatement(statement.continueStatement());
-            }
-            if (statement.valueDeclareStatement() != null)
-            {
-                return TokenizeValueDeclareStatement(statement.valueDeclareStatement());
-            }
-            if (statement.returnStatement() != null)
-            {
-                return TokenizeReturnStatement(statement.returnStatement());
-            }
-            if (statement.GetText() == ";")
-            {
-                return new IntermediaryTokenList();
             }
 
             throw new ArgumentException("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
