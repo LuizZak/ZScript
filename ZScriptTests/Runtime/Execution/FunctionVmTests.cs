@@ -1757,8 +1757,7 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateVariableToken("i", true),
                 TokenFactory.CreateBoxedValueToken(100000),
                 TokenFactory.CreateOperatorToken(VmInstruction.Less),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse, 12),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 4),
                 TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
             };
 
@@ -1818,8 +1817,7 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateInstructionToken(VmInstruction.GetAtAddress),
                 TokenFactory.CreateBoxedValueToken(100000),
                 TokenFactory.CreateOperatorToken(VmInstruction.Less),
-                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfFalse, 14),
-                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 4),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 4),
                 TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
             };
 
