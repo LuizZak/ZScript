@@ -524,15 +524,12 @@ namespace ZScript.Runtime.Execution
             int argCount = (int)_stack.Pop();
 
             // Pop the arguments from the stackh
-            ArrayList arguments = new ArrayList();
+            var arguments = new object[argCount];
 
             for (int i = 0; i < argCount; i++)
             {
-                arguments.Add(PopValueImplicit());
+                arguments[argCount - i - 1] = PopValueImplicit();
             }
-
-            // Reverse the array, so early arguments come first
-            arguments.Reverse();
 
             // Pop the function to call
             var callable = PopCallable();
@@ -546,13 +543,13 @@ namespace ZScript.Runtime.Execution
             var zFunction = callable as ZFunction;
             if (zFunction != null)
             {
-                _stack.Push(_context.Runtime.CallFunction(zFunction, arguments.ToArray()));
+                _stack.Push(_context.Runtime.CallFunction(zFunction, arguments));
                 return;
             }
             var wrapper = callable as ICallableWrapper;
             if (wrapper != null)
             {
-                _stack.Push(_context.Runtime.CallFunction(wrapper, arguments.ToArray()));
+                _stack.Push(_context.Runtime.CallFunction(wrapper, arguments));
             }
         }
 
