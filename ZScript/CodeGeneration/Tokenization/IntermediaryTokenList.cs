@@ -80,9 +80,9 @@ namespace ZScript.CodeGeneration.Tokenization
 
         /// <summary>
         /// Throws an InvalidOperationException.
-        /// For removal of tokens, utilize the <see cref="RemoveToken"/> method instead
+        /// For removal of tokens, utilize the <see cref="RemoveToken(Token, Token)"/> method instead
         /// </summary>
-        /// <exception cref="InvalidOperationException">Cannot remove a token with this method. For removal of tokens, utilize the <see cref="RemoveToken"/> method instead</exception>
+        /// <exception cref="InvalidOperationException">Cannot remove a token with this method. For removal of tokens, utilize the <see cref="RemoveToken(Token, Token)"/> method instead</exception>
         public bool Remove(Token item)
         {
             throw new InvalidOperationException("Tokens must be removed through the RemoveToken() method");
