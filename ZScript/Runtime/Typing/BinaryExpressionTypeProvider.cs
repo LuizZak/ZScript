@@ -610,7 +610,7 @@ namespace ZScript.Runtime.Typing
         /// <returns>true if the type represents an integer or floating-point number, false otherwise</returns>
         public bool IsNumeric(TypeDef type)
         {
-            return type == _intType || type == _floatType;
+            return type == _intType || type == _floatType || (type is NativeTypeDef && ((NativeTypeDef)type).NativeType == typeof(Int32));
         }
 
         /// <summary>
