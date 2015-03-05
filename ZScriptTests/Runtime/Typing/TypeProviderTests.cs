@@ -28,9 +28,11 @@ using Rhino.Mocks;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 using ZScript.Elements;
+using ZScript.Runtime;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 
@@ -176,9 +178,21 @@ namespace ZScriptTests.Runtime.Typing
         {
             var provider = new TypeProvider();
 
-            var native = provider.NativeTypeForTypeDef(provider.AnyType());
+            var native1 = provider.NativeTypeForTypeDef(provider.AnyType());
+            var native2 = provider.NativeTypeForTypeDef(provider.AnyType(), true);
 
-            Assert.AreEqual(null, native);
+            Assert.AreEqual(null, native1);
+            Assert.AreEqual(typeof(object), native2);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeClass()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(new ClassTypeDef("class"));
+
+            Assert.AreEqual(typeof(ZClassInstance), native);
         }
 
         #endregion

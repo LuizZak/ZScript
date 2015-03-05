@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using ZScript.Runtime;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -227,7 +228,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Represents a type that describes a class
     /// </summary>
-    public class ClassTypeDef : TypeDef
+    public class ClassTypeDef : NativeTypeDef
     {
         /// <summary>
         /// Gets or sets the base type for this ClassTypeDef
@@ -247,7 +248,8 @@ namespace ZScript.CodeGeneration.Definitions
         /// Initializes a new instance of the ClassTypeDef class
         /// </summary>
         /// <param name="name">The name for the class type definition</param>
-        public ClassTypeDef(string name) : base(name, false)
+        public ClassTypeDef(string name)
+            : base(typeof(ZClassInstance), name)
         {
 
         }
