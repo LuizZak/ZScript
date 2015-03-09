@@ -161,7 +161,7 @@ namespace ZScript.Runtime.Typing
             if (listTypeDef != null)
             {
                 // Get the native type definition if the inner type
-                var innerType = NativeTypeForTypeDef(listTypeDef.EnclosingType);
+                var innerType = NativeTypeForTypeDef(listTypeDef.EnclosingType, anyAsObject);
                 var listType = typeof(List<>);
 
                 return listType.MakeGenericType(innerType ?? typeof(object));
@@ -171,8 +171,8 @@ namespace ZScript.Runtime.Typing
             var dictTypeDef = typeDef as DictionaryTypeDef;
             if (dictTypeDef != null)
             {
-                var keyType = NativeTypeForTypeDef(dictTypeDef.SubscriptType);
-                var valueType = NativeTypeForTypeDef(dictTypeDef.EnclosingType);
+                var keyType = NativeTypeForTypeDef(dictTypeDef.SubscriptType, anyAsObject);
+                var valueType = NativeTypeForTypeDef(dictTypeDef.EnclosingType, anyAsObject);
                 var dictType = typeof(Dictionary<,>);
 
                 return dictType.MakeGenericType(keyType ?? typeof(object), valueType ?? typeof(object));

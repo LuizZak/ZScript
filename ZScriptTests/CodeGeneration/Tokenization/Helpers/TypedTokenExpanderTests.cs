@@ -18,8 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -31,7 +30,7 @@ using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing;
-using ZScript.Utils;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
@@ -42,6 +41,37 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
     [TestClass]
     public class TypedTokenExpanderTests
     {
+        /// <summary>
+        /// Tests expanding an any type
+        /// </summary>
+        [TestMethod]
+        public void TestExpandAnyType()
+        {
+            // Setup the test
+            const string input = "any";
+
+            var parser = TestUtils.CreateParser(input);
+            var type = parser.type();
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, type),
+            };
+
+            var tokenList = tokens.ToTokenList();
+            var typeProvider = new TypeProvider();
+            var context = new RuntimeGenerationContext(null, new MessageContainer(), typeProvider);
+            context.ContextTypeProvider = new ExpressionTypeResolver(context);
+
+            // Expand the tokens
+            TypedTokenExpander expander = new TypedTokenExpander(context);
+
+            expander.ExpandInList(tokenList);
+
+            // Assert the results
+            Assert.AreEqual(typeof(object), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
+        }
+
         /// <summary>
         /// Tests expanding a primitive type
         /// </summary>

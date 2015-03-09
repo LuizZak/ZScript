@@ -67,7 +67,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     typeDef = _context.ContextTypeProvider.TypeForContext(typedToken.TypeContext);
                 }
 
-                Type type = _context.TypeProvider.NativeTypeForTypeDef(typeDef);
+                Type type = _context.TypeProvider.NativeTypeForTypeDef(typeDef, true);
                 if (type == null)
                     throw new Exception("Could not expand type token " + typedToken);
 

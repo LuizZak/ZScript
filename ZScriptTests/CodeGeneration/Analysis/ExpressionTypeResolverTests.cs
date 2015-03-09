@@ -420,6 +420,25 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ImplicitCastType, "The resolved type did not match the expected type");
         }
 
+        /// <summary>
+        /// Tests multiple sequential type casting
+        /// </summary>
+        [TestMethod]
+        public void TestMultipleCasting()
+        {
+            // Set up the test
+            const string input = "([int])(any)[0];";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var exp1 = parser.statement().expression();
+
+            // Compare the result now
+            Assert.AreEqual(provider.ListForType(provider.IntegerType()), resolver.ResolveExpression(exp1), "The resolved type did not match the expected type");
+        }
+
         #endregion
 
         #region Subscription/function call argument type resolving
