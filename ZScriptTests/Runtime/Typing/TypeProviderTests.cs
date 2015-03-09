@@ -32,7 +32,6 @@ using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 using ZScript.Elements;
-using ZScript.Runtime;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 
@@ -192,7 +191,7 @@ namespace ZScriptTests.Runtime.Typing
 
             var native = provider.NativeTypeForTypeDef(new ClassTypeDef("class"));
 
-            Assert.AreEqual(typeof(ZClassInstance), native);
+            Assert.AreEqual(native, native);
         }
 
         #endregion

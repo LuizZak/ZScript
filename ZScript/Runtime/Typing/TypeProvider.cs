@@ -686,7 +686,7 @@ namespace ZScript.Runtime.Typing
 
                 // Native types
                 var nativeTypeDef = typeDef as NativeTypeDef;
-                if (nativeTypeDef != null)
+                if (nativeTypeDef != null && !(nativeTypeDef is ClassTypeDef))
                 {
                     return nativeTypeDef.NativeType;
                 }

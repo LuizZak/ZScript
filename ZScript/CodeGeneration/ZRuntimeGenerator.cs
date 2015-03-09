@@ -341,13 +341,11 @@ namespace ZScript.CodeGeneration
 
             // Expand the definitions in all of the list now
             var variableExpander = new VariableTokenExpander(runtimeDefinition.GetFunctions(), scope);
-            var typeExpander = new TypedTokenExpander(context);
             foreach (var function in runtimeDefinition.GetFunctions())
             {
                 if (function.Tokens != null)
                 {
                     variableExpander.ExpandInList(function.Tokens);
-                    typeExpander.ExpandInList(function.Tokens);
                 }
             }
             

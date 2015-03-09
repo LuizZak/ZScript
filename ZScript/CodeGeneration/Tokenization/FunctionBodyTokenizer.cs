@@ -71,7 +71,11 @@ namespace ZScript.CodeGeneration.Tokenization
             }
 
             JumpTokenOptimizer.OptimizeJumps(tokens, VmInstruction.Interrupt);
+            var typeExpander = new TypedTokenExpander(_generationContext);
+
             TokenList finalList = tokens.ToTokenList();
+
+            typeExpander.ExpandInList(finalList);
 
             if (DebugTokens)
             {

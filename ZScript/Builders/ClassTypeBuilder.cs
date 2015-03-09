@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -20,6 +21,11 @@ namespace ZScript.Builders
         public const string ClassNameSuffix = "_class";
 
         /// <summary>
+        /// Dictionary that maps class definition objects into types
+        /// </summary>
+        private readonly Dictionary<ClassDefinition, Type> _mappedTypes; 
+
+        /// <summary>
         /// The context used during type building
         /// </summary>
         private readonly RuntimeGenerationContext _generationContext;
@@ -38,6 +44,7 @@ namespace ZScript.Builders
         {
             _generationContext = generationContext;
             _typeBuildingContext = typeBuildingContext;
+            _mappedTypes = new Dictionary<ClassDefinition, Type>();
         }
 
         /// <summary>
@@ -46,13 +53,31 @@ namespace ZScript.Builders
         /// <param name="definition">The class definition to construct</param>
         public Type ConstructType(ClassDefinition definition)
         {
+            if (_mappedTypes.ContainsKey(definition))
+            {
+                return _mappedTypes[definition];
+            }
+
+            // Expand super classes first
+            if (definition.BaseClass != null)
+            {
+                ConstructType(definition.BaseClass);
+            }
+
             var typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType(definition.Name + ClassNameSuffix);
 
-            typeBuilder.SetParent(typeof(ZClassInstance));
+            if(definition.BaseClass == null)
+            {
+                typeBuilder.SetParent(typeof(ZClassInstance));
+            }
+            else
+            {
+                typeBuilder.SetParent(_mappedTypes[definition.BaseClass]);
+            }
 
             DefineConstructor(definition, typeBuilder);
 
-            return typeBuilder.CreateType();
+            return _mappedTypes[definition] = typeBuilder.CreateType();
         }
 
         /// <summary>

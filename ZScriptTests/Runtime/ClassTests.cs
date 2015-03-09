@@ -556,6 +556,39 @@ namespace ZScriptTests.Runtime
             Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
 
+        /// <summary>
+        /// Tests the 'is' operator on generated class types
+        /// </summary>
+        [TestMethod]
+        public void TestIsOperator()
+        {
+            const string input = "@__trace(v...)" +
+                                 "func f1()" +
+                                 "{" +
+                                 "  __trace(TestBaseClass() is TestBaseClass);" +
+                                 "  __trace(TestClass() is TestClass);" +
+                                 "  __trace(TestClass() is TestBaseClass);" +
+                                 "  __trace(TestBaseClass() is TestClass);" +
+                                 "}" +
+                                 "class TestBaseClass { }" +
+                                 "class TestClass : TestBaseClass { }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f1");
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+
+            Assert.AreEqual(true, owner.TraceObjects[0], "Failed TestBaseClass() is TestBaseClass");
+            Assert.AreEqual(true, owner.TraceObjects[1], "Failed TestClass() is TestClass");
+            Assert.AreEqual(true, owner.TraceObjects[2], "Failed TestClass() is TestBaseClass");
+            Assert.AreEqual(false, owner.TraceObjects[3], "Failed TestBaseClass() is TestClass");
+        }
+
         #endregion
 
         #endregion

@@ -122,9 +122,9 @@ namespace ZScriptTests.Utils
         /// and a method definition 'func1' with sinature '(->int)' containing a simple return instruction that returns a '10L' literal value
         /// </summary>
         /// <returns>A dummy test class to use in tests</returns>
-        public static ClassDefinition CreateTestClassDefinition()
+        public static ClassDefinition CreateTestClassDefinition(string name = "className")
         {
-            var classDef = new ClassDefinition("className");
+            var classDef = new ClassDefinition(name);
 
             const string field1Exp = "10";
 
@@ -142,8 +142,9 @@ namespace ZScriptTests.Utils
         /// Creates a test class to use in tests, containing a field named 'field1' of long type with a default value of 10
         /// and a method definition 'func1' with sinature '(->int)' containing a simple return instruction that returns a '10L' literal value
         /// </summary>
+        /// <param name="name">The custom class name fo rthe created class</param>
         /// <returns>A dummy test class to use in tests</returns>
-        public static ZClassInstance CreateTestClassInstance()
+        public static ZClassInstance CreateTestClassInstance(string name = "className")
         {
             // 'field1' field
             var fieldTokens = new IntermediaryTokenList { TokenFactory.CreateBoxedValueToken(10) };
@@ -153,7 +154,7 @@ namespace ZScriptTests.Utils
             var funcTokens = new IntermediaryTokenList { TokenFactory.CreateBoxedValueToken(10L), TokenFactory.CreateInstructionToken(VmInstruction.Ret) };
             var func1 = new ZMethod("func1", funcTokens.ToTokenList(), new FunctionArgument[0]);
 
-            var cls = new ZClass("className", new[] { func1 }, new[] { field1 }, new ZMethod("className", new TokenList(), new FunctionArgument[0]), typeof(ZClassInstance));
+            var cls = new ZClass(name, new[] { func1 }, new[] { field1 }, new ZMethod(name, new TokenList(), new FunctionArgument[0]), typeof(ZClassInstance));
 
             var inst = new ZClassInstance(cls);
 

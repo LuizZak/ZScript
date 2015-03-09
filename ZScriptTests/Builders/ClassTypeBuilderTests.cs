@@ -56,9 +56,10 @@ namespace ZScriptTests.Builders
             var classBuilder = new ClassTypeBuilder(generationContext, buildingContext);
 
             // Create the class type
-            ParameterModifier[] mod = { new ParameterModifier(1) };
-
             var classType = classBuilder.ConstructType(classDef);
+
+            // Search the constructor
+            ParameterModifier[] mod = { new ParameterModifier(1) };
             var constructor = classType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, Type.DefaultBinder, CallingConventions.Any, new[] { typeof(ZClass) }, mod);
 
             var constructors = classType.GetConstructors();
@@ -70,6 +71,31 @@ namespace ZScriptTests.Builders
             }
 
             Assert.IsNotNull(constructor, "Failed to generated expected constructor");
+        }
+
+        /// <summary>
+        /// Tests verification of constructors for generated ZClassInstances
+        /// </summary>
+        [TestMethod]
+        public void TestGeneratedClassInheritance()
+        {
+            // Define a simple class to build
+            var classDef1 = TestUtils.CreateTestClassDefinition("class1");
+            var classDef2 = TestUtils.CreateTestClassDefinition("class2");
+
+            classDef2.BaseClass = classDef1;
+
+            // Boilerplate
+            var generationContext = new RuntimeGenerationContext();
+            var buildingContext = TypeBuildingContext.CreateBuilderContext("TestAssembly");
+
+            var classBuilder = new ClassTypeBuilder(generationContext, buildingContext);
+
+            var classType1 = classBuilder.ConstructType(classDef1);
+            var classType2 = classBuilder.ConstructType(classDef2);
+
+            Assert.IsTrue(classType1.IsAssignableFrom(classType2), "Failed to manage inheritance correctly");
+            Assert.IsFalse(classType2.IsAssignableFrom(classType1), "Failed to manage inheritance correctly");
         }
     }
 }
