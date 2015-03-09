@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Reflection;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -347,10 +347,9 @@ namespace ZScript.Runtime
         /// <returns>A ZConstructor that when executed returns an instance of a class</returns>
         private ZConstructor CreateConstructor(ZClass zClass)
         {
-            var classInstance = new ZClassInstance(zClass);
-            var constructor = new ZConstructor(classInstance);
+            var instType = (ZClassInstance)Activator.CreateInstance(zClass.NativeType, zClass);
 
-            return constructor;
+            return new ZConstructor(instType);
         }
 
         /// <summary>

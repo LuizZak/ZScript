@@ -81,6 +81,11 @@ namespace ZScript.CodeGeneration
         private readonly SourceProvider _sourceProvider;
 
         /// <summary>
+        /// The native type builder used during generation time
+        /// </summary>
+        private ClassNativeTypeBuilder _nativeTypeBuilder;
+
+        /// <summary>
         /// Returns the array of all the syntax errors that were found during the parsing of the script
         /// </summary>
         public SyntaxError[] SyntaxErrors
@@ -319,11 +324,11 @@ namespace ZScript.CodeGeneration
 
             // Create the class type converter
             var context = CreateContext(scope);
-            var classBuilder = new ClassNativeTypeBuilder(context, "ZScript_Assembly");
-            classBuilder.CreateTypes();
+            _nativeTypeBuilder = new ClassNativeTypeBuilder(context, "ZScript_Assembly");
+            _nativeTypeBuilder.CreateTypes();
 
             // Register the native type source for the calss native type source
-            context.TypeProvider.RegisterCustomNativeTypeSource(classBuilder);
+            context.TypeProvider.RegisterCustomNativeTypeSource(_nativeTypeBuilder);
             
             var runtimeDefinition = new ZRuntimeDefinition();
 
@@ -477,8 +482,8 @@ namespace ZScript.CodeGeneration
 
                 ZMethod constructor = new ZMethod(classDef.PublicConstructor.Name, tokenList,
                                                     GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
-                
-                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor));
+
+                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor, _nativeTypeBuilder.TypeForClassType(classDef.ClassTypeDef)));
             }
 
             // Run over the base methods, setting the correct base methods now
@@ -903,6 +908,17 @@ namespace ZScript.CodeGeneration
                 }
             }
 
+            /// <summary>
+            /// Returns a native type for the associated class type, or null, if none exists
+            /// </summary>
+            /// <param name="classType">The class type to get</param>
+            /// <returns>A native type that was associated with the given calss type at creation time, or null, if none exists</returns>
+            public Type TypeForClassType(ClassTypeDef classType)
+            {
+                Type native;
+                return _mappedTypes.TryGetValue(classType, out native) ? native : null;
+            }
+
             // 
             // INativeTypeSource.NativeTypeForTypeDef implementation
             // 
@@ -911,8 +927,7 @@ namespace ZScript.CodeGeneration
                 if (!(type is ClassTypeDef))
                     return null;
 
-                Type native;
-                return _mappedTypes.TryGetValue((ClassTypeDef)type, out native) ? native : null;
+                return TypeForClassType((ClassTypeDef)type);
             }
         }
     }

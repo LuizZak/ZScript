@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using ZScript.Elements.ValueHolding;
 
 namespace ZScript.Elements
@@ -46,6 +48,11 @@ namespace ZScript.Elements
         /// The constructor for this class
         /// </summary>
         private readonly ZMethod _constructor;
+
+        /// <summary>
+        /// The native type associated with this ZClass
+        /// </summary>
+        private readonly Type _nativeType;
 
         /// <summary>
         /// Gets the name for the class
@@ -80,18 +87,28 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Gets the native type associated with this ZClass
+        /// </summary>
+        public Type NativeType
+        {
+            get { return _nativeType; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ZClass class
         /// </summary>
         /// <param name="className">The name for the class</param>
         /// <param name="methods">The array of methods for the class</param>
         /// <param name="fields">The array of fields for the class</param>
         /// <param name="constructor">The constructor for this class</param>
-        public ZClass(string className, ZMethod[] methods, ZClassField[] fields, ZMethod constructor)
+        /// <param name="nativeType">The native type associated with this ZClass</param>
+        public ZClass(string className, ZMethod[] methods, ZClassField[] fields, ZMethod constructor, Type nativeType)
         {
             _className = className;
             _methods = methods;
             _fields = fields;
             _constructor = constructor;
+            _nativeType = nativeType;
         }
     }
 
