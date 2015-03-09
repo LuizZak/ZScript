@@ -388,12 +388,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
-        #region Explicit casting
-
-        
-
-        #endregion
-
         #region General function resolving
 
         /// <summary>
