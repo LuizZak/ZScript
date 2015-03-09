@@ -144,47 +144,53 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Returns a list of all the methods inherited and defined by this class definition
         /// </summary>
-        /// <param name="inheritedOnly">Whether to only get methods that where inherited</param>
+        /// <param name="attributes">The attributes to use when searching the members to fetch</param>
         /// <returns>A list of all the methods inherited and defined by this given class definition</returns>
-        public List<MethodDefinition> GetAllMethods(bool inheritedOnly = false)
+        public List<MethodDefinition> GetAllMethods(TypeMemberAttribute attributes = TypeMemberAttribute.CompleteInheritance)
         {
-            var functions = new List<MethodDefinition>();
+            var methods = new List<MethodDefinition>();
 
             var curClass = this;
-            if (inheritedOnly)
+            if (!attributes.HasFlag(TypeMemberAttribute.Defined))
                 curClass = curClass.BaseClass;
 
             while (curClass != null)
             {
-                functions.AddRange(curClass.Methods);
+                methods.AddRange(curClass.Methods);
+
+                if (!attributes.HasFlag(TypeMemberAttribute.Inherited))
+                    break;
 
                 curClass = curClass.BaseClass;
             }
 
-            return functions;
+            return methods;
         }
 
         /// <summary>
         /// Returns a list of all the fields inherited and defined by this class definition
         /// </summary>
-        /// <param name="inheritedOnly">Whether to only get fields that where inherited</param>
+        /// <param name="attributes">The attributes to use when searching the members to fetch</param>
         /// <returns>A list of all the fields inherited and defined by this given class definition</returns>
-        public override List<TypeFieldDefinition> GetAllFields(bool inheritedOnly = false)
+        public override List<TypeFieldDefinition> GetAllFields(TypeMemberAttribute attributes = TypeMemberAttribute.CompleteInheritance)
         {
-            var functions = new List<TypeFieldDefinition>();
+            var fields = new List<TypeFieldDefinition>();
 
             var curClass = this;
-            if (inheritedOnly)
+            if (!attributes.HasFlag(TypeMemberAttribute.Defined))
                 curClass = curClass.BaseClass;
 
             while (curClass != null)
             {
-                functions.AddRange(curClass.Fields);
+                fields.AddRange(curClass.Fields);
+
+                if (!attributes.HasFlag(TypeMemberAttribute.Inherited))
+                    break;
 
                 curClass = curClass.BaseClass;
             }
 
-            return functions;
+            return fields;
         }
 
         /// <summary>

@@ -165,6 +165,8 @@ namespace ZScript.CodeGeneration.Messages
         ReturnTypeOnConstructor,
         /// <summary>The 'base' special expression has no base method to target at</summary>
         NoBaseTarget,
+        /// <summary>The field of a class cannot be resolved because it lacks an explicit type or its initial value is not a compile-time constant</summary>
+        MissingFieldType,
 
         #endregion
     }

@@ -67,9 +67,18 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Verification supposed to be made after types have been expanded on the runtime generator
+        /// </summary>
+        public void PostVerification()
+        {
+            VerifyMethods();
+            VerifyFields();
+        }
+
+        /// <summary>
         /// Verifies the validity of the methods from the classes on the generation context this object was initialized with
         /// </summary>
-        public void VerifyMethods()
+        private void VerifyMethods()
         {
             // Get the classes to expand
             var classes = _baseScope.GetDefinitionsByTypeRecursive<ClassDefinition>().ToArray();
@@ -77,7 +86,21 @@ namespace ZScript.CodeGeneration.Analysis
             foreach (var classDefinition in classes)
             {
                 CheckMethodCollisions(classDefinition);
+            }
+        }
+
+        /// <summary>
+        /// Verifies the validity of the fields from the classes on the generation context this object was initialized with
+        /// </summary>
+        private void VerifyFields()
+        {
+            // Get the classes to expand
+            var classes = _baseScope.GetDefinitionsByTypeRecursive<ClassDefinition>().ToArray();
+
+            foreach (var classDefinition in classes)
+            {
                 CheckFieldCollisions(classDefinition);
+                VerifyFieldType(classDefinition);
             }
         }
 
@@ -140,17 +163,16 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Setup method overloading
             var methods = definition.Methods;
-            var inheritedMethods = definition.GetAllMethods(true);
+            var inheritedMethods = definition.GetAllMethods(TypeMemberAttribute.Inherited);
 
-            for (int i = 0; i < methods.Length; i++)
+            foreach (var method in methods)
             {
-                var method = methods[i];
-
                 // Ignore 'base' methods
                 if (method.Name == "base")
                     continue;
 
-                var baseMethod = inheritedMethods.FirstOrDefault(m => m.Name == method.Name);
+                var method1 = method;
+                var baseMethod = inheritedMethods.FirstOrDefault(m => m.Name == method1.Name);
 
                 method.BaseMethod = baseMethod;
             }
@@ -170,6 +192,10 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 const string message = "Constructors cannot specify a return type";
                 _generationContext.MessageContainer.RegisterError(constructor.functionDefinition().returnType(), message, ErrorCode.ReturnTypeOnConstructor);
+
+                // Remove the constructor's type
+                constructor.MethodDefinition.ReturnType = null;
+                constructor.MethodDefinition.HasReturnType = false;
             }
         }
 
@@ -180,7 +206,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void CheckMethodCollisions(ClassDefinition definition)
         {
             var methods = definition.Methods;
-            var inheritedMethods = definition.GetAllMethods(true);
+            var inheritedMethods = definition.GetAllMethods(TypeMemberAttribute.Inherited);
 
             for (int i = 0; i < methods.Length; i++)
             {
@@ -239,16 +265,37 @@ namespace ZScript.CodeGeneration.Analysis
         private void CheckFieldCollisions(ClassDefinition definition)
         {
             var fields = definition.Fields;
-            var inheritedFields = definition.GetAllFields(true);
+            var inheritedFields = definition.GetAllFields(TypeMemberAttribute.Inherited);
 
-            for (int i = 0; i < fields.Length; i++)
+            foreach (var field in fields)
             {
-                var field = fields[i];
-
-                if (inheritedFields.Any(f => f.Name == field.Name))
+                var field1 = field;
+                if (inheritedFields.Any(f => f.Name == field1.Name))
                 {
                     var message = "Duplicated field definition '" + field.Name + "'";
                     _generationContext.MessageContainer.RegisterError(field.Context, message, ErrorCode.DuplicatedDefinition);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the field of a class is compile-time resolvable
+        /// </summary>
+        /// <param name="definition">The definition to check collisions on</param>
+        private void VerifyFieldType(ClassDefinition definition)
+        {
+            var fields = definition.Fields;
+
+            foreach (var field in fields)
+            {
+                // Can only verify type-less fields
+                if (field.HasType)
+                    continue;
+
+                if (field.TypeContext == null && !field.HasInferredType)
+                {
+                    var message = "Cannot resolve type for field '" + field.Name + "'. Type has to be explicitly stated or compile-time resolvable.";
+                    _generationContext.MessageContainer.RegisterError(field.Context, message, ErrorCode.MissingFieldType);
                 }
             }
         }

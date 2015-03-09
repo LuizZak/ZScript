@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using System.Collections.Generic;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -46,8 +48,22 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Returns a list of all the fields inherited and defined by this class definition
         /// </summary>
-        /// <param name="inheritedOnly">Whether to only get fields that where inherited</param>
+        /// <param name="attributes">The attributes to use when searching the members to fetch</param>
         /// <returns>A list of all the fields inherited and defined by this given class definition</returns>
-        public abstract List<TypeFieldDefinition> GetAllFields(bool inheritedOnly = false);
+        public abstract List<TypeFieldDefinition> GetAllFields(TypeMemberAttribute attributes = TypeMemberAttribute.CompleteInheritance);
+    }
+
+    /// <summary>
+    /// Specifies attributes to use when searching members on a type container
+    /// </summary>
+    [Flags]
+    public enum TypeMemberAttribute
+    {
+        /// <summary>Gets members defined in the current type</summary>
+        Defined = 0x1 << 0,
+        /// <summary>Gets members inherited in the current type</summary>
+        Inherited = 0x1 << 1,
+        /// <summary>Gets all members from the complete inheritance chain</summary>
+        CompleteInheritance = 0x1 | (0x1 << 1)
     }
 }

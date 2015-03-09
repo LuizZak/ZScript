@@ -422,6 +422,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (!definition.HasType)
             {
                 definition.Type = valueType;
+                definition.HasInferredType = valueType != null;
             }
 
             var varType = definition.Type;

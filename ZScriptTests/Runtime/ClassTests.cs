@@ -128,6 +128,8 @@ namespace ZScriptTests.Runtime
 
             // Get the class created
             Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ReturnTypeOnConstructor));
+            Assert.AreEqual(0, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths),
+                "No return type errors can be raised on a constructor because it cannot return a value");
         }
 
         /// <summary>
@@ -315,6 +317,25 @@ namespace ZScriptTests.Runtime
         }
 
         #endregion
+
+        #endregion
+
+        #region Type resolving
+
+        /// <summary>
+        /// Tests raising of errors related to missing types on fields
+        /// </summary>
+        [TestMethod]
+        public void TestMissingTypeOnFieldError()
+        {
+            const string input = "class Test1 { var field3; var field1:int; var field2 = 0; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingFieldType), "Failed to raise expected errors");
+        }
 
         #endregion
 

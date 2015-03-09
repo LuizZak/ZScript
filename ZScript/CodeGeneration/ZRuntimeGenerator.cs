@@ -277,7 +277,7 @@ namespace ZScript.CodeGeneration
             AnalyzeCollisions(completeScope);
 
             // Give another pass to classes: now verifying the methods
-            classExpander.VerifyMethods();
+            classExpander.PostVerification();
 
             return completeScope;
         }

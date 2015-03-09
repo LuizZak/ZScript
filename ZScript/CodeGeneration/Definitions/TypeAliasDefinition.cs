@@ -105,13 +105,13 @@ namespace ZScript.CodeGeneration.Definitions
         {
             _fields.Remove(definition);
         }
-        
+
         /// <summary>
         /// Gets all the fields defined in this type alias definition
         /// </summary>
-        /// <param name="inheritedOnly">Whether to get only fields that where inherited</param>
+        /// <param name="attributes"></param>
         /// <returns>A list of fields from this type definition</returns>
-        public override List<TypeFieldDefinition> GetAllFields(bool inheritedOnly = false)
+        public override List<TypeFieldDefinition> GetAllFields(TypeMemberAttribute attributes = TypeMemberAttribute.CompleteInheritance)
         {
             return _fields;
         }

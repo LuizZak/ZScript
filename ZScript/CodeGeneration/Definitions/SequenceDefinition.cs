@@ -83,9 +83,9 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets all the fields visible in this sequence definition, optionally fetching only the inherited fields
         /// </summary>
-        /// <param name="inheritedOnly">Whether to fetch inherited fields only</param>
+        /// <param name="attributes">The attributes to use when searching the members to fetch</param>
         /// <returns>A list of all fields visible in this sequence definition</returns>
-        public override List<TypeFieldDefinition> GetAllFields(bool inheritedOnly = false)
+        public override List<TypeFieldDefinition> GetAllFields(TypeMemberAttribute attributes = TypeMemberAttribute.CompleteInheritance)
         {
             return fields;
         }
