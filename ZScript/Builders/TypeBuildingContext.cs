@@ -22,7 +22,7 @@ namespace ZScript.Builders
         /// <summary>
         /// The module builder to build on
         /// </summary>
-        public ModuleBuilder ModuleBuilder { get; set; }
+        public ModuleBuilder ModuleBuilder { get; private set; }
 
         /// <summary>
         /// Private constructor 
@@ -33,21 +33,27 @@ namespace ZScript.Builders
         }
 
         /// <summary>
+        /// Resets the assembly context of this type building context
+        /// </summary>
+        public void ResetContext()
+        {
+            AssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(AssemblyName, AssemblyBuilderAccess.RunAndSave);
+            ModuleBuilder = AssemblyBuilder.DefineDynamicModule(AssemblyName.Name, AssemblyName.Name + ".dll");
+        }
+
+        /// <summary>
         /// Creates a new type builder context with a given assembly name
         /// </summary>
         /// <param name="name">The name of the assembly to generate</param>
         /// <returns>A new TypeBuildingContext to use on type builders</returns>
         public static TypeBuildingContext CreateBuilderContext(string name)
         {
-            var assemblyName = new AssemblyName(name);
-
             var context = new TypeBuildingContext
             {
-                AssemblyName = assemblyName,
-                AssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave),
+                AssemblyName = new AssemblyName(name)
             };
 
-            context.ModuleBuilder = context.AssemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName.Name + ".dll");
+            context.ResetContext();
 
             return context;
         }

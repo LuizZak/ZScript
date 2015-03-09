@@ -49,6 +49,7 @@ namespace ZScript.Builders
         /// </summary>
         public void ClearCache()
         {
+            _typeBuildingContext.ResetContext();
             _mappedTypes.Clear();
             _classSuffix = 0;
         }
