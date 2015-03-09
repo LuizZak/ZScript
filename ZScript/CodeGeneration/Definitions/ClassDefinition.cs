@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using ZScript.Elements;
 using ZScript.Runtime;
 using ZScript.Runtime.Typing.Elements;
 
@@ -113,7 +114,12 @@ namespace ZScript.CodeGeneration.Definitions
         {
             if (PublicConstructor == null)
             {
-                PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0]) { ReturnType = _classTypeDef, HasReturnType = true };
+                PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0])
+                {
+                    ReturnType = _classTypeDef,
+                    HasReturnType = true,
+                    Tokens = new TokenList()
+                };
             }
 
             PublicConstructor.Class = this;
@@ -174,7 +180,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <returns>A list of all the fields inherited and defined by this given class definition</returns>
         public override List<TypeFieldDefinition> GetAllFields(TypeMemberAttribute attributes = TypeMemberAttribute.CompleteInheritance)
         {
-            var fields = new List<TypeFieldDefinition>();
+            var fieldList = new List<TypeFieldDefinition>();
 
             var curClass = this;
             if (!attributes.HasFlag(TypeMemberAttribute.Defined))
@@ -182,7 +188,7 @@ namespace ZScript.CodeGeneration.Definitions
 
             while (curClass != null)
             {
-                fields.AddRange(curClass.Fields);
+                fieldList.AddRange(curClass.Fields);
 
                 if (!attributes.HasFlag(TypeMemberAttribute.Inherited))
                     break;
@@ -190,7 +196,7 @@ namespace ZScript.CodeGeneration.Definitions
                 curClass = curClass.BaseClass;
             }
 
-            return fields;
+            return fieldList;
         }
 
         /// <summary>

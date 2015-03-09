@@ -945,7 +945,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (items == null)
             {
-                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(listItemsType, true);
+                context.EvaluatedValueType = listItemsType;
 
                 return TypeProvider.ListForType(listItemsType);
             }
@@ -967,7 +967,7 @@ namespace ZScript.CodeGeneration.Analysis
                     listItemsType = TypeProvider.FindCommonType(itemType, listItemsType);
                 }
 
-                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(listItemsType, true);
+                context.EvaluatedValueType = listItemsType;
 
                 return TypeProvider.ListForType(listItemsType);
             }
@@ -992,12 +992,12 @@ namespace ZScript.CodeGeneration.Analysis
                 var message = "Cannot implicitly convert source list type to target type " + expectedValueType;
                 MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
 
-                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(TypeProvider.AnyType(), true);
+                context.EvaluatedValueType = TypeProvider.AnyType();
 
                 return TypeProvider.ListForType(TypeProvider.AnyType());
             }
 
-            context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(expectedValueType, true);
+            context.EvaluatedValueType = expectedValueType;
 
             return context.ImplicitCastType = TypeProvider.ListForType(expectedValueType);
         }
@@ -1021,8 +1021,8 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (entries.Length == 0)
             {
-                context.EvaluatedKeyType = TypeProvider.NativeTypeForTypeDef(dictKeyType, true);
-                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(dictValueType, true);
+                context.EvaluatedKeyType = dictKeyType;
+                context.EvaluatedValueType = dictValueType;
 
                 return TypeProvider.DictionaryForTypes(dictKeyType, dictValueType);
             }
@@ -1047,8 +1047,8 @@ namespace ZScript.CodeGeneration.Analysis
                     dictValueType = TypeProvider.FindCommonType(valueType, dictValueType);
                 }
 
-                context.EvaluatedKeyType = TypeProvider.NativeTypeForTypeDef(dictKeyType, true);
-                context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(dictValueType, true);
+                context.EvaluatedKeyType = dictKeyType;
+                context.EvaluatedValueType = dictValueType;
 
                 return TypeProvider.DictionaryForTypes(dictKeyType, dictValueType);
             }
@@ -1075,14 +1075,14 @@ namespace ZScript.CodeGeneration.Analysis
                 var message = "Cannot implicitly convert source dictionary type to target type " + TypeProvider.DictionaryForTypes(expectedKeyType, expectedValueType);
                 MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
 
-                context.EvaluatedKeyType = typeof(object);
-                context.EvaluatedValueType = typeof(object);
+                context.EvaluatedKeyType = TypeProvider.AnyType();
+                context.EvaluatedValueType = TypeProvider.AnyType();
 
                 return TypeProvider.DictionaryForTypes(TypeProvider.AnyType(), TypeProvider.AnyType());
             }
 
-            context.EvaluatedKeyType = TypeProvider.NativeTypeForTypeDef(expectedKeyType, true);
-            context.EvaluatedValueType = TypeProvider.NativeTypeForTypeDef(expectedValueType, true);
+            context.EvaluatedKeyType = expectedKeyType;
+            context.EvaluatedValueType = expectedValueType;
 
             return context.ImplicitCastType = TypeProvider.DictionaryForTypes(expectedKeyType, expectedValueType);
         }

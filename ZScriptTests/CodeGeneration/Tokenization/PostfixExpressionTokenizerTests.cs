@@ -23,12 +23,13 @@ using System;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
-
+using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 
@@ -54,7 +55,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "this.field";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -89,7 +90,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "this.field = 10";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.assignmentExpression();
 
@@ -125,7 +126,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "base()";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -163,7 +164,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "new Test(1, 2)";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -203,7 +204,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "(a = 2 + 2)";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -239,7 +240,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "(a = b = c)";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -275,7 +276,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "(a += b -= c)";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -339,7 +340,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a.b.c++";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -377,7 +378,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a().b().c++";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -418,7 +419,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a[0].b()[0]++";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -466,7 +467,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "--a";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -499,7 +500,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "++a";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -532,7 +533,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a--";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -565,7 +566,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a++";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -602,7 +603,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "0 ? 1 : 2";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -642,7 +643,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "0 ? 1 ? 2 : 3 : 4";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -706,7 +707,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "0 ? 1 : 2 ? 3 : 4";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -786,7 +787,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "((5 + 5) * (((7))))";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -822,7 +823,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "(('' + '').Length)";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -859,7 +860,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "-a";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -892,7 +893,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "!a";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -929,7 +930,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "10";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -966,7 +967,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "10";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1002,7 +1003,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "10";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1038,7 +1039,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "true ? 1 : 0";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1087,12 +1088,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "[0, 1, 2]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.arrayLiteral().EvaluatedValueType = typeof(long);
+            exp.arrayLiteral().EvaluatedValueType = TypeDef.IntegerType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -1126,12 +1127,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "[]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.arrayLiteral().EvaluatedValueType = typeof(long);
+            exp.arrayLiteral().EvaluatedValueType = TypeDef.IntegerType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -1161,7 +1162,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string input = "[0, 1, 2]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1182,13 +1183,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "[0:'abc', 1:'def']";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
-            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+            exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.IntegerType;
+            exp.dictionaryLiteral().EvaluatedValueType = TypeDef.StringType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -1223,13 +1224,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "[:]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
-            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+            exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.IntegerType;
+            exp.dictionaryLiteral().EvaluatedValueType = TypeDef.StringType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -1260,13 +1261,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "[0:'abc', 1:'def'][0]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
-            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+            exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.IntegerType;
+            exp.dictionaryLiteral().EvaluatedValueType = TypeDef.StringType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -1304,13 +1305,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "[0:'abc', 1:'def'].Count";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.dictionaryLiteral().EvaluatedKeyType = typeof(long);
-            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+            exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.IntegerType;
+            exp.dictionaryLiteral().EvaluatedValueType = TypeDef.StringType;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -1347,12 +1348,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string input = "[0:'abc', 1:'def']";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.dictionaryLiteral().EvaluatedValueType = typeof(string);
+            exp.dictionaryLiteral().EvaluatedValueType = TypeDef.StringType;
 
             tokenizer.TokenizeExpression(exp);
         }
@@ -1366,12 +1367,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string input = "[0:'abc', 1:'def']";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
             // Provide the type for the expression
-            exp.dictionaryLiteral().EvaluatedKeyType = typeof(string);
+            exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.StringType;
 
             tokenizer.TokenizeExpression(exp);
         }
@@ -1390,7 +1391,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "(bool)10";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1423,7 +1424,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "10 is int";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1460,7 +1461,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a || b";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1501,7 +1502,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a && b";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1542,7 +1543,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a || b && c";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1595,7 +1596,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "10 + 10";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1633,7 +1634,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'abc' + 'abc'";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1675,7 +1676,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'a'.Length";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1710,7 +1711,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'a'.Length.Length.A";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1751,7 +1752,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'a'.ToString()";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1787,7 +1788,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'a'.ToString().IndexOf('1')";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1828,7 +1829,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'a'[0]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 
@@ -1863,7 +1864,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "'a'[0][1]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(null);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
 

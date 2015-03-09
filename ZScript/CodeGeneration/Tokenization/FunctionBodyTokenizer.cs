@@ -20,8 +20,6 @@
 #endregion
 using System;
 
-using ZScript.CodeGeneration.Analysis;
-using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -41,24 +39,17 @@ namespace ZScript.CodeGeneration.Tokenization
         public bool DebugTokens;
 
         /// <summary>
-        /// A code scope containing the definitions that were pre-parsed
+        /// The generation context for this statement tokenizer
         /// </summary>
-        private readonly CodeScope _scope;
-
-        /// <summary>
-        /// The message container to report errors and warnings to
-        /// </summary>
-        private readonly MessageContainer _container;
+        private readonly RuntimeGenerationContext _generationContext;
 
         /// <summary>
         /// Initializes a new instance of the FunctionBodyTokenizer class
         /// </summary>
-        /// <param name="scope">A code scope containing the definitions that were pre-parsed</param>
-        /// <param name="container">A message container to report errors and warnings to</param>
-        public FunctionBodyTokenizer(CodeScope scope, MessageContainer container)
+        /// <param name="context">The context for the runtime generation</param>
+        public FunctionBodyTokenizer(RuntimeGenerationContext context)
         {
-            _scope = scope;
-            _container = container;
+            _generationContext = context;
         }
 
         /// <summary>
@@ -70,7 +61,7 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             var state = context.blockStatement();
 
-            var stc = new StatementTokenizerContext(_scope, _container);
+            var stc = new StatementTokenizerContext(_generationContext);
             var tokens = stc.TokenizeBlockStatement(state);
 
             if (DebugTokens)

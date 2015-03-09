@@ -59,6 +59,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Builders\ClassTypeBuilderTests.cs" />
+    <Compile Include="Builders\TypeBuildingContextTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ControlFlowAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeScopeTests.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionsAnalyzerTests.cs" />
@@ -135,6 +137,7 @@
     <None Include="packages.config" />
     <None Include="ZScript.licenseheader" />
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

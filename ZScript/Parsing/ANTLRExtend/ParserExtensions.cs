@@ -19,7 +19,6 @@
 */
 #endregion
 
-using System;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Typing.Elements;
 
@@ -165,7 +164,7 @@ public partial class ZScriptParser
         /// <summary>
         /// Gets or sets the evaluated type for the values in the array
         /// </summary>
-        public Type EvaluatedValueType { get; set; }
+        public TypeDef EvaluatedValueType { get; set; }
 
         /// <summary>
         /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
@@ -187,12 +186,12 @@ public partial class ZScriptParser
         /// <summary>
         /// Gets or sets the evaluated type for the keys in the dictionary
         /// </summary>
-        public Type EvaluatedKeyType { get; set; }
+        public TypeDef EvaluatedKeyType { get; set; }
         
         /// <summary>
         /// Gets or sets the evaluated type for the values in the dictionary
         /// </summary>
-        public Type EvaluatedValueType { get; set; }
+        public TypeDef EvaluatedValueType { get; set; }
 
         /// <summary>
         /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.

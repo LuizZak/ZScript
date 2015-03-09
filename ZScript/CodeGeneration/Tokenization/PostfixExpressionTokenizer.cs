@@ -27,6 +27,7 @@ using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Parsing;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 
@@ -61,6 +62,14 @@ namespace ZScript.CodeGeneration.Tokenization
         /// Whether the next visit member call is a get access
         /// </summary>
         private bool _isGetAccess = true;
+
+        /// <summary>
+        /// Gets the type provider associated with this PostfixExpressionTokenzer
+        /// </summary>
+        private TypeProvider TypeProvider
+        {
+            get { return _context.GenerationContext.TypeProvider; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the IfStatementTokenizer class
@@ -735,7 +744,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 throw new InvalidOperationException("Array literal context lacked required type for values of the array.");
 
             // Add the array creation token
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, context.EvaluatedValueType));
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(context.EvaluatedValueType, true)));
         }
 
         private void VisitDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
@@ -753,7 +762,12 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitDictionaryEntryList(context.dictionaryEntryList());
 
             // Add the dictionary creation token
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { keyType, valueType }));
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary,
+                new[]
+                {
+                    TypeProvider.NativeTypeForTypeDef(keyType, true),
+                    TypeProvider.NativeTypeForTypeDef(valueType, true)
+                }));
         }
 
         private void VisitDictionaryEntryList(ZScriptParser.DictionaryEntryListContext context)

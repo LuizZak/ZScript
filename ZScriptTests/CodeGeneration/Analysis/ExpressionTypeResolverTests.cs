@@ -283,7 +283,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
             Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolvedType, "The resolved type did not match the expected type");
-            Assert.AreEqual(typeof(long), type.EvaluatedValueType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.IntegerType(), type.EvaluatedValueType, "The resolved type did not match the expected type");
         }
 
         /// <summary>
@@ -305,8 +305,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
             Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.StringType()), resolvedType, "The resolved type did not match the expected type");
-            Assert.AreEqual(typeof(long), type.EvaluatedKeyType, "The resolved type did not match the expected type");
-            Assert.AreEqual(typeof(string), type.EvaluatedValueType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.IntegerType(), type.EvaluatedKeyType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.StringType(), type.EvaluatedValueType, "The resolved type did not match the expected type");
         }
 
         #endregion

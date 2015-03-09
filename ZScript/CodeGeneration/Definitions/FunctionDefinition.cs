@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ZScript.Elements;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -73,6 +74,12 @@ namespace ZScript.CodeGeneration.Definitions
         {
             get { return _bodyContext; }
         }
+
+        /// <summary>
+        /// The generated tokens for the function body.
+        /// May be null, if no tokens have been generated for this body
+        /// </summary>
+        public TokenList Tokens;
 
         /// <summary>
         /// Gets an array of all the function arguments for this function

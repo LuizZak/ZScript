@@ -130,8 +130,10 @@ namespace ZScriptTests.Utils
 
             var parser = CreateParser(field1Exp);
 
-            classDef.AddMethod(new MethodDefinition("func1", null, new FunctionArgumentDefinition[0]) { ReturnType = TypeDef.IntegerType });
+            classDef.AddMethod(new MethodDefinition("func1", null, new FunctionArgumentDefinition[0]) { ReturnType = TypeDef.IntegerType, Tokens = new TokenList() });
             classDef.AddField(new TypeFieldDefinition("field1") { Type = TypeDef.IntegerType, HasValue = true, ValueExpression = new Expression(parser.expression()) });
+
+            classDef.FinishDefinition();
 
             return classDef;
         }

@@ -318,17 +318,18 @@ namespace ZScript.CodeGeneration
             }
 
             var runtimeDefinition = new ZRuntimeDefinition();
+            var context = CreateContext(scope);
 
             // Collect the definitions now
-            runtimeDefinition.AddFunctionDefs(GenerateFunctions(scope));
-            runtimeDefinition.AddGlobalVariables(GenerateGlobalVariables(scope));
-            runtimeDefinition.AddExportFunctionDefs(GenerateExportFunctions(scope));
-            runtimeDefinition.AddClosurenDefs(GenerateClosures(scope));
-            runtimeDefinition.AddClassDefinitions(GenerateClasses(scope));
+            runtimeDefinition.AddFunctionDefs(GenerateFunctions(context));
+            runtimeDefinition.AddGlobalVariables(GenerateGlobalVariables(context));
+            runtimeDefinition.AddExportFunctionDefs(GenerateExportFunctions(context));
+            runtimeDefinition.AddClosurenDefs(GenerateClosures(context));
+            runtimeDefinition.AddClassDefinitions(GenerateClasses(context));
 
             // Expand the definitions in all of the list now
             var variableExpander = new VariableTokenExpander(runtimeDefinition.GetFunctions(), scope);
-            var typeExpander = new TypedTokenExpander(CreateContext(scope));
+            var typeExpander = new TypedTokenExpander(context);
             foreach (var function in runtimeDefinition.GetFunctions())
             {
                 if (function.Tokens != null)
@@ -365,30 +366,44 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Returns a list of ZFunctions generated from a given code scope
         /// </summary>
-        /// <param name="scope">The code scope containing the functions to generate</param>
+        /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
-        private ZFunction[] GenerateFunctions(CodeScope scope)
+        private ZFunction[] GenerateFunctions(RuntimeGenerationContext context)
         {
-            var tokenizer = new FunctionBodyTokenizer(scope, _messageContainer) { DebugTokens = Debug };
-            var funcDefs = scope.Definitions.OfType<FunctionDefinition>().Where(t => !(t is ExportFunctionDefinition) && !(t is ClosureDefinition) );
+            var scope = context.BaseScope;
 
-            return
-                funcDefs.Select(
-                    def =>
-                        new ZFunction(def.Name, tokenizer.TokenizeBody(def.BodyContext),
-                            GenerateFunctionArguments(def.Parameters)) { Signature = def.CallableTypeDef }
-                        ).ToArray();
+            var tokenizer = new FunctionBodyTokenizer(context) { DebugTokens = Debug };
+            var funcDefs = scope.Definitions.OfType<FunctionDefinition>().Where(t => !(t is ExportFunctionDefinition) && !(t is ClosureDefinition) );
+            var zFuncs = new List<ZFunction>();
+
+            foreach (var funcDef in funcDefs)
+            {
+                var tokens = tokenizer.TokenizeBody(funcDef.BodyContext);
+
+                funcDef.Tokens = tokens;
+
+                var zFunction = new ZFunction(funcDef.Name, tokens, GenerateFunctionArguments(funcDef.Parameters))
+                {
+                    Signature = funcDef.CallableTypeDef
+                };
+
+                zFuncs.Add(zFunction);
+            }
+
+            return zFuncs.ToArray();
         }
 
         /// <summary>
         /// Returns a list of ZClasses generated from a given code scope
         /// </summary>
-        /// <param name="scope">The code scope containing the classes to generate</param>
+        /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZClasses available at the top-level scope</returns>
-        private ZClass[] GenerateClasses(CodeScope scope)
+        private ZClass[] GenerateClasses(RuntimeGenerationContext context)
         {
-            var stmtTokenizer = new StatementTokenizerContext(scope, _messageContainer);
-            var tokenizer = new FunctionBodyTokenizer(scope, _messageContainer) { DebugTokens = Debug };
+            var scope = context.BaseScope;
+
+            var stmtTokenizer = new StatementTokenizerContext(context);
+            var tokenizer = new FunctionBodyTokenizer(context) { DebugTokens = Debug };
 
             var classDefs = scope.Definitions.OfType<ClassDefinition>();
             List<ZClass> classes = new List<ZClass>();
@@ -409,6 +424,7 @@ namespace ZScript.CodeGeneration
                     if (methodDef.BodyContext != null)
                     {
                         tokens = tokenizer.TokenizeBody(methodDef.BodyContext);
+                        methodDef.Tokens = tokens;
                     }
 
                     methodDef.RecreateCallableDefinition();
@@ -450,9 +466,11 @@ namespace ZScript.CodeGeneration
                 if (classDef.PublicConstructor.BodyContext != null)
                     tokenList = tokenizer.TokenizeBody(classDef.PublicConstructor.BodyContext);
 
+                classDef.PublicConstructor.Tokens = tokenList;
+
                 ZMethod constructor = new ZMethod(classDef.PublicConstructor.Name, tokenList,
                                                     GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
-
+                
                 classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor));
             }
 
@@ -468,28 +486,42 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Returns a list of ZClosureFunction generated from a given code scope
         /// </summary>
-        /// <param name="scope">The code scope containing the closures to generate</param>
+        /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZClosureFunction available at the top-level scope</returns>
-        private ZClosureFunction[] GenerateClosures(CodeScope scope)
+        private ZClosureFunction[] GenerateClosures(RuntimeGenerationContext context)
         {
-            var tokenizer = new FunctionBodyTokenizer(scope, _messageContainer) { DebugTokens = Debug };
-            var funcDefs = scope.Definitions.OfType<ClosureDefinition>();
+            var scope = context.BaseScope;
 
-            return
-                funcDefs.Select(
-                    def =>
-                        new ZClosureFunction(def.Name, tokenizer.TokenizeBody(def.BodyContext),
-                            GenerateFunctionArguments(def.Parameters))
-                        ).ToArray();
+            var tokenizer = new FunctionBodyTokenizer(context) { DebugTokens = Debug };
+            var closureDefs = scope.Definitions.OfType<ClosureDefinition>();
+            var zClosures = new List<ZClosureFunction>();
+
+            foreach (var funcDef in closureDefs)
+            {
+                var tokens = tokenizer.TokenizeBody(funcDef.BodyContext);
+
+                funcDef.Tokens = tokens;
+
+                var zFunction = new ZClosureFunction(funcDef.Name, tokens, GenerateFunctionArguments(funcDef.Parameters))
+                {
+                    Signature = funcDef.CallableTypeDef
+                };
+
+                zClosures.Add(zFunction);
+            }
+
+            return zClosures.ToArray();
         }
 
         /// <summary>
         /// Returns a list of ZFunctions generated from a given code scope
         /// </summary>
-        /// <param name="scope">The code scope populated with function definitions</param>
+        /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
-        private ZExportFunction[] GenerateExportFunctions(CodeScope scope)
+        private ZExportFunction[] GenerateExportFunctions(RuntimeGenerationContext context)
         {
+            var scope = context.BaseScope;
+
             var funcDefs = scope.Definitions.OfType<ExportFunctionDefinition>();
 
             return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Parameters))).ToArray();
@@ -498,11 +530,13 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Returns a list of GlobalVariables generated from a given code scope
         /// </summary>
-        /// <param name="scope">The code scope populated with the global variable definitions</param>
+        /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing GlobalVariables available at the top-level scope</returns>
-        private GlobalVariable[] GenerateGlobalVariables(CodeScope scope)
+        private GlobalVariable[] GenerateGlobalVariables(RuntimeGenerationContext context)
         {
-            var tokenizer = new StatementTokenizerContext(scope, _messageContainer);
+            var scope = context.BaseScope;
+
+            var tokenizer = new StatementTokenizerContext(context);
             var varDefs = scope.Definitions.OfType<GlobalVariableDefinition>();
 
             return

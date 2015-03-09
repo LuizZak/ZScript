@@ -54,6 +54,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         private readonly MessageContainer _messageContainer;
 
         /// <summary>
+        /// The generation context for this statement tokenizer
+        /// </summary>
+        private readonly RuntimeGenerationContext _generationContext;
+
+        /// <summary>
         /// The current target for continue statements.
         /// May be null, if no targets are currently registered
         /// </summary>
@@ -80,7 +85,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
-        /// The message container to report errors and warnings to
+        /// Gets the message container to report errors and warnings to
         /// </summary>
         public MessageContainer MessageContainer
         {
@@ -88,14 +93,23 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
+        /// Gets the generation context for this statement tokenizer
+        /// </summary>
+        public RuntimeGenerationContext GenerationContext
+        {
+            get { return _generationContext; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the StatementTokenizerContext class
         /// </summary>
-        /// <param name="scope">A code scope containing definitions that were pre-parsed</param>
-        /// <param name="messageContainer">A message container to report errors and warnings to</param>
-        public StatementTokenizerContext(CodeScope scope, MessageContainer messageContainer)
+        /// <param name="context">The context for the runtime generation</param>
+        public StatementTokenizerContext(RuntimeGenerationContext context)
         {
-            _scope = scope;
-            _messageContainer = messageContainer;
+            _scope = context.BaseScope;
+            _messageContainer = context.MessageContainer;
+
+            _generationContext = context;
         }
 
         /// <summary>

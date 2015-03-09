@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\ClassTypeBuilder.cs" />
+    <Compile Include="Builders\TypeBuildingContext.cs" />
     <Compile Include="CodeGeneration\Analysis\ClassDefinitionExpander.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
     <Compile Include="CodeGeneration\Analysis\ControlFlowAnalyzer.cs" />

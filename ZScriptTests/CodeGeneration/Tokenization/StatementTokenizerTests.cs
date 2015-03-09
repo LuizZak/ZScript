@@ -24,6 +24,7 @@ using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -46,7 +47,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = ";";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.statement();
             var generatedTokens = tokenizer.TokenizeStatement(stmt);
@@ -78,7 +79,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "var a = 10;";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.valueDeclareStatement();
             var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
@@ -112,7 +113,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "var a;";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.valueDeclareStatement();
             var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
@@ -138,7 +139,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "let a = 10;";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.valueDeclareStatement();
             var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
@@ -172,7 +173,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "let a;";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.valueDeclareStatement();
             var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
@@ -304,7 +305,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
             var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
@@ -342,7 +343,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; } else { c; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
             var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
@@ -390,7 +391,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; } else if(c) { d; } else { e; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
             var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
@@ -454,7 +455,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; } else if(c) { d; if(e) { f; } else { g; } } else { h; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
             var generatedTokens = tokenizer.TokenizeIfStatement(stmt);
@@ -547,7 +548,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; } else { c; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
 
@@ -586,7 +587,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; } else { c; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
 
@@ -625,7 +626,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "if(a) { b; } else if(c) { d; } else { e; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.ifStatement();
 
@@ -978,7 +979,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "return;";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.returnStatement();
             var generatedTokens = tokenizer.TokenizeReturnStatement(stmt);
@@ -1008,7 +1009,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "return 10 + 10;";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.returnStatement();
             var generatedTokens = tokenizer.TokenizeReturnStatement(stmt);
@@ -1165,7 +1166,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "switch(a) { case 10: a; break; case 11: b; break; }";
             var parser = TestUtils.CreateParser(input);
 
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.switchStatement();
             var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
@@ -1238,7 +1239,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "switch(a) { case 10: a; break; case 11: b; break; }";
             var parser = TestUtils.CreateParser(input);
 
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.switchStatement();
 
@@ -1276,7 +1277,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "switch(a) { case 10: a; break; case 11: b; break; }";
             var parser = TestUtils.CreateParser(input);
 
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.switchStatement();
 
@@ -1308,7 +1309,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "switch(a) { case 10: a; break; case 11: b; break; default: c; break; }";
             var parser = TestUtils.CreateParser(input);
 
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.switchStatement();
 
@@ -1346,7 +1347,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "switch(a) { case 10: a; break; case 11: b; break; default: c; break; }";
             var parser = TestUtils.CreateParser(input);
 
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.switchStatement();
             var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
@@ -1423,7 +1424,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "switch(let a = b) { case 10: a; break; case 11: b; break; default: c; break; }";
             var parser = TestUtils.CreateParser(input);
 
-            var tokenizer = new StatementTokenizerContext(null, null);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.switchStatement();
             var generatedTokens = tokenizer.TokenizeSwitchStatement(stmt);
