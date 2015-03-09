@@ -45,6 +45,11 @@ namespace ZScript.Runtime.Typing
         private readonly List<ICustomTypeSource> _customTypeSources;
 
         /// <summary>
+        /// List of custom native type sources for the program
+        /// </summary>
+        private readonly List<INativeTypeSource> _customNativeTypeSources;
+
+        /// <summary>
         /// Gets type provider used to resolve binary expressions
         /// </summary>
         public BinaryExpressionTypeProvider BinaryExpressionProvider
@@ -59,6 +64,9 @@ namespace ZScript.Runtime.Typing
         {
             _binaryExpressionProvider = new BinaryExpressionTypeProvider(this);
             _customTypeSources = new List<ICustomTypeSource>();
+            _customNativeTypeSources = new List<INativeTypeSource>();
+
+            RegisterCustomNativeTypeSource(new InternalNativeTypeConverter(this));
         }
 
         /// <summary>
@@ -75,6 +83,26 @@ namespace ZScript.Runtime.Typing
         /// specifies whether the source was registered on this type provider before being removed
         /// </summary>
         /// <param name="source">The type source to register on this provider</param>
+        /// <returns>true if the source was registered before the call; false otherwise</returns>
+        public bool UnregisterCustomNativeTypeSource(INativeTypeSource source)
+        {
+            return _customNativeTypeSources.Remove(source);
+        }
+
+        /// <summary>
+        /// Registers a new custom native type source in this type provider
+        /// </summary>
+        /// <param name="source">The native type source to register on this provider</param>
+        public void RegisterCustomNativeTypeSource(INativeTypeSource source)
+        {
+            _customNativeTypeSources.Add(source);
+        }
+
+        /// <summary>
+        /// Unregisters a new custom native type source in this type provider, returning a value that
+        /// specifies whether the source was registered on this type provider before being removed
+        /// </summary>
+        /// <param name="source">The native type source to register on this provider</param>
         /// <returns>true if the source was registered before the call; false otherwise</returns>
         public bool UnregisterCustomTypeSource(ICustomTypeSource source)
         {
@@ -158,48 +186,15 @@ namespace ZScript.Runtime.Typing
         /// <returns>A Type that represents a native equivalent for the given type</returns>
         public Type NativeTypeForTypeDef(TypeDef typeDef, bool anyAsObject = false)
         {
-            // Lists
-            var listTypeDef = typeDef as ListTypeDef;
-            if (listTypeDef != null)
+            // Search in the native type sources
+            foreach (var source in _customNativeTypeSources)
             {
-                // Get the native type definition if the inner type
-                var innerType = NativeTypeForTypeDef(listTypeDef.EnclosingType, anyAsObject);
-                var listType = typeof(List<>);
+                var ret = source.NativeTypeForTypeDef(typeDef, anyAsObject);
 
-                return listType.MakeGenericType(innerType ?? typeof(object));
+                if (ret != null)
+                    return ret;
             }
 
-            // Dictionaries
-            var dictTypeDef = typeDef as DictionaryTypeDef;
-            if (dictTypeDef != null)
-            {
-                var keyType = NativeTypeForTypeDef(dictTypeDef.SubscriptType, anyAsObject);
-                var valueType = NativeTypeForTypeDef(dictTypeDef.EnclosingType, anyAsObject);
-                var dictType = typeof(Dictionary<,>);
-
-                return dictType.MakeGenericType(keyType ?? typeof(object), valueType ?? typeof(object));
-            }
-
-            // Native types
-            var nativeTypeDef = typeDef as NativeTypeDef;
-            if (nativeTypeDef != null)
-            {
-                return nativeTypeDef.NativeType;
-            }
-
-            // Null
-            if (typeDef == NullType())
-            {
-                return typeof(object);
-            }
-
-            // Any
-            if (anyAsObject && typeDef == AnyType())
-            {
-                return typeof(object);
-            }
-
-            // No equivalents
             return null;
         }
 
@@ -642,5 +637,89 @@ namespace ZScript.Runtime.Typing
         {
             return (T)o;
         }
+
+        /// <summary>
+        /// The internal native type converter
+        /// </summary>
+        class InternalNativeTypeConverter : INativeTypeSource
+        {
+            /// <summary>
+            /// The parent type provider for this native type converter
+            /// </summary>
+            private readonly TypeProvider _typeProvider;
+
+            /// <summary>
+            /// Initializes a new instance of the InternalNativeTypeConverter class
+            /// </summary>
+            /// <param name="typeProvider">The owning InternalNativeTypeConverter for this class</param>
+            public InternalNativeTypeConverter(TypeProvider typeProvider)
+            {
+                _typeProvider = typeProvider;
+            }
+
+            // 
+            // InternalNativeTypeConverter.NativeTypeForTypeDef implementation
+            // 
+            public Type NativeTypeForTypeDef(TypeDef typeDef, bool anyAsObject)
+            {
+                // Lists
+                var listTypeDef = typeDef as ListTypeDef;
+                if (listTypeDef != null)
+                {
+                    // Get the native type definition if the inner type
+                    var innerType = _typeProvider.NativeTypeForTypeDef(listTypeDef.EnclosingType, anyAsObject);
+                    var listType = typeof(List<>);
+
+                    return listType.MakeGenericType(innerType ?? typeof(object));
+                }
+
+                // Dictionaries
+                var dictTypeDef = typeDef as DictionaryTypeDef;
+                if (dictTypeDef != null)
+                {
+                    var keyType = _typeProvider.NativeTypeForTypeDef(dictTypeDef.SubscriptType, anyAsObject);
+                    var valueType = _typeProvider.NativeTypeForTypeDef(dictTypeDef.EnclosingType, anyAsObject);
+                    var dictType = typeof(Dictionary<,>);
+
+                    return dictType.MakeGenericType(keyType ?? typeof(object), valueType ?? typeof(object));
+                }
+
+                // Native types
+                var nativeTypeDef = typeDef as NativeTypeDef;
+                if (nativeTypeDef != null)
+                {
+                    return nativeTypeDef.NativeType;
+                }
+
+                // Null
+                if (typeDef == _typeProvider.NullType())
+                {
+                    return typeof(object);
+                }
+
+                // Any
+                if (anyAsObject && typeDef == _typeProvider.AnyType())
+                {
+                    return typeof(object);
+                }
+
+                // No equivalents
+                return null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Interface to be implemented by an object capable of returning a native type when presented with a NativeTypeDef-type class
+    /// </summary>
+    public interface INativeTypeSource
+    {
+        /// <summary>
+        /// Gets a native type definition for the given type definition
+        /// </summary>
+        /// <param name="type">The type defintiion to get the native type of</param>
+        /// <param name="anyAsObject">Whether to resolve 'any' types as 'object'. If left false, 'any' types return null</param>
+        /// <returns>A type that matches the given native type definition</returns>
+        Type NativeTypeForTypeDef(TypeDef type, bool anyAsObject = false);
     }
 }
