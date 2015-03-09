@@ -134,12 +134,15 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             InternalBindJumpTargets(true, VmInstruction.Interrupt);
 
-            var finalList = new List<Token>(this);
+            var finalList = new IntermediaryTokenList(this);
 
             // Remove the unreachable tokens
             RemoveUnreachableTokens(finalList);
             // Remove duplicater Clear Stack instructions
             RemoveSequentialClearStacks(finalList);
+
+            // Optimize jumps once more
+            JumpTokenOptimizer.OptimizeJumps(finalList);
 
             return new TokenList(CreateExpandedTokenList(finalList));
         }
