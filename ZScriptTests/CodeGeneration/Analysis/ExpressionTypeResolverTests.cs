@@ -1031,6 +1031,28 @@ namespace ZScriptTests.CodeGeneration.Analysis
         #region Error raising
 
         /// <summary>
+        /// Tests basic type casting
+        /// </summary>
+        [TestMethod]
+        public void TestUnkownType()
+        {
+            // Set up the test
+            const string input = "(unknown)1; 1 is unknown; unknown";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveType(parser.type());
+
+            // Compare the result now
+            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
         /// Tests dictionary literal type resolving
         /// </summary>
         [TestMethod]

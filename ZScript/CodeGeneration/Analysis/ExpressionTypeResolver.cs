@@ -807,6 +807,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>A type definition that represents the result of the operation</returns>
         public TypeDef ResolveTypeCheck(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext typeToCheck)
         {
+            // Resolve the type
+            ResolveType(typeToCheck);
+
             return TypeProvider.BooleanType();
         }
 
@@ -1165,28 +1168,41 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveType(ZScriptParser.TypeContext context)
         {
+            TypeDef type;
+
             if (context.objectType() != null)
             {
-                return TypeProvider.ObjectType();
+                type = TypeProvider.ObjectType();
             }
-            if (context.typeName() != null)
+            else if (context.typeName() != null)
             {
-                return TypeProvider.TypeNamed(context.typeName().GetText());
+                type = TypeProvider.TypeNamed(context.typeName().GetText());
             }
-            if (context.callableType() != null)
+            else if (context.callableType() != null)
             {
-                return ResolveCallableType(context.callableType());
+                type = ResolveCallableType(context.callableType());
             }
-            if (context.listType() != null)
+            else if (context.listType() != null)
             {
-                return ResolveListType(context.listType());
+                type = ResolveListType(context.listType());
             }
-            if (context.dictionaryType() != null)
+            else if (context.dictionaryType() != null)
             {
-                return ResolveDictionaryType(context.dictionaryType());
+                type = ResolveDictionaryType(context.dictionaryType());
+            }
+            else
+            {
+                throw new Exception("Cannot resolve type for type " + context);
             }
 
-            throw new Exception("Cannot resolve type for type " + context);
+            // Null type - unknown type
+            if (type == null)
+            {
+                var message = "Unkown type '" + context.GetText() + "'";
+                _generationContext.MessageContainer.RegisterError(context, message, ErrorCode.UnkownType);
+            }
+
+            return type ?? TypeProvider.AnyType();
         }
 
         /// <summary>

@@ -113,10 +113,11 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
-        /// Returns a TypeDef that matches the given type name
+        /// Returns a TypeDef that matches the given type name.
+        /// The method returns null, if the type name provided does not exists
         /// </summary>
         /// <param name="typeName">The name of the type to get</param>
-        /// <returns>The type that references the provided type name</returns>
+        /// <returns>The type that references the provided type name, or null, if no type was found</returns>
         public TypeDef TypeNamed(string typeName)
         {
             switch (typeName)
@@ -144,7 +145,8 @@ namespace ZScript.Runtime.Typing
                     return customSource.TypeNamed(typeName);
             }
 
-            return new TypeDef(typeName, true);
+            return null;
+            //return new TypeDef(typeName, true);
         }
 
         /// <summary>

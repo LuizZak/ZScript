@@ -123,6 +123,8 @@ namespace ZScript.CodeGeneration.Messages
         TooManyArguments,
         /// <summary>Invalid operation during constant resolving</summary>
         InvalidConstantOperation,
+        /// <summary>A type provided resolves to an unkown type</summary>
+        UnkownType,
 
         #endregion
 

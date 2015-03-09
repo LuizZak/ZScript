@@ -426,10 +426,14 @@ namespace ZScript.CodeGeneration.Analysis
 
             var varType = definition.Type;
 
-            if (!TypeProvider.CanImplicitCast(valueType, varType))
+            if (varType != null && !TypeProvider.CanImplicitCast(valueType, varType))
             {
                 var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
                 Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
+            }
+            else if (varType == null)
+            {
+                
             }
         }
 
