@@ -27,10 +27,9 @@ namespace ZScriptTests.Builders
             var classDef = TestUtils.CreateTestClassDefinition();
 
             // Boilerplate
-            var generationContext = new RuntimeGenerationContext();
             var buildingContext = TypeBuildingContext.CreateBuilderContext("TestAssembly");
 
-            var classBuilder = new ClassTypeBuilder(generationContext, buildingContext);
+            var classBuilder = new ClassTypeBuilder(buildingContext);
             
             // Create the class type
             var classType = classBuilder.ConstructType(classDef);
@@ -50,10 +49,9 @@ namespace ZScriptTests.Builders
             var classDef = TestUtils.CreateTestClassDefinition();
 
             // Boilerplate
-            var generationContext = new RuntimeGenerationContext();
             var buildingContext = TypeBuildingContext.CreateBuilderContext("TestAssembly");
 
-            var classBuilder = new ClassTypeBuilder(generationContext, buildingContext);
+            var classBuilder = new ClassTypeBuilder(buildingContext);
 
             // Create the class type
             var classType = classBuilder.ConstructType(classDef);
@@ -86,10 +84,9 @@ namespace ZScriptTests.Builders
             classDef2.BaseClass = classDef1;
 
             // Boilerplate
-            var generationContext = new RuntimeGenerationContext();
             var buildingContext = TypeBuildingContext.CreateBuilderContext("TestAssembly");
 
-            var classBuilder = new ClassTypeBuilder(generationContext, buildingContext);
+            var classBuilder = new ClassTypeBuilder(buildingContext);
 
             var classType1 = classBuilder.ConstructType(classDef1);
             var classType2 = classBuilder.ConstructType(classDef2);

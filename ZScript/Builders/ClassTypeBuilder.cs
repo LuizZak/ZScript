@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
 using ZScript.Runtime;
@@ -21,14 +20,14 @@ namespace ZScript.Builders
         public const string ClassNameSuffix = "_class";
 
         /// <summary>
-        /// Dictionary that maps class definition objects into types
+        /// Suffix indexer used to resolve class collisions during generation
         /// </summary>
-        private readonly Dictionary<ClassDefinition, Type> _mappedTypes; 
+        private static int _classSuffix;
 
         /// <summary>
-        /// The context used during type building
+        /// Dictionary that maps class definition objects into types
         /// </summary>
-        private readonly RuntimeGenerationContext _generationContext;
+        private readonly Dictionary<ClassDefinition, Type> _mappedTypes;
 
         /// <summary>
         /// The type building context used during type buiding
@@ -38,15 +37,22 @@ namespace ZScript.Builders
         /// <summary>
         /// Initializes a new instance of the ClassTypeBuilder class
         /// </summary>
-        /// <param name="generationContext">A context for building the type</param>
         /// <param name="typeBuildingContext">A type building context used during type buiding</param>
-        public ClassTypeBuilder(RuntimeGenerationContext generationContext, TypeBuildingContext typeBuildingContext)
+        public ClassTypeBuilder(TypeBuildingContext typeBuildingContext)
         {
-            _generationContext = generationContext;
             _typeBuildingContext = typeBuildingContext;
             _mappedTypes = new Dictionary<ClassDefinition, Type>();
         }
 
+        /// <summary>
+        /// Clears the cache of mapped types registered on this ClassTypeBuilder
+        /// </summary>
+        public void ClearCache()
+        {
+            _mappedTypes.Clear();
+            _classSuffix = 0;
+        }
+        
         /// <summary>
         /// Constructs and returns a type for a given class definition
         /// </summary>
@@ -64,7 +70,16 @@ namespace ZScript.Builders
                 ConstructType(definition.BaseClass);
             }
 
-            var typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType(definition.Name + ClassNameSuffix);
+            TypeBuilder typeBuilder;
+
+            try
+            {
+                typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType(definition.Name + ClassNameSuffix);
+            }
+            catch (ArgumentException)
+            {
+                typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType(definition.Name + ClassNameSuffix + _classSuffix++);
+            }
 
             if(definition.BaseClass == null)
             {

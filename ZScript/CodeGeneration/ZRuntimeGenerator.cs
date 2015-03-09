@@ -83,7 +83,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// The native type builder used during generation time
         /// </summary>
-        private ClassNativeTypeBuilder _nativeTypeBuilder;
+        private readonly ClassNativeTypeBuilder _nativeTypeBuilder;
 
         /// <summary>
         /// Returns the array of all the syntax errors that were found during the parsing of the script
@@ -154,6 +154,7 @@ namespace ZScript.CodeGeneration
             _typeProvider = new TypeProvider();
             _messageContainer = new MessageContainer();
             _syntaxErrorListener = new ZScriptSyntaxErrorListener(_messageContainer);
+            _nativeTypeBuilder = new ClassNativeTypeBuilder("ZScript_Assembly");
 
             _sourceProvider = new SourceProvider();
         }
@@ -257,6 +258,8 @@ namespace ZScript.CodeGeneration
             ClassDefinitionExpander classExpander = new ClassDefinitionExpander(context);
             classExpander.Expand();
 
+            _nativeTypeBuilder.CreateTypes(context);
+
             // Walk the source trees, now that the definitions were collected
             ParseTreeWalker walker = new ParseTreeWalker();
             foreach (var source in _sourceProvider.Sources)
@@ -301,6 +304,9 @@ namespace ZScript.CodeGeneration
             // Assign the context
             context.DefinitionTypeProvider = definitionTypeProvider;
 
+            // Register the native type source for the calss native type source
+            context.TypeProvider.RegisterCustomNativeTypeSource(_nativeTypeBuilder);
+
             return context;
         }
 
@@ -324,11 +330,6 @@ namespace ZScript.CodeGeneration
 
             // Create the class type converter
             var context = CreateContext(scope);
-            _nativeTypeBuilder = new ClassNativeTypeBuilder(context, "ZScript_Assembly");
-            _nativeTypeBuilder.CreateTypes();
-
-            // Register the native type source for the calss native type source
-            context.TypeProvider.RegisterCustomNativeTypeSource(_nativeTypeBuilder);
             
             var runtimeDefinition = new ZRuntimeDefinition();
 
@@ -867,11 +868,6 @@ namespace ZScript.CodeGeneration
             private readonly ClassTypeBuilder _classTypeBuilder;
 
             /// <summary>
-            /// The generation context for the runtime generation
-            /// </summary>
-            private readonly RuntimeGenerationContext _generationContext;
-
-            /// <summary>
             /// A dictionary mapping class type defs to their respective native types
             /// </summary>
             private readonly Dictionary<ClassTypeDef, Type> _mappedTypes;
@@ -879,14 +875,11 @@ namespace ZScript.CodeGeneration
             /// <summary>
             /// Initializes a new instance of the ClassNativeTypeSource class
             /// </summary>
-            /// <param name="generationContext">The generation context for the runtime generation</param>
             /// <param name="assemblyName">The name for the assembly to generate and create the class types on</param>
-            public ClassNativeTypeBuilder(RuntimeGenerationContext generationContext, string assemblyName)
+            public ClassNativeTypeBuilder(string assemblyName)
             {
                 var typeBuildingContext = TypeBuildingContext.CreateBuilderContext(assemblyName);
-
-                _generationContext = generationContext;
-                _classTypeBuilder = new ClassTypeBuilder(generationContext, typeBuildingContext);
+                _classTypeBuilder = new ClassTypeBuilder(typeBuildingContext);
 
                 _mappedTypes = new Dictionary<ClassTypeDef, Type>();
             }
@@ -894,9 +887,11 @@ namespace ZScript.CodeGeneration
             /// <summary>
             /// Creates the types on the runtime generation context provided on this class native type source
             /// </summary>
-            public void CreateTypes()
+            public void CreateTypes(RuntimeGenerationContext generationContext)
             {
-                var classDefinitions = _generationContext.BaseScope.GetDefinitionsByType<ClassDefinition>();
+                ClearCache();
+
+                var classDefinitions = generationContext.BaseScope.GetDefinitionsByType<ClassDefinition>();
 
                 foreach (var classDefinition in classDefinitions)
                 {
@@ -904,6 +899,15 @@ namespace ZScript.CodeGeneration
 
                     _mappedTypes[classDefinition.ClassTypeDef] = nativeType;
                 }
+            }
+
+            /// <summary>
+            /// Clears all the class types registered on this class native type builder
+            /// </summary>
+            private void ClearCache()
+            {
+                _classTypeBuilder.ClearCache();
+                _mappedTypes.Clear();
             }
 
             /// <summary>
