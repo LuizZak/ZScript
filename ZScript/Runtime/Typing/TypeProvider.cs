@@ -658,7 +658,7 @@ namespace ZScript.Runtime.Typing
             }
 
             // 
-            // InternalNativeTypeConverter.NativeTypeForTypeDef implementation
+            // INativeTypeSource.NativeTypeForTypeDef implementation
             // 
             public Type NativeTypeForTypeDef(TypeDef typeDef, bool anyAsObject)
             {

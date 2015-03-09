@@ -27,7 +27,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
-
+using ZScript.Builders;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
@@ -317,8 +317,15 @@ namespace ZScript.CodeGeneration
                 throw new Exception("A runtime definition cannot be created: Errors detected during code parsing and analysis.");
             }
 
-            var runtimeDefinition = new ZRuntimeDefinition();
+            // Create the class type converter
             var context = CreateContext(scope);
+            var classBuilder = new ClassNativeTypeBuilder(context, "ZScript_Assembly");
+            classBuilder.CreateTypes();
+
+            // Register the native type source for the calss native type source
+            context.TypeProvider.RegisterCustomNativeTypeSource(classBuilder);
+            
+            var runtimeDefinition = new ZRuntimeDefinition();
 
             // Collect the definitions now
             runtimeDefinition.AddFunctionDefs(GenerateFunctions(context));
@@ -843,6 +850,69 @@ namespace ZScript.CodeGeneration
                 }
 
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Class used to generate native types from class definitions and feed them to type providers during compilation
+        /// </summary>
+        private class ClassNativeTypeBuilder : INativeTypeSource
+        {
+            /// <summary>
+            /// The class type builder this class source will use to build the classes
+            /// </summary>
+            private readonly ClassTypeBuilder _classTypeBuilder;
+
+            /// <summary>
+            /// The generation context for the runtime generation
+            /// </summary>
+            private readonly RuntimeGenerationContext _generationContext;
+
+            /// <summary>
+            /// A dictionary mapping class type defs to their respective native types
+            /// </summary>
+            private readonly Dictionary<ClassTypeDef, Type> _mappedTypes;
+
+            /// <summary>
+            /// Initializes a new instance of the ClassNativeTypeSource class
+            /// </summary>
+            /// <param name="generationContext">The generation context for the runtime generation</param>
+            /// <param name="assemblyName">The name for the assembly to generate and create the class types on</param>
+            public ClassNativeTypeBuilder(RuntimeGenerationContext generationContext, string assemblyName)
+            {
+                var typeBuildingContext = TypeBuildingContext.CreateBuilderContext(assemblyName);
+
+                _generationContext = generationContext;
+                _classTypeBuilder = new ClassTypeBuilder(generationContext, typeBuildingContext);
+
+                _mappedTypes = new Dictionary<ClassTypeDef, Type>();
+            }
+
+            /// <summary>
+            /// Creates the types on the runtime generation context provided on this class native type source
+            /// </summary>
+            public void CreateTypes()
+            {
+                var classDefinitions = _generationContext.BaseScope.GetDefinitionsByType<ClassDefinition>();
+
+                foreach (var classDefinition in classDefinitions)
+                {
+                    var nativeType = _classTypeBuilder.ConstructType(classDefinition);
+
+                    _mappedTypes[classDefinition.ClassTypeDef] = nativeType;
+                }
+            }
+
+            // 
+            // INativeTypeSource.NativeTypeForTypeDef implementation
+            // 
+            public Type NativeTypeForTypeDef(TypeDef type, bool anyAsObject = false)
+            {
+                if (!(type is ClassTypeDef))
+                    return null;
+
+                Type native;
+                return _mappedTypes.TryGetValue((ClassTypeDef)type, out native) ? native : null;
             }
         }
     }
