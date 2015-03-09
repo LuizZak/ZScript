@@ -296,8 +296,15 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveNewExpression(ZScriptParser.NewExpressionContext context)
         {
             var typeName = context.typeName().GetText();
+            var type =  TypeProvider.TypeNamed(typeName);
 
-            return TypeProvider.TypeNamed(typeName);
+            if (type == null)
+            {
+                var message = "Unknown type name '" + typeName + "'";
+                _generationContext.MessageContainer.RegisterError(context.typeName(), message, ErrorCode.UnkownType);
+            }
+
+            return type ?? TypeProvider.AnyType();
         }
 
         #region Primary expressions

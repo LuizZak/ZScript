@@ -1031,7 +1031,27 @@ namespace ZScriptTests.CodeGeneration.Analysis
         #region Error raising
 
         /// <summary>
-        /// Tests basic type casting
+        /// Tests error raising for failed 'new' expressions
+        /// </summary>
+        [TestMethod]
+        public void TestFailedNewExpression()
+        {
+            // Set up the test
+            const string input = "new Unknown();";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests error raising for basic type casting
         /// </summary>
         [TestMethod]
         public void TestUnkownType()
@@ -1049,7 +1069,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveType(parser.type());
 
             // Compare the result now
-            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "The resolved type did not match the expected type");
+            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "Failed to raise expected errors");
         }
 
         /// <summary>

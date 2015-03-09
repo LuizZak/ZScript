@@ -431,10 +431,6 @@ namespace ZScript.CodeGeneration.Analysis
                 var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
                 Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
             }
-            else if (varType == null)
-            {
-                
-            }
         }
 
         /// <summary>
