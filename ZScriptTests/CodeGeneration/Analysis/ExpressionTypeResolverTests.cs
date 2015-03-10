@@ -77,8 +77,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
             var type1 = resolver.ResolveListType(parser.listType());
-            var type2 = (ListTypeDef)resolver.ResolveType(parser.type());
-            var type3 = (ListTypeDef)resolver.ResolveType(parser.type());
+            var type2 = (ListTypeDef)resolver.ResolveType(parser.type(), false);
+            var type3 = (ListTypeDef)resolver.ResolveType(parser.type(), false);
 
             // Compare the result now
             Assert.AreEqual(TypeDef.IntegerType, type1.EnclosingType, "The resolved type did not match the expected type");
@@ -1008,7 +1008,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestTernaryResolving()
         {
             // Set up the test
-            const string input = "i == i ? 0 : 1; i == i ? [0] : [true]; ";
+            const string input = "i == i ? 0 : 1; i == i ? [0] : [1]; ";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
@@ -1023,12 +1023,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
             Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.AnyType()), type2, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.IntegerType()), type2, "The resolved type did not match the expected type");
         }
 
         #endregion
 
         #region Error raising
+
+        /// <summary>
+        /// Tests error raising when using 'void' type in invalid contexts
+        /// </summary>
+        [TestMethod]
+        public void TestInvalidVoid()
+        {
+            // Set up the test
+            const string input = "[void: int] [void]";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            resolver.ResolveDictionaryType(parser.dictionaryType());
+            resolver.ResolveListType(parser.listType());
+
+            // Compare the result now
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidVoidType), "Failed to raise expected errors");
+        }
 
         /// <summary>
         /// Tests error raising for failed 'new' expressions
@@ -1066,7 +1087,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
-            resolver.ResolveType(parser.type());
+            resolver.ResolveType(parser.type(), false);
 
             // Compare the result now
             Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "Failed to raise expected errors");

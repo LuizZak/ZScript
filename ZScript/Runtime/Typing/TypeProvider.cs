@@ -224,8 +224,11 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         /// <param name="type1">The first type to infer</param>
         /// <param name="type2">The second type to infer</param>
+        /// <param name="withCast">
+        /// Whether to take casts in consideration when finding the common type. Turning off cast considerations disables casting of compatible types e.g. int -> float etc.
+        /// </param>
         /// <returns>The most common type that fits the two provided types</returns>
-        public TypeDef FindCommonType(TypeDef type1, TypeDef type2)
+        public TypeDef FindCommonType(TypeDef type1, TypeDef type2, bool withCast = true)
         {
             if (type1 == null) throw new ArgumentNullException("type1");
             if (type2 == null) throw new ArgumentNullException("type2");
@@ -254,8 +257,7 @@ namespace ZScript.Runtime.Typing
             var intType = IntegerType();
             var floatType = FloatType();
 
-            if ((type1 == intType || type2 == intType) &&
-               (type1 == floatType || type2 == floatType))
+            if (withCast && (type1 == intType || type2 == intType) && (type1 == floatType || type2 == floatType))
                 return floatType;
 
             // Callables with same argument count: Infer the arguments
@@ -279,7 +281,7 @@ namespace ZScript.Runtime.Typing
                             var pt2 = ct2.ParameterTypes[i] ?? t.ParameterType ?? TypeDef.AnyType;
 
                             return new CallableTypeDef.CallableParameterInfo(
-                                FindCommonType(pt1, pt2), true,
+                                FindCommonType(pt1, pt2, false), true,
                                 t.HasDefault || ct2.ParameterInfos[i].HasDefault,
                                 t.IsVariadic && ct2.ParameterInfos[i].IsVariadic);
                         });
@@ -292,7 +294,7 @@ namespace ZScript.Runtime.Typing
                     var rt1 = ct1.ReturnType ?? ct2.ReturnType ?? TypeDef.AnyType;
                     var rt2 = ct2.ReturnType ?? ct1.ReturnType ?? TypeDef.AnyType;
 
-                    newReturn = FindCommonType(rt1, rt2);
+                    newReturn = FindCommonType(rt1, rt2, false);
                 }
                 else if (ct1.HasReturnType)
                 {
@@ -311,7 +313,17 @@ namespace ZScript.Runtime.Typing
             var list2 = type2 as ListTypeDef;
             if (list1 != null && list2 != null)
             {
-                return new ListTypeDef(FindCommonType(list1.EnclosingType, list2.EnclosingType));
+                if (list1 == list2)
+                    return list1;
+
+                // Callable type resolving
+                if (list1.EnclosingType is CallableTypeDef && list2.EnclosingType is CallableTypeDef)
+                {
+                    var common = FindCommonType(list1.EnclosingType, list2.EnclosingType, false);
+
+                    if(!common.IsAny)
+                        return ListForType(common);
+                }
             }
 
             // Last case: Any type to fit them all

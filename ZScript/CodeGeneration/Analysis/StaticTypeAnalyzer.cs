@@ -325,7 +325,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (!definition.HasReturnType || definition.ReturnTypeContext == null)
                 return;
 
-            definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type());
+            definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
         }
 
         /// <summary>
@@ -396,7 +396,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else
             {
-                definition.Type = _typeResolver.ResolveType(definition.TypeContext);
+                definition.Type = _typeResolver.ResolveType(definition.TypeContext, false);
             }
 
             if (!definition.HasValue)

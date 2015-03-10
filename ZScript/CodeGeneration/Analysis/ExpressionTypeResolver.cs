@@ -795,7 +795,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>A type definition that represents the casted type</returns>
         public TypeDef ResolveTypeCasting(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext castType)
         {
-            TypeDef target = ResolveType(castType);
+            TypeDef target = ResolveType(castType, false);
             if (!TypeProvider.CanExplicitCast(valueType, target))
             {
                 var message = "Invalid cast: cannot cast objects of type " + valueType + " to type " + target;
@@ -815,8 +815,7 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveTypeCheck(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext typeToCheck)
         {
             // Resolve the type
-            ResolveType(typeToCheck);
-
+            ResolveType(typeToCheck, true);
             return TypeProvider.BooleanType();
         }
 
@@ -862,7 +861,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Check return type now
             if (hasReturnType)
             {
-                returnType = ResolveType(context.returnType().type());
+                returnType = ResolveType(context.returnType().type(), true);
             }
             
             if (context.Definition != null && context.Definition.HasReturnType && context.Definition.ReturnType != null)
@@ -892,7 +891,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Type provided
             if (context.type() != null)
             {
-                type = ResolveType(context.type());
+                type = ResolveType(context.type(), false);
 
                 // Check default value and parameter value compatibility
                 if (defaultValueType != null && !TypeProvider.CanImplicitCast(type, defaultValueType))
@@ -1172,8 +1171,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// Returns a TypeDef describing the type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
+        /// <param name="allowVoid">Whether to allow void types when resolving, or raise errors when void is found</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveType(ZScriptParser.TypeContext context)
+        public TypeDef ResolveType(ZScriptParser.TypeContext context, bool allowVoid)
         {
             TypeDef type;
 
@@ -1208,6 +1208,12 @@ namespace ZScript.CodeGeneration.Analysis
                 var message = "Unkown type '" + context.GetText() + "'";
                 _generationContext.MessageContainer.RegisterError(context, message, ErrorCode.UnkownType);
             }
+            // Void types
+            else if(type.IsVoid && !allowVoid)
+            {
+                const string message = "Void type is not allowed in this context";
+                _generationContext.MessageContainer.RegisterError(context, message, ErrorCode.InvalidVoidType);
+            }
 
             return type ?? TypeProvider.AnyType();
         }
@@ -1219,7 +1225,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The list type for the context</returns>
         public ListTypeDef ResolveListType(ZScriptParser.ListTypeContext context)
         {
-            return TypeProvider.ListForType(ResolveType(context.type()));
+            return TypeProvider.ListForType(ResolveType(context.type(), false));
         }
 
         /// <summary>
@@ -1230,8 +1236,8 @@ namespace ZScript.CodeGeneration.Analysis
         public DictionaryTypeDef ResolveDictionaryType(ZScriptParser.DictionaryTypeContext context)
         {
             // Key type
-            var keyType = ResolveType(context.keyType);
-            var valueType = ResolveType(context.valueType);
+            var keyType = ResolveType(context.keyType, false);
+            var valueType = ResolveType(context.valueType, false);
 
             return TypeProvider.DictionaryForTypes(keyType, valueType);
         }
@@ -1254,7 +1260,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var args = context.callableTypeList().callableArgType();
                 foreach (var arg in args)
                 {
-                    parameterTypes.Add(ResolveType(arg.type()));
+                    parameterTypes.Add(ResolveType(arg.type(), false));
                     variadic.Add(arg.variadic != null);
                 }
             }
@@ -1262,7 +1268,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Check return type now
             if (hasReturnType)
             {
-                returnType = ResolveType(context.type());
+                returnType = ResolveType(context.type(), true);
             }
 
             return new CallableTypeDef(parameterTypes.Select((t, i) => new CallableTypeDef.CallableParameterInfo(t, true, false, variadic[i])).ToArray(), returnType, hasReturnType);
@@ -1303,7 +1309,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the given type context</returns>
         public TypeDef TypeForContext(ZScriptParser.TypeContext type)
         {
-            return ResolveType(type);
+            return ResolveType(type, true);
         }
     }
 

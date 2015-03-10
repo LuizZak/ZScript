@@ -233,11 +233,11 @@ namespace ZScriptTests.Runtime.Typing
                 provider.FindCommonType(provider.VoidType(), provider.IntegerType()),
                 "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
 
-            Assert.AreEqual(provider.ListForType(provider.AnyType()),
+            Assert.AreEqual(provider.AnyType(),
                 provider.FindCommonType(provider.ListForType(provider.AnyType()), provider.ListForType(provider.IntegerType())),
                 "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
 
-            Assert.AreEqual(provider.ListForType(provider.VoidType()),
+            Assert.AreEqual(provider.AnyType(),
                 provider.FindCommonType(provider.ListForType(provider.AnyType()), provider.ListForType(provider.VoidType())),
                 "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
         }

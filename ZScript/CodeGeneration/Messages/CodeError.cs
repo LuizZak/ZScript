@@ -125,6 +125,8 @@ namespace ZScript.CodeGeneration.Messages
         InvalidConstantOperation,
         /// <summary>A type provided resolves to an unkown type</summary>
         UnkownType,
+        /// <summary>Trying to use the 'void' type in invalid contexts</summary>
+        InvalidVoidType,
 
         #endregion
 
