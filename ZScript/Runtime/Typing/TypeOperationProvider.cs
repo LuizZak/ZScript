@@ -428,32 +428,7 @@ namespace ZScript.Runtime.Typing
 
         public new bool Equals(object v1, object v2)
         {
-            if (v1 is bool && v2 is bool)
-                return (bool)v1 && (bool)v2;
-
-            var c = BestFitForTypes(v1, v2);
-
-            switch (c)
-            {
-                case NumberClass.ExactInteger:
-                    return _intTypeOperator.Equals((int)v1, (int)v2);
-                case NumberClass.Integer:
-                    return _intTypeOperator.Equals(Convert.ToInt32(v1), Convert.ToInt32(v2));
-
-                case NumberClass.ExactLong:
-                    return _longTypeOperator.Equals((long)v1, (long)v2);
-                case NumberClass.Long:
-                    return _longTypeOperator.Equals(Convert.ToInt64(v1), Convert.ToInt64(v2));
-
-                case NumberClass.ExactFloat:
-                case NumberClass.ExactDouble:
-                    return _doubleTypeOperator.Equals((float)v1, (float)v2);
-                case NumberClass.Float:
-                case NumberClass.Double:
-                    return _doubleTypeOperator.Equals(Convert.ToSingle(v1), Convert.ToSingle(v2));
-            }
-
-            throw new Exception("Cannot apply Equals operation on objects of type " + v1.GetType() + " and " + v2.GetType());
+            return v1.Equals(v2);
         }
 
         public object ArithmeticNegate(object v1)
