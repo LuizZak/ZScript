@@ -178,6 +178,12 @@ namespace ZScript.Runtime.Execution
                                     continue;
                                 }
                                 break;
+
+                            // Type check
+                            case VmInstruction.CheckType:
+                                PerformTypeCheck(token);
+                                break;
+
                             default:
                                 PerformInstruction(token.Instruction, token.TokenObject);
                                 break;
@@ -716,6 +722,23 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a type check on the value on top of the stack.
+        /// The value on top of the stack is not removed
+        /// </summary>
+        /// <param name="token">The type check instruction token that contains the type to check against</param>
+        void PerformTypeCheck(Token token)
+        {
+            if (token == null) throw new ArgumentNullException("token");
+
+            object value = PeekValueImplicit();
+
+            if (!((Type)token.TokenObject).IsInstanceOfType(value))
+            {
+                throw new VirtualMachineException("Cannot convert type " + value.GetType() + " to type " + token.TokenObject + ".");
+            }
+        }
+
+        /// <summary>
         /// Pops a value from the stack, and if it is a token, implicitly fetch the value from the memory
         /// </summary>
         /// <returns>A value popped from the stack, and fetched from memory, if needed</returns>
@@ -1034,9 +1057,10 @@ namespace ZScript.Runtime.Execution
 
         /// <summary>Performs a type check with two operands on the top of the stack, pushing a boolean result on the top of the stack</summary>
         Is,
-
         /// <summary>Performs a type cast with the value on the top of the stack, pushing a converted value result on the top of the stack</summary>
         Cast,
+        /// <summary>Performs a type check with the value on top of the stack, raising a runtime exception if the type does not matches the expected type</summary>
+        CheckType,
         
         /// <summary>Logical AND (&&) operation</summary>
         LogicalAnd,

@@ -1074,6 +1074,43 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
+        /// <summary>
+        /// Tests generation of type check against values of 'any' type
+        /// </summary>
+        [TestMethod]
+        public void TestAnyTypeCheck()
+        {
+            const string message = "The tokens generated for the 'cast' operation where not generated as expected";
+
+            const string input = "10";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            // Setup the implicit cast
+            exp.EvaluatedType = TypeDef.AnyType;
+            exp.ImplicitCastType = TypeDef.IntegerType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateInstructionToken(VmInstruction.CheckType, typeof(long))
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
         #endregion
 
         #region Array literal
