@@ -193,7 +193,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             foreach (var definition in definitions)
             {
-                if(definition.Context != null)
+                if(!(definition is ClosureDefinition) && definition.Context != null)
                     traverser.Traverse(definition.Context);
             }
         }
@@ -581,6 +581,8 @@ namespace ZScript.CodeGeneration.Analysis
                 _closureDepth++;
 
                 PushLocalScope();
+
+                AnalyzeClosureDefinition(context.Definition);
             }
 
             // 
@@ -591,8 +593,6 @@ namespace ZScript.CodeGeneration.Analysis
                 _closureDepth--;
 
                 PopLocalScope();
-
-                AnalyzeClosureDefinition(context.Definition);
             }
 
             // 
@@ -602,6 +602,8 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 if (context.expression() == null)
                     return;
+
+                context.expression().ExpectedType = context.ReturnType;
 
                 AnalyzeExpression(context.expression());
             }
@@ -915,7 +917,12 @@ namespace ZScript.CodeGeneration.Analysis
 
                 // Now expand the closure like a normal function
                 if (!definition.HasReturnType || definition.ReturnTypeContext == null)
+                {
+                    definition.ReturnType = TypeProvider.VoidType();
+                    definition.HasReturnType = true;
+
                     return;
+                }
 
                 definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
 

@@ -78,6 +78,8 @@ namespace ZScript.CodeGeneration.Analysis
                 if (func.BodyContext == null)
                     continue;
 
+                _currentDefinition = func;
+
                 var c = func.BodyContext;
 
                 _returnStatements = new List<ZScriptParser.ReturnStatementContext>();
@@ -227,6 +229,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private void AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
         {
+            context.ReturnType = CurrentDefinition.ReturnType;
+
             _returnStatements.Add(context);
         }
 

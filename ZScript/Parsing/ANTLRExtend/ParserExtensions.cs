@@ -295,6 +295,17 @@ public partial class ZScriptParser
         public CaseBlockContext ConstantCase { get; set; }
     }
 
+    /// <summary>
+    /// Provides extensions to the SwitchStatementContext for identifying the expected return type
+    /// </summary>
+    partial class ReturnStatementContext
+    {
+        /// <summary>
+        /// Gets or sets the return type expected by the function owning this return statement context
+        /// </summary>
+        public TypeDef ReturnType { get; set; }
+    }
+
     #endregion
 
     /// <summary>

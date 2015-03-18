@@ -831,7 +831,6 @@ namespace ZScript.CodeGeneration.Analysis
         public CallableTypeDef ResolveClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
             var parameters = new List<FunctionArgumentDefinition>();
-            var returnType = TypeDef.AnyType;
             var hasReturnType = context.returnType() != null;
 
             // Iterate through each parameter type for the closure
@@ -858,10 +857,16 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
+            TypeDef returnType;
+
             // Check return type now
             if (hasReturnType)
             {
                 returnType = ResolveType(context.returnType().type(), true);
+            }
+            else
+            {
+                returnType = context.Definition.ReturnType ?? TypeProvider.VoidType();
             }
             
             if (context.Definition != null && context.Definition.HasReturnType && context.Definition.ReturnType != null)
