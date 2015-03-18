@@ -347,5 +347,33 @@ namespace ZScriptTests.CodeGeneration
         }
 
         #endregion
+
+        #region Local variable collection
+
+        /// <summary>
+        /// Tests collection of local variables
+        /// </summary>
+        [TestMethod]
+        public void TestLocalVariableCollection()
+        {
+            const string input = "var a; func f1() { var b; } class Class { var c; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var locals = scope.GetDefinitionsByTypeRecursive<LocalVariableDefinition>().ToList();
+
+            Assert.IsFalse(container.HasErrors);
+            Assert.AreEqual(1, locals.Count);
+            Assert.AreEqual("b", locals[0].Name);
+        }
+
+        #endregion
     }
 }

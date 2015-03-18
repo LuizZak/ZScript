@@ -424,7 +424,7 @@ namespace ZScript.CodeGeneration
         /// <param name="variable">The context containing the variable to define</param>
         void DefineLocalVariable(ZScriptParser.ValueHolderDeclContext variable)
         {
-            var def = DefinitionGenerator.GenerateValueHolderDef(variable);
+            var def = DefinitionGenerator.GenerateLocalVariable(variable);
 
             def.IsInstanceValue = IsInInstanceScope();
 
