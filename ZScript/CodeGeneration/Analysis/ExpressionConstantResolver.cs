@@ -317,8 +317,30 @@ namespace ZScript.CodeGeneration.Analysis
         {
             object value;
 
-            if (context.memberName() == null || context.valueAccess() != null || !ResolveMemberName(context.memberName(), out value))
+            if (context.memberName() == null)
                 return;
+
+            if (context.valueAccess() != null)
+            {
+                if(context.valueAccess().functionCall() != null && context.valueAccess().functionCall().funcCallArguments().expressionList() != null)
+                {
+                    foreach (var exp in context.valueAccess().functionCall().funcCallArguments().expressionList().expression())
+                    {
+                        ResolveExpression(exp);
+                    }
+                }
+                else if (context.valueAccess().arrayAccess() != null)
+                {
+                    ResolveExpression(context.valueAccess().arrayAccess().expression());
+                }
+
+                return;
+            }
+
+            if (!ResolveMemberName(context.memberName(), out value))
+            {
+                return;
+            }
 
             context.IsConstant = true;
             context.IsConstantPrimitive = IsValuePrimitive(value);

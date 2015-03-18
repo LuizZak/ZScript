@@ -262,6 +262,70 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests function call parameter constant propagation
+        /// </summary>
+        [TestMethod]
+        public void TestConstantParameterResolving()
+        {
+            const string input = "a(10 + 11)";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            var expressionList = expression.valueAccess().functionCall().funcCallArguments().expressionList();
+
+            // Analyze the types
+            expressionList.expression(0).expression(0).EvaluatedType = typeProvider.IntegerType();
+            expressionList.expression(0).expression(1).EvaluatedType = typeProvider.IntegerType();
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expressionList.expression(0).IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expressionList.expression(0).IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(21L, expressionList.expression(0).ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
+        /// Tests function call parameter constant propagation
+        /// </summary>
+        [TestMethod]
+        public void TestConstantSubscriptResolving()
+        {
+            const string input = "a[10 + 11]";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            var exp = expression.valueAccess().arrayAccess().expression();
+
+            // Analyze the types
+            exp.expression(0).EvaluatedType = typeProvider.IntegerType();
+            exp.expression(1).EvaluatedType = typeProvider.IntegerType();
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(exp.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(exp.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(21L, exp.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
         /// Tests binary expression containing constant string concatenations constant resolving
         /// </summary>
         [TestMethod]
