@@ -595,6 +595,24 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests checking condition expressions on for statements
+        /// </summary>
+        [TestMethod]
+        public void TestForStatementConditionConstantChecking()
+        {
+            // Set up the test
+            const string input = "func f() { for(let i = 0;i++ = 0;) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected warnings");
+        }
+
+        /// <summary>
         /// Tests checking init expressions on for statements
         /// </summary>
         [TestMethod]
@@ -628,6 +646,24 @@ namespace ZScriptTests.CodeGeneration.Analysis
             container.PrintMessages();
 
             Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+        }
+
+        /// <summary>
+        /// Tests checking increment expressions on for statements
+        /// </summary>
+        [TestMethod]
+        public void TestForStatementIncrementConstantChecking()
+        {
+            // Set up the test
+            const string input = "func f() { for(let i = 0;;i++) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected warnings");
         }
 
         #endregion

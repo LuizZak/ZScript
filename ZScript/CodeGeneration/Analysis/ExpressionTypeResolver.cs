@@ -134,6 +134,13 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
+            // Check if the left value is not a constant
+            if (context.leftValue().IsConstant)
+            {
+                var message = "Cannot reassign constant value " + context.leftValue().GetText();
+                MessageContainer.RegisterError(context, message, ErrorCode.ModifyingConstant);
+            }
+
             context.EvaluatedType = variableType;
             context.HasTypeBeenEvaluated = true;
 
@@ -372,6 +379,12 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 MessageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform prefix operation on values of type " + leftValueType);
             }
+            // Check if the left value is not a constant
+            if (context.leftValue().IsConstant)
+            {
+                var message = "Cannot reassign constant value " + context.leftValue().GetText();
+                MessageContainer.RegisterError(context, message, ErrorCode.ModifyingConstant);
+            }
 
             return leftValueType;
         }
@@ -389,6 +402,12 @@ namespace ZScript.CodeGeneration.Analysis
             if (!TypeProvider.BinaryExpressionProvider.IsNumeric(leftValueType) && !leftValueType.IsAny)
             {
                 MessageContainer.RegisterError(context.Start.Line, context.Start.Column, "Cannot perform postfix operation on values of type " + leftValueType);
+            }
+            // Check if the left value is not a constant
+            if (context.leftValue().IsConstant)
+            {
+                var message = "Cannot reassign constant value " + context.leftValue().GetText();
+                MessageContainer.RegisterError(context, message, ErrorCode.ModifyingConstant);
             }
 
             return leftValueType;

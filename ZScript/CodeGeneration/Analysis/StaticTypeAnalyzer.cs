@@ -555,13 +555,6 @@ namespace ZScript.CodeGeneration.Analysis
 
                 _typeResolver.ResolveExpression(context);
                 _constantResolver.ExpandConstants(context);
-
-                // Check if a left value is trying to be modified
-                if (context.leftValue() != null && context.leftValue().IsConstant)
-                {
-                    var message = "Cannot modify value of constant value " + context.leftValue().GetText();
-                    _typeResolver.MessageContainer.RegisterError(context, message, ErrorCode.ModifyingConstant);
-                }
             }
 
             /// <summary>
@@ -574,15 +567,7 @@ namespace ZScript.CodeGeneration.Analysis
                     return;
 
                 _typeResolver.ResolveAssignmentExpression(context);
-
                 _constantResolver.ExpandConstants(context);
-
-                // Check if the left value is not a constant
-                if (context.leftValue().IsConstant)
-                {
-                    var message = "Cannot reassign constant value " + context.leftValue().GetText();
-                    _typeResolver.MessageContainer.RegisterError(context.expression(), message, ErrorCode.ModifyingConstant);
-                }
             }
 
             /// <summary>
@@ -942,9 +927,10 @@ namespace ZScript.CodeGeneration.Analysis
 
                 var provider = _typeResolver.TypeProvider;
 
+                AnalyzeExpression(context.expression());
+
                 // Check if expression has a boolean type
-                var conditionType = _typeResolver.ResolveExpression(expression);
-                _constantResolver.ExpandConstants(expression);
+                var conditionType = context.expression().EvaluatedType;
 
                 if (!provider.CanImplicitCast(conditionType, provider.BooleanType()))
                 {
@@ -976,8 +962,7 @@ namespace ZScript.CodeGeneration.Analysis
                 if (context.expression() == null)
                     return;
 
-                _typeResolver.ResolveExpression(context.expression());
-                _constantResolver.ExpandConstants(context.expression());
+                AnalyzeExpression(context.expression());
             }
 
             // 
