@@ -61,6 +61,36 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests reporting undefined definition usages
+        /// </summary>
+        [TestMethod]
+        public void TestUndeclaredDefinitionUsage()
+        {
+            const string input = "func f() { var a = a; }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition));
+        }
+
+        /// <summary>
+        /// Tests handling using definitions before shadowing
+        /// </summary>
+        [TestMethod]
+        public void TestUsageBeforeShadowing()
+        {
+            const string input = "func f() { a(); var a = 10; } func a() { }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
         /// Tests global variable shadowing
         /// </summary>
         [TestMethod]

@@ -168,7 +168,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// Replaces the jump target tokens on this intermediary token list
         /// </summary>
         /// <param name="replaceJumpTargetsAtEnd">
-        /// Whether to expand jump targets at the end of the list of tokens as an instruction token specified by the endJumpTargetInstruction parameter
+        /// Whether to expand jump targets at the end of the list of tokens as an instruction token specified by the end JumpTargetInstruction parameter
         /// </param>
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
         private void InternalBindJumpTargets(bool replaceJumpTargetsAtEnd, VmInstruction endJumpTargetInstruction)

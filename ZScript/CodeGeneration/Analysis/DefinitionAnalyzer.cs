@@ -51,6 +51,11 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly Stack<ClassDefinition> _classStack;
 
         /// <summary>
+        /// Stack of definitions, used to run through definitions in function bodies
+        /// </summary>
+        private readonly Stack<List<Definition>> _localsStack;
+
+        /// <summary>
         /// Gest the message container that errors will be reported to
         /// </summary>
         private MessageContainer Container
@@ -67,12 +72,22 @@ namespace ZScript.CodeGeneration.Analysis
             _currentScope = context.BaseScope;
             _context = context;
             _classStack = new Stack<ClassDefinition>();
+            _localsStack = new Stack<List<Definition>>();
         }
 
         #region Scope walking
 
+        public override void EnterProgram(ZScriptParser.ProgramContext context)
+        {
+            _localsStack.Clear();
+
+            PushDefinitionScope();
+        }
+
         public override void ExitProgram(ZScriptParser.ProgramContext context)
         {
+            PopDefinitionScope();
+
             ExitContextScope();
         }
 
@@ -90,10 +105,14 @@ namespace ZScript.CodeGeneration.Analysis
         public override void EnterBlockStatement(ZScriptParser.BlockStatementContext context)
         {
             EnterContextScope(context);
+
+            PushDefinitionScope();
         }
 
         public override void ExitBlockStatement(ZScriptParser.BlockStatementContext context)
         {
+            PopDefinitionScope();
+
             ExitContextScope();
         }
 
@@ -155,10 +174,14 @@ namespace ZScript.CodeGeneration.Analysis
         public override void EnterSequenceFrame(ZScriptParser.SequenceFrameContext context)
         {
             EnterContextScope(context);
+
+            PushDefinitionScope();
         }
 
         public override void ExitSequenceFrame(ZScriptParser.SequenceFrameContext context)
         {
+            PopDefinitionScope();
+
             ExitContextScope();
         }
 
@@ -195,6 +218,11 @@ namespace ZScript.CodeGeneration.Analysis
         #endregion
 
         #region Definition checking
+
+        public override void ExitValueHolderDecl(ZScriptParser.ValueHolderDeclContext context)
+        {
+            AddDefinition(context.Definition);
+        }
 
         public override void EnterExpression(ZScriptParser.ExpressionContext context)
         {
@@ -267,13 +295,93 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Pushes a new definition scope
+        /// </summary>
+        void PushDefinitionScope()
+        {
+            _localsStack.Push(new List<Definition>());
+        }
+
+        /// <summary>
+        /// Adds a given definition to the top of the definition stack
+        /// </summary>
+        /// <param name="definition">The definition to add to the top of the definition stack</param>
+        void AddDefinition(Definition definition)
+        {
+            _localsStack.Peek().Add(definition);
+        }
+
+        /// <summary>
+        /// Pops a definition scope
+        /// </summary>
+        void PopDefinitionScope()
+        {
+            _localsStack.Pop();
+        }
+
+        /// <summary>
+        /// Gets a definition by name in the current definition scope and stack.
+        /// Local variable definitions are searched through the locals stack, and all other definitions are searched globally
+        /// </summary>
+        /// <param name="definitionName">The name of the definition to search for</param>
+        /// <returns>The definition found, or null, if none was found</returns>
+        Definition GetDefinitionByName(string definitionName)
+        {
+            foreach (var locals in _localsStack)
+            {
+                var def = locals.FirstOrDefault(d => d.Name == definitionName);
+                if (def != null)
+                    return def;
+            }
+
+            // Search through the current definition scope
+            var definition = _currentScope.GetDefinitionsByName(definitionName).ToList();
+
+            if (!definition.Any())
+            {
+                if (_classStack.Count <= 0)
+                    return null;
+
+                // If we are in a class definition, search inheritance chain
+                var classDef = _classStack.Peek();
+
+                while (classDef != null)
+                {
+                    var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
+
+                    if (field != null)
+                    {
+                        return field;
+                    }
+
+                    classDef = classDef.BaseClass;
+                }
+
+                return null;
+            }
+
+            // Local variables can only be searched through the stack - ignore them here
+            definition.Reverse();
+
+            foreach (var def in definition)
+            {
+                if (!(def is LocalVariableDefinition))
+                    return def;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Registers a new definition usage
         /// </summary>
         /// <param name="definitionName">The name of the definition that was used</param>
         /// <param name="context">The context in which the definition was used</param>
         void RegisterDefinitionUsage(string definitionName, ZScriptParser.MemberNameContext context)
         {
-            var definition = _currentScope.GetDefinitionByName(definitionName);
+            var definition = GetDefinitionByName(definitionName);
+
+            /*var definition = _currentScope.GetDefinitionByName(definitionName);
 
             if (definition == null)
             {
@@ -301,7 +409,9 @@ namespace ZScript.CodeGeneration.Analysis
 
                 if(!found)
                     RegisterMemberNotFound(context);
-            }
+            }*/
+            if (definition == null)
+                RegisterMemberNotFound(context);
 
             _currentScope.AddDefinitionUsage(new DefinitionUsage(definition, context));
         }
