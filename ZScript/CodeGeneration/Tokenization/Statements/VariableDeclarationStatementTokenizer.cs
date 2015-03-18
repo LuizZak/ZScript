@@ -55,6 +55,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             if (expression != null)
             {
+                if (context.Definition != null && context.Definition.IsConstant && expression.IsConstant && expression.IsConstantPrimitive)
+                {
+                    return new IntermediaryTokenList();
+                }
+
                 IntermediaryTokenList tokens = _context.TokenizeExpression(expression);
                 tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
                 tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));

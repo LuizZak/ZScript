@@ -501,7 +501,7 @@ namespace ZScript.CodeGeneration
         /// <param name="variableName">The name of the variable to define</param>
         ValueHolderDefinition DefineHiddenVariable(string variableName)
         {
-            var def = new ValueHolderDefinition { Name = variableName };
+            var def = new GlobalVariableDefinition { Name = variableName };
 
             CheckCollisions(def, null);
 

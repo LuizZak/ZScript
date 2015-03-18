@@ -236,20 +236,6 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Creates a new value holder definition from a given value holder context
-        /// </summary>
-        /// <param name="context">The context containing the value holder definition</param>
-        /// <returns>A new value holder definition based on the given value holder declaration context</returns>
-        public static ValueHolderDefinition GenerateValueHolderDef(ZScriptParser.ValueHolderDeclContext context)
-        {
-            var def = new ValueHolderDefinition();
-
-            FillValueHolderDef(def, context);
-
-            return def;
-        }
-
-        /// <summary>
         /// Creates a new local variable definition from a given value holder context
         /// </summary>
         /// <param name="context">The context containing the local variable definition</param>

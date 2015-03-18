@@ -27,7 +27,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Specifies a value holder definition
     /// </summary>
-    public class ValueHolderDefinition : Definition
+    public abstract class ValueHolderDefinition : Definition
     {
         /// <summary>
         /// Gets or sets a value that represents the expression containing the value for this variable definition

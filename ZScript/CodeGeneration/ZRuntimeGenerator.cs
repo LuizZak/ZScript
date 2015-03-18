@@ -730,6 +730,8 @@ namespace ZScript.CodeGeneration
                     if (def != null)
                     {
                         context.IsConstant = def.IsConstant;
+                        context.Definition = def;
+                        context.HasDefinition = true;
 
                         return def.Type;
                     }

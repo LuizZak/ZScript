@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -142,6 +143,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.valueDeclareStatement();
+            stmt.valueHolderDecl().Definition = new LocalVariableDefinition { IsConstant = true };
             var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
 
             // Create the expected list
@@ -176,6 +178,37 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
 
             var stmt = parser.valueDeclareStatement();
+            var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
+
+            // Valueless initializations generate no instructions
+            var expectedTokens = new List<Token>();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestConstantLetTokenGeneration()
+        {
+            const string message = "The tokens generated for the constant declare statement where not generated as expected";
+
+            const string input = "let a = 0;";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.valueDeclareStatement();
+            stmt.valueHolderDecl().expression().IsConstant = true;
+            stmt.valueHolderDecl().expression().IsConstantPrimitive = true;
+            stmt.valueHolderDecl().expression().ConstantValue = 0L;
+            stmt.valueHolderDecl().Definition = new LocalVariableDefinition { IsConstant = true };
+
             var generatedTokens = tokenizer.TokenizeValueDeclareStatement(stmt);
 
             // Valueless initializations generate no instructions

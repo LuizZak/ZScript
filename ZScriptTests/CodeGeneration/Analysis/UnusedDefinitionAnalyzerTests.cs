@@ -196,7 +196,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             const string input = "var b;";
             var parser = TestUtils.CreateParser(input);
 
-            return new ValueHolderDefinition { Name = "Test", Context = parser.valueDeclareStatement() };
+            return new LocalVariableDefinition { Name = "Test", Context = parser.valueDeclareStatement() };
         }
     }
 }
