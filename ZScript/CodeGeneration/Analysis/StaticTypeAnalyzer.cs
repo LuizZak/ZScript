@@ -364,6 +364,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The class definition to expand</param>
         private void ExpandClassDefinition(ClassDefinition definition)
         {
+            // Register the class
+            _classTypeSource.Classes.Add(definition);
+
             // Expand the fields
             foreach (var classField in definition.GetAllFields())
             {
@@ -378,9 +381,6 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Update the class type def
             definition.UpdateClassTypeDef();
-
-            // Register the class
-            _classTypeSource.Classes.Add(definition);
         }
 
         /// <summary>

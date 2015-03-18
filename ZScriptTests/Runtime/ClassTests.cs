@@ -92,6 +92,24 @@ namespace ZScriptTests.Runtime
             Assert.IsFalse(collector.HasErrors);
         }
 
+        /// <summary>
+        /// Tests having a field that has a type matching the parent class
+        /// </summary>
+        [TestMethod]
+        public void TestSelfReference()
+        {
+            const string input = "class TestClass { var a:TestClass; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.IsFalse(collector.HasErrors);
+        }
+
         #region Parsing Errors
 
         /// <summary>
