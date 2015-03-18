@@ -175,7 +175,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             else if (statement.valueDeclareStatement() != null)
             {
                 statementTokens = TokenizeValueDeclareStatement(statement.valueDeclareStatement());
-                statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+
+                if(statementTokens.Count > 0)
+                    statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
             }
             else if (statement.returnStatement() != null)
             {
