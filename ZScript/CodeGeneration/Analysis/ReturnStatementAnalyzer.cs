@@ -229,7 +229,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private void AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
         {
-            context.ReturnType = CurrentDefinition.ReturnType;
+            context.TargetFunction = CurrentDefinition;
 
             _returnStatements.Add(context);
         }

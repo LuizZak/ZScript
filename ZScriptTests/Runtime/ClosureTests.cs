@@ -91,6 +91,18 @@ namespace ZScriptTests.Runtime
             Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
+        [TestMethod]
+        public void TestTypeInferringReturnedClosure()
+        {
+            const string input = "func f() : (int->int) { return i => { return 0; }; }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+            
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
+
         #endregion
         
         #region Execution tests
@@ -250,7 +262,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParameterReturnedClosureVariableCapturing()
         {
-            const string input = "@__trace(a...) func funca() { var a = funcb(1); var b = funcb(2); __trace(a()); __trace(b()); } func funcb(i:int) : (->) { return () : int => { return i + 5; }; }";
+            const string input = "@__trace(a...) func funca() { var a = funcb(1); var b = funcb(2); __trace(a()); __trace(b()); } func funcb(i:int) : (->int) { return () : int => { return i + 5; }; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

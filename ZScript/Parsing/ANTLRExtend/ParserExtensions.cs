@@ -296,14 +296,14 @@ public partial class ZScriptParser
     }
 
     /// <summary>
-    /// Provides extensions to the SwitchStatementContext for identifying the expected return type
+    /// Provides extensions to the SwitchStatementContext for identifying the owner of the return statement
     /// </summary>
     partial class ReturnStatementContext
     {
         /// <summary>
-        /// Gets or sets the return type expected by the function owning this return statement context
+        /// Gets or sets the function definition that owns this return statement context
         /// </summary>
-        public TypeDef ReturnType { get; set; }
+        public FunctionDefinition TargetFunction { get; set; }
     }
 
     #endregion

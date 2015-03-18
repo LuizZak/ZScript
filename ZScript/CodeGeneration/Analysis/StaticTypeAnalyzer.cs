@@ -141,8 +141,7 @@ namespace ZScript.CodeGeneration.Analysis
                 ExpandValueHolderDefinition(valueHolderDefinition);
             }
             
-            //ProcessStatements(_baseScope);
-            ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete);
+            ProcessExpressions(_baseScope);
 
             // Verify return types now
             foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => d.BodyContext != null && !(d is ClosureDefinition)))
@@ -150,33 +149,10 @@ namespace ZScript.CodeGeneration.Analysis
                 AnalyzeReturns(definition);
             }
 
-            //ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete ^ ExpressionAnalysisMode.InnerClosureExpressionResolving);
-
             // Expand closures now
-            
             foreach (var definition in definitions.OfType<ClosureDefinition>())
             {
-                //ExpandClosureDefinition(definition);
                 AnalyzeReturns(definition);
-            }
-            
-            ProcessExpressions(_baseScope, ExpressionAnalysisMode.ExpressionResolving);
-        }
-
-        /// <summary>
-        /// Performs analysis of constant resolving of statements in a given code scope
-        /// </summary>
-        /// <param name="scope">The code scope to process expressions on</param>
-        private void ProcessStatements(CodeScope scope)
-        {
-            var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_generationContext, _typeResolver, resolver, ExpressionAnalysisMode.ConstantStatementAnalysis);
-            var definitions = scope.Definitions;
-
-            foreach (var definition in definitions)
-            {
-                if (definition.Context != null)
-                    traverser.Traverse(definition.Context);
             }
         }
 
@@ -196,128 +172,6 @@ namespace ZScript.CodeGeneration.Analysis
                 if(!(definition is ClosureDefinition) && definition.Context != null)
                     traverser.Traverse(definition.Context);
             }
-        }
-
-        /// <summary>
-        /// Performs deeper analysis of types by exploring expression nodes and deriving their types, as well as pre-evaluating any constants
-        /// </summary>
-        /// <param name="context">The context to process expressions on</param>
-        /// <param name="analysisMode">The mode of the analysis pass to perform</param>
-        private void ProcessExpressions(ParserRuleContext context, ExpressionAnalysisMode analysisMode = ExpressionAnalysisMode.Complete)
-        {
-            var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_generationContext, _typeResolver, resolver, analysisMode);
-
-            traverser.Traverse(context);
-        }
-
-        /// <summary>
-        /// Expands the type of a closure definition, inferring types of arguments and returns when possible
-        /// </summary>
-        /// <param name="definition">The closure definition to expand</param>
-        private void ExpandClosureDefinition(ClosureDefinition definition)
-        {
-            // Find the context the closure was defined in
-            var definedContext = (ZScriptParser.ClosureExpressionContext)definition.Context;
-            var contextType = FindExpectedTypeForClosure(definedContext);
-            bool returnModified = false;
-
-            // Get the parameter types
-            foreach (var argumentDefinition in definition.Parameters)
-            {
-                ExpandFunctionArgument(argumentDefinition);
-            }
-
-            // Use the type to define the type of the closure
-            var newType = TypeProvider.FindCommonType(definition.CallableTypeDef, contextType) as CallableTypeDef;
-
-            if(newType != null)
-            {
-                // Iterate over the arguments and modify the return type
-                for (int i = 0; i < newType.ParameterInfos.Length; i++)
-                {
-                    if (definition.Parameters[i].HasType)
-                        continue;
-
-                    definition.Parameters[i].IsVariadic = newType.ParameterInfos[i].IsVariadic;
-                    definition.Parameters[i].Type = newType.ParameterInfos[i].ParameterType;
-                }
-
-                // Don't update the return type if the closure has a return type and new type is void: this may cause errors during return type analysis
-                if (newType.HasReturnType && (!definition.HasReturnType || newType.ReturnType != TypeProvider.VoidType()))
-                {
-                    definition.ReturnType = newType.ReturnType;
-                    definition.HasReturnType = true;
-
-                    returnModified = true;
-                }
-            }
-
-            // Now expand the closure like a normal function
-            ExpandFunctionDefinition(definition);
-
-            if (!definition.HasReturnType)
-            {
-                definition.ReturnType = _generationContext.TypeProvider.VoidType();
-                definition.HasReturnType = true;
-
-                returnModified = true;
-            }
-
-            // Get all of the local variables and expand them now
-            var scope = _baseScope.GetScopeContainingContext(definition.Context);
-
-            foreach (var valueDef in scope.GetAllDefinitionsRecursive().OfType<ValueHolderDefinition>().Where(d => !(d is FunctionArgumentDefinition)))
-            {
-                ExpandValueHolderDefinition(valueDef);
-            }
-
-            // Re-create the callable definition for the closure
-            definition.RecreateCallableDefinition();
-
-            // Analyze the return type of the closure now
-            AnalyzeReturns(definition);
-            
-            // If the closure's return type was inferred and it is contained within a function call
-            // expression, mark the type of the statement it is contained within to be resolved again
-            var context = definition.Context.Parent;
-            var expContext = ((ZScriptParser.ExpressionContext)context);
-
-            if (returnModified && expContext.valueAccess() != null && expContext.valueAccess().functionCall() != null)
-            {
-                while (context != null)
-                {
-                    var expressionContext = context as ZScriptParser.ExpressionContext;
-                    if (expressionContext != null)
-                        expressionContext.HasTypeBeenEvaluated = false;
-
-                    if (context is ZScriptParser.StatementContext)
-                    {
-                        break;
-                    }
-
-                    context = context.Parent;
-                }
-            }
-
-            ProcessExpressions(((ZScriptParser.ClosureExpressionContext)definition.Context).functionBody(), ExpressionAnalysisMode.ExpressionResolving);
-        }
-
-        /// <summary>
-        /// Returns the type definition that specifies the expected type context for a closure definition.
-        /// May return an Any type, in case no expected types where found
-        /// </summary>
-        /// <param name="closureContext">The context for the closure</param>
-        /// <returns>A type definition that states the expected type for the closure in its defining context</returns>
-        private TypeDef FindExpectedTypeForClosure(ZScriptParser.ClosureExpressionContext closureContext)
-        {
-            // Search closures registered on expected type closures list
-            if (closureContext.Parent != null)
-            {
-                return ((ZScriptParser.ExpressionContext)closureContext.Parent).ExpectedType ?? TypeProvider.AnyType();
-            }
-
-            return TypeProvider.AnyType();
         }
 
         /// <summary>
@@ -344,20 +198,19 @@ namespace ZScript.CodeGeneration.Analysis
             // Verify return statements
             foreach (var statement in definition.ReturnStatements)
             {
-                if (statement.expression() != null)
+                if (statement.expression() == null) continue;
+
+                // Resolve a second time, inferring types to closures
+                statement.expression().ExpectedType = definition.ReturnType;
+
+                var type = _typeResolver.ResolveExpression(statement.expression());
+
+                if (!TypeProvider.CanImplicitCast(type, definition.ReturnType))
                 {
-                    // Resolve a second time, inferring types to closures
-                    statement.expression().ExpectedType = definition.ReturnType;
+                    var target = statement.expression();
 
-                    var type = _typeResolver.ResolveExpression(statement.expression());
-
-                    if (!TypeProvider.CanImplicitCast(type, definition.ReturnType))
-                    {
-                        var target = statement.expression();
-
-                        var message = "Cannot implicitly convert return value type " + type + ", function expects return type of " + definition.ReturnType;
-                        Container.RegisterError(target.Start.Line, target.Start.Column, message, ErrorCode.InvalidCast, target);
-                    }
+                    var message = "Cannot implicitly convert return value type " + type + ", function expects return type of " + definition.ReturnType;
+                    Container.RegisterError(target.Start.Line, target.Start.Column, message, ErrorCode.InvalidCast, target);
                 }
             }
         }
@@ -482,7 +335,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Traverses expressions, performing type checks on them
         /// </summary>
-        private class ExpressionStatementsTraverser : ZScriptBaseListener
+        private class ExpressionStatementsTraverser : ZScriptBaseListener, IClosureExpectedTypeNotifier
         {
             /// <summary>
             /// The context for the runtime generation 
@@ -519,7 +372,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             private TypeProvider TypeProvider
             {
-                get { return _typeResolver.TypeProvider; }
+                get { return _context.TypeProvider; }
             }
 
             /// <summary>
@@ -541,6 +394,8 @@ namespace ZScript.CodeGeneration.Analysis
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
                 _analysisMode = analysisMode;
+
+                _typeResolver.ClosureExpectedTypeNotifier = this;
             }
 
             /// <summary>
@@ -603,7 +458,7 @@ namespace ZScript.CodeGeneration.Analysis
                 if (context.expression() == null)
                     return;
 
-                context.expression().ExpectedType = context.ReturnType;
+                context.expression().ExpectedType = context.TargetFunction.ReturnType ?? TypeProvider.VoidType();
 
                 AnalyzeExpression(context.expression());
             }
@@ -916,15 +771,10 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 // Now expand the closure like a normal function
-                if (!definition.HasReturnType || definition.ReturnTypeContext == null)
+                if (definition.HasReturnType && definition.ReturnTypeContext != null)
                 {
-                    definition.ReturnType = TypeProvider.VoidType();
-                    definition.HasReturnType = true;
-
-                    return;
+                    definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
                 }
-
-                definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
 
                 if (!definition.HasReturnType)
                 {
@@ -932,14 +782,6 @@ namespace ZScript.CodeGeneration.Analysis
                     definition.HasReturnType = true;
 
                     returnModified = true;
-                }
-
-                // Get all of the local variables and expand them now
-                var scope = _context.BaseScope.GetScopeContainingContext(definition.Context);
-
-                foreach (var valueDef in scope.GetAllDefinitionsRecursive().OfType<ValueHolderDefinition>().Where(d => !(d is FunctionArgumentDefinition)))
-                {
-                    ExpandValueHolderDefinition(valueDef);
                 }
 
                 // Re-create the callable definition for the closure
@@ -1136,6 +978,14 @@ namespace ZScript.CodeGeneration.Analysis
 
                 _typeResolver.ResolveExpression(context.expression());
                 _constantResolver.ExpandConstants(context.expression());
+            }
+
+            // 
+            // IClosureExpectedTypeNotifier.ClosureTypeMatched implementation
+            // 
+            public void ClosureTypeMatched(ZScriptParser.ClosureExpressionContext context, TypeDef expectedType)
+            {
+                AnalyzeClosureDefinition(context.Definition);
             }
         }
 

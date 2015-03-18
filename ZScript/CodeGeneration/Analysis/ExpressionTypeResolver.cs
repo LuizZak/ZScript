@@ -70,6 +70,11 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Gets or sets the object to notify the closure type matching to
+        /// </summary>
+        public IClosureExpectedTypeNotifier ClosureExpectedTypeNotifier { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the ExpressionTypeResolver class
         /// </summary>
         /// <param name="generationContext">The generation context for this expression type resolver</param>
@@ -157,6 +162,12 @@ namespace ZScript.CodeGeneration.Analysis
             // Literals
             if (context.closureExpression() != null)
             {
+                // Notify of closure inferring
+                if (context.ExpectedType != null && ClosureExpectedTypeNotifier != null)
+                {
+                    ClosureExpectedTypeNotifier.ClosureTypeMatched(context.closureExpression(), context.ExpectedType);
+                }
+
                 retType = ResolveClosureExpression(context.closureExpression());
             }
             if (context.arrayLiteral() != null)
@@ -860,13 +871,17 @@ namespace ZScript.CodeGeneration.Analysis
             TypeDef returnType;
 
             // Check return type now
-            if (hasReturnType)
+            if (hasReturnType && context.returnType() != null)
             {
                 returnType = ResolveType(context.returnType().type(), true);
             }
-            else
+            else if (context.Definition != null)
             {
                 returnType = context.Definition.ReturnType ?? TypeProvider.VoidType();
+            }
+            else
+            {
+                returnType = TypeProvider.VoidType();
             }
             
             if (context.Definition != null && context.Definition.HasReturnType && context.Definition.ReturnType != null)
@@ -1256,7 +1271,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var parameterTypes = new List<TypeDef>();
             var variadic = new List<bool>();
-            var returnType = TypeDef.AnyType;
+            var returnType = TypeDef.VoidType;
             var hasReturnType = context.type() != null;
 
             // Iterate through each parameter type for the closure

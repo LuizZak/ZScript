@@ -347,7 +347,7 @@ namespace ZScriptTests.Runtime.Typing
             // Set up the test
             const string input = "(int->int) (i:int, j:int) => {}";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
@@ -366,9 +366,9 @@ namespace ZScriptTests.Runtime.Typing
         public void TestDefaultArgumentClosureTypeImplicitCast()
         {
             // Set up the test
-            const string input = "(int->int) (i:int, j:int=0) => {}";
+            const string input = "(int->int) (i:int, j:int=0):int => {}";
 
-            var parser = Utils.TestUtils.CreateParser(input);
+            var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var container = new MessageContainer();
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));

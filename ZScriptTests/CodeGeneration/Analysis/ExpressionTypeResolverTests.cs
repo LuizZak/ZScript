@@ -133,6 +133,50 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests chaining calling of return values
         /// </summary>
         [TestMethod]
+        public void TestCallableType()
+        {
+            // Set up the test
+            const string input = "(int,int->int) (int,int->void) (->int) (->)";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type1 = resolver.ResolveCallableType(parser.callableType());
+            var type2 = resolver.ResolveCallableType(parser.callableType());
+            var type3 = resolver.ResolveCallableType(parser.callableType());
+            var type4 = resolver.ResolveCallableType(parser.callableType());
+
+            // Compare the result now
+            Assert.AreEqual(
+                new CallableTypeDef(new[]
+                {
+                    new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false),
+                    new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false)
+                }, TypeDef.IntegerType, true),
+                type1, "The resolved type did not match the expected type");
+
+            Assert.AreEqual(
+                new CallableTypeDef(new[]
+                {
+                    new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false),
+                    new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false)
+                }, TypeDef.VoidType, true),
+                type2, "The resolved type did not match the expected type");
+
+            Assert.AreEqual(
+                new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.IntegerType, true),
+                type3, "The resolved type did not match the expected type");
+
+            Assert.AreEqual(
+                new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, false),
+                type4, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests chaining calling of return values
+        /// </summary>
+        [TestMethod]
         public void TestChainedCallable()
         {
             // Set up the test
