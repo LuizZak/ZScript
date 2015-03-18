@@ -153,11 +153,13 @@ namespace ZScript.CodeGeneration.Analysis
             //ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete ^ ExpressionAnalysisMode.InnerClosureExpressionResolving);
 
             // Expand closures now
+            
             foreach (var definition in definitions.OfType<ClosureDefinition>())
             {
-                ExpandClosureDefinition(definition);
+                //ExpandClosureDefinition(definition);
+                AnalyzeReturns(definition);
             }
-
+            
             ProcessExpressions(_baseScope, ExpressionAnalysisMode.ExpressionResolving);
         }
 
@@ -168,7 +170,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void ProcessStatements(CodeScope scope)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, ExpressionAnalysisMode.ConstantStatementAnalysis);
+            var traverser = new ExpressionStatementsTraverser(_generationContext, _typeResolver, resolver, ExpressionAnalysisMode.ConstantStatementAnalysis);
             var definitions = scope.Definitions;
 
             foreach (var definition in definitions)
@@ -186,7 +188,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void ProcessExpressions(CodeScope scope, ExpressionAnalysisMode analysisMode = ExpressionAnalysisMode.Complete)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, analysisMode);
+            var traverser = new ExpressionStatementsTraverser(_generationContext, _typeResolver, resolver, analysisMode);
             var definitions = scope.Definitions;
 
             foreach (var definition in definitions)
@@ -204,7 +206,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void ProcessExpressions(ParserRuleContext context, ExpressionAnalysisMode analysisMode = ExpressionAnalysisMode.Complete)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_typeResolver, resolver, analysisMode);
+            var traverser = new ExpressionStatementsTraverser(_generationContext, _typeResolver, resolver, analysisMode);
 
             traverser.Traverse(context);
         }
@@ -483,6 +485,11 @@ namespace ZScript.CodeGeneration.Analysis
         private class ExpressionStatementsTraverser : ZScriptBaseListener
         {
             /// <summary>
+            /// The context for the runtime generation 
+            /// </summary>
+            private readonly RuntimeGenerationContext _context;
+
+            /// <summary>
             /// The type resolver to use when resolving the expressions
             /// </summary>
             private readonly ExpressionTypeResolver _typeResolver;
@@ -508,12 +515,21 @@ namespace ZScript.CodeGeneration.Analysis
             private int _closureDepth;
 
             /// <summary>
+            /// Gets the type provider for this expression statement traverser
+            /// </summary>
+            private TypeProvider TypeProvider
+            {
+                get { return _typeResolver.TypeProvider; }
+            }
+
+            /// <summary>
             /// Initializes a new instance of the ExpressionStatementsTraverser class
             /// </summary>
+            /// <param name="context">The context for the runtime generation</param>
             /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
             /// <param name="analysisMode">The type of analysis to perform when using this expression statements traverser</param>
-            public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver, ExpressionAnalysisMode analysisMode)
+            public ExpressionStatementsTraverser(RuntimeGenerationContext context, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver, ExpressionAnalysisMode analysisMode)
             {
                 var target = constantResolver.Context.DefinitionTypeProvider as ZRuntimeGenerator.DefaultDefinitionTypeProvider;
                 if (target != null)
@@ -521,6 +537,7 @@ namespace ZScript.CodeGeneration.Analysis
                     _definitionsTarget = target;
                 }
 
+                _context = context;
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
                 _analysisMode = analysisMode;
@@ -574,6 +591,19 @@ namespace ZScript.CodeGeneration.Analysis
                 _closureDepth--;
 
                 PopLocalScope();
+
+                AnalyzeClosureDefinition(context.Definition);
+            }
+
+            // 
+            // EnterReturnStatement override
+            // 
+            public override void EnterReturnStatement(ZScriptParser.ReturnStatementContext context)
+            {
+                if (context.expression() == null)
+                    return;
+
+                AnalyzeExpression(context.expression());
             }
 
             #region Scope walking
@@ -756,6 +786,196 @@ namespace ZScript.CodeGeneration.Analysis
 
                 if (localDef != null)
                     AddLocal(localDef);
+            }
+
+            /// <summary>
+            /// Expands the type of a given variable definition
+            /// </summary>
+            /// <param name="definition">The definition to expand</param>
+            private void ExpandValueHolderDefinition(ValueHolderDefinition definition)
+            {
+                // Evaluate definition type
+                ExpandValueHolderType(definition);
+                ExpandValueHolderTypeFromValue(definition);
+            }
+
+            /// <summary>
+            /// Expands the type declaration of a given variable definition
+            /// </summary>
+            /// <param name="definition">The definition to expand</param>
+            private void ExpandValueHolderType(ValueHolderDefinition definition)
+            {
+                // Evaluate definition type
+                if (!definition.HasType)
+                {
+                    definition.Type = TypeProvider.AnyType();
+                }
+                else
+                {
+                    definition.Type = _typeResolver.ResolveType(definition.TypeContext, false);
+                }
+            }
+
+            /// <summary>
+            /// Expands the type of a given value holder definition from its initialization expression, if any
+            /// </summary>
+            /// <param name="definition">The definition to expand</param>
+            private void ExpandValueHolderTypeFromValue(ValueHolderDefinition definition)
+            {
+                if (!definition.HasValue)
+                {
+                    return;
+                }
+
+                // Compare applicability
+                TypeDef valueType;
+
+                var argumentDefinition = definition as FunctionArgumentDefinition;
+                if (argumentDefinition != null)
+                {
+                    valueType = _typeResolver.ResolveCompileConstant(argumentDefinition.DefaultValue);
+                }
+                else
+                {
+                    definition.ValueExpression.ExpressionContext.ExpectedType = definition.HasType ? definition.Type : null;
+                    definition.ValueExpression.ExpressionContext.HasTypeBeenEvaluated = false;
+                    valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
+                }
+
+                if (!definition.HasType)
+                {
+                    definition.Type = valueType;
+                    definition.HasInferredType = valueType != null;
+                }
+
+                var varType = definition.Type;
+
+                if (varType != null && !TypeProvider.CanImplicitCast(valueType, varType))
+                {
+                    var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
+                    _typeResolver.MessageContainer.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
+                }
+            }
+
+            /// <summary>
+            /// Expands the type of a given function argument definition
+            /// </summary>
+            /// <param name="definition">The definition to expand</param>
+            private void AnalyzeFunctionArgument(FunctionArgumentDefinition definition)
+            {
+                ExpandValueHolderDefinition(definition);
+
+                if (definition.IsVariadic)
+                {
+                    definition.Type = TypeProvider.ListForType(definition.Type);
+                }
+            }
+
+            /// <summary>
+            /// Expands the type of a closure definition, inferring types of arguments and returns when possible
+            /// </summary>
+            /// <param name="definition">The closure definition to expand</param>
+            private void AnalyzeClosureDefinition(ClosureDefinition definition)
+            {
+                // Find the context the closure was defined in
+                var definedContext = (ZScriptParser.ClosureExpressionContext)definition.Context;
+                var contextType = FindExpectedTypeForClosure(definedContext);
+                bool returnModified = false;
+
+                // Get the parameter types
+                foreach (var argumentDefinition in definition.Parameters)
+                {
+                    AnalyzeFunctionArgument(argumentDefinition);
+                }
+
+                // Use the type to define the type of the closure
+                var newType = TypeProvider.FindCommonType(definition.CallableTypeDef, contextType) as CallableTypeDef;
+
+                if (newType != null)
+                {
+                    // Iterate over the arguments and modify the return type
+                    for (int i = 0; i < newType.ParameterInfos.Length; i++)
+                    {
+                        if (definition.Parameters[i].HasType)
+                            continue;
+
+                        definition.Parameters[i].IsVariadic = newType.ParameterInfos[i].IsVariadic;
+                        definition.Parameters[i].Type = newType.ParameterInfos[i].ParameterType;
+                    }
+
+                    // Don't update the return type if the closure has a return type and new type is void: this may cause errors during return type analysis
+                    if (newType.HasReturnType && (!definition.HasReturnType || newType.ReturnType != TypeProvider.VoidType()))
+                    {
+                        definition.ReturnType = newType.ReturnType;
+                        definition.HasReturnType = true;
+
+                        returnModified = true;
+                    }
+                }
+
+                // Now expand the closure like a normal function
+                if (!definition.HasReturnType || definition.ReturnTypeContext == null)
+                    return;
+
+                definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
+
+                if (!definition.HasReturnType)
+                {
+                    definition.ReturnType = TypeProvider.VoidType();
+                    definition.HasReturnType = true;
+
+                    returnModified = true;
+                }
+
+                // Get all of the local variables and expand them now
+                var scope = _context.BaseScope.GetScopeContainingContext(definition.Context);
+
+                foreach (var valueDef in scope.GetAllDefinitionsRecursive().OfType<ValueHolderDefinition>().Where(d => !(d is FunctionArgumentDefinition)))
+                {
+                    ExpandValueHolderDefinition(valueDef);
+                }
+
+                // Re-create the callable definition for the closure
+                definition.RecreateCallableDefinition();
+
+                // If the closure's return type was inferred and it is contained within a function call
+                // expression, mark the type of the statement it is contained within to be resolved again
+                var context = definition.Context.Parent;
+                var expContext = ((ZScriptParser.ExpressionContext)context);
+
+                if (returnModified && expContext.valueAccess() != null && expContext.valueAccess().functionCall() != null)
+                {
+                    while (context != null)
+                    {
+                        var expressionContext = context as ZScriptParser.ExpressionContext;
+                        if (expressionContext != null)
+                            expressionContext.HasTypeBeenEvaluated = false;
+
+                        if (context is ZScriptParser.StatementContext)
+                        {
+                            break;
+                        }
+
+                        context = context.Parent;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Returns the type definition that specifies the expected type context for a closure definition.
+            /// May return an Any type, in case no expected types where found
+            /// </summary>
+            /// <param name="closureContext">The context for the closure</param>
+            /// <returns>A type definition that states the expected type for the closure in its defining context</returns>
+            private TypeDef FindExpectedTypeForClosure(ZScriptParser.ClosureExpressionContext closureContext)
+            {
+                // Search closures registered on expected type closures list
+                if (closureContext.Parent != null)
+                {
+                    return ((ZScriptParser.ExpressionContext)closureContext.Parent).ExpectedType ?? TypeProvider.AnyType();
+                }
+
+                return TypeProvider.AnyType();
             }
 
             // 
