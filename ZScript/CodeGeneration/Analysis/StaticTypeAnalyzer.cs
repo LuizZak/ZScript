@@ -370,7 +370,15 @@ namespace ZScript.CodeGeneration.Analysis
             // Expand the fields
             foreach (var classField in definition.GetAllFields())
             {
-                ExpandValueHolderDefinition(classField);
+                ExpandValueHolderType(classField);
+            }
+
+            // Update the class type def, since we need an updated signature to continue expanding the values
+            definition.UpdateClassTypeDef();
+
+            foreach (var classField in definition.GetAllFields())
+            {
+                ExpandValueHolderTypeFromValue(classField);
             }
 
             // Expand the functions
@@ -390,6 +398,17 @@ namespace ZScript.CodeGeneration.Analysis
         private void ExpandValueHolderDefinition(ValueHolderDefinition definition)
         {
             // Evaluate definition type
+            ExpandValueHolderType(definition);
+            ExpandValueHolderTypeFromValue(definition);
+        }
+
+        /// <summary>
+        /// Expands the type declaration of a given variable definition
+        /// </summary>
+        /// <param name="definition">The definition to expand</param>
+        private void ExpandValueHolderType(ValueHolderDefinition definition)
+        {
+            // Evaluate definition type
             if (!definition.HasType)
             {
                 definition.Type = TypeProvider.AnyType();
@@ -398,7 +417,14 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 definition.Type = _typeResolver.ResolveType(definition.TypeContext, false);
             }
+        }
 
+        /// <summary>
+        /// Expands the type of a given value holder definition from its initialization expression, if any
+        /// </summary>
+        /// <param name="definition">The definition to expand</param>
+        private void ExpandValueHolderTypeFromValue(ValueHolderDefinition definition)
+        {
             if (!definition.HasValue)
             {
                 return;
@@ -430,7 +456,8 @@ namespace ZScript.CodeGeneration.Analysis
             if (varType != null && !TypeProvider.CanImplicitCast(valueType, varType))
             {
                 var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
-                Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
+                Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message,
+                    ErrorCode.InvalidCast, definition.Context);
             }
         }
 
