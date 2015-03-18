@@ -205,9 +205,25 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
+        public override void EnterForStatement(ZScriptParser.ForStatementContext context)
+        {
+            EnterContextScope(context);
+
+            PushDefinitionScope();
+        }
+
+        public override void ExitForStatement(ZScriptParser.ForStatementContext context)
+        {
+            PopDefinitionScope();
+
+            ExitContextScope();
+        }
+
         public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
         {
             EnterContextScope(context);
+
+            PushDefinitionScope();
         }
 
         public override void ExitSwitchStatement(ZScriptParser.SwitchStatementContext context)
@@ -381,35 +397,6 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var definition = GetDefinitionByName(definitionName);
 
-            /*var definition = _currentScope.GetDefinitionByName(definitionName);
-
-            if (definition == null)
-            {
-                bool found = false;
-
-                if(_classStack.Count > 0)
-                {
-                    // If we are in a class definition, search inheritance chain
-                    var classDef = _classStack.Peek();
-
-                    while(classDef != null)
-                    {
-                        var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
-
-                        if (field != null)
-                        {
-                            definition = field;
-                            found = true;
-                            break;
-                        }
-
-                        classDef = classDef.BaseClass;
-                    }
-                }
-
-                if(!found)
-                    RegisterMemberNotFound(context);
-            }*/
             if (definition == null)
                 RegisterMemberNotFound(context);
 

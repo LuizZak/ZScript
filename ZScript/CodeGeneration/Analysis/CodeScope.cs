@@ -51,7 +51,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// List of type aliases registered on this code scope
         /// </summary>
-        private readonly List<TypeAliasDefinition> _typeAlias = new List<TypeAliasDefinition>(); 
+        private readonly List<TypeAliasDefinition> _typeAlias = new List<TypeAliasDefinition>();
 
         /// <summary>
         /// The context the scope is contained at

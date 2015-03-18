@@ -47,7 +47,15 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private TypeProvider TypeProvider
         {
-            get { return _context.TypeProvider; }
+            get { return Context.TypeProvider; }
+        }
+
+        /// <summary>
+        /// The runtime generation context to get the type provider from
+        /// </summary>
+        public RuntimeGenerationContext Context
+        {
+            get { return _context; }
         }
 
         /// <summary>
@@ -241,7 +249,7 @@ namespace ZScript.CodeGeneration.Analysis
                     catch (SystemException e)
                     {
                         var message = e.Message;
-                        _context.MessageContainer.RegisterError(context, message, ErrorCode.InvalidConstantOperation);
+                        Context.MessageContainer.RegisterError(context, message, ErrorCode.InvalidConstantOperation);
                     }
                 }
             }

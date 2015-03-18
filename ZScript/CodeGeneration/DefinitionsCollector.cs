@@ -202,6 +202,16 @@ namespace ZScript.CodeGeneration
             PopScope();
         }
 
+        public override void EnterForStatement(ZScriptParser.ForStatementContext context)
+        {
+            PushScope(context);
+        }
+
+        public override void ExitForStatement(ZScriptParser.ForStatementContext context)
+        {
+            PopScope();
+        }
+
         public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
         {
             PushScope(context);

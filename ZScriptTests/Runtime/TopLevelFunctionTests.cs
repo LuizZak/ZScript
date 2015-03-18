@@ -122,5 +122,26 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(1L, owner.TraceObjects[1], "The function call did not occur as expected");
             Assert.AreEqual(2L, owner.TraceObjects[2], "The function call did not occur as expected");
         }
+
+        /// <summary>
+        /// Tests shadowing a function by creating a local variable inside another function
+        /// </summary>
+        [TestMethod]
+        public void TestShadowingFunction()
+        {
+            const string input = "@__trace(v...) func f1() { f2(); var f2 = 0; } func f2() { __trace(1); }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f1");
+
+            // Assert the correct call was made
+            Assert.AreEqual(1L, owner.TraceObjects[0], "The function call did not occur as expected");
+        }
     }
 }

@@ -664,12 +664,17 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Default definition type provider for the runtime generator
         /// </summary>
-        private class DefaultDefinitionTypeProvider : IDefinitionTypeProvider
+        public class DefaultDefinitionTypeProvider : IDefinitionTypeProvider
         {
             /// <summary>
             /// A message container to report error messages and warnings to
             /// </summary>
             private readonly RuntimeGenerationContext _context;
+
+            /// <summary>
+            /// Stack of definitions, used to run through definitions in function bodies
+            /// </summary>
+            private readonly Stack<List<ValueHolderDefinition>> _localsStack;
 
             /// <summary>
             /// Initializes a new instance of the DefaultDefinitionTypeProvider class
@@ -678,6 +683,40 @@ namespace ZScript.CodeGeneration
             public DefaultDefinitionTypeProvider(RuntimeGenerationContext context)
             {
                 _context = context;
+                _localsStack = new Stack<List<ValueHolderDefinition>>();
+            }
+
+            /// <summary>
+            /// Clears all the locals in the locals stack
+            /// </summary>
+            public void ClearLocalStack()
+            {
+                _localsStack.Clear();
+            }
+
+            /// <summary>
+            /// Pushes a new definition scope
+            /// </summary>
+            public void PushLocalScope()
+            {
+                _localsStack.Push(new List<ValueHolderDefinition>());
+            }
+
+            /// <summary>
+            /// Adds a given definition to the top of the definition stack
+            /// </summary>
+            /// <param name="definition">The definition to add to the top of the definition stack</param>
+            public void AddLocal(ValueHolderDefinition definition)
+            {
+                _localsStack.Peek().Add(definition);
+            }
+
+            /// <summary>
+            /// Pops a definition scope
+            /// </summary>
+            public void PopLocalScope()
+            {
+                _localsStack.Pop();
             }
 
             // 
@@ -685,41 +724,61 @@ namespace ZScript.CodeGeneration
             // 
             public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
             {
+                foreach (var locals in _localsStack)
+                {
+                    var def = locals.FirstOrDefault(d => d.Name == definitionName);
+                    if (def != null)
+                    {
+                        context.IsConstant = def.IsConstant;
+
+                        return def.Type;
+                    }
+                }
+
                 // Search for the inner-most scope that contains the context, and search the definition from there
                 var scopeForDefinition = _context.BaseScope.GetScopeContainingContext(context);
 
                 if (scopeForDefinition != null)
                 {
-                    var def = scopeForDefinition.GetDefinitionByName(definitionName);
+                    var definitions = scopeForDefinition.GetDefinitionsByName(definitionName).ToList();
 
-                    // Bind the definition to the member name
-                    context.Definition = def;
-                    context.HasDefinition = (def != null);
-
-                    var holderDefinition = def as ValueHolderDefinition;
-                    if (holderDefinition != null)
+                    foreach (var def in definitions)
                     {
-                        context.IsConstant = holderDefinition.IsConstant;
+                        // Bind the definition to the member name
+                        context.Definition = def;
+                        context.HasDefinition = (def != null);
 
-                        return holderDefinition.Type ?? TypeDef.AnyType;
-                    }
+                        // Local variables cannot be fetched through this mean
+                        if (def is LocalVariableDefinition)
+                        {
+                            continue;
+                        }
 
-                    var funcDef = def as FunctionDefinition;
-                    if (funcDef != null)
-                    {
-                        // Functions cannot be reassigned
-                        context.IsConstant = true;
+                        var holderDefinition = def as ValueHolderDefinition;
+                        if (holderDefinition != null)
+                        {
+                            context.IsConstant = holderDefinition.IsConstant;
 
-                        return funcDef.CallableTypeDef;
-                    }
+                            return holderDefinition.Type ?? TypeDef.AnyType;
+                        }
 
-                    var objDef = def as ClassDefinition;
-                    if (objDef != null)
-                    {
-                        // Class definitions cannot be reassigned
-                        context.IsConstant = true;
-                        
-                        return objDef.PublicConstructor.CallableTypeDef;
+                        var funcDef = def as FunctionDefinition;
+                        if (funcDef != null)
+                        {
+                            // Functions cannot be reassigned
+                            context.IsConstant = true;
+
+                            return funcDef.CallableTypeDef;
+                        }
+
+                        var objDef = def as ClassDefinition;
+                        if (objDef != null)
+                        {
+                            // Class definitions cannot be reassigned
+                            context.IsConstant = true;
+
+                            return objDef.PublicConstructor.CallableTypeDef;
+                        }
                     }
                 }
 
@@ -741,6 +800,7 @@ namespace ZScript.CodeGeneration
                     }
                 }
 
+            notFound:
                 _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
 
                 return _context.TypeProvider.AnyType();

@@ -1451,6 +1451,57 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
         }
 
+        /// <summary>
+        /// Tests raising warnings when trying to call non callables
+        /// </summary>
+        [TestMethod]
+        public void TestCallingUncallable()
+        {
+            const string input = "func f() { var a = 10; a(); }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests raising warnings when trying to call non callables
+        /// </summary>
+        [TestMethod]
+        public void TestShadowedCallingUncallable()
+        {
+            const string input = "func f() { var a = 10; a(); } func a() { }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests handling using definitions before shadowing
+        /// </summary>
+        [TestMethod]
+        public void TestUsageBeforeShadowing()
+        {
+            const string input = "func f() { a(); var a = 10; } func a() { }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
         #endregion
 
         #region Exception raising

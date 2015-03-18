@@ -21,13 +21,14 @@
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {
     /// <summary>
-    /// Tests the functionality of the DefinitionsAnalyzer class and related components
+    /// Tests the functionality of the <see cref="DefinitionAnalyzer"/> class and related components
     /// </summary>
     [TestClass]
     public class DefinitionsAnalyzerTests
@@ -71,7 +72,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition));
+            Assert.AreEqual(2, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition));
         }
 
         /// <summary>

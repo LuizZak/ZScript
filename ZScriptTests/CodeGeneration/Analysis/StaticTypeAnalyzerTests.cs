@@ -109,6 +109,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
+            generator.MessageContainer.PrintMessages();
+
             Assert.IsFalse(generator.HasErrors);
             Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
@@ -587,6 +589,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
+            container.PrintMessages();
+
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
         }
 
@@ -603,6 +607,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
+            container.PrintMessages();
+
             Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
         }
 
@@ -618,6 +624,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
+
+            container.PrintMessages();
 
             Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
         }

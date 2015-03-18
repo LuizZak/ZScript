@@ -125,7 +125,7 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 definition.RecreateCallableDefinition();
             }
-
+            
             // Iterate over value holder definitions, ignoring definitions of function arguments (which where processed earlier)
             // or contained within closures (which will be processed later)
             foreach (
@@ -133,14 +133,16 @@ namespace ZScript.CodeGeneration.Analysis
                     definitions.OfType<ValueHolderDefinition>()
                         .Where(
                             d =>
+                                !(d is LocalVariableDefinition) &&
                                 !(d is FunctionArgumentDefinition) &&
                                 // Ignore value holders inside closures, for now
                                 !(d.Context.IsContainedInRuleType<ZScriptParser.ClosureExpressionContext>())))
             {
                 ExpandValueHolderDefinition(valueHolderDefinition);
             }
-
-            ProcessStatements(_baseScope);
+            
+            //ProcessStatements(_baseScope);
+            ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete);
 
             // Verify return types now
             foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => d.BodyContext != null && !(d is ClosureDefinition)))
@@ -148,7 +150,7 @@ namespace ZScript.CodeGeneration.Analysis
                 AnalyzeReturns(definition);
             }
 
-            ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete ^ ExpressionAnalysisMode.InnerClosureExpressionResolving);
+            //ProcessExpressions(_baseScope, ExpressionAnalysisMode.Complete ^ ExpressionAnalysisMode.InnerClosureExpressionResolving);
 
             // Expand closures now
             foreach (var definition in definitions.OfType<ClosureDefinition>())
@@ -491,6 +493,11 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly ExpressionConstantResolver _constantResolver;
 
             /// <summary>
+            /// Target for definition collection
+            /// </summary>
+            private readonly ZRuntimeGenerator.DefaultDefinitionTypeProvider _definitionsTarget;
+
+            /// <summary>
             /// The type of analysis to perform when using this expression statements traverser
             /// </summary>
             private readonly ExpressionAnalysisMode _analysisMode;
@@ -508,6 +515,12 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="analysisMode">The type of analysis to perform when using this expression statements traverser</param>
             public ExpressionStatementsTraverser(ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver, ExpressionAnalysisMode analysisMode)
             {
+                var target = constantResolver.Context.DefinitionTypeProvider as ZRuntimeGenerator.DefaultDefinitionTypeProvider;
+                if (target != null)
+                {
+                    _definitionsTarget = target;
+                }
+
                 _typeResolver = typeResolver;
                 _constantResolver = constantResolver;
                 _analysisMode = analysisMode;
@@ -519,6 +532,8 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="context">The context to start traversing at</param>
             public void Traverse(RuleContext context)
             {
+                ClearLocalStack();
+
                 ParseTreeWalker walker = new ParseTreeWalker();
                 walker.Walk(this, context);
             }
@@ -547,6 +562,8 @@ namespace ZScript.CodeGeneration.Analysis
             public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
             {
                 _closureDepth++;
+
+                PushLocalScope();
             }
 
             // 
@@ -555,6 +572,89 @@ namespace ZScript.CodeGeneration.Analysis
             public override void ExitClosureExpression(ZScriptParser.ClosureExpressionContext context)
             {
                 _closureDepth--;
+
+                PopLocalScope();
+            }
+
+            #region Scope walking
+
+            public override void EnterProgram(ZScriptParser.ProgramContext context)
+            {
+                PushLocalScope();
+            }
+
+            public override void ExitProgram(ZScriptParser.ProgramContext context)
+            {
+                PopLocalScope();
+            }
+
+            public override void EnterBlockStatement(ZScriptParser.BlockStatementContext context)
+            {
+                PushLocalScope();
+            }
+
+            public override void ExitBlockStatement(ZScriptParser.BlockStatementContext context)
+            {
+                PopLocalScope();
+            }
+
+            public override void EnterSequenceFrame(ZScriptParser.SequenceFrameContext context)
+            {
+                PushLocalScope();
+            }
+
+            public override void ExitSequenceFrame(ZScriptParser.SequenceFrameContext context)
+            {
+                PopLocalScope();
+            }
+
+            public override void EnterForStatement(ZScriptParser.ForStatementContext context)
+            {
+                PushLocalScope();
+            }
+
+            public override void ExitForStatement(ZScriptParser.ForStatementContext context)
+            {
+                PopLocalScope();
+            }
+
+            #endregion
+
+            /// <summary>
+            /// Clears all the locals in the locals stack
+            /// </summary>
+            private void ClearLocalStack()
+            {
+                if (_definitionsTarget != null)
+                    _definitionsTarget.ClearLocalStack();
+            }
+
+            /// <summary>
+            /// Pushes a new definition scope
+            /// </summary>
+            private void PushLocalScope()
+            {
+                if (_definitionsTarget != null)
+                    _definitionsTarget.PushLocalScope();
+            }
+
+            /// <summary>
+            /// Adds a given definition to the top of the definition stack
+            /// </summary>
+            /// <param name="definition">The definition to add to the top of the definition stack</param>
+            private void AddLocal(LocalVariableDefinition definition)
+            {
+                if (_definitionsTarget != null)
+                    _definitionsTarget.AddLocal(definition);
+            }
+
+            /// <summary>
+            /// Pops a definition scope
+            /// </summary>
+            private void PopLocalScope()
+            {
+                if (_definitionsTarget != null)
+                    _definitionsTarget.PopLocalScope();
             }
 
             /// <summary>
@@ -598,37 +698,74 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            // 
-            // EnterValueDeclareStatement override
-            // 
-            public override void EnterValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
+            /// <summary>
+            /// Analyzes a given value holder declaration context
+            /// </summary>
+            /// <param name="valueHolderDecl">The context containing the value declaration to analyze</param>
+            private void AnalyzeVariableDeclaration(ZScriptParser.ValueHolderDeclContext valueHolderDecl)
             {
-                var expression = context.valueHolderDecl().expression();
+                var localDef = valueHolderDecl.Definition as LocalVariableDefinition;
 
+                var definition = valueHolderDecl.Definition;
+                var varType = definition.Type ?? _constantResolver.Context.TypeProvider.AnyType();
+
+                if (definition.TypeContext != null)
+                {
+                    varType = _typeResolver.ResolveType(definition.TypeContext, false);
+                }
+
+                definition.Type = varType;
+
+                var expression = valueHolderDecl.expression();
                 if (expression == null)
+                {
+                    if (localDef != null)
+                        AddLocal(localDef);
+
                     return;
+                }
 
                 if (expression.HasTypeBeenEvaluated)
                 {
                     _constantResolver.ExpandConstants(expression);
+                    if (localDef != null)
+                        AddLocal(localDef);
+
                     return;
+                }
+
+                if (definition.TypeContext != null)
+                {
+                    expression.ExpectedType = varType;
                 }
 
                 var valueType = _typeResolver.ResolveExpression(expression);
                 _constantResolver.ExpandConstants(expression);
 
-                var definition = context.valueHolderDecl().Definition;
-                if (definition == null)
-                    return;
-                
-                // Verify type compatibility once again
-                var varType = definition.Type;
+                // Inferring
+                if (definition.TypeContext == null)
+                {
+                    definition.Type = valueType;
+                }
 
                 if (varType != null && valueType != null && !_typeResolver.TypeProvider.CanImplicitCast(valueType, varType))
                 {
                     var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
-                    _typeResolver.MessageContainer.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
+                    _typeResolver.MessageContainer.RegisterError(definition.Context, message, ErrorCode.InvalidCast);
                 }
+
+                if (localDef != null)
+                    AddLocal(localDef);
+            }
+
+            // 
+            // EnterValueDeclareStatement override
+            // 
+            public override void EnterValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
+            {
+                var valueHolderDecl = context.valueHolderDecl();
+
+                AnalyzeVariableDeclaration(valueHolderDecl);
             }
 
             // 
@@ -679,11 +816,27 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
             {
+                PushLocalScope();
+
                 if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
                     return;
-                
+
+                // Pre-analyze valued switches
+                if (context.valueHolderDecl() != null)
+                {
+                    AnalyzeVariableDeclaration(context.valueHolderDecl());
+                }
+
                 var analyzer = new SwitchCaseAnalyzer(context, _typeResolver, _constantResolver, _analysisMode);
                 analyzer.Process();
+            }
+
+            // 
+            // ExitSwitchStatement override
+            // 
+            public override void ExitSwitchStatement(ZScriptParser.SwitchStatementContext context)
+            {
+                PopLocalScope();
             }
 
             // 
@@ -693,6 +846,12 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 if (!_analysisMode.HasFlag(ExpressionAnalysisMode.StatementAnalysis))
                     return;
+                
+                // Value declaration
+                if (context.valueHolderDecl() != null)
+                {
+                    AnalyzeVariableDeclaration(context.valueHolderDecl());
+                }
 
                 // For loops can ommit the init expression
                 if (context.expression() == null)
