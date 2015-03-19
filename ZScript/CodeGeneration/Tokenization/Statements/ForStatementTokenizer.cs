@@ -19,6 +19,8 @@
 */
 #endregion
 using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.Elements;
+using ZScript.Runtime.Execution;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
@@ -96,7 +98,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             var incr = context.forIncrement();
             if(incr != null)
+            {
                 tokens.AddRange(_context.TokenizeExpression(incr.expression()));
+                // Add a clear stack to balance the stack back again
+                tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+            }
 
             // 4 - Condition expression
             tokens.Add(_conditionTarget);
