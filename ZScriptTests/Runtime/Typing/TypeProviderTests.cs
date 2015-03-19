@@ -334,6 +334,48 @@ namespace ZScriptTests.Runtime.Typing
             Assert.AreEqual(expected2, provider.FindCommonType(dict3, dict4));
         }
 
+        /// <summary>
+        /// Tests the FindCommonType method with two class types that have an inheritance connection
+        /// </summary>
+        [TestMethod]
+        public void TestClassFindCommonType()
+        {
+            var provider = new TypeProvider();
+
+            var class1 = new ClassTypeDef("Class1");
+            var class2 = new ClassTypeDef("Class2");
+
+            var expected1 = provider.AnyType();
+
+            Assert.AreEqual(expected1, provider.FindCommonType(class1, class2));
+
+            class2.BaseType = class1;
+
+            var expected2 = class1;
+
+            Assert.AreEqual(expected2, provider.FindCommonType(class1, class2));
+        }
+
+        /// <summary>
+        /// Tests the FindCommonType method with two class types that have an inheritance connection that spans beyond one base class
+        /// </summary>
+        [TestMethod]
+        public void TestDeepClassFindCommonType()
+        {
+            var provider = new TypeProvider();
+
+            var class1 = new ClassTypeDef("Class1");
+            var class2 = new ClassTypeDef("Class2");
+            var baseClass = new ClassTypeDef("Base");
+
+            class1.BaseType = baseClass;
+            class2.BaseType = baseClass;
+
+            var expected2 = baseClass;
+
+            Assert.AreEqual(expected2, provider.FindCommonType(class1, class2));
+        }
+
         #endregion
 
         #region Implicit cast

@@ -260,6 +260,40 @@ namespace ZScript.Runtime.Typing
             if (withCast && (type1 == intType || type2 == intType) && (type1 == floatType || type2 == floatType))
                 return floatType;
 
+            // Class types
+            var classT1 = type1 as ClassTypeDef;
+            var classT2 = type2 as ClassTypeDef;
+            if (classT1 != null && classT2 != null)
+            {
+                // Check inheritance
+                if (classT1.IsSubtypeOf(classT2))
+                {
+                    return classT2;
+                }
+                if (classT2.IsSubtypeOf(classT1))
+                {
+                    return classT1;
+                }
+
+                // Search in the inheritance chain of one of the classes
+                var b = classT1.BaseType;
+
+                while (b != null)
+                {
+                    if (classT1.IsSubtypeOf(b) && classT2.IsSubtypeOf(b))
+                        return b;
+
+                    if (b is ClassTypeDef)
+                    {
+                        b = ((ClassTypeDef)b).BaseType;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
             // Callables with same argument count: Infer the arguments
             var ct1 = type1 as CallableTypeDef;
             var ct2 = type2 as CallableTypeDef;

@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System;
 using System.Collections.Generic;
 using ZScript.Elements;
 using ZScript.Runtime;
@@ -243,12 +244,36 @@ namespace ZScript.CodeGeneration.Definitions
     public class ClassTypeDef : NativeTypeDef
     {
         /// <summary>
-        /// Gets or sets the base type for this ClassTypeDef
+        /// Gets or sets the base type for this ClassTypeDef.
+        /// If the value provided is a base type of this class, an ArgumentException is raised
         /// </summary>
+        /// <exception cref="ArgumentException">The provided type value causes a circular inheritance chain</exception>
         public TypeDef BaseType
         {
             get { return baseType; }
-            set { baseType = value; }
+            set
+            {
+                var b = value;
+
+                while (b != null)
+                {
+                    if (b is ClassTypeDef)
+                    {
+                        if (b == this)
+                        {
+                            throw new ArgumentException("Circular inheritance chain detected on argument");
+                        }
+
+                        b = ((ClassTypeDef)b).baseType;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                baseType = value;
+            }
         }
 
         /// <summary>
@@ -264,6 +289,35 @@ namespace ZScript.CodeGeneration.Definitions
             : base(typeof(ZClassInstance), name)
         {
 
+        }
+
+        /// <summary>
+        /// Returns a value specifying whether this ClassTypeDef is a subtype of a given type
+        /// </summary>
+        /// <param name="type">The type to search for</param>
+        /// <returns>Whether the given type is in the inheritance chain of this class type def</returns>
+        public bool IsSubtypeOf(TypeDef type)
+        {
+            var b = BaseType;
+
+            while (b != null)
+            {
+                if (b is ClassTypeDef)
+                {
+                    if (b == type)
+                    {
+                        return true;
+                    }
+
+                    b = ((ClassTypeDef)b).baseType;
+                }
+                else
+                {
+                    return b == type;
+                }
+            }
+
+            return false;
         }
     }
 
