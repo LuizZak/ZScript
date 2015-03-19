@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
@@ -2277,6 +2278,111 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar2,
+                jTar1
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #region Null coalescing
+
+        /// <summary>
+        /// Tests simple null coalescing operator tokenization
+        /// </summary>
+        [TestMethod]
+        public void TestSimpleNullCoalescing()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a ?? b";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+
+            var expectedTokens = new List<Token>
+            {
+                // 'a'
+                TokenFactory.CreateVariableToken("a", true),
+                // Duplicate for jump check
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                // Verify nullability and jump if necessary
+                new JumpToken(jTar, true, true, true, true),
+                // Pop the duplicated 'a' off the stack
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
+                TokenFactory.CreateVariableToken("b", true),
+                jTar
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained null coalescing operator tokenization
+        /// </summary>
+        [TestMethod]
+        public void TestChainedNullCoalescing()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a ?? b ?? c";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar1 = new JumpTargetToken();
+            var jTar2 = new JumpTargetToken();
+
+            var expectedTokens = new List<Token>
+            {
+                // a ?? ...
+
+                // 'a'
+                TokenFactory.CreateVariableToken("a", true),
+                // Duplicate for jump check
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                // Verify nullability and jump if necessary
+                new JumpToken(jTar1, true, true, true, true),
+                // Pop the duplicated 'a' off the stack
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
+
+                // b ?? ...
+                TokenFactory.CreateVariableToken("b", true),
+                // Duplicate for jump check
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                // Verify nullability and jump if necessary
+                new JumpToken(jTar2, true, true, true, true),
+                // Pop the duplicated 'b' off the stack
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
+
+                // ... c
+                TokenFactory.CreateVariableToken("c", true),
                 jTar2,
                 jTar1
             };

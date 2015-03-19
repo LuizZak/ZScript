@@ -473,7 +473,38 @@ namespace ZScript.CodeGeneration.Analysis
             var type1 = ResolveExpression(context.expression(1));
             var type2 = ResolveExpression(context.expression(2));
 
-            return TypeProvider.FindCommonType(type1, type2);
+            var commonType = TypeProvider.FindCommonType(type1, type2);
+
+            // Adjust expected types
+            context.expression(1).ExpectedType = commonType;
+            context.expression(2).ExpectedType = commonType;
+
+            return commonType;
+        }
+
+        #endregion
+
+        #region Null coalescing
+
+        /// <summary>
+        /// Resolves a null coalescing expression contained within a given expression context.
+        /// The resolved expression is the most common super type of the left and right expressions of the null coalescing operation
+        /// </summary>
+        /// <param name="context">The context containing the ternary expression to resolve</param>
+        /// <returns>The type definition for the expressions of the ternary</returns>
+        public TypeDef ResolveNullCoalescingExpression(ZScriptParser.ExpressionContext context)
+        {
+            // Find type of expressions on both sides
+            var type1 = ResolveExpression(context.expression(0));
+            var type2 = ResolveExpression(context.expression(1));
+
+            var commonType = TypeProvider.FindCommonType(type1, type2);
+
+            // Adjust expected types
+            context.expression(0).ExpectedType = commonType;
+            context.expression(1).ExpectedType = commonType;
+
+            return commonType;
         }
 
         #endregion

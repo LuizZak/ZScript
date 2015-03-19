@@ -564,6 +564,13 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitBinaryExpression(ZScriptParser.ExpressionContext context)
         {
+            // Null coalescing expression
+            if (context.T_NULL_COALESCE() != null)
+            {
+                VisitNullCoalescingExpression(context);
+                return;
+            }
+
             VisitExpression(context.expression(0));
 
             ProcessLogicalOperator(context);
@@ -614,6 +621,32 @@ namespace ZScript.CodeGeneration.Tokenization
                 jump.TargetToken = target;
                 _tokens.Add(target);
             }
+        }
+
+        private void VisitNullCoalescingExpression(ZScriptParser.ExpressionContext context)
+        {
+            // a ?? b
+
+            // Prepare jumps
+            var target = new JumpTargetToken();
+            var jumpT = new JumpToken(target, true, true, true, true);
+
+            // 'a'
+            VisitExpression(context.expression(0));
+
+            // Duplicate
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+
+            // Add null verify jump
+            _tokens.Add(jumpT);
+
+            // Pop 'a'
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Pop));
+
+            // 'b'
+            VisitExpression(context.expression(1));
+
+            _tokens.Add(target);
         }
 
         /// <summary>

@@ -64,6 +64,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveBinaryExpression(ZScriptParser.ExpressionContext context)
         {
+            // Null coalescing expression
+            if (context.T_NULL_COALESCE() != null)
+            {
+                return ResolveNullCoalescingExpression(context);
+            }
+
             var type1 = ResolveExpression(context.expression(0));
             var type2 = ResolveExpression(context.expression(1));
             

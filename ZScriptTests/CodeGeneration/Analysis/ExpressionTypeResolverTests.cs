@@ -1072,6 +1072,38 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Null coalescing resolving
+
+        /// <summary>
+        /// Tests ternary expression type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestNullCoalescing()
+        {
+            // Set up the test
+            const string input = "i ?? f; [f] ?? [f]; b ?? i;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var value1 = parser.statement().expression();
+            var value2 = parser.statement().expression();
+            var value3 = parser.statement().expression();
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(value1);
+            var type2 = resolver.ResolveExpression(value2);
+            var type3 = resolver.ResolveExpression(value3);
+
+            // Compare the result now
+            Assert.AreEqual(provider.FloatType(), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.FloatType()), type2, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.AnyType(), type3, "The resolved type did not match the expected type");
+        }
+
+        #endregion
+
         #region Error raising
 
         /// <summary>
