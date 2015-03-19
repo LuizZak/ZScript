@@ -18,13 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System;
 using System.Diagnostics;
 using System.Linq;
 
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Definitions;
 using ZScriptTests.Utils;
 
@@ -33,11 +31,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests closure parsing and execution functionality
     /// </summary>
+    [TestClass]
     public class ClosureTests
     {
         #region Parsing tests
 
-        [Fact]
+        [TestMethod]
         public void TestParseClosure()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }; }";
@@ -45,10 +44,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.True(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestParseSingleParameteredClosure()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }; }";
@@ -56,10 +55,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.True(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestParseClosureCall()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }(10); }";
@@ -67,10 +66,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.True(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestParseGlobalVariableClosure()
         {
             const string input = "var a = (i) : int => { return 0; };";
@@ -78,10 +77,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.True(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestParseClosureCallSubscript()
         {
             const string input = "func f() { var c = (i) : int => { return 0; }(10)[0]; }";
@@ -89,10 +88,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.True(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
+            Assert.IsTrue(definition.ZClosureFunctionDefinitions.Any(f => f.Name == ClosureDefinition.ClosureNamePrefix + 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestTypeInferringReturnedClosure()
         {
             const string input = "func f() : (int->int) { return i => { return 0; }; }";
@@ -101,7 +100,7 @@ namespace ZScriptTests.Runtime
             
             generator.MessageContainer.PrintMessages();
 
-            Assert.False(generator.MessageContainer.HasErrors);
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
 
         #endregion
@@ -111,7 +110,7 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests parsing a closure and calling it in the script
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureCall()
         {
             const string input = "@__trace(a...) func funca(){ var a = () => { __trace(0); }; a(); }";
@@ -126,13 +125,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(0L, owner.TraceObjects[0]);
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests parsing a closure and calling it in the script
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSingleParameteredClosureCall()
         {
             const string input = "@__trace(a...) func funca(){ var a = i => { __trace(i); }; a(1); }";
@@ -147,13 +146,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests parsing closures via returns and calling them
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestReturnClosureCall()
         {
             const string input = "@__trace(a...) func funca(){ var a = (i:int):(->) => { if(i == 0) return () => { __trace(0); }; else return () => { __trace(1); }; }; a(0)(); a(1)(); }";
@@ -168,14 +167,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(0L, owner.TraceObjects[0]);
-            Assert.Equal(1L, owner.TraceObjects[1]);
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests parsing a closure that contains parameters and calling it in the script
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParameterClosureCall()
         {
             const string input = "@__trace(a...) func funca(){ var a = (i:int) => { __trace(i); }; a(1); }";
@@ -190,13 +189,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests calling closures that are returned by function calls
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestReturnCall()
         {
             const string input = "@__trace(a...) func funca(){ funcb()(); } func funcb():(->){ return () => { __trace(0); }; }";
@@ -211,13 +210,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(0L, owner.TraceObjects[0]);
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
         }
         
         /// <summary>
         /// Tests closure variable capturing
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureVariableCapturing()
         {
             const string input = "@__trace(a...) func funca(){ var b = 10; var a = () => { __trace(b); b = 11; }; a(); __trace(b); }";
@@ -232,14 +231,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(10L, owner.TraceObjects[0]);
-            Assert.Equal(11L, owner.TraceObjects[1]);
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
+            Assert.AreEqual(11L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests closure variable capturing in another terminated function scope
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestReturnedClosureVariableCapturing()
         {
             const string input = "@__trace(a...) func funca() { var a = funcb(); a(); } func funcb() : (->) { var b = 10; return () => { __trace(b); }; }";
@@ -254,13 +253,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(10L, owner.TraceObjects[0]);
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests closure variable capturing in another terminated function scope, in which the closure captures also a parameter
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParameterReturnedClosureVariableCapturing()
         {
             const string input = "@__trace(a...) func funca() { var a = funcb(1); var b = funcb(2); __trace(a()); __trace(b()); } func funcb(i:int) : (->int) { return () : int => { return i + 5; }; }";
@@ -275,14 +274,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(6L, owner.TraceObjects[0]);
-            Assert.Equal(7L, owner.TraceObjects[1]);
+            Assert.AreEqual(6L, owner.TraceObjects[0]);
+            Assert.AreEqual(7L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests nesting closures with side-effects
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSimpleClosureInClosure()
         {
             const string input = "@__trace(a...) func funca() { var a = (i):(int->int) => { var b:int = i; return (_i:int):int => { return b + _i; }; }; __trace(a(0)(1)); }";
@@ -297,13 +296,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests nesting closures with side-effects
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureInClosure()
         {
             const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; __trace(a(0)(1)); __trace(a(1)(1)); }";
@@ -318,14 +317,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(1L, owner.TraceObjects[0]);
-            Assert.Equal(2L, owner.TraceObjects[1]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(2L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests nesting closures with side-effects
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLocalClosureInStoredClosure()
         {
             const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { var b = i; return (_i:int):int => { return b + _i; }; }; var c = a(1); __trace(c(2)); __trace(c(3)); }";
@@ -340,14 +339,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(3L, owner.TraceObjects[0]);
-            Assert.Equal(4L, owner.TraceObjects[1]);
+            Assert.AreEqual(3L, owner.TraceObjects[0]);
+            Assert.AreEqual(4L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests nesting closures with side-effects
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLocalClosureInStoredClosureParameterReference()
         {
             const string input = "@__trace(a...) func funca() { var a = (i:int):(int->int) => { return (_i:int):int => { return i + _i; }; }; var c = a(1); __trace(c(2)); __trace(c(3)); }";
@@ -362,14 +361,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(3L, owner.TraceObjects[0]);
-            Assert.Equal(4L, owner.TraceObjects[1]);
+            Assert.AreEqual(3L, owner.TraceObjects[0]);
+            Assert.AreEqual(4L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests an enumeration effect using closures and enclosed scopes
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureEnumeration()
         {
             const string input = "@__trace(a...) func funca() { var g1 = generator(1); var g2 = generator(3); __trace(g1());  __trace(g2()); __trace(g1()); __trace(g2()); __trace(g1()); __trace(g2()); } func generator(start:int) : (->int) { return ():int => { return start++; }; }";
@@ -384,18 +383,18 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(1L, owner.TraceObjects[0]);
-            Assert.Equal(3L, owner.TraceObjects[1]);
-            Assert.Equal(2L, owner.TraceObjects[2]);
-            Assert.Equal(4L, owner.TraceObjects[3]);
-            Assert.Equal(3L, owner.TraceObjects[4]);
-            Assert.Equal(5L, owner.TraceObjects[5]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(3L, owner.TraceObjects[1]);
+            Assert.AreEqual(2L, owner.TraceObjects[2]);
+            Assert.AreEqual(4L, owner.TraceObjects[3]);
+            Assert.AreEqual(3L, owner.TraceObjects[4]);
+            Assert.AreEqual(5L, owner.TraceObjects[5]);
         }
 
         /// <summary>
         /// Tests utilizing a subscript after a closure call
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureCallSubscriptExecution()
         {
             const string input = "@__trace(a...) func funca() { __trace((i:int) : [int] => { return [i]; }(1)[0]); }";
@@ -409,13 +408,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(1L, owner.TraceObjects[0]);
+            Assert.AreEqual(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests an enumeration effect using closures and enclosed scopes
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureMemoryOverhead()
         {
             const string input = "@__trace(a...) func funca() { for(var i = 0; i < 10000; i++) { var g1 = generator(1); g1(); } } func generator(start:int) : (->int) { return ():int => { return start++; }; }";
@@ -440,13 +439,13 @@ namespace ZScriptTests.Runtime
             Console.WriteLine("Time: " + sw.ElapsedMilliseconds + "ms");
             Console.WriteLine("Detected overhead: " + FormatByteSize(difference));
 
-            Assert.True(difference < expectedOverhead, "The memory overhead after using the script is above the threshold value (difference: " + FormatByteSize(difference) + ")");
+            Assert.IsTrue(difference < expectedOverhead, "The memory overhead after using the script is above the threshold value (difference: " + FormatByteSize(difference) + ")");
         }
 
         /// <summary>
         /// Tests behavior of closures created inside class instance environments
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClassInstanceClosure()
         {
             const string input = "@__trace(a...) func funca(){ var a = o(); var b = a.closure(); b(10); __trace(a.c); } class o { var c = 0; func closure() : (int->) { return (i:int) => { c = i; }; } }";
@@ -461,13 +460,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.Equal(10L, owner.TraceObjects[0]);
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests resolving of parameters nested in two closures
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClosureInClosureParameterResolving()
         {
             const string input = "@__trace(v...) func main(){let createMultiplier = (operand1:int):(int->int) => {return (operand2:int):int => {return operand1 * operand2;};};let multBy2 = createMultiplier(2);let multBy3 = createMultiplier(3);__trace(multBy2(3));__trace(multBy3(3));}";
@@ -482,8 +481,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("main");
 
             // Assert the correct call was made
-            Assert.Equal(6L, owner.TraceObjects[0]);
-            Assert.Equal(9L, owner.TraceObjects[1]);
+            Assert.AreEqual(6L, owner.TraceObjects[0]);
+            Assert.AreEqual(9L, owner.TraceObjects[1]);
         }
 
         #endregion

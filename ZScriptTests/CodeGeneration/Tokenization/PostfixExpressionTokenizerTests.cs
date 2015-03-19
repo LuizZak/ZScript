@@ -22,8 +22,7 @@
 using System;
 using System.Collections.Generic;
 
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
@@ -41,6 +40,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     /// <summary>
     /// Tests the functionality of the PostfixExpressionTokenizer
     /// </summary>
+    [TestClass]
     public class PostfixExpressionTokenizerTests
     {
         #region Primary expression parsing
@@ -48,7 +48,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of primary 'this' expressions
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestThisPrimary()
         {
             const string message = "The tokens generated for the 'this' primary expression where not generated as expected";
@@ -83,7 +83,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of assignments to fields of 'this' constants
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestAssignThisField()
         {
             const string message = "The tokens generated for the 'this' field assignment where not generated as expected";
@@ -119,7 +119,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of primary 'base' expressions
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestBasePrimary()
         {
             const string message = "The tokens generated for the 'base' primary expression where not generated as expected";
@@ -157,7 +157,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a new expression
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNewExpression()
         {
             const string message = "The tokens generated for the new expression where not generated as expected";
@@ -197,7 +197,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of an assignment expression within an expression
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestAssignmentExpression()
         {
             const string message = "The tokens generated for the assignment expression where not generated as expected";
@@ -233,7 +233,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a nested assignment expression
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSequentialAssignment()
         {
             const string message = "The tokens generated for the assignment expression where not generated as expected";
@@ -269,7 +269,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a nested assignment expression
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSequentialCompoundAssignment()
         {
             const string message = "The tokens generated for the assignment expression where not generated as expected";
@@ -333,7 +333,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a left value expression which has a field access
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLeftValueFieldAccess()
         {
             const string message = "The tokens generated for the left value where not generated as expected";
@@ -371,7 +371,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a left value expression which has a function access
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLeftValueFunctionAccess()
         {
             const string message = "The tokens generated for the left value where not generated as expected";
@@ -412,7 +412,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a left value expression which has a function access
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLeftValueArrayAccess()
         {
             const string message = "The tokens generated for the left value where not generated as expected";
@@ -460,7 +460,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a decrement prefix operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDecrementPrefixOpertion()
         {
             const string message = "The tokens generated for the prefix decrement expression where not generated as expected";
@@ -493,7 +493,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a increment prefix operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestIncrementPrefixOpertion()
         {
             const string message = "The tokens generated for the prefix increment expression where not generated as expected";
@@ -526,7 +526,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a decrement postfix operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDecrementPostixOpertion()
         {
             const string message = "The tokens generated for the postfix decrement expression where not generated as expected";
@@ -559,7 +559,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a increment postfix operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestIncrementPostfixOpertion()
         {
             const string message = "The tokens generated for the postfix increment expression where not generated as expected";
@@ -596,7 +596,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of ternary operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSimpleTernaryOperator()
         {
             const string message = "The tokens generated for the ternary expression where not generated as expected";
@@ -636,7 +636,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of nested ternary operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNestedTernaryOperatorLeftSide()
         {
             const string message = "The tokens generated for the ternary expression where not generated as expected";
@@ -700,7 +700,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of nested ternary operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNestedTernaryOperatorRightSide()
         {
             const string message = "The tokens generated for the ternary expression where not generated as expected";
@@ -759,7 +759,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of nested ternary operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestTernaryExecution()
         {
             const string input = "var a = 1; var b = 2; var c = 3; var d:int; func f1() { d = !true ? a : !true ? b : c;  }";
@@ -771,8 +771,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f1");
 
-            Assert.Equal(0, container.CodeErrors.Length); // "Errors where detected when not expected"
-            Assert.Equal(3L, memory.GetVariable("d")); // "Ternary operator did not behave as expected"
+            Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
+            Assert.AreEqual(3L, memory.GetVariable("d"), "Ternary operator did not behave as expected");
         }
 
         #endregion
@@ -780,7 +780,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of an expression that is parenthesized
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParenthesizedExpression()
         {
             const string message = "The tokens generated for the parenthesized expression where not generated as expected";
@@ -816,7 +816,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of an expression that is parenthesized and is followed by an access
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParenthesizedExpressionAccess()
         {
             const string message = "The tokens generated for the parenthesized expression access where not generated as expected";
@@ -853,7 +853,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of an arithmetic negate operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestArithmeticNegate()
         {
             const string message = "The tokens generated for the arithmetic negate expression where not generated as expected";
@@ -886,7 +886,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of a logical negate operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLogicalNegate()
         {
             const string message = "The tokens generated for the logical negate expression where not generated as expected";
@@ -923,7 +923,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of implicit cast operations on expressions containing a non-null ImplicitCastType entry
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestImplicitIntegerCast()
         {
             const string message = "The tokens generated for the 'cast' operation where not generated as expected";
@@ -960,7 +960,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests non-generation of implicit cast operations on expressions when an expression has an expected type of 'any'
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestImplicitAnyCast()
         {
             const string message = "The tokens generated for the 'cast' operation where not generated as expected";
@@ -996,7 +996,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests non-generation of implicit cast operations on expressions when an expression is already of the desired type
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNoImplicitCasting()
         {
             const string message = "The tokens generated for the 'cast' operation where not generated as expected";
@@ -1032,7 +1032,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests implicit casts that have expressions nested within
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNestedImplicitCasting()
         {
             const string message = "The tokens generated for the 'cast' operation where not generated as expected";
@@ -1077,7 +1077,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of type check against values of 'any' type
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestAnyTypeCheck()
         {
             const string message = "The tokens generated for the 'cast' operation where not generated as expected";
@@ -1118,7 +1118,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests tokenization of an array literal literal
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestArrayLiteral()
         {
             const string message = "Failed to generate expected tokens";
@@ -1157,7 +1157,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests tokenization of an empty array literal
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestEmptyArrayLiteral()
         {
             const string message = "Failed to generate expected tokens";
@@ -1193,7 +1193,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests exception raising when tokenizing an array literal with no EvaluatedValueType set
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse an array that has a null EvaluatedValueType should raise an InvalidOperationException")]
         public void TestArrayMissingValueKeyException()
         {
             const string input = "[0, 1, 2]";
@@ -1202,7 +1203,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var exp = parser.expression();
 
-            Assert.Throws<InvalidOperationException>(() => tokenizer.TokenizeExpression(exp));
+            tokenizer.TokenizeExpression(exp);
         }
 
         #endregion
@@ -1212,7 +1213,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests tokenization of a dictionary literal
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDictionaryLiteral()
         {
             const string message = "Failed to generate expected tokens";
@@ -1253,7 +1254,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests tokenization of an empty dictionary literal
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestEmptyDictionaryLiteral()
         {
             const string message = "Failed to generate expected tokens";
@@ -1290,7 +1291,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests tokenization of a dictionary literal followed by a subscript access
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSubscriptDictionaryLiteral()
         {
             const string message = "Failed to generate expected tokens";
@@ -1334,7 +1335,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests tokenization of a dictionary literal followed by a member access
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestMemberAccessDictionaryLiteral()
         {
             const string message = "Failed to generate expected tokens";
@@ -1378,7 +1379,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests exception raising when tokenizing a dictionary literal with no EvaluatedKeyType set
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse a dictionary that has a null EvaluatedKeyType should raise an InvalidOperationException")]
         public void TestDictionaryMissingKeyTypeException()
         {
             const string input = "[0:'abc', 1:'def']";
@@ -1390,13 +1392,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Provide the type for the expression
             exp.dictionaryLiteral().EvaluatedValueType = TypeDef.StringType;
 
-            Assert.Throws<InvalidOperationException>(() => tokenizer.TokenizeExpression(exp));
+            tokenizer.TokenizeExpression(exp);
         }
 
         /// <summary>
         /// Tests exception raising when tokenizing a dictionary literal with no EvaluatedValueType set
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse a dictionary that has a null EvaluatedValueType should raise an InvalidOperationException")]
         public void TestDictionaryMissingValueTypeException()
         {
             const string input = "[0:'abc', 1:'def']";
@@ -1408,7 +1411,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Provide the type for the expression
             exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.StringType;
 
-            Assert.Throws<InvalidOperationException>(() => tokenizer.TokenizeExpression(exp));
+            tokenizer.TokenizeExpression(exp);
         }
 
         #endregion
@@ -1418,7 +1421,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of cast operation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestCastOperation()
         {
             const string message = "The tokens generated for the 'cast' operation where not generated as expected";
@@ -1451,7 +1454,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of 'is' operator
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestIsOperator()
         {
             const string message = "The tokens generated for the 'is' operation where not generated as expected";
@@ -1488,7 +1491,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests OR logical operator short circuiting
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSimpleOrShortcircuit()
         {
             const string message = "Failed to generate tokens containing expected short-circuit";
@@ -1529,7 +1532,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests AND logical operator short circuiting
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSimpleAndShortcircuit()
         {
             const string message = "Failed to generate tokens containing expected short-circuit";
@@ -1570,7 +1573,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests generation of mixed AND and OR logical operator short circuiting
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestMixedOrAndShortCircuit()
         {
             const string message = "Failed to generate tokens containing expected short-circuit";
@@ -1623,7 +1626,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests postfix expression parsing analyzing constants in expression nodes to generate optimized token lists
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNumberConstantPropagation()
         {
             const string message = "The constant was not propagated as expected";
@@ -1661,7 +1664,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests postfix expression parsing analyzing constants in expression nodes to generate optimized token lists
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestStringConstantPropagation()
         {
             const string message = "The constant was not propagated as expected";
@@ -1703,7 +1706,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests member access-type access token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestMemberAccess()
         {
             const string message = "Failed to generate expected tokens";
@@ -1738,7 +1741,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests chained member access-type access token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestChainedMemberAccess()
         {
             const string message = "Failed to generate expected tokens";
@@ -1779,7 +1782,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests function call-type access token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestFunctionCall()
         {
             const string message = "Failed to generate expected tokens";
@@ -1815,7 +1818,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests chained function call-type access token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestChainedFunctionCall()
         {
             const string message = "Failed to generate expected tokens";
@@ -1856,7 +1859,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests subscript-type access token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSubscriptAccess()
         {
             const string message = "Failed to generate expected tokens";
@@ -1891,7 +1894,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests chained subscript-type access token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestChainedSubscriptAccess()
         {
             const string message = "Failed to generate expected tokens";

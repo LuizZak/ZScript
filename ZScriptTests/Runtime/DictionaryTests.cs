@@ -18,11 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System.Collections.Generic;
-
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -30,12 +27,13 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the parsing and execution of dictionary code
     /// </summary>
+    [TestClass]
     public class DictionaryTests
     {
         /// <summary>
         /// Tests parsing of dictionary literals
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParseDictionaryLiteral()
         {
             const string input = "var dict:[int:string] = [0: 'apples', 1: 'oranges'];";
@@ -44,13 +42,13 @@ namespace ZScriptTests.Runtime
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.False(container.HasErrors);
+            Assert.IsFalse(container.HasErrors);
         }
 
         /// <summary>
         /// Tests parsing of dictionary literals
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParseImplicitDictionaryLiteral()
         {
             const string input = "var dict = [0: 'apples', 1: 'oranges'];";
@@ -59,13 +57,13 @@ namespace ZScriptTests.Runtime
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.False(container.HasErrors);
+            Assert.IsFalse(container.HasErrors);
         }
 
         /// <summary>
         /// Tests execution of dictionary literals
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestExecuteDictionaryLiteral()
         {
             const string input = "var dict:[int:string]; func f() { dict = [0: 'apples', 1: 'oranges']; }";
@@ -78,14 +76,14 @@ namespace ZScriptTests.Runtime
 
             var dict = (Dictionary<long, string>)memory.GetVariable("dict");
 
-            Assert.Equal("apples", dict[0]);
-            Assert.Equal("oranges", dict[1]);
+            Assert.AreEqual("apples", dict[0], "The runtime failed to create the expected dictionary");
+            Assert.AreEqual("oranges", dict[1], "The runtime failed to create the expected dictionary");
         }
 
         /// <summary>
         /// Tests execution of dictionary literals
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestExecuteImplicitDictionaryLiteral()
         {
             const string input = "var dict:[int: float]; func f() { dict = [0: 0]; }";
@@ -98,7 +96,7 @@ namespace ZScriptTests.Runtime
 
             var dict = (Dictionary<long, double>)memory.GetVariable("dict");
 
-            Assert.Equal(0.0, dict[0]);
+            Assert.AreEqual(0.0, dict[0], "The runtime failed to create the expected dictionary");
         }
     }
 }

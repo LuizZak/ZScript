@@ -18,10 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System.Collections.Generic;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
@@ -33,6 +32,7 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests Dictionary creation/access functionality on the VM
     /// </summary>
+    [TestClass]
     public class FunctionVmDictionaryTests
     {
         #region Dictionary Creation
@@ -40,7 +40,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests a simple dictionary created with 2 entries
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestDictionaryCreation()
         {
             // Create the set of tokens
@@ -62,18 +62,18 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.True(functionVm.Stack.Peek() is Dictionary<int, string>);
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(Dictionary<int, string>));
 
             var array = (Dictionary<int, string>)functionVm.Stack.Pop();
 
-            Assert.Equal("abc", array[0]);
-            Assert.Equal("def", array[1]);
+            Assert.AreEqual("abc", array[0], "The dictionary was not created successfully");
+            Assert.AreEqual("def", array[1], "The dictionary was not created successfully");
         }
 
         /// <summary>
         /// Tests a nested dictionary created with an entry that is another dictionary
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNestedDictionaryCreation()
         {
             // Create the set of tokens
@@ -99,13 +99,15 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.True(functionVm.Stack.Peek() is Dictionary<int, Dictionary<int,string>>);
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(Dictionary<int, Dictionary<int,string>>));
 
             var dict = (Dictionary<int, Dictionary<int, string>>)functionVm.Stack.Pop();
 
+            Assert.IsInstanceOfType(dict[0], typeof(Dictionary<int, string>));
+
             var innerDict = dict[0];
 
-            Assert.Equal("def", innerDict[0]);
+            Assert.AreEqual("def", innerDict[0], "The dictionary was not created successfully");
         }
 
         #endregion

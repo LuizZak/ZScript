@@ -18,12 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System;
 using System.Diagnostics;
 using System.IO;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScriptTests.Utils;
 
@@ -32,6 +31,7 @@ namespace ZScriptTests
     /// <summary>
     /// Tests the functionality of the ZScript class and related components
     /// </summary>
+    [TestClass]
     public class ZScriptTests
     {
         // These are some of the first dummy tests created, used mostly as integration tests.
@@ -40,7 +40,7 @@ namespace ZScriptTests
         /// <summary>
         /// Test mostly used to test expression token generation
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestExpressionCodeGeneration()
         {
             const string input = "var a; var b; var c; var d; var i; var gameFPS; var toFloat; var a5; var elevatorDisplayLights; var toInt; var _floor; var enArray; var level;" +
@@ -95,10 +95,10 @@ namespace ZScriptTests
 
             Console.WriteLine(sw.ElapsedMilliseconds + "");
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestVirtualMachine()
         {
             const string input = "var a = 0; func f() { a = 10; }";
@@ -107,19 +107,19 @@ namespace ZScriptTests
 
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var runtime = generator.GenerateRuntime(owner);
 
             runtime.CallFunction("f");
 
-            Assert.True(runtime.GlobalMemory.HasVariable("a"), "The variable 'a' should be globally visible after being set by a function that was called through the Runtime");
-            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.IsTrue(runtime.GlobalMemory.HasVariable("a"), "The variable 'a' should be globally visible after being set by a function that was called through the Runtime");
+            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("a"));
         }
 
         // Perhaps the only really useful test here, tests parsing of a large script containing all the language constructs available to test.
-        [Fact]
+        [TestMethod]
         public void TestLargeCodeParsingSpeed()
         {
             var reader = new StreamReader(@"ZScript sample.zs");
@@ -140,7 +140,7 @@ namespace ZScriptTests
             var owner = new TestRuntimeOwner();
             generator.GenerateRuntime(owner);
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             sw.Start();
 
@@ -151,7 +151,7 @@ namespace ZScriptTests
         /// <summary>
         /// Tests basic syntax error detection
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSyntaxError()
         {
             const string input = "func fib(n:int) : int { ";
@@ -159,13 +159,13 @@ namespace ZScriptTests
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.Equal(1, generator.MessageContainer.SyntaxErrors.Length);
+            Assert.AreEqual(1, generator.MessageContainer.SyntaxErrors.Length);
         }
 
         /// <summary>
         /// Tests a recursive Fibonacci implementation in ZScript
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestRecursiveFibonacci()
         {
             const string input = "func fib(n:int) : int { if(n <= 0) return 0; if(n == 1) return 1; return fib(n - 1) + fib(n - 2); }";
@@ -182,13 +182,13 @@ namespace ZScriptTests
             sw.Stop();
             Console.WriteLine("Runtime: " + sw.ElapsedMilliseconds + "ms");
 
-            Assert.Equal(144L, ret);
+            Assert.AreEqual(144L, ret, "The runtime failed to derive the expected 12th fibonacci number");
         }
 
         /// <summary>
         /// Tests an iterative Fibonacci implementation in ZScript
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestIterativeFibonacci()
         {
             const string input = "func fib(n:int) : int {" +
@@ -219,13 +219,13 @@ namespace ZScriptTests
             sw.Stop();
             Console.WriteLine("Runtime: " + sw.ElapsedMilliseconds + "ms");
 
-            Assert.Equal(144L, ret);
+            Assert.AreEqual(144L, ret, "The runtime failed to derive the expected 12th fibonacci number");
         }
 
         /// <summary>
         /// Tests optimization by removal of constant-valued if expressions
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestConstantIfExpanding()
         {
             const string input = "func a() { if(true) { } else if(false) { } else { } }";
@@ -233,13 +233,13 @@ namespace ZScriptTests
             var generator = TestUtils.CreateGenerator(input);
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.Equal(0, definition.ZFunctionDefinitions[0].Tokens.Tokens.Length);
+            Assert.AreEqual(0, definition.ZFunctionDefinitions[0].Tokens.Tokens.Length, "The constant, empty if statements inside the function 'a' where expected to be optimized out completely");
         }
 
         /// <summary>
         /// Tests implict casting of an array literal's contents
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestArrayLiteralCastong()
         {
             const string input = "func f1() { var a:[float] = [0]; }";
@@ -249,7 +249,7 @@ namespace ZScriptTests
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.False(generator.MessageContainer.HasErrors);
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
     }
 }

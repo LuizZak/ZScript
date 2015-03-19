@@ -18,11 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System;
 using System.Linq;
 
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
@@ -36,12 +35,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
     /// <summary>
     /// Tests the functionality of the IntermediateTokenList class and related components
     /// </summary>
+    [TestClass]
     public class IntermediaryTokenListTests
     {
         /// <summary>
         /// Tests automatic removal of 'noop' instruction tokens
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestNoopRemoval()
         {
             var tokens = new IntermediaryTokenList
@@ -79,7 +79,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests automatic removal of sequential ClearStack instruction tokens
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClearStackRemoval()
         {
             var tokens = new IntermediaryTokenList
@@ -127,7 +127,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests removal of sequential return instructions from a token list
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestSequentialReturnRemoval()
         {
             var tJ1 = new JumpToken(null, true);
@@ -181,7 +181,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests jump expanding on the intermediate token list
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestJumpExpanding()
         {
             var jumpToken = new JumpToken(null);
@@ -223,7 +223,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestJumpTargetExpanding()
         {
             var jumpTarget = new JumpTargetToken();
@@ -270,7 +270,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMultipleJumpTargetExpanding()
         {
             var jumpTarget = new JumpTargetToken();
@@ -317,7 +317,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, expanded, "The intermediary token list failed to produce the expected results");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestEndTargetlessJumpTargetExpanding()
         {
             var jumpTarget = new JumpTargetToken();
@@ -365,7 +365,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests a basic linear reachability detection in a list of tokens
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLinearReachabilityDetection()
         {
             var tokens = new IntermediaryTokenList
@@ -381,14 +381,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var reachable = IntermediaryTokenList.DetectReachability(tokens);
 
             var expected = new[] { true, true, true, true, true, true };
-            
-            Assert.True(expected.SequenceEqual(reachable));
+
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests a basic linear reachability detection in a list of tokens, starting from a specified instruction index
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLinearReachabilityDetectionWithOffset()
         {
             var tokens = new IntermediaryTokenList
@@ -405,13 +405,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new[] { false, false, true, true, true, true };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests detection of unreachable tokens by interruption of the sweeping by an interrupt instruction
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestInterruptReachabilityDetection()
         {
             var tokens = new IntermediaryTokenList
@@ -429,13 +429,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new [] { true, true, true, true, false, false, false };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests detection of unreachable tokens by interruption of the sweeping by an interrupt instruction right at the first step
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestFirstInterruptReachabilityDetection()
         {
             var tokens = new IntermediaryTokenList
@@ -453,13 +453,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new[] { true, false, false, false, false, false, false };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests detection of unreachable tokens by interruption of the sweeping by a return instruction
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestRetReachabilityDetection()
         {
             var tokens = new IntermediaryTokenList
@@ -477,13 +477,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new[] { true, true, true, true, false, false, false };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests detection of unreachable tokens by adding an unconditional jump over a set of tokens
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestJumpReachabilityDetection()
         {
             var jump = new JumpToken(null);
@@ -505,13 +505,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new[] { true, true, true, false, false, true, true };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests detection of unreachable tokens by adding a conditional jump over a set of tokens
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestConditionalJumpReachabilityDetection()
         {
             var jump = new JumpToken(null, true);
@@ -533,13 +533,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new[] { true, true, true, true, true, true, true };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         /// <summary>
         /// Tests detection of unreachable tokens by adding a conditional jump over a set of tokens, and an interrupt in the middle of the token list as well
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestConditionalJumpWithInterruptReachabilityDetection()
         {
             var jump = new JumpToken(null, true);
@@ -565,7 +565,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var expected = new[] { true, true, true, true, true, true, false, false, true, true, true };
 
-            Assert.True(expected.SequenceEqual(reachable));
+            Assert.IsTrue(expected.SequenceEqual(reachable));
         }
 
         #endregion
@@ -575,7 +575,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests the unreachable code detection and removal with a plain list of tokens that are all reachable
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestLinearUnreachableCodeRemoval()
         {
             var tokens = new IntermediaryTokenList
@@ -613,7 +613,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests the unreachable code detection and removal with a simple break in the control flow with a return statement
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestReturnUnreachableCodeRemoval()
         {
             var tokens = new IntermediaryTokenList
@@ -649,7 +649,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests the unreachable code detection and removal with a jump in the control flow
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestJumpUnreachableCodeRemoval()
         {
             var jump = new JumpToken(null);
@@ -696,7 +696,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #region Exception checking
 
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to remove tokens with IntermediaryTokenList.Remove() must raise an InvalidOperationException")]
         public void TestRemoveException()
         {
             var jumpToken = new JumpToken(null);
@@ -704,10 +705,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // ReSharper disable once CollectionNeverQueried.Local
             var tokens = new IntermediaryTokenList { jumpToken };
 
-            Assert.Throws<InvalidOperationException>(() => tokens.Remove(jumpToken));
+            tokens.Remove(jumpToken);
         }
 
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to get the offset for a jump not in the called IntermediaryTokenList must raise an ArgumentException")]
         public void TestJumpNotInListException()
         {
             var jumpToken = new JumpToken(null);
@@ -715,13 +717,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // ReSharper disable once CollectionNeverQueried.Local
             var tokens = new IntermediaryTokenList();
 
-            Assert.Throws<ArgumentException>(() => tokens.OffsetForJump(jumpToken));
+            tokens.OffsetForJump(jumpToken);
         }
 
         /// <summary>
         /// Tests a basic linear reachability detection in a list of tokens
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), "Trying to start an unreachable code detection with an out of bounds index must raise an ArgumentOutOfRangeException exception")]
         public void TestDetectReachabilityRangeCheck()
         {
             var tokens = new IntermediaryTokenList
@@ -734,7 +737,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
             };
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => IntermediaryTokenList.DetectReachability(tokens, -1));
+            IntermediaryTokenList.DetectReachability(tokens, - 1);
         }
 
         #endregion

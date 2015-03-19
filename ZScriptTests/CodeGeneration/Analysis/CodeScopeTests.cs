@@ -19,9 +19,7 @@
 */
 #endregion
 using System;
-
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Analysis;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -29,12 +27,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the CodeScope class and related components
     /// </summary>
+    [TestClass]
     public class CodeScopeTests
     {
         /// <summary>
         /// Tests the GetScopeByContext method call
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestGetScopeByContext()
         {
             // Create a simple scope
@@ -58,16 +57,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var foundScope1 = scope.GetScopeContainingContext(context2);
             var foundScope2 = scope.GetScopeContainingContext(programContext);
 
-            // "The GetScopeContainingContext failed to find the correct scope"
-            Assert.Equal(subScope, foundScope1);
-            // "The GetScopeContainingContext failed to find the correct root scope"
-            Assert.Equal(scope, foundScope2);
+            Assert.AreEqual(subScope, foundScope1, "The GetScopeContainingContext failed to find the correct scope");
+            Assert.AreEqual(scope, foundScope2, "The GetScopeContainingContext failed to find the correct root scope");
         }
 
         /// <summary>
         /// Tets cyclic parenting detection with AddSubscope
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to create cyclic scope references must raise an ArgumentException")]
         public void TestCyclicDetection()
         {
             var scope1 = new CodeScope();
@@ -77,14 +75,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Create a cyclic reference scope1 -> scope2 -> scope3 -> scope1
             scope1.AddSubscope(scope2);
             scope2.AddSubscope(scope3);
-
-            Assert.Throws<ArgumentException>(() => { scope3.AddSubscope(scope1); });
+            scope3.AddSubscope(scope1);
         }
 
         /// <summary>
         /// Tets exception raising when trying to add a subscope to another scope while it already has a parent scope
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to add a subscope which already has a parent must raise an ArgumentException")]
         public void TestAddSubscopeWithParentException()
         {
             var scope1 = new CodeScope();
@@ -93,8 +91,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create a cyclic reference scope1 -> scope2 -> scope3 -> scope1
             scope1.AddSubscope(scope2);
-
-            Assert.Throws<ArgumentException>(() => { scope3.AddSubscope(scope2); });
+            scope3.AddSubscope(scope2);
         }
     }
 }

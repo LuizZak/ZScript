@@ -18,9 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers.Members;
 
@@ -29,9 +27,10 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
     /// <summary>
     /// Tests the ZObjectMember class functionality
     /// </summary>
+    [TestClass]
     public class ZObjectMemberTests
     {
-        [Fact]
+        [TestMethod]
         public void TestCreation()
         {
             const string memberName = "member";
@@ -39,11 +38,11 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var obj = new ZObject { { memberName, 10 } };
             var wrap = new ZObjectMember(obj, memberName);
 
-            Assert.Equal(memberName, wrap.MemberName);
-            Assert.Equal(typeof(object), wrap.MemberType);
+            Assert.AreEqual(memberName, wrap.MemberName, "The member name returned by the MemberName must match the member name the ZObjectMember was created with");
+            Assert.AreEqual(typeof(object), wrap.MemberType, "ZObjectMember.MemberType must always return typeof(object)");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMemberGet()
         {
             const string memberName = "member";
@@ -51,10 +50,10 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var obj = new ZObject { { memberName, 10 } };
             var wrap = new ZObjectMember(obj, memberName);
 
-            Assert.Equal(obj[memberName], wrap.GetValue());
+            Assert.AreEqual(obj[memberName], wrap.GetValue(), "The value returned by the ZObjectMember must match the underlying field in the ZObject");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMemberSet()
         {
             const string memberName = "member";
@@ -64,7 +63,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
 
             wrap.SetValue(10);
 
-            Assert.Equal(obj[memberName], wrap.GetValue());
+            Assert.AreEqual(obj[memberName], wrap.GetValue(), "The SetValue() method did not se the value correctly");
         }
     }
 }

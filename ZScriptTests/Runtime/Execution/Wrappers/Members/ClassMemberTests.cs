@@ -18,11 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System;
-
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Runtime.Execution.Wrappers.Members;
 
 namespace ZScriptTests.Runtime.Execution.Wrappers.Members
@@ -30,9 +27,10 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
     /// <summary>
     /// Tests the ClassMember class and related components
     /// </summary>
+    [TestClass]
     public class ClassMemberTests
     {
-        [Fact]
+        [TestMethod]
         public void TestMemberFetching()
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
@@ -40,29 +38,31 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var field = ClassMember.CreateMemberWrapper(target, "Field1");
             var prop = ClassMember.CreateMemberWrapper(target, "Property1");
 
-            Assert.Equal(target, field.Target);
+            Assert.AreEqual(target, field.Target, "The target of the ClassMember must be the same object passed on the GetMember() method");
 
-            Assert.Equal(target.GetType().GetField("Field1"), ((FieldClassMember)field).Field);
-            Assert.Equal(target.GetType().GetProperty("Property1"), ((PropertyClassMember)prop).Property);
+            Assert.AreEqual(target.GetType().GetField("Field1"), ((FieldClassMember)field).Field,
+                "The field pointed by the FieldClassMember.Field property should point to the field named during the GetMember call");
+            Assert.AreEqual(target.GetType().GetProperty("Property1"), ((PropertyClassMember)prop).Property,
+                "The property pointed by the PropertyClassMember.Property property should point to the property named during the GetMember call");
         }
 
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to fetch a member that does not exists should raise an ArgumentException")]
         public void TestFailingFetchingNonExisting()
         {
             var target = new TestTarget();
-
-            Assert.Throws<ArgumentException>(() => ClassMember.CreateMemberWrapper(target, "NonExistingMember"));
+            ClassMember.CreateMemberWrapper(target, "NonExistingMember");
         }
 
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to fetch a member that is private should raise an ArgumentException")]
         public void TestFailingFetchingPrivate()
         {
             var target = new TestTarget();
-
-            Assert.Throws<ArgumentException>(() => ClassMember.CreateMemberWrapper(target, "_privateField"));
+            ClassMember.CreateMemberWrapper(target, "_privateField");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMemberGet()
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
@@ -70,11 +70,11 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var field = ClassMember.CreateMemberWrapper(target, "Field1");
             var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
-            Assert.Equal(target.Field1, field.GetValue());
-            Assert.Equal(target.Property1, property.GetValue());
+            Assert.AreEqual(target.Field1, field.GetValue(), "The value of the field fetched by GetValue() does not matches the value of the target class' field");
+            Assert.AreEqual(target.Property1, property.GetValue(), "The value of the property fetched by GetValue() does not matches the value of the target class' property");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMemberSet()
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
@@ -85,11 +85,11 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             field.SetValue(11);
             property.SetValue(12);
 
-            Assert.Equal(11, target.Field1);
-            Assert.Equal(12, target.Property1);
+            Assert.AreEqual(11, target.Field1, "The SetValue() method did not set the value of the pointed field correctly");
+            Assert.AreEqual(12, target.Property1, "The SetValue() method did not set the value of the pointed property correctly");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMemberTyping()
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
@@ -97,11 +97,13 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var field = ClassMember.CreateMemberWrapper(target, "Field1");
             var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
-            Assert.Equal(target.Field1.GetType(), field.MemberType);
-            Assert.Equal(target.Property1.GetType(), property.MemberType);
+            Assert.AreEqual(target.Field1.GetType(), field.MemberType,
+                "The type of the field fetched by MemberType does not matches the type of the target class' field");
+            Assert.AreEqual(target.Property1.GetType(), property.MemberType,
+                "The type of the property fetched by MemberType does not matches the type of the target class' property");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMemberNaming()
         {
             var target = new TestTarget { Field1 = 10, Property1 = 11 };
@@ -109,8 +111,10 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var field = ClassMember.CreateMemberWrapper(target, "Field1");
             var property = ClassMember.CreateMemberWrapper(target, "Property1");
 
-            Assert.Equal("Field1", field.MemberName);
-            Assert.Equal("Property1", property.MemberName);
+            Assert.AreEqual("Field1", field.MemberName,
+                "The name of the field fetched by MemberName does not matches the name of the target class' field");
+            Assert.AreEqual("Property1", property.MemberName,
+                "The name of the property fetched by MemberName does not matches the name of the target class' property");
         }
 
         public class TestTarget

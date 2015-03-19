@@ -18,9 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Typing.Elements;
 
@@ -29,25 +27,26 @@ namespace ZScriptTests.CodeGeneration.Definitions
     /// <summary>
     /// Tests the functionality of the ClassDefinition and related components
     /// </summary>
+    [TestClass]
     public class ClassDefinitionTests
     {
         /// <summary>
         /// Tests setup of an empty class definition
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestEmptyDefinition()
         {
             var definition = new ClassDefinition("test1");
 
             definition.FinishDefinition();
 
-            Assert.NotSame(null, definition.PublicConstructor);
+            Assert.IsNotNull(definition.PublicConstructor, "When no constructor is provided, calling FinishDefinition() should create a new parameterless constructor");
         }
 
         /// <summary>
         /// Tests fetching a field's information with the ClassTypeDef property
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClassTypeDefField()
         {
             var definition = new ClassDefinition("test1");
@@ -58,13 +57,13 @@ namespace ZScriptTests.CodeGeneration.Definitions
 
             var classTypeDef = definition.ClassTypeDef;
 
-            Assert.Equal(TypeDef.IntegerType, classTypeDef.GetField("field1").FieldType);
+            Assert.AreEqual(TypeDef.IntegerType, classTypeDef.GetField("field1").FieldType);
         }
 
         /// <summary>
         /// Tests fetching a method's information with the ClassTypeDef property
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestClassTypeDefMethod()
         {
             var definition = new ClassDefinition("test1");
@@ -79,9 +78,9 @@ namespace ZScriptTests.CodeGeneration.Definitions
 
             var classTypeDef = definition.ClassTypeDef;
 
-            Assert.Equal(TypeDef.IntegerType, classTypeDef.GetMethod("func1").Parameters[0].ParameterType);
-            Assert.Equal("param1", classTypeDef.GetMethod("func1").Parameters[0].ParameterName);
-            Assert.Equal(TypeDef.BooleanType, classTypeDef.GetMethod("func1").ReturnType);
+            Assert.AreEqual(TypeDef.IntegerType, classTypeDef.GetMethod("func1").Parameters[0].ParameterType);
+            Assert.AreEqual("param1", classTypeDef.GetMethod("func1").Parameters[0].ParameterName);
+            Assert.AreEqual(TypeDef.BooleanType, classTypeDef.GetMethod("func1").ReturnType);
         }
     }
 }

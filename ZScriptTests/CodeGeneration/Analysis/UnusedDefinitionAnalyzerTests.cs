@@ -18,10 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System.Linq;
-
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
@@ -35,12 +33,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the functionality of the unused definitions analyzer class and related components
     /// </summary>
+    [TestClass]
     public class UnusedDefinitionAnalyzerTests
     {
         /// <summary>
         /// Tests the analyzer by providing a scope with a definition with no definition usages associated with it
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestUnusedReporting()
         {
             var definition = GenerateDefinition();
@@ -51,13 +50,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.Analyze(scope, messages);
 
-            Assert.Equal(1, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests the analyzer by providing a scope with a definition with no definition usages associated with it
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestUnusedNestedReporting()
         {
             var definition = GenerateDefinition();
@@ -74,13 +73,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.AnalyzeRecursive(scope, messages);
 
-            Assert.Equal(1, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests the analyzer by providing a scope with a definition and a definition usage associated with it
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestUnusedNonReporting()
         {
             var definition = GenerateDefinition();
@@ -93,13 +92,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.Analyze(scope, messages);
 
-            Assert.Equal(0, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(0, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests the analyzer by providing a scope with a definition and a subscope containing the definition usage in it
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestUnusedNestedNonReporting()
         {
             var definition = GenerateDefinition();
@@ -116,13 +115,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             UnusedDefinitionsAnalyzer.Analyze(scope, messages);
 
-            Assert.Equal(0, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(0, messages.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests reporting an unused definition on a real analyze context
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParseUnusedReporting()
         {
             const string input = "func f() { var a = 5; var b; var c = b; c = b; }";
@@ -130,13 +129,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.Equal(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests reporting an unused definition on a real analyze context
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParsedUnusedNonReporting()
         {
             const string input = "func f() { var a = 5; var b; var c = a + b; if(c == 10) { a = b.a; } }";
@@ -144,13 +143,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.Equal(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests reporting a definition that is only set on a real analyze context
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParseOnlySetReporting()
         {
             const string input = "func f() { var a = 5; var b = a; b = 5; b = a; }";
@@ -158,13 +157,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.Equal(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.DefinitionOnlySet));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.DefinitionOnlySet));
         }
 
         /// <summary>
         /// Tests reporting a class definition that is never used
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestUnusedClassReporting()
         {
             const string input = "class o { var a; }";
@@ -172,13 +171,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.Equal(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>
         /// Tests reporting a class definition that is never used, supressing the message when a class inherits from it
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestInheritedUnusedClassReporting()
         {
             const string input = "class o { var a; } class b : o { }";
@@ -186,7 +185,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.Equal(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.UnusedDefinition));
         }
 
         /// <summary>

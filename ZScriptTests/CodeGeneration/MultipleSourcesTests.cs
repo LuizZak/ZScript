@@ -18,16 +18,13 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-
 using System;
 using System.Linq;
-
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Sourcing;
-
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration
@@ -35,11 +32,12 @@ namespace ZScriptTests.CodeGeneration
     /// <summary>
     /// Tests functionality for generating a script that is split into multiple different sources, like files
     /// </summary>
+    [TestClass]
     public class MultipleSourcesTests
     {
         #region Parsing
 
-        [Fact]
+        [TestMethod]
         public void TestMultipleSourcesParsing()
         {
             var generator = new ZRuntimeGenerator();
@@ -54,11 +52,11 @@ namespace ZScriptTests.CodeGeneration
             var container = generator.MessageContainer;
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.Equal(2, definition.ZFunctionDefinitions.Length);
-            Assert.False(container.HasErrors, "Errors raised when not expected");
+            Assert.AreEqual(2, definition.ZFunctionDefinitions.Length, "The definitions where not collected as expected");
+            Assert.IsFalse(container.HasErrors, "Errors raised when not expected");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCrossSourceFunctionParsing()
         {
             var generator = new ZRuntimeGenerator();
@@ -73,10 +71,10 @@ namespace ZScriptTests.CodeGeneration
             var container = generator.MessageContainer;
             generator.GenerateRuntimeDefinition();
 
-            Assert.False(container.HasErrors, "Errors raised when not expected");
+            Assert.IsFalse(container.HasErrors, "Errors raised when not expected");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCrossSourceExportFunctionParsing()
         {
             var generator = new ZRuntimeGenerator();
@@ -91,10 +89,10 @@ namespace ZScriptTests.CodeGeneration
             var container = generator.MessageContainer;
             generator.GenerateRuntimeDefinition();
 
-            Assert.False(container.HasErrors, "Errors raised when not expected");
+            Assert.IsFalse(container.HasErrors, "Errors raised when not expected");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCrossSourceGlobalVariableParsing()
         {
             var generator = new ZRuntimeGenerator();
@@ -109,10 +107,10 @@ namespace ZScriptTests.CodeGeneration
             var container = generator.MessageContainer;
             generator.GenerateRuntimeDefinition();
 
-            Assert.False(container.HasErrors, "Errors raised when not expected");
+            Assert.IsFalse(container.HasErrors, "Errors raised when not expected");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetSourceByContext()
         {
             var generator = new ZRuntimeGenerator();
@@ -130,11 +128,11 @@ namespace ZScriptTests.CodeGeneration
             var s1 = generator.SourceProvider.SourceForContext(definition.GetDefinitionByName("f1").Context);
             var s2 = generator.SourceProvider.SourceForContext(definition.GetDefinitionByName("f2").Context);
 
-            Assert.Equal(source1, s1);
-            Assert.Equal(source2, s2);
+            Assert.AreEqual(source1, s1, "The search source by context failed to locate the correct source for a definition");
+            Assert.AreEqual(source2, s2, "The search source by context failed to locate the correct source for a definition");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReportCollisions()
         {
             var generator = new ZRuntimeGenerator();
@@ -157,14 +155,14 @@ namespace ZScriptTests.CodeGeneration
                 // ignored
             }
 
-            Assert.Equal(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Duplicated definition errors where not reported correctly");
         }
 
         #endregion
 
         #region Execution
 
-        [Fact]
+        [TestMethod]
         public void TestCrossSourceFunctionExecution()
         {
             var generator = new ZRuntimeGenerator();
@@ -182,10 +180,10 @@ namespace ZScriptTests.CodeGeneration
 
             runtime.CallFunction("f1");
 
-            Assert.Equal(10L, memory.GetVariable("a"));
+            Assert.AreEqual(10L, memory.GetVariable("a"), "Cross reference of functions failed to be executed properly");
         }
 
-        [Fact]
+        [TestMethod]
         public void TestCrossSourceGlobalVariableExecution()
         {
             var generator = new ZRuntimeGenerator();
@@ -203,8 +201,8 @@ namespace ZScriptTests.CodeGeneration
             runtime.CallFunction("f1");
             runtime.CallFunction("f2");
 
-            Assert.Equal(30L, memory.GetVariable("a"));
-            Assert.Equal(50L, memory.GetVariable("b"));
+            Assert.AreEqual(30L, memory.GetVariable("a"), "Cross reference of functions failed to be executed properly");
+            Assert.AreEqual(50L, memory.GetVariable("b"), "Cross reference of functions failed to be executed properly");
         }
 
         #endregion

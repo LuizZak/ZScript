@@ -20,15 +20,12 @@
 #endregion
 
 using System;
-
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Elements;
 using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers;
-
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution.Wrappers
@@ -36,25 +33,26 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
     /// <summary>
     /// Tests the MemberWrapperHelper class and related components
     /// </summary>
+    [TestClass]
     public class MemberWrapperHelperTests
     {
         /// <summary>
         /// Tests wrapping the field of an ordinary object
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestWrappingObjectMember()
         {
             const string target = "target";
 
             var member = MemberWrapperHelper.CreateMemberWrapper(target, "Length");
 
-            Assert.Equal(target.Length, member.GetValue());
+            Assert.AreEqual(target.Length, member.GetValue(), "The value returned by the member is incorrect");
         }
 
         /// <summary>
         /// Tests wrapping the field of a ZObject instance
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestWrappingZObjectMember()
         {
             var target = new ZObject();
@@ -62,51 +60,52 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
 
             var member = MemberWrapperHelper.CreateMemberWrapper(target, "abc");
 
-            Assert.Equal(target["abc"], member.GetValue());
+            Assert.AreEqual(target["abc"], member.GetValue(), "The value returned by the member is incorrect");
         }
 
         /// <summary>
         /// Tests wrapping the field of a ZClassInstance object
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestWrappingZClassInstanceMember()
         {
             var target = TestUtils.CreateTestClassInstance();
 
             var member = MemberWrapperHelper.CreateMemberWrapper(target, "field1");
 
-            Assert.Equal(target.LocalMemory.GetVariable("field1"), member.GetValue());
+            Assert.AreEqual(target.LocalMemory.GetVariable("field1"), member.GetValue(), "The value returned by the member is incorrect");
         }
 
         /// <summary>
         /// Tests wrapping the method of an object instance
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestWrappingObjectMethod()
         {
             const long target = 10;
 
             var member = MemberWrapperHelper.CreateCallableWrapper(target, "ToString");
 
-            Assert.Equal("ToString", member.CallableName);
-            Assert.Equal(target.ToString(), member.Call(null));
+            Assert.AreEqual("ToString", member.CallableName, "The callable name must match the callable name specified in the constructor");
+            Assert.AreEqual(target.ToString(), member.Call(null), "The value returned by the callable is incorrect");
         }
 
         /// <summary>
         /// Tests a failure case when trying to wrap an unexisting or non-public method of an object
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "When trying to access non-existing or non-public methods with CreateCallableWrapper(), an ArgumentException must be thrown")]
         public void TestFailedWrappingObjectMethod()
         {
             const long target = 10;
 
-            Assert.Throws<ArgumentException>(() => MemberWrapperHelper.CreateCallableWrapper(target, "InvalidMethod"));
+            MemberWrapperHelper.CreateCallableWrapper(target, "InvalidMethod");
         }
 
         /// <summary>
         /// Tests wrapping the method of a ZClassInstance object
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestWrappingClassInstanceMethod()
         {
             var target = TestUtils.CreateTestClassInstance();
@@ -115,8 +114,8 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
             var runtime = new ZRuntime(new ZRuntimeDefinition(), null);
             var context = new VmContext(new Memory(), null, runtime, null, null);
 
-            Assert.Equal("func1", member.CallableName);
-            Assert.Equal(10L, member.Call(context));
+            Assert.AreEqual("func1", member.CallableName, "The callable name property must match the callable specified in the constructor");
+            Assert.AreEqual(10L, member.Call(context), "The value returned by the callable is incorrect");
         }
     }
 }

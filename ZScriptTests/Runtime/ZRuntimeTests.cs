@@ -19,10 +19,9 @@
 */
 #endregion
 
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;
-
-using Xunit;
-
 using ZScript.Elements;
 using ZScript.Runtime;
 using ZScriptTests.Utils;
@@ -32,11 +31,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the functionality of the ZRuntime class and related components
     /// </summary>
+    [TestClass]
     public class ZRuntimeTests
     {
         #region Logical operator short circuiting
 
-        [Fact]
+        [TestMethod]
         public void TestLogicalAndShortCircuiting()
         {
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
@@ -45,7 +45,7 @@ namespace ZScriptTests.Runtime
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -53,12 +53,12 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f");
 
-            Assert.Equal(false, runtime.GlobalMemory.GetVariable("a"));
-            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("b"));
-            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("d"));
+            Assert.AreEqual(false, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("d"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestLogicalOrShortCircuiting()
         {
             // We define 'a' and 'c', but ommit 'b' and 'd', and expect the short circuiting to avoid reaching the parts that access these values
@@ -67,7 +67,7 @@ namespace ZScriptTests.Runtime
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -75,9 +75,9 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f");
 
-            Assert.Equal(true, runtime.GlobalMemory.GetVariable("a"));
-            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("b"));
-            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("d"));
+            Assert.AreEqual(true, runtime.GlobalMemory.GetVariable("a"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("d"));
         }
 
         #endregion
@@ -85,7 +85,10 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests calling an export function not recognized by a runtime owner
         /// </summary>
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(UnrecognizedExportFunctionException),
+            "Trying to execute an unrecognizeable export function must raise an UnrecognizedExportFunctionException exception"
+            )]
         public void TestUnrecognizedExportfunction()
         {
             const string input = "@invalid func f1() { invalid(); }";
@@ -93,7 +96,7 @@ namespace ZScriptTests.Runtime
             generator.Debug = true;
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = MockRepository.Mock<IRuntimeOwner>();
@@ -101,13 +104,13 @@ namespace ZScriptTests.Runtime
 
             var runtime = generator.GenerateRuntime(owner);
 
-            Assert.Throws<UnrecognizedExportFunctionException>(() => runtime.CallFunction("f1"));
+            runtime.CallFunction("f1");
         }
 
         /// <summary>
         /// Tests calling a function that expects parameters
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParameteredFunctionCall()
         {
             const string input = "func f1(a:int) : int { return a; }";
@@ -115,7 +118,7 @@ namespace ZScriptTests.Runtime
             generator.Debug = true;
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -124,14 +127,14 @@ namespace ZScriptTests.Runtime
             var ret1 = runtime.CallFunction("f1", 10);
             var ret2 = runtime.CallFunction("f1", 20);
 
-            Assert.Equal(10L, ret1);
-            Assert.Equal(20L, ret2);
+            Assert.AreEqual(10L, ret1, "The function did not return the expected value");
+            Assert.AreEqual(20L, ret2, "The function did not return the expected value");
         }
 
         /// <summary>
         /// Tests calling a function that expects parameters and has default values for one or more of the parameters
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParameteredDefaultValueFunctionCall()
         {
             const string input = "func f1(a:int, b:int = 0) : int { return a + b; }";
@@ -139,7 +142,7 @@ namespace ZScriptTests.Runtime
 
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -148,14 +151,14 @@ namespace ZScriptTests.Runtime
             var ret1 = runtime.CallFunction("f1", 10);
             var ret2 = runtime.CallFunction("f1", 10, 1);
 
-            Assert.Equal(10L, ret1);
-            Assert.Equal(11L, ret2);
+            Assert.AreEqual(10L, ret1, "The function did not return the expected value");
+            Assert.AreEqual(11L, ret2, "The function did not return the expected value");
         }
 
         /// <summary>
         /// Tests calling a function from within a running function in the runtime
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestInnerFunctionCall()
         {
             const string input = "func f1() : int { return f2(); } func f2() : int { return 10; }";
@@ -164,7 +167,7 @@ namespace ZScriptTests.Runtime
 
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -172,13 +175,13 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1");
 
-            Assert.Equal(10L, ret);
+            Assert.AreEqual(10L, ret, "The statement did not execute as expected");
         }
 
         /// <summary>
         /// Tests calling a function with a parameter from within a running function in the runtime
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestParameteredInnerFunctionCall()
         {
             const string input = "func f1() : int { return f2(5); } func f2(a:int) : int { return a; }";
@@ -186,7 +189,7 @@ namespace ZScriptTests.Runtime
             generator.Debug = true;
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -196,12 +199,12 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1");
 
-            Assert.Equal(5L, ret);
+            Assert.AreEqual(5L, ret, "The statement did not execute as expected");
         }
         /// <summary>
         /// Tests calling a function recursively
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestRecursiveFunctionCall()
         {
             const string input = "func f1(a:int) : int { if(a >= 5) { return 0; } return f1(a + 1) + 1; }";
@@ -209,7 +212,7 @@ namespace ZScriptTests.Runtime
             generator.Debug = true;
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -217,13 +220,13 @@ namespace ZScriptTests.Runtime
 
             var ret = runtime.CallFunction("f1", 0);
 
-            Assert.Equal(5L, ret);
+            Assert.AreEqual(5L, ret, "The statement did not execute as expected");
         }
 
         /// <summary>
         /// Tests the creation of global variables
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestGlobalVariables()
         {
             const string input = "var a = 0; var b = null;";
@@ -231,7 +234,7 @@ namespace ZScriptTests.Runtime
             generator.Debug = true;
             generator.ParseSources();
 
-            Assert.False(generator.HasSyntaxErrors);
+            Assert.IsFalse(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -243,8 +246,8 @@ namespace ZScriptTests.Runtime
             // Expand again to test resillience against multiple calls
             runtime.ExpandGlobalVariables();
 
-            Assert.Equal(0L, memory.GetVariable("a"));
-            Assert.Equal(null, memory.GetVariable("b"));
+            Assert.AreEqual(0L, memory.GetVariable("a"), "The global variables where not parsed as expected");
+            Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
         }
     }
 }
