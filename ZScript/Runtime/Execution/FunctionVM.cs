@@ -152,7 +152,6 @@ namespace ZScript.Runtime.Execution
                             case VmInstruction.JumpIfTrue:
                                 if ((bool)PopValueImplicit())
                                 {
-                                    //_codePosition = target;
                                     _codePosition = (int)token.TokenObject;
                                     continue;
                                 }
@@ -173,6 +172,20 @@ namespace ZScript.Runtime.Execution
                                 break;
                             case VmInstruction.JumpIfFalsePeek:
                                 if (!(bool)PeekValueImplicit())
+                                {
+                                    _codePosition = (int)token.TokenObject;
+                                    continue;
+                                }
+                                break;
+                            case VmInstruction.JumpIfNotNull:
+                                if (PopValueImplicit() != null)
+                                {
+                                    _codePosition = (int)token.TokenObject;
+                                    continue;
+                                }
+                                break;
+                            case VmInstruction.JumpIfNull:
+                                if (PopValueImplicit() == null)
                                 {
                                     _codePosition = (int)token.TokenObject;
                                     continue;
@@ -1080,22 +1093,26 @@ namespace ZScript.Runtime.Execution
         /// <summary>Creates a new instance of a type, using the objects at the stack as parameters for the creation</summary>
         New,
 
-        /// <summary>Jumps to the position specified at the top of the stack</summary>
+        /// <summary>Jumps to the position specified at the argument</summary>
         Jump,
-        /// <summary>Jumps to the position specified at the top of the stack, but only if the value directly bellow evaluates to true</summary>
+        /// <summary>Jumps to the position specified at the argument, but only if the value on top of the stack evaluates to true</summary>
         JumpIfTrue,
-        /// <summary>Jumps to the position specified at the top of the stack, but only if the value directly bellow evaluates to false</summary>
+        /// <summary>Jumps to the position specified at the argument, but only if the value on top of the stack evaluates to false</summary>
         JumpIfFalse,
         /// <summary>
-        /// Jumps to the position specified at the top of the stack, but only if the value directly bellow evaluates to true.
+        /// Jumps to the position specified at the argument, but only if the value on top of the stack evaluates to true.
         /// Does not consumes the value on the top of the stack
         /// </summary>
         JumpIfTruePeek,
         /// <summary>
-        /// Jumps to the position specified at the top of the stack, but only if the value directly bellow evaluates to false.
+        /// Jumps to the position specified at the argument, but only if the value on top of the stack evaluates to false.
         /// Does not consumes the value on the top of the stack
         /// </summary>
         JumpIfFalsePeek,
+        /// <summary>Jumps to the position specified at the argument, but only if the value on top of the stack does not evaluates to null</summary>
+        JumpIfNotNull,
+        /// <summary>Jumps to the position specified at the argument, but only if the value on top of the stack evaluates to null</summary>
+        JumpIfNull,
 
         /// <summary>Pop A from the stack, and searches in memory a variable with its value, as an integer address</summary>
         GetAtAddress,

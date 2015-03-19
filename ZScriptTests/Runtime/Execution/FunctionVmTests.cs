@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 
 using System.Diagnostics;
@@ -460,6 +461,64 @@ namespace ZScriptTests.Runtime.Execution
 
             Assert.IsFalse(memory.HasVariable("a"));
             Assert.AreEqual(true, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestJumpIfNull()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(null),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfNull, 5), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfNull, 11), // Jumping to the end
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.IsFalse(memory.HasVariable("a"));
+            Assert.AreEqual(5, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestJumpIfNotNull()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(5),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfNotNull, 5), // Jumping to the 6th instruction should skip to the 'b' variable set instructions
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(null),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfNotNull, 11), // Jumping to the end
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.IsFalse(memory.HasVariable("a"));
+            Assert.AreEqual(5, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
         }
 
         #endregion
