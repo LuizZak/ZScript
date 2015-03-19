@@ -20,10 +20,8 @@
 #endregion
 using System;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Xunit;
 using ZScript.Builders;
-using ZScript.CodeGeneration;
 using ZScript.Elements;
 using ZScript.Runtime;
 
@@ -34,13 +32,12 @@ namespace ZScriptTests.Builders
     /// <summary>
     /// Tests the functionality of the ClassTypeBuilder class and related components
     /// </summary>
-    [TestClass]
     public class ClassTypeBuilderTests
     {
         /// <summary>
         /// Tests simple construction of a class definition into a type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstructClass()
         {
             // Define a simple class to build
@@ -54,15 +51,16 @@ namespace ZScriptTests.Builders
             // Create the class type
             var classType = classBuilder.ConstructType(classDef);
 
-            Assert.AreEqual(classDef.Name + ClassTypeBuilder.ClassNameSuffix, classType.Name, "Failed to generate the expected type");
-            Assert.IsTrue(typeof(ZClassInstance).IsAssignableFrom(classType), "Generated class type should inherit ZClassInstance");
-            Assert.IsTrue(classType.BaseType == typeof(ZClassInstance), "Generated class type should inherit ZClassInstance");
+            // "Failed to generate the expected type"
+            Assert.Equal(classDef.Name + ClassTypeBuilder.ClassNameSuffix, classType.Name);
+            Assert.True(typeof(ZClassInstance).IsAssignableFrom(classType), "Generated class type should inherit ZClassInstance");
+            Assert.True(classType.BaseType == typeof(ZClassInstance), "Generated class type should inherit ZClassInstance");
         }
 
         /// <summary>
         /// Tests verification of constructors for generated ZClassInstances
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassConstructor()
         {
             // Define a simple class to build
@@ -88,13 +86,14 @@ namespace ZScriptTests.Builders
                 Console.WriteLine(info);
             }
 
-            Assert.IsNotNull(constructor, "Failed to generated expected constructor");
+            // "Failed to generated expected constructor"
+            Assert.NotSame(null, constructor);
         }
 
         /// <summary>
         /// Tests verification of constructors for generated ZClassInstances
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGeneratedClassInheritance()
         {
             // Define a simple class to build
@@ -111,8 +110,8 @@ namespace ZScriptTests.Builders
             var classType1 = classBuilder.ConstructType(classDef1);
             var classType2 = classBuilder.ConstructType(classDef2);
 
-            Assert.IsTrue(classType1.IsAssignableFrom(classType2), "Failed to manage inheritance correctly");
-            Assert.IsFalse(classType2.IsAssignableFrom(classType1), "Failed to manage inheritance correctly");
+            Assert.True(classType1.IsAssignableFrom(classType2), "Failed to manage inheritance correctly");
+            Assert.False(classType2.IsAssignableFrom(classType1), "Failed to manage inheritance correctly");
         }
     }
 }

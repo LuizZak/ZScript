@@ -18,9 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Linq;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
@@ -31,7 +32,6 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the class generation routines of the runtime generator
     /// </summary>
-    [TestClass]
     public class ClassTests
     {
         #region Parsing
@@ -39,7 +39,7 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests a simple class parsing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestParseClass()
         {
             const string input = "class TestClass { var field1:int; func f1() { } }";
@@ -50,16 +50,16 @@ namespace ZScriptTests.Runtime
             // Get the class created
             var testClass = definitions.GetDefinitionByName<ClassDefinition>("TestClass");
 
-            Assert.IsNotNull(testClass);
+            Assert.NotNull(testClass);
 
-            Assert.AreEqual(1, testClass.Fields.Count(f => f.Name == "field1"), "Failed to collect class fields");
-            Assert.AreEqual(1, testClass.Methods.Count(m => m.Name == "f1"), "Failed to collect class methods");
+            Assert.Equal(1, testClass.Fields.Count(f => f.Name == "field1"));
+            Assert.Equal(1, testClass.Methods.Count(m => m.Name == "f1"));
         }
 
         /// <summary>
         /// Tests a simple class inheritance detection
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestInheritanceDetection()
         {
             const string input = "class BaseTest { } class DerivedTest : BaseTest { }";
@@ -71,13 +71,13 @@ namespace ZScriptTests.Runtime
             var baseTest = definitions.GetDefinitionByName<ClassDefinition>("BaseTest");
             var derivedTest = definitions.GetDefinitionByName<ClassDefinition>("DerivedTest");
 
-            Assert.AreEqual(baseTest, derivedTest.BaseClass, "Failed to link inherited classes correctly");
+            Assert.Equal(baseTest, derivedTest.BaseClass);
         }
 
         /// <summary>
         /// Tests parsing and collecting a base constructor call
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBaseConstructor()
         {
             const string input = "class Base { } class Derived : Base { func Derived() { base(); } }";
@@ -89,13 +89,13 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             // Get the class created
-            Assert.IsFalse(collector.HasErrors);
+            Assert.False(collector.HasErrors);
         }
 
         /// <summary>
         /// Tests having a field that has a type matching the parent class
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSelfReference()
         {
             const string input = "class TestClass { var a:TestClass; }";
@@ -107,13 +107,13 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             // Get the class created
-            Assert.IsFalse(collector.HasErrors);
+            Assert.False(collector.HasErrors);
         }
 
         /// <summary>
         /// Tests having a field that has a type matching the parent class
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestInstanceInitializationSelfReference()
         {
             const string input = "class TestClass { var a:int = 0; var b = TestClass().a; }";
@@ -125,7 +125,7 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             // Get the class created
-            Assert.IsFalse(collector.HasErrors);
+            Assert.False(collector.HasErrors);
         }
 
         #region Parsing Errors
@@ -133,7 +133,7 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests error raising when trying to call base from inside a closure that is contained within an overriden method
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBaseInClosure()
         {
             const string input = "class Base { func f() { } } class Derived : Base { override func f() { () => { base(); }; } }";
@@ -145,13 +145,13 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             // Get the class created
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoBaseTarget));
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoBaseTarget));
         }
 
         /// <summary>
         /// Tests error raising when parsing a constructor that contains a return type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestReturnTypedConstructor()
         {
             const string input = "class TestClass { func TestClass() : int { } }";
@@ -163,15 +163,14 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             // Get the class created
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ReturnTypeOnConstructor));
-            Assert.AreEqual(0, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths),
-                "No return type errors can be raised on a constructor because it cannot return a value");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ReturnTypeOnConstructor));
+            Assert.Equal(0, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
         }
 
         /// <summary>
         /// Tests error raising when parsing a base constructor call that contains a mismatched argument count
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMissmatchedBaseCall()
         {
             const string input = "class Base { func Base(i:int) { } } class Derived : Base { func Derived() { base(); } }";
@@ -183,13 +182,13 @@ namespace ZScriptTests.Runtime
             collector.PrintMessages();
 
             // Get the class created
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments));
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments));
         }
 
         /// <summary>
         /// Tests error raising when creating functions on base and derived classes that are not marked as override
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFunctionCollisionError()
         {
             const string input = "class BaseTest { func f1() { } } class DerivedTest : BaseTest { func f1() { } }";
@@ -200,13 +199,13 @@ namespace ZScriptTests.Runtime
 
             collector.PrintMessages();
 
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests error raising when creating variables on base and derived classes
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFieldCollisionError()
         {
             const string input = "class BaseTest { var f1; } class DerivedTest : BaseTest { var f1; }";
@@ -217,13 +216,13 @@ namespace ZScriptTests.Runtime
 
             collector.PrintMessages();
 
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests error raising when creating same variables on the same class
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDuplicatedFieldError()
         {
             const string input = "class DerivedTest { var f1; var f1; }";
@@ -234,13 +233,13 @@ namespace ZScriptTests.Runtime
 
             collector.PrintMessages();
 
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests error raising when creating same methods on the same class
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDuplicatedMethodError()
         {
             const string input = "class DerivedTest { func f1() { } func f1() { } }";
@@ -251,13 +250,13 @@ namespace ZScriptTests.Runtime
 
             collector.PrintMessages();
 
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests error raising when trying to extend a class that does not exists
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUndefinedBaseClassError()
         {
             const string input = "class DerivedTest : BaseTest { }";
@@ -268,13 +267,13 @@ namespace ZScriptTests.Runtime
 
             collector.PrintMessages();
 
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition), "Failed to raise expected errors");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition));
         }
 
         /// <summary>
         /// Tests error raising when trying to create a circular inheritance chain
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCircularInheritanceChainError()
         {
             const string input = "class BaseTest : DerivedTest { } class DerivedTest : BaseTest { }";
@@ -285,13 +284,13 @@ namespace ZScriptTests.Runtime
 
             collector.PrintMessages();
 
-            Assert.AreEqual(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.CircularInheritanceChain), "Failed to raise expected errors");
+            Assert.Equal(1, collector.CodeErrors.Count(c => c.ErrorCode == ErrorCode.CircularInheritanceChain));
         }
 
         /// <summary>
         /// Tests trying to re-assign the 'this' special constant
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantThis()
         {
             const string input = "var a:any; func f1() { var inst = TestClass(); } class TestClass { func TestClass() { this = null; } }";
@@ -299,13 +298,13 @@ namespace ZScriptTests.Runtime
             var generator = TestUtils.CreateGenerator(input);
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+            Assert.Equal(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
         }
 
         /// <summary>
         /// Tests trying to override methods with no matching base method to override
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestOverrideNoTarget()
         {
             const string input = "class TestBaseClass { func access1() { } }" +
@@ -316,13 +315,13 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoOverrideTarget));
+            Assert.Equal(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoOverrideTarget));
         }
 
         /// <summary>
         /// Tests overriding a method with a different signature
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMismatchedOverride()
         {
             const string input = "class TestBaseClass { func f1() : int { return 0; } }" +
@@ -333,13 +332,13 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MismatchedOverrideSignatures));
+            Assert.Equal(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MismatchedOverrideSignatures));
         }
 
         /// <summary>
         /// Tests trying to call 'base' on a method or function that has no base
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMissingBaseMethod()
         {
             const string input = "class TestClass { func f2() { base(); } }";
@@ -349,7 +348,7 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoBaseTarget));
+            Assert.Equal(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NoBaseTarget));
         }
 
         #endregion
@@ -361,7 +360,7 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests raising of errors related to missing types on fields
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMissingTypeOnFieldError()
         {
             const string input = "class Test1 { var field3; var field1:int; var field2 = 0; }";
@@ -370,7 +369,7 @@ namespace ZScriptTests.Runtime
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingFieldType), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingFieldType));
         }
 
         #endregion
@@ -380,7 +379,7 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests a simple class instantiation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicClass()
         {
             const string input = "var a:any; func f1() { a = TestClass(); } class TestClass { }";
@@ -392,13 +391,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.IsNotNull(memory.GetVariable("a"));
+            Assert.NotNull(memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests a simple class instantiation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstructor()
         {
             const string input = "var a:any; func f1() { var f = TestClass(10); a = f.field; } class TestClass { var field:int; func TestClass(i:int) { field = i; } }";
@@ -410,13 +409,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests getting the value of a class instance's field
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGetField()
         {
             const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.field; } class TestClass { var field:int = 10; }";
@@ -428,13 +427,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests setting the value of a class instance's field
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSetField()
         {
             const string input = "var a:any; func f1() { var inst = TestClass(); inst.field = 20; a = inst.field; } class TestClass { var field:int = 10; }";
@@ -446,13 +445,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(20L, memory.GetVariable("a"));
+            Assert.Equal(20L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests invoking methods of class definitions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMethod()
         {
             const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.calc(); } class TestClass { func calc() : int { return 10; } }";
@@ -464,13 +463,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests usage of the 'this' variable
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestThisVariable()
         {
             const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.f(); } class TestClass { var field:int = 10; func f() : int { return this.field; } }";
@@ -482,7 +481,7 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
         #region Inheritance tests
@@ -490,7 +489,7 @@ namespace ZScriptTests.Runtime
         /// <summary>
         /// Tests basic inheritance creation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestInheritance()
         {
             const string input = "class TestBaseClass { } class TestClass : TestBaseClass { var field:int = 10; }";
@@ -501,13 +500,13 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.IsFalse(generator.MessageContainer.HasErrors);
+            Assert.False(generator.MessageContainer.HasErrors);
         }
 
         /// <summary>
         /// Tests basic inheritance accessing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestAccessBaseField()
         {
             const string input = "var a:int; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; } class TestClass : TestBaseClass { func access() : int { return field; } }";
@@ -521,14 +520,14 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
-            Assert.IsFalse(generator.MessageContainer.HasErrors);
+            Assert.Equal(10L, memory.GetVariable("a"));
+            Assert.False(generator.MessageContainer.HasErrors);
         }
 
         /// <summary>
         /// Tests basic method accessing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestAccessBaseMethod()
         {
             const string input = "var a:int; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; func access() : int { return field; } } class TestClass : TestBaseClass { }";
@@ -542,14 +541,14 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
-            Assert.IsFalse(generator.MessageContainer.HasErrors);
+            Assert.Equal(10L, memory.GetVariable("a"));
+            Assert.False(generator.MessageContainer.HasErrors);
         }
 
         /// <summary>
         /// Tests override of methods
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestOverridenMethod()
         {
             const string input = "var a:int; func f1() { var inst = TestClass(); inst.access(); }" +
@@ -565,14 +564,14 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(20L, memory.GetVariable("a"));
-            Assert.IsFalse(generator.MessageContainer.HasErrors);
+            Assert.Equal(20L, memory.GetVariable("a"));
+            Assert.False(generator.MessageContainer.HasErrors);
         }
 
         /// <summary>
         /// Tests calling 'base' on an overriden method
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallBaseMethod()
         {
             const string input = "var a:int; func f1() { var inst = TestClass(); inst.access(); }" +
@@ -588,14 +587,14 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(10L, memory.GetVariable("a"));
-            Assert.IsFalse(generator.MessageContainer.HasErrors);
+            Assert.Equal(10L, memory.GetVariable("a"));
+            Assert.False(generator.MessageContainer.HasErrors);
         }
 
         /// <summary>
         /// Tests the 'is' operator on generated class types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIsOperator()
         {
             const string input = "@__trace(v...)" +
@@ -617,12 +616,12 @@ namespace ZScriptTests.Runtime
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.IsFalse(generator.MessageContainer.HasErrors);
+            Assert.False(generator.MessageContainer.HasErrors);
 
-            Assert.AreEqual(true, owner.TraceObjects[0], "Failed TestBaseClass() is TestBaseClass");
-            Assert.AreEqual(true, owner.TraceObjects[1], "Failed TestClass() is TestClass");
-            Assert.AreEqual(true, owner.TraceObjects[2], "Failed TestClass() is TestBaseClass");
-            Assert.AreEqual(false, owner.TraceObjects[3], "Failed TestBaseClass() is TestClass");
+            Assert.Equal(true, owner.TraceObjects[0]);
+            Assert.Equal(true, owner.TraceObjects[1]);
+            Assert.Equal(true, owner.TraceObjects[2]);
+            Assert.Equal(false, owner.TraceObjects[3]);
         }
 
         #endregion

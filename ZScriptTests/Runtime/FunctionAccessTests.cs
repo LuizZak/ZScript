@@ -19,7 +19,7 @@
 */
 #endregion
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScriptTests.Utils;
 
@@ -28,13 +28,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the parsing and execution of function accesses
     /// </summary>
-    [TestClass]
     public class FunctionAccessTests
     {
         /// <summary>
         /// Tests basic function calling
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicFunctionCall()
         {
             const string input = "var a = ''; var b = 10; func funca(){ a = b.ToString(); }";
@@ -50,13 +49,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual("10", memory.GetVariable("a"), "The function call did not occur as expected");
+            Assert.Equal("10", memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests chained function calling
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestChainedFunctionCall()
         {
             const string input = "var a; func funca(){ a = 1234.ToString().IndexOf('4'); }";
@@ -72,7 +71,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(3, memory.GetVariable("a"), "The function call did not occur as expected");
+            Assert.Equal(3, memory.GetVariable("a"));
         }
     }
 }

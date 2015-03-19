@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScript.Elements;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -27,10 +30,9 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the parsing and execution of object literal operations
     /// </summary>
-    [TestClass]
     public class ObjectLiteralTests
     {
-        [TestMethod]
+        [Fact]
         public void TestEmptyObjectLiteral()
         {
             const string input = "var b; func funca(){ b = { }; }";
@@ -46,10 +48,10 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.IsInstanceOfType(memory.GetVariable("b"), typeof(ZObject), "The VM failed to correctly create the dynamic object");
+            Assert.True(memory.GetVariable("b") is ZObject, "The VM failed to correctly create the dynamic object");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSimpleObjectLiteral()
         {
             const string input = "var b; func funca(){ b = { x:10, 'abc':11, \"string with spaces\":12 }; }";
@@ -65,12 +67,12 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, ((ZObject)memory.GetVariable("b"))["x"], "The VM failed to correctly create the dynamic object");
-            Assert.AreEqual(11L, ((ZObject)memory.GetVariable("b"))["abc"], "The VM failed to correctly create the dynamic object");
-            Assert.AreEqual(12L, ((ZObject)memory.GetVariable("b"))["string with spaces"], "The VM failed to correctly create the dynamic object");
+            Assert.Equal(10L, ((ZObject)memory.GetVariable("b"))["x"]);
+            Assert.Equal(11L, ((ZObject)memory.GetVariable("b"))["abc"]);
+            Assert.Equal(12L, ((ZObject)memory.GetVariable("b"))["string with spaces"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestComplexObjectLiteral()
         {
             const string input = "var b; func funca(){ b = { x:10 + 5, y:5 * (7 + 1) }; }";
@@ -86,11 +88,11 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(15L, ((ZObject)memory.GetVariable("b"))["x"], "The VM failed to correctly create the dynamic object");
-            Assert.AreEqual(40L, ((ZObject)memory.GetVariable("b"))["y"], "The VM failed to correctly create the dynamic object");
+            Assert.Equal(15L, ((ZObject)memory.GetVariable("b"))["x"]);
+            Assert.Equal(40L, ((ZObject)memory.GetVariable("b"))["y"]);
         }
         
-        [TestMethod]
+        [Fact]
         public void TestNestedObjectLiteral()
         {
             const string input = "var b; func funca(){ b = { a:{ x: 10 }, b:{ y: { z: { a:10 } } }  }; }";
@@ -107,12 +109,12 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // TODO: Deal with this absurd nesting of ZObject casts
-            Assert.IsInstanceOfType(((ZObject)memory.GetVariable("b"))["a"], typeof(ZObject), "The VM failed to correctly create the nested dynamic objects");
-            Assert.AreEqual(10L, ((ZObject)((ZObject)memory.GetVariable("b"))["a"])["x"], "The VM failed to correctly create the nested dynamic objects");
-            Assert.AreEqual(10L, ((ZObject)((ZObject)((ZObject)((ZObject)memory.GetVariable("b"))["b"])["y"])["z"])["a"], "The VM failed to correctly create the nested dynamic objects");
+            Assert.True(((ZObject)memory.GetVariable("b"))["a"] is ZObject);
+            Assert.Equal(10L, ((ZObject)((ZObject)memory.GetVariable("b"))["a"])["x"]);
+            Assert.Equal(10L, ((ZObject)((ZObject)((ZObject)((ZObject)memory.GetVariable("b"))["b"])["y"])["z"])["a"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestObjectSubscript()
         {
             const string input = "var b; func funca(){ var a = { x:10 }; b = a['x']; }";
@@ -128,10 +130,10 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
+            Assert.Equal(10L, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNestedObjectSubscript()
         {
             const string input = "var b; func funca(){ var a = { x: { x:10 } }; b = a['x']['x']; }";
@@ -147,10 +149,10 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, memory.GetVariable("b"), "The VM failed to perform the correct subscript operation on the ZObject");
+            Assert.Equal(10L, memory.GetVariable("b"));
         }
         
-        [TestMethod]
+        [Fact]
         public void TestObjectMemberAccess()
         {
             const string input = "var b; func funca(){ var a = { x:10 }; b = a.x; }";
@@ -166,10 +168,10 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
+            Assert.Equal(10L, memory.GetVariable("b"));
         }
         
-        [TestMethod]
+        [Fact]
         public void TestNestedObjectMemberAccess()
         {
             const string input = "var b; func funca(){ var a = { x: { x:10 } }; b = a.x.x; }";
@@ -185,7 +187,7 @@ namespace ZScriptTests.Runtime
             // Set the dictionary on memory now
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, memory.GetVariable("b"), "The VM failed to perform the correct member fetch operation on the ZObject");
+            Assert.Equal(10L, memory.GetVariable("b"));
         }
     }
 }

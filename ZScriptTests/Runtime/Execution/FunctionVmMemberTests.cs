@@ -19,7 +19,8 @@
 */
 #endregion
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -31,10 +32,9 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests member accessing functionality on the FunctionVm
     /// </summary>
-    [TestClass]
     public class FunctionVmMemberTests
     {
-        [TestMethod]
+        [Fact]
         public void TestFieldMemberAccess()
         {
             // Create the set of tokens
@@ -53,14 +53,14 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ClassMember));
+            Assert.True(functionVm.Stack.Peek() is ClassMember);
 
             var value = (ClassMember)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10, value.GetValue(), "The member was not accessed successfully");
+            Assert.Equal(10, value.GetValue());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFieldMemberGet()
         {
             // Create the set of tokens
@@ -80,10 +80,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, functionVm.Stack.Pop(), "The member's value was not accessed successfully");
+            Assert.Equal(10, functionVm.Stack.Pop());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFieldMemberSet()
         {
             var target = new TestTarget { Field1 = 10 };
@@ -106,10 +106,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(11, target.Field1, "The member's value was not accessed successfully");
+            Assert.Equal(11, target.Field1);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPropertyMemberAccess()
         {
             // Create the set of tokens
@@ -128,14 +128,14 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ClassMember));
+            Assert.True(functionVm.Stack.Peek() is ClassMember);
 
             var value = (ClassMember)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10L, value.GetValue(), "The member was not accessed successfully");
+            Assert.Equal(10L, value.GetValue());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPropertyMemberGet()
         {
             // Create the set of tokens
@@ -155,10 +155,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10L, functionVm.Stack.Pop(), "The member's value was not accessed successfully");
+            Assert.Equal(10L, functionVm.Stack.Pop());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPropertyMemberSet()
         {
             var target = new TestTarget { Property1 = 10 };
@@ -181,7 +181,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(11, target.Property1, "The member's value was not accessed successfully");
+            Assert.Equal(11, target.Property1);
         }
 
         public class TestTarget

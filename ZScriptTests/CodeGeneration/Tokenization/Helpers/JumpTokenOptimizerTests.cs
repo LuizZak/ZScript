@@ -22,14 +22,14 @@
 using System;
 using System.Linq;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.CodeGeneration.Tokenization;
-
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Utils;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
@@ -37,10 +37,9 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
     /// <summary>
     /// Tests the JumpTokenExpander class and related methods
     /// </summary>
-    [TestClass]
     public class JumpTokenOptimizerTests
     {
-        [TestMethod]
+        [Fact]
         public void TestSequentialJumpOptimizing()
         {
             var jump1 = new JumpToken(null);
@@ -79,7 +78,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSequentialJumpWithNonSequentialJumpExpanding()
         {
             var inter = TokenFactory.CreateInstructionToken(VmInstruction.Interrupt);
@@ -119,7 +118,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestImmediateJumpExpanding()
         {
             var jump1 = new JumpToken(null);
@@ -160,7 +159,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestImmediatePeekingJumpExpanding()
         {
             var jump1 = new JumpToken(null, true, true, false);
@@ -196,7 +195,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSequentialEquivalentJumpExclusion()
         {
             var tJump1 = new JumpToken(null);
@@ -239,7 +238,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestChainedJumpOptimizing()
         {
             // Create tokens to be optimized
@@ -303,7 +302,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "Failed to generate expected tokens");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestChainedPeekJumpExpanding()
         {
             var jump1 = new JumpToken(null, true, true, false);
@@ -367,7 +366,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestChainedUnequalPeekJumpExpanding()
         {
             var jump1 = new JumpToken(null, true, false, false);
@@ -431,7 +430,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             TestUtils.AssertTokenListEquals(expectedTokens, tokens, "The jump optimizer failed to produce the expected results");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnconditionalJumpToReturnOptimization()
         {
             var ret = TokenFactory.CreateInstructionToken(VmInstruction.Ret);
@@ -448,12 +447,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
 
             // Expand the jumps
             JumpTokenOptimizer.OptimizeJumps(tokens);
-
+            
             // Now verify the results
-            Assert.AreEqual(VmInstruction.Ret, tokens[0].Instruction, "Unconditional jumps that point to returns should be replaced with returns themselves");
+            // "Unconditional jumps that point to returns should be replaced with returns themselves"
+            Assert.Equal(VmInstruction.Ret, tokens[0].Instruction);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestChainedUnconditionalJumpToReturnOptimization()
         {
             var ret = TokenFactory.CreateInstructionToken(VmInstruction.Ret);
@@ -477,10 +477,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             JumpTokenOptimizer.OptimizeJumps(tokens);
 
             // Now verify the results
-            Assert.AreEqual(VmInstruction.Ret, tokens[0].Instruction, "Chained unconditional jumps that point to returns should be replaced with returns themselves");
+            // "Chained unconditional jumps that point to returns should be replaced with returns themselves"
+            Assert.Equal(VmInstruction.Ret, tokens[0].Instruction);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAlwaysFalseConditionalJumpOptimization()
         {
             var target = TokenFactory.CreateInstructionToken(VmInstruction.Ret);
@@ -503,10 +504,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             JumpTokenOptimizer.OptimizeJumps(tokens);
 
             // Now verify the results
-            Assert.AreEqual(0, tokens.Count(t => t.Instruction == VmInstruction.JumpIfFalse), "Jumps that are detected to never happen should be removed completely");
+            // "Jumps that are detected to never happen should be removed completely"
+            Assert.Equal(0, tokens.Count(t => t.Instruction == VmInstruction.JumpIfFalse));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestConstantFalseJumpOptimization()
         {
             var tTarget = new JumpTargetToken();
@@ -550,7 +552,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Tests optimization of jump pointing when a jump points to an always-failing conditional jump
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestJumpPointedAtFailedConditionalJump()
         {
             var jump1 = new JumpToken(null, true, false);
@@ -600,7 +602,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Tests optimization of jump pointing when a jump points to an always-failing conditional jump
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestJumpPointedAtSuceededConditionalJump()
         {
             var jump1 = new JumpToken(null, true);
@@ -650,7 +652,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Tests re-forwarding of jumps when always-true conditional jumps are optimized
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConditionalJumpToJumpTargetToConditionalJumpOptimization()
         {
             /*
@@ -738,7 +740,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Tests optimizing out conditional jumps that precede and point to the same interrupt-type instructions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDeadEndConditionalPeekingJump()
         {
             var jump = new JumpToken(null, true, true, false);
@@ -787,7 +789,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Tests failed optimization of dead-ended conditional peeking jumps because they precede and point to different type of interrupt instructions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedDeadEndConditionalPeekingJump()
         {
             var jump = new JumpToken(null, true, true, false);
@@ -840,7 +842,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Tests optimizing a conditional jump that jumps over an immediate jump token by replacing both jumps with a reversed conditional jump
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConditionalJumpOverUnconditionalJumpHopping()
         {
             var tJt1 = TokenFactory.CreateBoxedValueToken(12);
@@ -896,7 +898,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
         /// Tests optimizing a conditional jump that jumps over an immediate jump token by replacing both jumps with a reversed conditional jump.
         /// This unit test covers a Jump If False case
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestReverseConditionalJumpOverUnconditionalJumpHopping()
         {
             var tJt1 = TokenFactory.CreateBoxedValueToken(12);

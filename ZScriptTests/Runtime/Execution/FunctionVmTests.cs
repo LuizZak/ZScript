@@ -18,27 +18,31 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
-
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ZScript.CodeGeneration.Tokenization;
 
+using Xunit;
+
+using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers.Callables;
 using ZScript.Runtime.Typing;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution
 {
-    [TestClass]
+    /// <summary>
+    /// General test cases for the FunctionVM class
+    /// </summary>
     public class FunctionVmTests
     {
         #region General instructions
 
-        [TestMethod]
+        [Fact]
         public void TestNoop()
         {
             // Create the set of tokens
@@ -61,10 +65,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInterrupt()
         {
             // Create the set of tokens
@@ -84,10 +88,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"), "The Interrupt instruction did not interrupt the virtual machine as expected");
+            Assert.False(memory.HasVariable("a"), "The Interrupt instruction did not interrupt the virtual machine as expected");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuelessReturn()
         {
             // Create the set of tokens
@@ -107,10 +111,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"), "The Return instruction did not interrupt the virtual machine as expected");
+            Assert.False(memory.HasVariable("a"), "The Return instruction did not interrupt the virtual machine as expected");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuedReturn()
         {
             // Create the set of tokens
@@ -131,12 +135,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsTrue(functionVm.HasReturnValue, "The Return instruction did not return expected");
-            Assert.AreEqual(10, functionVm.ReturnValue, "The Return instruction did not return the correct value expected");
-            Assert.IsFalse(memory.HasVariable("a"), "The Return instruction did not interrupt the virtual machine as expected");
+            Assert.True(functionVm.HasReturnValue, "The Return instruction did not return expected");
+            Assert.Equal(10, functionVm.ReturnValue);
+            Assert.False(memory.HasVariable("a"), "The Return instruction did not interrupt the virtual machine as expected");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSet()
         {
             // Create the set of tokens
@@ -154,11 +158,11 @@ namespace ZScriptTests.Runtime.Execution
             var functionVm = new FunctionVM(tokenList, context);
 
             functionVm.Execute();
-            
-            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+
+            Assert.Equal(10, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultipleSet()
         {
             // Create the set of tokens
@@ -180,12 +184,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variables that were set by the instructions");
-            Assert.AreEqual(20, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+            Assert.Equal(10, memory.GetVariable("a"));
+            Assert.Equal(20, memory.GetVariable("b"));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "Trying to call set with less than two items in the stack should raise an exception", AllowDerivedTypes = true)]
+        [Fact]
         public void TestFailedSet()
         {
             // Create the set of tokens
@@ -200,10 +203,10 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.ThrowsAny<Exception>(() => functionVm.Execute());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGet()
         {
             // Create the set of tokens
@@ -225,10 +228,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(5, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(5, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestImplicitGet()
         {
             // Create the set of tokens
@@ -249,11 +252,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(5, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(5, memory.GetVariable("a"));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
+        [Fact]
         public void TestClearStack()
         {
             // Create the set of tokens
@@ -271,10 +273,10 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.ThrowsAny<Exception>(() => functionVm.Execute());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSwapStack()
         {
             // Create the set of tokens
@@ -295,10 +297,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(5, memory.GetVariable("a"), "The memory should contain the variables that were set by the instructions");
+            Assert.Equal(5, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDuplicateStack()
         {
             // Create the set of tokens
@@ -319,10 +321,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variables that were set by the instructions");
+            Assert.Equal(10, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestJump()
         {
             // Create the set of tokens
@@ -344,11 +346,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"));
-            Assert.AreEqual(5, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+            Assert.False(memory.HasVariable("a"));
+            Assert.Equal(5, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestJumpIfTrue()
         {
             // Create the set of tokens
@@ -373,11 +375,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"));
-            Assert.AreEqual(5, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+            Assert.False(memory.HasVariable("a"));
+            Assert.Equal(5, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestJumpIfFalse()
         {
             // Create the set of tokens
@@ -402,11 +404,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"));
-            Assert.AreEqual(5, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+            Assert.False(memory.HasVariable("a"));
+            Assert.Equal(5, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPeekJumpIfTrue()
         {
             // Create the set of tokens
@@ -430,11 +432,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"));
-            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+            Assert.False(memory.HasVariable("a"));
+            Assert.Equal(false, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPeekJumpIfFalse()
         {
             // Create the set of tokens
@@ -458,8 +460,8 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsFalse(memory.HasVariable("a"));
-            Assert.AreEqual(true, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+            Assert.False(memory.HasVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
         }
 
         #endregion
@@ -468,7 +470,7 @@ namespace ZScriptTests.Runtime.Execution
 
         #region Integer
 
-        [TestMethod]
+        [Fact]
         public void TestIntegerPrefixIncrement()
         {
             // Create the set of tokens
@@ -491,10 +493,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(11, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(11, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIntegerPostfixIncrement()
         {
             // Create the set of tokens
@@ -517,10 +519,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIntegerPrefixDecrement()
         {
             // Create the set of tokens
@@ -543,10 +545,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(9, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(9, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIntegerPostfixDecrement()
         {
             // Create the set of tokens
@@ -569,14 +571,14 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10, memory.GetVariable("a"));
         }
 
         #endregion
 
         #region Long
 
-        [TestMethod]
+        [Fact]
         public void TestLongPrefixIncrement()
         {
             // Create the set of tokens
@@ -599,10 +601,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(11L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(11L, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLongPostfixIncrement()
         {
             // Create the set of tokens
@@ -625,10 +627,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLongPrefixDecrement()
         {
             // Create the set of tokens
@@ -651,10 +653,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(9L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(9L, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLongPostfixDecrement()
         {
             // Create the set of tokens
@@ -677,14 +679,14 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10L, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
         #endregion
 
         #region Double
 
-        [TestMethod]
+        [Fact]
         public void TestDoublePrefixIncrement()
         {
             // Create the set of tokens
@@ -707,10 +709,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(11.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(11.0, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDoublePostfixIncrement()
         {
             // Create the set of tokens
@@ -733,10 +735,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10.0, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDoublePrefixDecrement()
         {
             // Create the set of tokens
@@ -759,10 +761,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(9.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(9.0, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDoublePostfixDecrement()
         {
             // Create the set of tokens
@@ -785,14 +787,14 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10.0, memory.GetVariable("a"));
         }
 
         #endregion
 
         #region Others
 
-        [TestMethod]
+        [Fact]
         public void TestUnsignedPrefixIncrement()
         {
             // Create the set of tokens
@@ -815,10 +817,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(11U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(11U, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnsignedPostfixIncrement()
         {
             // Create the set of tokens
@@ -841,10 +843,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10U, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnsignedPrefixDecrement()
         {
             // Create the set of tokens
@@ -867,10 +869,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(9U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(9U, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnsignedPostfixDecrement()
         {
             // Create the set of tokens
@@ -893,7 +895,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10U, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(10U, memory.GetVariable("a"));
         }
 
         #endregion
@@ -902,7 +904,7 @@ namespace ZScriptTests.Runtime.Execution
 
         #region Arithmetic Operations
 
-        [TestMethod]
+        [Fact]
         public void TestMultiply()
         {
             // Create the set of tokens
@@ -923,10 +925,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(100, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDivide()
         {
             // Create the set of tokens
@@ -947,10 +949,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(5.0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(5.0, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestModulo()
         {
             // Create the set of tokens
@@ -971,10 +973,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(0, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(0, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAdd()
         {
             // Create the set of tokens
@@ -995,10 +997,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(20, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(20, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSubtract()
         {
             // Create the set of tokens
@@ -1019,10 +1021,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(8, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(8, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestEquals()
         {
             // Create the set of tokens
@@ -1055,12 +1057,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(false, memory.GetVariable("a"), "The 'Equals' instruction is not behaving correctly");
-            Assert.AreEqual(false, memory.GetVariable("b"), "The 'Equals' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("c"), "The 'Equals' instruction is not behaving correctly");
+            Assert.Equal(false, memory.GetVariable("a"));
+            Assert.Equal(false, memory.GetVariable("b"));
+            Assert.Equal(true, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnequals()
         {
             // Create the set of tokens
@@ -1093,12 +1095,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The 'Unequals' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The 'Unequals' instruction is not behaving correctly");
-            Assert.AreEqual(false, memory.GetVariable("c"), "The 'Unequals' instruction is not behaving correctly");
+            Assert.Equal(true, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
+            Assert.Equal(false, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLess()
         {
             // Create the set of tokens
@@ -1124,11 +1126,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(false, memory.GetVariable("a"), "The 'Less' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The 'Less' instruction is not behaving correctly");
+            Assert.Equal(false, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLessOrEquals()
         {
             // Create the set of tokens
@@ -1159,12 +1161,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(false, memory.GetVariable("a"), "The 'Less or equals' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The 'Less or equals' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("c"), "The 'Less or equals' instruction is not behaving correctly");
+            Assert.Equal(false, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
+            Assert.Equal(true, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGreater()
         {
             // Create the set of tokens
@@ -1190,11 +1192,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The 'Greater' instruction is not behaving correctly");
-            Assert.AreEqual(false, memory.GetVariable("b"), "The 'Greater' instruction is not behaving correctly");
+            Assert.Equal(true, memory.GetVariable("a"));
+            Assert.Equal(false, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGreaterOrEquals()
         {
             // Create the set of tokens
@@ -1225,12 +1227,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The 'Greater or equals' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The 'Greater or equals' instruction is not behaving correctly");
-            Assert.AreEqual(false, memory.GetVariable("c"), "The 'Greater or equals' instruction is not behaving correctly");
+            Assert.Equal(true, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
+            Assert.Equal(false, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLogicalAnd()
         {
             // Create the set of tokens
@@ -1261,12 +1263,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(false, memory.GetVariable("a"), "The 'Logical And' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The 'Logical And' instruction is not behaving correctly");
-            Assert.AreEqual(false, memory.GetVariable("c"), "The 'Logical And' instruction is not behaving correctly");
+            Assert.Equal(false, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
+            Assert.Equal(false, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLogicalOr()
         {
             // Create the set of tokens
@@ -1297,12 +1299,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The 'Logical Or' instruction is not behaving correctly");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The 'Logical Or' instruction is not behaving correctly");
-            Assert.AreEqual(false, memory.GetVariable("c"), "The 'Logical Or' instruction is not behaving correctly");
+            Assert.Equal(true, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
+            Assert.Equal(false, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnaryNegate()
         {
             // Create the set of tokens
@@ -1325,10 +1327,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(-10, memory.GetVariable("a"), "The 'Unary Negate' instruction is not behaving correctly");
+            Assert.Equal(-10, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLogicalNegate()
         {
             // Create the set of tokens
@@ -1351,7 +1353,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The 'Logical Negate' instruction is not behaving correctly");
+            Assert.Equal(true, memory.GetVariable("a"));
         }
 
         #endregion
@@ -1360,7 +1362,7 @@ namespace ZScriptTests.Runtime.Execution
 
         #region Value/primitive types
 
-        [TestMethod]
+        [Fact]
         public void TestPassingPrimitiveIsOperator()
         {
             // Create the set of tokens
@@ -1378,10 +1380,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+            Assert.Equal(true, functionVm.Stack.Peek());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFailingPrimitiveIsOperator()
         {
             // Create the set of tokens
@@ -1399,10 +1401,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(false, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+            Assert.Equal(false, functionVm.Stack.Peek());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPassingPrimitiveCastOperation()
         {
             // Create the set of tokens
@@ -1420,14 +1422,14 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+            Assert.Equal(10, functionVm.Stack.Peek());
         }
 
         #endregion
 
         #region Reference types
 
-        [TestMethod]
+        [Fact]
         public void TestPassingReferenceIsOperator()
         {
             // Create the set of tokens
@@ -1445,10 +1447,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, functionVm.Stack.Peek(), "Operator failed to produce the expected results");
+            Assert.Equal(true, functionVm.Stack.Peek());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPassingReferenceCastOperator()
         {
             TestBaseClass bc = new TestDerivedClass();
@@ -1469,8 +1471,7 @@ namespace ZScriptTests.Runtime.Execution
             functionVm.Execute();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidCastException), "Trying to cast an object from one type to an invalid type must raise an InvalidCastException at runtime")]
+        [Fact]
         public void TestFailingCastOperation()
         {
             // Create the set of tokens
@@ -1486,12 +1487,12 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.Throws<InvalidCastException>(() => functionVm.Execute());
         }
 
         #endregion
 
-        [TestMethod]
+        [Fact]
         public void TestTypeCheck()
         {
             // Create the set of tokens
@@ -1510,8 +1511,7 @@ namespace ZScriptTests.Runtime.Execution
             functionVm.Execute();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(VirtualMachineException), "Expected exception after failed runtime type check")]
+        [Fact]
         public void TestFailedTypeCheck()
         {
             // Create the set of tokens
@@ -1527,14 +1527,14 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.ThrowsAny<Exception>(() => functionVm.Execute());
         }
 
         #endregion
 
         #region Bitwise Operations
 
-        [TestMethod]
+        [Fact]
         public void TestBitwiseAnd()
         {
             // Create the set of tokens
@@ -1555,10 +1555,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(0xF000, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(0xF000, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBitwiseOr()
         {
             // Create the set of tokens
@@ -1579,10 +1579,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(0xFF00, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(0xFF00, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBitwiseXOr()
         {
             // Create the set of tokens
@@ -1603,10 +1603,10 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(1000209, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(1000209, memory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBooleanBitwiseAnd()
         {
             // Create the set of tokens
@@ -1632,11 +1632,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(false, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(true, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(false, memory.GetVariable("a"));
+            Assert.Equal(true, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBooleanBitwiseOr()
         {
             // Create the set of tokens
@@ -1662,11 +1662,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(true, memory.GetVariable("a"));
+            Assert.Equal(false, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBooleanBitwiseXOr()
         {
             // Create the set of tokens
@@ -1692,11 +1692,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(true, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(false, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(true, memory.GetVariable("a"));
+            Assert.Equal(false, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestShiftLeft()
         {
             // Create the set of tokens
@@ -1722,11 +1722,11 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(4, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(20, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(4, memory.GetVariable("a"));
+            Assert.Equal(20, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestShiftRight()
         {
             // Create the set of tokens
@@ -1752,8 +1752,8 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(16, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
-            Assert.AreEqual(10, memory.GetVariable("b"), "The memory should contain the variable that was set by the instructions");
+            Assert.Equal(16, memory.GetVariable("a"));
+            Assert.Equal(10, memory.GetVariable("b"));
         }
 
         #endregion
@@ -1763,7 +1763,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests addressing of memory via manual indexing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNamedVariableFetching()
         {
             /*
@@ -1815,13 +1815,13 @@ namespace ZScriptTests.Runtime.Execution
 
             Console.WriteLine(sw.ElapsedMilliseconds);
 
-            //Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            //Assert.AreEqual(100, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests addressing of memory via manual indexing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestManualAddressing()
         {
             /*
@@ -1875,7 +1875,7 @@ namespace ZScriptTests.Runtime.Execution
 
             Console.WriteLine(sw.ElapsedMilliseconds);
 
-            //Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+            //Assert.AreEqual(100, memory.GetVariable("a"));
         }
 
         #endregion
@@ -1885,46 +1885,46 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests the NumberTypeForBoxedNumber method
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNumberTypeForBoxedNumber()
         {
-            Assert.AreEqual(FunctionVM.NumberType.Byte, FunctionVM.NumberTypeForBoxedNumber((byte)0));
-            Assert.AreEqual(FunctionVM.NumberType.SByte, FunctionVM.NumberTypeForBoxedNumber((sbyte)0));
+            Assert.Equal(FunctionVM.NumberType.Byte, FunctionVM.NumberTypeForBoxedNumber((byte)0));
+            Assert.Equal(FunctionVM.NumberType.SByte, FunctionVM.NumberTypeForBoxedNumber((sbyte)0));
 
-            Assert.AreEqual(FunctionVM.NumberType.Short, FunctionVM.NumberTypeForBoxedNumber((short)0));
-            Assert.AreEqual(FunctionVM.NumberType.UShort, FunctionVM.NumberTypeForBoxedNumber((ushort)0));
+            Assert.Equal(FunctionVM.NumberType.Short, FunctionVM.NumberTypeForBoxedNumber((short)0));
+            Assert.Equal(FunctionVM.NumberType.UShort, FunctionVM.NumberTypeForBoxedNumber((ushort)0));
 
-            Assert.AreEqual(FunctionVM.NumberType.UShort, FunctionVM.NumberTypeForBoxedNumber((ushort)0));
+            Assert.Equal(FunctionVM.NumberType.UShort, FunctionVM.NumberTypeForBoxedNumber((ushort)0));
 
-            Assert.AreEqual(FunctionVM.NumberType.Integer, FunctionVM.NumberTypeForBoxedNumber(0));
-            Assert.AreEqual(FunctionVM.NumberType.UInteger, FunctionVM.NumberTypeForBoxedNumber(0U));
+            Assert.Equal(FunctionVM.NumberType.Integer, FunctionVM.NumberTypeForBoxedNumber(0));
+            Assert.Equal(FunctionVM.NumberType.UInteger, FunctionVM.NumberTypeForBoxedNumber(0U));
 
-            Assert.AreEqual(FunctionVM.NumberType.Long, FunctionVM.NumberTypeForBoxedNumber(0L));
-            Assert.AreEqual(FunctionVM.NumberType.ULong, FunctionVM.NumberTypeForBoxedNumber(0UL));
+            Assert.Equal(FunctionVM.NumberType.Long, FunctionVM.NumberTypeForBoxedNumber(0L));
+            Assert.Equal(FunctionVM.NumberType.ULong, FunctionVM.NumberTypeForBoxedNumber(0UL));
 
-            Assert.AreEqual(FunctionVM.NumberType.Decimal, FunctionVM.NumberTypeForBoxedNumber(0M));
+            Assert.Equal(FunctionVM.NumberType.Decimal, FunctionVM.NumberTypeForBoxedNumber(0M));
 
-            Assert.AreEqual(FunctionVM.NumberType.Float, FunctionVM.NumberTypeForBoxedNumber(0.0f));
-            Assert.AreEqual(FunctionVM.NumberType.Double, FunctionVM.NumberTypeForBoxedNumber(0.0));
+            Assert.Equal(FunctionVM.NumberType.Float, FunctionVM.NumberTypeForBoxedNumber(0.0f));
+            Assert.Equal(FunctionVM.NumberType.Double, FunctionVM.NumberTypeForBoxedNumber(0.0));
 
-            Assert.AreEqual(FunctionVM.NumberType.Unspecified, FunctionVM.NumberTypeForBoxedNumber(true));
+            Assert.Equal(FunctionVM.NumberType.Unspecified, FunctionVM.NumberTypeForBoxedNumber(true));
         }
 
         /// <summary>
         /// Tests the IsCallable method
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIsCallable()
         {
             // Test valid inputs
-            Assert.IsTrue(FunctionVM.IsCallable(new ZFunction(null, null, null)));
-            Assert.IsTrue(FunctionVM.IsCallable(new ZClassMethod(null, null)));
-            Assert.IsTrue(FunctionVM.IsCallable(new ClassMethod(null, null)));
+            Assert.True(FunctionVM.IsCallable(new ZFunction(null, null, null)));
+            Assert.True(FunctionVM.IsCallable(new ZClassMethod(null, null)));
+            Assert.True(FunctionVM.IsCallable(new ClassMethod(null, null)));
 
             // Test some junk data
-            Assert.IsFalse(FunctionVM.IsCallable(null));
-            Assert.IsFalse(FunctionVM.IsCallable(false));
-            Assert.IsFalse(FunctionVM.IsCallable(10));
+            Assert.False(FunctionVM.IsCallable(null));
+            Assert.False(FunctionVM.IsCallable(false));
+            Assert.False(FunctionVM.IsCallable(10));
         }
 
         #endregion
@@ -1934,17 +1934,15 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests exception raising when trying to fetch a return value from a function VM that didn't hit a ret instruction
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException), "Trying to fetch the ReturnValue property with no return value rpesent must raise an InvalidOperationException")]
+        [Fact]
         public void TestNoReturnValue()
         {
             var vm = new FunctionVM(new TokenList(), new VmContext(new Memory(), null, null));
-            // ReSharper disable once UnusedVariable
-            var ret = vm.ReturnValue;
+
+            Assert.Throws<InvalidOperationException>(() => vm.ReturnValue);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "Trying to execute an operator-type token with a non operation instruction must raise an ArgumentException")]
+        [Fact]
         public void TestInvalidOperation()
         {
             // Create the set of tokens
@@ -1961,11 +1959,10 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.Throws<ArgumentException>(() => functionVm.Execute());
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "Trying to execute an instruction-type token with a non instruction instruction must raise an ArgumentException")]
+        [Fact]
         public void TestInvalidInstruction()
         {
             // Create the set of tokens
@@ -1980,11 +1977,10 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.Throws<ArgumentException>(() => functionVm.Execute());
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(VirtualMachineException), "Trying to execute an Get instruction with an invalid value container must raise an VirtualMachineException")]
+        [Fact]
         public void TestInvalidGet()
         {
             // Create the set of tokens
@@ -2001,11 +1997,10 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.Throws<VirtualMachineException>(() => functionVm.Execute());
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(VirtualMachineException), "Trying to execute an Set instruction with an invalid value container must raise an VirtualMachineException")]
+        [Fact]
         public void TestInvalidSet()
         {
             // Create the set of tokens
@@ -2022,7 +2017,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var functionVm = new FunctionVM(tokenList, context);
 
-            functionVm.Execute();
+            Assert.Throws<VirtualMachineException>(() => functionVm.Execute());
         }
 
         #endregion

@@ -20,7 +20,8 @@
 #endregion
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
@@ -38,13 +39,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
     /// <summary>
     /// Tests the functionality of the TypedTokenExpander class
     /// </summary>
-    [TestClass]
     public class TypedTokenExpanderTests
     {
         /// <summary>
         /// Tests expanding an any type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExpandAnyType()
         {
             // Setup the test
@@ -69,13 +69,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             expander.ExpandInList(tokenList);
 
             // Assert the results
-            Assert.AreEqual(typeof(object), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
+            Assert.Equal(typeof(object), tokenList.Tokens[0].TokenObject); // "The type was not expanded as expected"
         }
 
         /// <summary>
         /// Tests expanding a primitive type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExpandPrimitiveType()
         {
             // Setup the test
@@ -100,13 +100,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             expander.ExpandInList(tokenList);
 
             // Assert the results
-            Assert.AreEqual(typeof(long), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
+            Assert.Equal(typeof(long), tokenList.Tokens[0].TokenObject); // "The type was not expanded as expected"
         }
 
         /// <summary>
         /// Tests expanding a list type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExpandListType()
         {
             // Setup the test
@@ -131,13 +131,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             expander.ExpandInList(tokenList);
 
             // Assert the results
-            Assert.AreEqual(typeof(List<long>), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
+            Assert.Equal(typeof(List<long>), tokenList.Tokens[0].TokenObject); // "The type was not expanded as expected"
         }
 
         /// <summary>
         /// Tests expanding an object type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExpandObjectType()
         {
             // Setup the test
@@ -162,7 +162,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization.Helpers
             expander.ExpandInList(tokenList);
 
             // Assert the results
-            Assert.AreEqual(typeof(ZObject), tokenList.Tokens[0].TokenObject, "The type was not expanded as expected");
+            Assert.Equal(typeof(ZObject), tokenList.Tokens[0].TokenObject);
         }
     }
 }

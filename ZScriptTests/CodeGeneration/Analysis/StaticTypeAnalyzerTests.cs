@@ -23,7 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
@@ -36,7 +37,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the functionality of the static type analyzer
     /// </summary>
-    [TestClass]
     public class StaticTypeAnalyzerTests
     {
         #region Closure resolving
@@ -44,7 +44,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests inferring of types in a closure definition that is contained within a function argument
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClosureTypeInferringFunctionArg()
         {
             const string input = "func f() { f2(i => { return 1; }); } func f2(a:(int->int)) { }";
@@ -55,15 +55,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
-            Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
-            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+            Assert.False(generator.HasErrors);
+            Assert.Equal(provider.IntegerType(), closure.Parameters[0].Type);
+            Assert.Equal(provider.IntegerType(), closure.ReturnType);
         }
 
         /// <summary>
         /// Tests preventing inferring of types in a closure definition that is contained within a function argument
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestPreventedClosureTypeInferringFunctionArg()
         {
             const string input = "func f() { f2(i : any => { return 0; }); } func f2(a:(int->int)) { }";
@@ -73,15 +73,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
-            Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.AnyType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
-            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+            Assert.False(generator.HasErrors);
+            Assert.Equal(provider.AnyType(), closure.Parameters[0].Type);
+            Assert.Equal(provider.IntegerType(), closure.ReturnType);
         }
 
         /// <summary>
         /// Tests inferring of types in a closure definition that is passed as the return value of a function
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClosureTypeInferringReturn()
         {
             const string input = "func f2() : (int->int) { return i => { return 0; }; }";
@@ -91,15 +91,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
-            Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
-            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+            Assert.False(generator.HasErrors);
+            Assert.Equal(provider.IntegerType(), closure.Parameters[0].Type);
+            Assert.Equal(provider.IntegerType(), closure.ReturnType);
         }
 
         /// <summary>
         /// Tests inferring of types in a closure definition that is used as a value of a variable
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClosureTypeInferringVariable()
         {
             const string input = "func f2() { var a: (int->int) = i => { return 0; }; }";
@@ -111,15 +111,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
-            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+            Assert.False(generator.HasErrors);
+            Assert.Equal(provider.IntegerType(), closure.Parameters[0].Type);
+            Assert.Equal(provider.IntegerType(), closure.ReturnType);
         }
 
         /// <summary>
         /// Tests inferring of types in a closure definition that is used as a value of a variable
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClosureTypeInferringAssignment()
         {
             const string input = "func f2() { var a: (int->int); a = i => { return 0; }; }";
@@ -131,15 +131,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.IsFalse(generator.HasErrors);
-            Assert.AreEqual(provider.IntegerType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
-            Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");
+            Assert.False(generator.HasErrors);
+            Assert.Equal(provider.IntegerType(), closure.Parameters[0].Type);
+            Assert.Equal(provider.IntegerType(), closure.ReturnType);
         }
 
         /// <summary>
         /// Tests raising errors when resolving implicit closures to void
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestVoidClosureParsing()
         {
             const string input = "func f2() { var a = () => { }(); }";
@@ -148,7 +148,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         #endregion
@@ -158,7 +158,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests using a class name as a valid type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassTypeNaming()
         {
             const string input = "var a:TestClass; class TestClass { }";
@@ -166,13 +166,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
             generator.MessageContainer.PrintMessages();
 
-            Assert.IsFalse(generator.HasErrors);
+            Assert.False(generator.HasErrors);
         }
 
         /// <summary>
         /// Tests using a base class and assigning a derived class
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassInheritanceSupport()
         {
             const string input = "var a:Base = Derived(); class Base { } class Derived : Base { }";
@@ -180,13 +180,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
             generator.MessageContainer.PrintMessages();
 
-            Assert.IsFalse(generator.HasErrors);
+            Assert.False(generator.HasErrors);
         }
 
         /// <summary>
         /// Tests correct type verification of 'this' expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestThisExpressionTyping()
         {
             const string input = "class TestClass { var field:int; func f1() { this.field = 'sneakyString'; } }";
@@ -195,7 +195,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         #endregion
@@ -205,7 +205,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests emission of implicit casts to function arguments
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFunctionArgumentImplicitCasting()
         {
             const string input = "var a:int = 0; func f() { f2(a); } func f2(i:float) { }";
@@ -242,7 +242,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests non-emission of implicit casts when providing values of matching types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFunctionArgumentNoImplicitCasting()
         {
             const string input = "var a:int = 0; func f() { f2(a); } func f2(i:int) { }";
@@ -277,7 +277,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests implicit casting on assignments
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestAssignmentImplicitCasting()
         {
             const string input = "var a:float = 0; var b:int = 0; func f() { a = b; }";
@@ -313,7 +313,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests implicit casting on assignments
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCompoundAssignmentImplicitCasting()
         {
             const string input = "var a:float = 0; var b:int = 0; func f() { a += b; }";
@@ -353,7 +353,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests implicit casting on assignments
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestListAssignmentImplicitCasting()
         {
             const string input = "var a:[float] = [0]; var b:int = 0; func f() { a[0] = b; }";
@@ -395,7 +395,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests callable argument type checking
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExportArgumentTypeChecking()
         {
             // Set up the test
@@ -405,32 +405,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
-        /*
-         * What was this test trying to achieve?
-        /// <summary>
-        /// Tests callable argument type checking
-        /// </summary>
-        [TestMethod]
-        public void TestExportReturnTypeChecking()
-        {
-            // Set up the test
-            const string input = "@trace(args...) func f1() : int { return trace(0); }";
-
-            var generator = ZRuntimeTests.CreateGenerator(input);
-            var container = generator.MessageContainer;
-            generator.CollectDefinitions();
-
-            Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
-        }
-        */
-        
         /// <summary>
         /// Tests function definition argument type checking
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFunctionArgumentTypeChecking()
         {
             // Set up the test
@@ -443,7 +424,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         #endregion
@@ -455,7 +436,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests raising errors when trying to assign values to constant local variables
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantLocalVariableAssignmentCheck()
         {
             // Set up the test
@@ -465,13 +446,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
+            Assert.Equal(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
         }
 
         /// <summary>
         /// Tests raising errors when trying to assign values to constant global variables
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantGlobalVariableAssignmentCheck()
         {
             // Set up the test
@@ -481,13 +462,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
         }
 
         /// <summary>
         /// Tests raising errors when creating global constants with no starting value
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestValuelessGlobalConstantDefinition()
         {
             // Set up the test
@@ -497,13 +478,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ValuelessConstantDeclaration), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ValuelessConstantDeclaration));
         }
 
         /// <summary>
         /// Tests raising errors when trying to increment/decrement the contents of a constant value
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIncrementDecrementConstantValue()
         {
             // Set up the test
@@ -513,7 +494,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
         }
 
         #endregion
@@ -523,7 +504,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests checking condition expressions on if statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIfStatementTypeChecking()
         {
             // Set up the test
@@ -533,13 +514,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
         
         /// <summary>
         /// Tests checking constant condition expressions on if statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantIfStatementChecking()
         {
             // Set up the test
@@ -549,7 +530,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, container.Warnings.Count(w => w.WarningCode == WarningCode.ConstantIfCondition), "Failed to raise expected warnings");
+            Assert.Equal(2, container.Warnings.Count(w => w.WarningCode == WarningCode.ConstantIfCondition));
         }
 
         #endregion
@@ -559,7 +540,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests checking condition expressions on while statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestWhileStatementTypeChecking()
         {
             // Set up the test
@@ -569,7 +550,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         #endregion
@@ -579,7 +560,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests checking condition expressions on for statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestForStatementConditionTypeChecking()
         {
             // Set up the test
@@ -591,13 +572,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests checking condition expressions on for statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestForStatementConditionConstantChecking()
         {
             // Set up the test
@@ -609,13 +590,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected warnings");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
         }
 
         /// <summary>
         /// Tests checking init expressions on for statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestForStatementInitTypeChecking()
         {
             // Set up the test
@@ -627,13 +608,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+            Assert.Equal(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
         }
 
         /// <summary>
         /// Tests checking increment expressions on for statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestForStatementIncrementTypeChecking()
         {
             // Set up the test
@@ -645,13 +626,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+            Assert.Equal(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
         }
 
         /// <summary>
         /// Tests checking increment expressions on for statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestForStatementIncrementConstantChecking()
         {
             // Set up the test
@@ -663,7 +644,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected warnings");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
         }
 
         #endregion
@@ -673,7 +654,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests checking expressions contained within switch statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSwitchExpressionTypeChecking()
         {
             // Set up the test
@@ -683,13 +664,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation));
         }
 
         /// <summary>
         /// Tests checking expressions contained within switch statements which have a variable declaration as an expression
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSwitchValuedExpressionTypeChecking()
         {
             // Set up the test
@@ -699,13 +680,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation));
         }
 
         /// <summary>
         /// Tests checking expressions contained within switch case statements
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSwitchCaseExpressionTypeChecking()
         {
             // Set up the test
@@ -715,13 +696,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation));
         }
 
         /// <summary>
         /// Tests checking whether a switch's expression type matches all of its cases' checking expression types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSwitchTypeConsistency()
         {
             // Set up the test
@@ -731,13 +712,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests checking a switch's case labels against repeated constant values
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestRepeatedSwitchLabel()
         {
             // Set up the test
@@ -747,13 +728,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.RepeatedCaseLabelValue), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.RepeatedCaseLabelValue));
         }
 
         /// <summary>
         /// Tests checking a switch's case labels against constant cases
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantSwitchStatement()
         {
             // Set up the test
@@ -763,13 +744,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected warnings");
+            Assert.Equal(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression));
         }
 
         /// <summary>
         /// Tests checking a switch's case labels against constant cases
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestValidConstantSwitchStatement()
         {
             // Set up the test
@@ -779,13 +760,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(0, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Warnings raised when not expected");
+            Assert.Equal(0, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression));
         }
 
         /// <summary>
         /// Tests checking a switch's case labels against complete constant cases that never match the switch expression
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNonMatchingConstantSwitchStatement()
         {
             // Set up the test
@@ -795,13 +776,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected warnings");
+            Assert.Equal(2, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression));
         }
 
         /// <summary>
         /// Tests reporting errors when a switch expression is a value declaration with no value specified
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestValuelessValuedSwitchStatement()
         {
             // Set up the test
@@ -811,13 +792,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingValueOnSwitchValueDefinition), "Failed to raise expected warnings");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingValueOnSwitchValueDefinition));
         }
 
         /// <summary>
         /// Tests the raising of warnings when using the switch variable as case labels
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCaseValueIsSwitchVariableSwitchStatementWarning()
         {
             // Set up the test
@@ -827,7 +808,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected errors");
+            Assert.Equal(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression));
         }
 
         #endregion
@@ -839,7 +820,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests global variable type expanding and inferring
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGlobalVariableTypeInferring()
         {
             // Set up the test
@@ -850,14 +831,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
 
-            Assert.AreEqual(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type, "Faild to infer type of global variable");
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type);
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests global variable type expanding and inferring
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGlobalVariableTypeChecking()
         {
             // Set up the test
@@ -868,8 +849,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
 
-            Assert.AreEqual(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type, "Faild to infer type of global variable");
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+            Assert.Equal(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type);
+            Assert.Equal(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
         }
 
         #endregion

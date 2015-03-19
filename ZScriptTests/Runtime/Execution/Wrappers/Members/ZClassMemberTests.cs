@@ -18,7 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
 
 using ZScript.Runtime.Execution.Wrappers.Members;
 using ZScriptTests.Utils;
@@ -28,10 +29,9 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
     /// <summary>
     /// Tests the functionality of the ZClassMember class and related components
     /// </summary>
-    [TestClass]
     public class ZClassMemberTests
     {
-        [TestMethod]
+        [Fact]
         public void TestCreation()
         {
             const string memberName = "field1";
@@ -39,11 +39,11 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var obj = TestUtils.CreateTestClassInstance();
             var wrap = new ZClassMember(obj, memberName);
 
-            Assert.AreEqual(memberName, wrap.MemberName, "The member name returned by the MemberName must match the member name the ZClassMember was created with");
-            Assert.AreEqual(typeof(long), wrap.MemberType, "ZClassMember.MemberType must always return typeof(object)");
+            Assert.Equal(memberName, wrap.MemberName);
+            Assert.Equal(typeof(long), wrap.MemberType);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMemberGet()
         {
             const string memberName = "field1";
@@ -51,10 +51,10 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
             var obj = TestUtils.CreateTestClassInstance();
             var wrap = new ZClassMember(obj, memberName);
 
-            Assert.AreEqual(obj.LocalMemory.GetVariable(memberName), wrap.GetValue(), "The value returned by the ZClassMember must match the underlying field in the ZClassInstance");
+            Assert.Equal(obj.LocalMemory.GetVariable(memberName), wrap.GetValue());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMemberSet()
         {
             const string memberName = "field1";
@@ -64,7 +64,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Members
 
             wrap.SetValue(10);
 
-            Assert.AreEqual(obj.LocalMemory.GetVariable(memberName), wrap.GetValue(), "The SetValue() method did not se the value correctly");
+            Assert.Equal(obj.LocalMemory.GetVariable(memberName), wrap.GetValue());
         }
     }
 }

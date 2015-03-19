@@ -18,10 +18,13 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScript.Runtime.Execution.Wrappers.Subscripters;
 
 namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
@@ -29,50 +32,49 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
     /// <summary>
     /// Tests the functionality of the ListSubscripter class
     /// </summary>
-    [TestClass]
     public class ListSubscripterTests
     {
         /// <summary>
         /// Tests the creation and valid usage of a ListSubscripter object
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSubscription()
         {
             var array = new ArrayList { 0, 0, 2, 0 };
             var subscripter = new ListSubscripterWrapper(array);
 
-            Assert.AreEqual(subscripter.List, array, "The list returned by ListSubscripter.List must be the same object passed on its constructor");
+            Assert.Equal(subscripter.List, array);
 
             subscripter[1] = 1;
             subscripter[3L] = 3;
 
-            Assert.AreEqual(0, subscripter[0], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(1, subscripter[1L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(2, subscripter[2], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(3, subscripter[3L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
+            Assert.Equal(0, subscripter[0]);
+            Assert.Equal(1, subscripter[1L]);
+            Assert.Equal(2, subscripter[2]);
+            Assert.Equal(3, subscripter[3L]);
         }
 
         /// <summary>
         /// Tests the functionality for the type checking of the subscripted array
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSubscriptionTypeChecking()
         {
             var array = new ArrayList();
             var subscripter = new ListSubscripterWrapper(array);
 
-            Assert.IsTrue(subscripter.CanSubscriptWithIndexType(typeof(int)),
+            Assert.True(subscripter.CanSubscriptWithIndexType(typeof(int)),
                 "The ListSubscripter must return true when calling CanSubscriptWithIndexType with Int32 types");
-            Assert.IsTrue(subscripter.CanSubscriptWithIndexType(typeof(long)),
+            Assert.True(subscripter.CanSubscriptWithIndexType(typeof(long)),
                 "The ListSubscripter must return true when calling CanSubscriptWithIndexType with Int64 types");
-            Assert.IsFalse(subscripter.CanSubscriptWithIndexType(typeof(string)),
+            Assert.False(subscripter.CanSubscriptWithIndexType(typeof(string)),
                 "The ListSubscripter must return false when calling CanSubscriptWithIndexType with any type other than Int32 and Int64");
         }
 
         /// <summary>
         /// Tests the usage of the ListSubscripter with a generic list of items
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGenericSubscription()
         {
             var array = new List<int> { 0, 0, 2, 0 };
@@ -81,38 +83,35 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
             subscripter[1] = 1;
             subscripter[3L] = 3;
 
-            Assert.AreEqual(0, subscripter[0], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(1, subscripter[1L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(2, subscripter[2], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
-            Assert.AreEqual(3, subscripter[3L], "The list subscripter must return the correct values from the underlying list when utilizing its subscripter");
+            Assert.Equal(0, subscripter[0]);
+            Assert.Equal(1, subscripter[1L]);
+            Assert.Equal(2, subscripter[2]);
+            Assert.Equal(3, subscripter[3L]);
         }
 
         /// <summary>
         /// Tests the incorrect usage of a ListSubscripter object by providing an invalid index type when getting a value
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "The list subscripter must raise an exception when trying to use indexes that are not valie Int32 and Int64 values")]
+        [Fact]
         public void TestInvalidSubscritionGet()
         {
             var array = new ArrayList { 0, 1, 2, 3 };
             var subscripter = new ListSubscripterWrapper(array);
 
             // ReSharper disable once UnusedVariable
-            var crash = subscripter["invalidIndex"];
+            Assert.Throws<ArgumentException>(() => subscripter["invalidIndex"]);
         }
 
         /// <summary>
         /// Tests the incorrect usage of a ListSubscripter object by providing an invalid index type when setting a value
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "The list subscripter must raise an exception when trying to use indexes that are not valie Int32 and Int64 values")]
+        [Fact]
         public void TestInvalidSubscrition()
         {
             var array = new ArrayList { 0, 1, 2, 3 };
             var subscripter = new ListSubscripterWrapper(array);
 
-            // ReSharper disable once UnusedVariable
-            subscripter["invalidIndex"] = 10;
+            Assert.Throws<ArgumentException>(() => subscripter["invalidIndex"] = 10);
         }
     }
 }

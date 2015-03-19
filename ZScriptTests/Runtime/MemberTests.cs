@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScript.Elements;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -27,13 +30,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the parsing and execution of member accesses
     /// </summary>
-    [TestClass]
     public class MemberTests
     {
         /// <summary>
         /// Tests basic member accessing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicMemberAccess()
         {
             const string input = "var a = 0; var b = 10; func funca(){ a = [0].Count; b = \"abc\".Length; }";
@@ -49,14 +51,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
             
             // Assert the correct call was made
-            Assert.AreEqual(1L, memory.GetVariable("a"), "The member fetch did not occur as expected");
-            Assert.AreEqual(3L, memory.GetVariable("b"), "The member fetch did not occur as expected");
+            Assert.Equal(1L, memory.GetVariable("a"));
+            Assert.Equal(3L, memory.GetVariable("b"));
         }
 
         /// <summary>
         /// Tests compound assignments performed with member accesses
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMemberCompoundAssignment()
         {
             const string input = "var a; func funca(){ a = { x:10 }; a.x += 10; }";
@@ -72,7 +74,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(20L, ((ZObject)memory.GetVariable("a"))["x"], "The member fetch did not occur as expected");
+            Assert.Equal(20L, ((ZObject)memory.GetVariable("a"))["x"]);
         }
     }
 }

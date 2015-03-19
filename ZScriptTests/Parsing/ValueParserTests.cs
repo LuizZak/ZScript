@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScript.Parsing;
 
 namespace ZScriptTests.Parsing
@@ -27,195 +30,181 @@ namespace ZScriptTests.Parsing
     /// <summary>
     /// Tests the functionality of the ValueParser class and related components
     /// </summary>
-    [TestClass]
     public class ValueParserTests
     {
         /// <summary>
         /// Tests the result of the TryParseValueBoxed method
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTryParseValueBoxed()
         {
             object value;
 
             // null
-            Assert.IsTrue(ValueParser.TryParseValueBoxed("null", out value));
-            Assert.AreEqual(null, value);
+            Assert.True(ValueParser.TryParseValueBoxed("null", out value));
+            Assert.Equal(null, value);
 
             // false
-            Assert.IsTrue(ValueParser.TryParseValueBoxed("false", out value));
-            Assert.AreEqual(false, value);
+            Assert.True(ValueParser.TryParseValueBoxed("false", out value));
+            Assert.Equal(false, value);
 
             // true
-            Assert.IsTrue(ValueParser.TryParseValueBoxed("true", out value));
-            Assert.AreEqual(true, value);
+            Assert.True(ValueParser.TryParseValueBoxed("true", out value));
+            Assert.Equal(true, value);
 
             // Infinity
-            Assert.IsTrue(ValueParser.TryParseValueBoxed("Infinity", out value));
-            Assert.IsTrue(double.IsPositiveInfinity((double)value));
+            Assert.True(ValueParser.TryParseValueBoxed("Infinity", out value));
+            Assert.True(double.IsPositiveInfinity((double)value));
 
             // NegativeInfinity
-            Assert.IsTrue(ValueParser.TryParseValueBoxed("NInfinity", out value));
-            Assert.IsTrue(double.IsNegativeInfinity((double)value));
+            Assert.True(ValueParser.TryParseValueBoxed("NInfinity", out value));
+            Assert.True(double.IsNegativeInfinity((double)value));
 
             // NaN
-            Assert.IsTrue(ValueParser.TryParseValueBoxed("NaN", out value));
-            Assert.IsTrue(double.IsNaN((double)value));
+            Assert.True(ValueParser.TryParseValueBoxed("NaN", out value));
+            Assert.True(double.IsNaN((double)value));
         }
 
         /// <summary>
         /// Tests the results of the ParseBinary method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestParseBinary()
         {
-            Assert.AreEqual(0, ValueParser.ParseBinary("0b00"), "Expected 0b00 = 0");
-            Assert.AreEqual(1, ValueParser.ParseBinary("0b01"), "Expected 0b01 = 1");
-            Assert.AreEqual(256, ValueParser.ParseBinary("0b100000000"), "Expected 0b100000000 = 256");
-            Assert.AreEqual(21515329, ValueParser.ParseBinary("0b1010010000100110001000001"), "Expected 0b1010010000100110001000001 = 21515329");
-            Assert.AreEqual(-2147483648, ValueParser.ParseBinary("0b10000000000000000000000000000000"), "Expected 0b10000000000000000000000000000000 = -2147483648");
+            Assert.Equal(0, ValueParser.ParseBinary("0b00"));
+            Assert.Equal(1, ValueParser.ParseBinary("0b01"));
+            Assert.Equal(256, ValueParser.ParseBinary("0b100000000"));
+            Assert.Equal(21515329, ValueParser.ParseBinary("0b1010010000100110001000001"));
+            Assert.Equal(-2147483648, ValueParser.ParseBinary("0b10000000000000000000000000000000"));
 
-            Assert.AreEqual(1L, ValueParser.ParseBinaryLong("0b1"), "Expected 0b1 = 1L");
-            Assert.AreEqual(4611686018427387903L, ValueParser.ParseBinaryLong("0b0011111111111111111111111111111111111111111111111111111111111111"), "Expected 0b0011111111111111111111111111111111111111111111111111111111111111 = 4611686018427387903L");
-            Assert.AreEqual(9223372036854775807L, ValueParser.ParseBinaryLong("0b0111111111111111111111111111111111111111111111111111111111111111"), "Expected 0b0111111111111111111111111111111111111111111111111111111111111111 = 9223372036854775807L");
-            Assert.AreEqual(-1L, ValueParser.ParseBinaryLong("0b1111111111111111111111111111111111111111111111111111111111111111"), "Expected 0b1111111111111111111111111111111111111111111111111111111111111111 = -1L");
+            Assert.Equal(1L, ValueParser.ParseBinaryLong("0b1"));
+            Assert.Equal(4611686018427387903L, ValueParser.ParseBinaryLong("0b0011111111111111111111111111111111111111111111111111111111111111"));
+            Assert.Equal(9223372036854775807L, ValueParser.ParseBinaryLong("0b0111111111111111111111111111111111111111111111111111111111111111"));
+            Assert.Equal(-1L, ValueParser.ParseBinaryLong("0b1111111111111111111111111111111111111111111111111111111111111111"));
 
-            ValueParser.ParseBinary("BAD");
+            Assert.Throws<FormatException>(() => ValueParser.ParseBinary("BAD"));
         }
 
         /// <summary>
         /// Tests the results of the ParseBinary method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestFailedParseBinary()
         {
-            ValueParser.ParseBinary("0bBAD");
+            Assert.Throws<FormatException>(() => ValueParser.ParseBinary("BAD"));
         }
 
         /// <summary>
         /// Tests the results of the ParseBinaryUint method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestParseBinaryUint()
         {
-            Assert.AreEqual((uint)0, ValueParser.ParseBinaryUint("0b00"), "Expected 0b00 = 0");
-            Assert.AreEqual((uint)1, ValueParser.ParseBinaryUint("0b01"), "Expected 0b01 = 1");
-            Assert.AreEqual((uint)256, ValueParser.ParseBinaryUint("0b100000000"), "Expected 0b100000000 = 256");
-            Assert.AreEqual((uint)21515329, ValueParser.ParseBinaryUint("0b1010010000100110001000001"), "Expected 0b1010010000100110001000001 = 21515329");
-            Assert.AreEqual(2147483648, ValueParser.ParseBinaryUint("0b10000000000000000000000000000000"), "Expected 0b10000000000000000000000000000000 = 2147483648");
+            Assert.Equal((uint)0, ValueParser.ParseBinaryUint("0b00"));
+            Assert.Equal((uint)1, ValueParser.ParseBinaryUint("0b01"));
+            Assert.Equal((uint)256, ValueParser.ParseBinaryUint("0b100000000"));
+            Assert.Equal((uint)21515329, ValueParser.ParseBinaryUint("0b1010010000100110001000001"));
+            Assert.Equal(2147483648, ValueParser.ParseBinaryUint("0b10000000000000000000000000000000"));
 
-            ValueParser.ParseBinaryUint("BAD");
+            Assert.Throws<FormatException>(() => ValueParser.ParseBinaryUint("BAD"));
         }
 
         /// <summary>
         /// Tests the results of the ParseBinaryUint method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestFailedParseBinaryUint()
         {
-            ValueParser.ParseBinaryUint("0bBAD");
+            Assert.Throws<FormatException>(() => ValueParser.ParseBinaryUint("0bBAD"));
         }
 
         /// <summary>
         /// Tests the results of the ParseBinaryLong method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestFailedParseBinaryLong()
         {
-            ValueParser.ParseBinaryLong("0bBAD");
+            Assert.Throws<FormatException>(() => ValueParser.ParseBinaryLong("0bBAD"));
         }
 
         /// <summary>
         /// Tests the results of the ParseHex method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestParseHexadecimal()
         {
-            Assert.AreEqual(0, ValueParser.ParseHex("0x00"), "Expected 0x00 = 0");
-            Assert.AreEqual(1, ValueParser.ParseHex("0x01"), "Expected 0x01 = 1");
-            Assert.AreEqual(256, ValueParser.ParseHex("0x100"), "Expected 0x100 = 256");
-            Assert.AreEqual(195948557, ValueParser.ParseHex("0xBADF00D"), "Expected 0xBADF00D = 195948557");
-
-            ValueParser.ParseHex("XBAD");
+            Assert.Equal(0, ValueParser.ParseHex("0x00"));
+            Assert.Equal(1, ValueParser.ParseHex("0x01"));
+            Assert.Equal(256, ValueParser.ParseHex("0x100"));
+            Assert.Equal(195948557, ValueParser.ParseHex("0xBADF00D"));
         }
 
         /// <summary>
         /// Tests the results of the ParseHex method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad hexadecimal numbers should raise a format exception")]
+        [Fact]
         public void TestFailedParseHexadecimal()
         {
-            ValueParser.ParseHex("0xBADHEX");
+            Assert.Throws<FormatException>(() => ValueParser.ParseHex("0xBADHEX"));
         }
 
         /// <summary>
         /// Tests the results of the ParseHex method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad binary numbers should raise a format exception")]
+        [Fact]
         public void TestParseHexadecimalUint()
         {
-            Assert.AreEqual((uint)0, ValueParser.ParseHexUint("0x00"), "Expected 0x00 = 0");
-            Assert.AreEqual((uint)1, ValueParser.ParseHexUint("0x01"), "Expected 0x01 = 1");
-            Assert.AreEqual((uint)256, ValueParser.ParseHexUint("0x100"), "Expected 0x100 = 256");
-            Assert.AreEqual((uint)195948557, ValueParser.ParseHexUint("0xBADF00D"), "Expected 0xBADF00D = 195948557");
-            Assert.AreEqual(4059231220, ValueParser.ParseHexUint("0xF1F2F3F4"), "Expected 0xF1F2F3F4 = 4059231220");
-
-            ValueParser.ParseHex("XBAD");
+            Assert.Equal((uint)0, ValueParser.ParseHexUint("0x00"));
+            Assert.Equal((uint)1, ValueParser.ParseHexUint("0x01"));
+            Assert.Equal((uint)256, ValueParser.ParseHexUint("0x100"));
+            Assert.Equal((uint)195948557, ValueParser.ParseHexUint("0xBADF00D"));
+            Assert.Equal(4059231220, ValueParser.ParseHexUint("0xF1F2F3F4"));
         }
 
         /// <summary>
         /// Tests the results of the ParseHex method
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Bad hexadecimal numbers should raise a format exception")]
+        [Fact]
         public void TestFailedParseHexadecimalUint()
         {
-            ValueParser.ParseHex("0xBADHEX");
+            Assert.Throws<FormatException>(() => ValueParser.ParseHexUint("0xBADHEX"));
         }
 
         /// <summary>
         /// Tests boxing of numbers with the ParseNumberBoxed method
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestParseNumberBoxed()
         {
-            Assert.AreEqual(1L, ValueParser.ParseNumberBoxed("1"), "Wrong unboxed number");
-            Assert.AreEqual(1L, ValueParser.ParseNumberBoxed("0b1"), "Wrong unboxed number");
-            Assert.AreEqual(1L, ValueParser.ParseNumberBoxed("0x1"), "Wrong unboxed number");
-            Assert.AreEqual(1.0, ValueParser.ParseNumberBoxed("1.0"), "Wrong unboxed number");
+            Assert.Equal(1L, ValueParser.ParseNumberBoxed("1"));
+            Assert.Equal(1L, ValueParser.ParseNumberBoxed("0b1"));
+            Assert.Equal(1L, ValueParser.ParseNumberBoxed("0x1"));
+            Assert.Equal(1.0, ValueParser.ParseNumberBoxed("1.0"));
 
-            Assert.AreEqual(-1L, ValueParser.ParseNumberBoxed("-1"), "Wrong unboxed number");
-            Assert.AreEqual(-1L, ValueParser.ParseNumberBoxed("-0b1"), "Wrong unboxed number");
-            Assert.AreEqual(-1L, ValueParser.ParseNumberBoxed("-0x1"), "Wrong unboxed number");
-            Assert.AreEqual(-1.0, ValueParser.ParseNumberBoxed("-1.0"), "Wrong unboxed number");
+            Assert.Equal(-1L, ValueParser.ParseNumberBoxed("-1"));
+            Assert.Equal(-1L, ValueParser.ParseNumberBoxed("-0b1"));
+            Assert.Equal(-1L, ValueParser.ParseNumberBoxed("-0x1"));
+            Assert.Equal(-1.0, ValueParser.ParseNumberBoxed("-1.0"));
 
             // Test value Wrapping
 
             // Uint wrapping
-            Assert.AreEqual(4059231220L, ValueParser.ParseNumberBoxed("4059231220"), "Wrong unboxed number");
+            Assert.Equal(4059231220L, ValueParser.ParseNumberBoxed("4059231220"));
             // Long wrapping
-            Assert.AreEqual(40592312200, ValueParser.ParseNumberBoxed("40592312200"), "Wrong unboxed number");
+            Assert.Equal(40592312200, ValueParser.ParseNumberBoxed("40592312200"));
             // Negative Long wrapping
-            Assert.AreEqual(-40592312200, ValueParser.ParseNumberBoxed("-40592312200"), "Wrong unboxed number");
+            Assert.Equal(-40592312200, ValueParser.ParseNumberBoxed("-40592312200"));
             // ULong wrapping
-            Assert.AreEqual((double)11922972036854775807, ValueParser.ParseNumberBoxed("11922972036854775807"), "Wrong unboxed number");
+            Assert.Equal((double)11922972036854775807, ValueParser.ParseNumberBoxed("11922972036854775807"));
             // Double wrapping
-            Assert.AreEqual(1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("1192297203685477580711922972036854775807.0"), "Wrong unboxed number");
+            Assert.Equal(1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("1192297203685477580711922972036854775807.0"));
             // Negative double wrapping
-            Assert.AreEqual(-1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("-1192297203685477580711922972036854775807.0"), "Wrong unboxed number");
+            Assert.Equal(-1192297203685477580711922972036854775807.0, ValueParser.ParseNumberBoxed("-1192297203685477580711922972036854775807.0"));
 
 
             // Invalid values testing
-            Assert.AreEqual(null, ValueParser.ParseNumberBoxed("-1..0"), "Expected to return null when invalid number is provided");
-            Assert.AreEqual(null, ValueParser.ParseNumberBoxed("1a0"), "Expected to return null when invalid number is provided");
+            Assert.Equal(null, ValueParser.ParseNumberBoxed("-1..0"));
+            Assert.Equal(null, ValueParser.ParseNumberBoxed("1a0"));
         }
     }
 }

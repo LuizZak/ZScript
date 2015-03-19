@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
@@ -33,7 +33,6 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests Array creation/access functionality on the VM
     /// </summary>
-    [TestClass]
     public class FunctionVmArrayTests
     {
         #region Array Creation
@@ -41,7 +40,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests a simple array created with 5 values
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArrayCreation()
         {
             // Create the set of tokens
@@ -64,21 +63,21 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(List<object>));
+            Assert.True(functionVm.Stack.Peek() is List<object>);
 
             var array = (List<object>)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10,    array[0], "The array was not created successfully");
-            Assert.AreEqual("abc", array[1], "The array was not created successfully");
-            Assert.AreEqual(10.0,  array[2], "The array was not created successfully");
-            Assert.AreEqual("def", array[3], "The array was not created successfully");
-            Assert.AreEqual(true,  array[4], "The array was not created successfully");
+            Assert.Equal(10,    array[0]);
+            Assert.Equal("abc", array[1]);
+            Assert.Equal(10.0,  array[2]);
+            Assert.Equal("def", array[3]);
+            Assert.Equal(true,  array[4]);
         }
 
         /// <summary>
         /// Tests a nested array created with 2 values, one being an array containing 4 values
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNestedArrayCreation()
         {
             // Create the set of tokens
@@ -103,19 +102,19 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(List<object>));
+            Assert.True(functionVm.Stack.Peek() is List<object>);
 
             var array = (List<object>)functionVm.Stack.Pop();
 
-            Assert.IsInstanceOfType(array[0], typeof(List<int>));
-            Assert.AreEqual(true, array[1], "The array was not created successfully");
+            Assert.True(array[0] is List<int>);
+            Assert.Equal(true, array[1]);
 
             var innerArray = (List<int>)array[0];
 
-            Assert.AreEqual(1, innerArray[0], "The array was not created successfully");
-            Assert.AreEqual(2, innerArray[1], "The array was not created successfully");
-            Assert.AreEqual(3, innerArray[2], "The array was not created successfully");
-            Assert.AreEqual(4, innerArray[3], "The array was not created successfully");
+            Assert.Equal(1, innerArray[0]);
+            Assert.Equal(2, innerArray[1]);
+            Assert.Equal(3, innerArray[2]);
+            Assert.Equal(4, innerArray[3]);
         }
 
         #endregion

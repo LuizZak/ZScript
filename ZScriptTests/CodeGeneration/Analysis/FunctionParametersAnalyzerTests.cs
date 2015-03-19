@@ -19,9 +19,7 @@
 */
 #endregion
 using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Xunit;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
@@ -32,13 +30,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the functionality of the FunctionParametersAnalyzer class
     /// </summary>
-    [TestClass]
     public class FunctionParametersAnalyzerTests
     {
         /// <summary>
         /// Tests a valid function definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestValidFunction()
         {
             // Create a test function definition to use
@@ -56,13 +53,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.AnalyzeFunction(function);
 
-            Assert.AreEqual(0, container.CodeErrors.Length);
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests a valid function definition with no parameters
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestValidParameterlessFunction()
         {
             // Create a test function definition to use
@@ -78,13 +75,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.AnalyzeFunction(function);
 
-            Assert.AreEqual(0, container.CodeErrors.Length);
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests an invalid function definition that contains an optional paramter that comes before a required one
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestOptionalBeforeRequired()
         {
             // Create a test function definition to use
@@ -101,13 +98,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.AnalyzeFunction(function);
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidParameters));
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidParameters));
         }
 
         /// <summary>
         /// Tests an invalid function definition that contains a variadic paramter that is not the last parameter
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestVariadicBeforeLastParameter()
         {
             // Create a test function definition to use
@@ -124,7 +121,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             analyzer.AnalyzeFunction(function);
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidParameters));
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidParameters));
         }
     }
 }

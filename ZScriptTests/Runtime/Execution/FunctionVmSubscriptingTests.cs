@@ -18,10 +18,12 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Collections;
 using System.Collections.Generic;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -33,7 +35,6 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests subscripting support on the FunctionVm
     /// </summary>
-    [TestClass]
     public class FunctionVmSubscriptingTests
     {
         #region Array Subscripting
@@ -41,7 +42,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests fetching an ArrayList's subscript using VM instructions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArraySubscriptGet()
         {
             // Create the set of tokens
@@ -66,13 +67,13 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(IndexedSubscripter));
+            Assert.True(functionVm.Stack.Peek() is IndexedSubscripter);
         }
 
         /// <summary>
         /// Tests setting an ArrayList's value in the VM using subscripting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArraySubscriptSet()
         {
             // Create the set of tokens
@@ -102,8 +103,8 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(context.Memory.GetVariable("a"), typeof(IList), "The value set on memory for the array created is no an IList as expected");
-            Assert.AreEqual(1, ((List<object>)context.Memory.GetVariable("a"))[1], "The subscription set operation failed to set the correct value on the underlying array");
+            Assert.True(context.Memory.GetVariable("a") is IList);
+            Assert.Equal(1, ((List<object>)context.Memory.GetVariable("a"))[1]);
         }
 
         #endregion
@@ -111,7 +112,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests fetching a Dictionary's subscript using VM instructions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionarySubscriptGet()
         {
             var dict = new Dictionary<string, object>();
@@ -132,13 +133,13 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(IndexedSubscripter));
+            Assert.True(functionVm.Stack.Peek() is IndexedSubscripter);
         }
 
         /// <summary>
         /// Tests setting a Dictionary's value in the VM using subscripting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionarySubscriptSet()
         {
             var dict = new Dictionary<string, object>();
@@ -161,7 +162,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(10, dict["0"], "The subscripting did not work as expected");
+            Assert.Equal(10, dict["0"]);
         }
     }
 }

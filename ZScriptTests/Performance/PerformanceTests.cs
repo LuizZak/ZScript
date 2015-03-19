@@ -18,10 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Diagnostics;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScriptTests.Utils;
 
@@ -30,10 +31,9 @@ namespace ZScriptTests.Performance
     /// <summary>
     /// Performs performance tests on the scripting engine
     /// </summary>
-    [TestClass]
     public class PerformanceTests
     {
-        [TestMethod]
+        [Fact]
         public void TestForLoopPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.
@@ -62,7 +62,7 @@ namespace ZScriptTests.Performance
             //Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAssignPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.
@@ -91,7 +91,7 @@ namespace ZScriptTests.Performance
             //Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold  + "ms.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSubscriptPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.
@@ -120,7 +120,7 @@ namespace ZScriptTests.Performance
             //Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFunctionCallPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.
@@ -149,7 +149,7 @@ namespace ZScriptTests.Performance
             //Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestObjectFunctionCallPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.

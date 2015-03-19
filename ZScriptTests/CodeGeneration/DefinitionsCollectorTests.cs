@@ -18,13 +18,15 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Linq;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration
@@ -32,7 +34,6 @@ namespace ZScriptTests.CodeGeneration
     /// <summary>
     /// Tests the functionality of the DefinitionsCollector class and related components
     /// </summary>
-    [TestClass]
     public class DefinitionsCollectorTests
     {
         #region Class collection
@@ -40,7 +41,7 @@ namespace ZScriptTests.CodeGeneration
         /// <summary>
         /// Tests collection of a class definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectClass()
         {
             const string input = "class Test1 { }";
@@ -56,15 +57,15 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.IsNotNull(parsedClass);
-            Assert.IsNotNull(parsedClass.ClassContext);
+            Assert.False(container.HasErrors);
+            Assert.NotNull(parsedClass);
+            Assert.NotNull(parsedClass.ClassContext);
         }
 
         /// <summary>
         /// Tests collection of methods on a class definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectClassMethod()
         {
             const string input = "class Test1 { func f1() { } }";
@@ -80,14 +81,14 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(1, parsedClass.Methods.Count(f => f.Name == "f1"));
+            Assert.False(container.HasErrors);
+            Assert.Equal(1, parsedClass.Methods.Count(f => f.Name == "f1"));
         }
 
         /// <summary>
         /// Tests collection of fields on a class definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectClassField()
         {
             const string input = "class Test1 { var field1:int = 0; }";
@@ -103,14 +104,14 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(1, parsedClass.Fields.Count(f => f.Name == "field1"));
+            Assert.False(container.HasErrors);
+            Assert.Equal(1, parsedClass.Fields.Count(f => f.Name == "field1"));
         }
 
         /// <summary>
         /// Tests creation of a default class constructor, when none is provided
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDefaultClassConstructor()
         {
             const string input = "class Test1 { }";
@@ -126,14 +127,14 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.IsNotNull(parsedClass.PublicConstructor);
+            Assert.False(container.HasErrors);
+            Assert.NotNull(parsedClass.PublicConstructor);
         }
 
         /// <summary>
         /// Tests creation of a custom class constructor
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCustomConstructor()
         {
             const string input = "class Test1 { func Test1(i:int) { } }";
@@ -149,14 +150,14 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedClass = scope.GetDefinitionByName<ClassDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(1, parsedClass.PublicConstructor.Parameters.Length, "Failed to read custom constructor");
+            Assert.False(container.HasErrors);
+            Assert.Equal(1, parsedClass.PublicConstructor.Parameters.Length);
         }
 
         /// <summary>
         /// Tests creation of a custom class constructor
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDuplicatedConstructorError()
         {
             const string input = "class Test1 { func Test1(i:int) { } func Test1(f:float) { } }";
@@ -167,7 +168,7 @@ namespace ZScriptTests.CodeGeneration
 
             collector.Collect(parser.program());
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         #endregion
@@ -177,7 +178,7 @@ namespace ZScriptTests.CodeGeneration
         /// <summary>
         /// Tests collection of a sequence definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectSequence()
         {
             const string input = "sequence Test1 [ ]";
@@ -193,15 +194,15 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedClass = scope.GetDefinitionByName<SequenceDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.IsNotNull(parsedClass);
-            Assert.IsNotNull(parsedClass.SequenceContext);
+            Assert.False(container.HasErrors);
+            Assert.NotNull(parsedClass);
+            Assert.NotNull(parsedClass.SequenceContext);
         }
 
         /// <summary>
         /// Tests collection of fields on a sequence definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectSequenceField()
         {
             const string input = "sequence Test1 [ var field1:int = 0; ]";
@@ -217,14 +218,14 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var sequence = scope.GetDefinitionByName<SequenceDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(1, sequence.Fields.Count(f => f.Name == "field1"));
+            Assert.False(container.HasErrors);
+            Assert.Equal(1, sequence.Fields.Count(f => f.Name == "field1"));
         }
 
         /// <summary>
         /// Tests collection of sequence frames
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectSequenceFrame()
         {
             const string input = "sequence Test1 [ 1 { } 2-3 { } ]";
@@ -240,20 +241,20 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var sequence = scope.GetDefinitionByName<SequenceDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(2, sequence.FrameDefinitions.Length);
+            Assert.False(container.HasErrors);
+            Assert.Equal(2, sequence.FrameDefinitions.Length);
 
             var frame1 = sequence.FrameDefinitions[0];
             var frame2 = sequence.FrameDefinitions[1];
 
-            Assert.AreEqual(new SequenceFrameRange(false, 1),    frame1.FrameRanges[0], "The frame ranges where not read successfully");
-            Assert.AreEqual(new SequenceFrameRange(false, 2, 3), frame2.FrameRanges[0], "The frame ranges where not read successfully");
+            Assert.Equal(new SequenceFrameRange(false, 1),    frame1.FrameRanges[0]);
+            Assert.Equal(new SequenceFrameRange(false, 2, 3), frame2.FrameRanges[0]);
         }
 
         /// <summary>
         /// Tests collection of labeled sequence frames
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectLabeledSequenceFrame()
         {
             const string input = "sequence Test1 [ start: 0 { } ]";
@@ -269,15 +270,15 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var sequence = scope.GetDefinitionByName<SequenceDefinition>("Test1");
 
-            Assert.IsFalse(container.HasErrors);
+            Assert.False(container.HasErrors);
 
-            Assert.AreEqual("start", sequence.FrameDefinitions[0].Name, "The frame label was not read successfully");
+            Assert.Equal("start", sequence.FrameDefinitions[0].Name);
         }
 
         /// <summary>
         /// Tests error raising when defining duplicated frame labels
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDuplicatedFrameLabelError()
         {
             const string input = "sequence Test1 [ start: 0 { } start: 1 { } ]";
@@ -288,7 +289,7 @@ namespace ZScriptTests.CodeGeneration
 
             collector.Collect(parser.program());
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         #endregion
@@ -298,7 +299,7 @@ namespace ZScriptTests.CodeGeneration
         /// <summary>
         /// Tests collection of a top-level function definition
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCollectTopLevelFunction()
         {
             const string input = "func f1() { }";
@@ -314,15 +315,15 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var parsedFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("f1");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.IsNotNull(parsedFunction);
-            Assert.IsNotNull(parsedFunction.BodyContext);
+            Assert.False(container.HasErrors);
+            Assert.NotNull(parsedFunction);
+            Assert.NotNull(parsedFunction.BodyContext);
         }
 
         /// <summary>
         /// Tests distinction of top-level functions from other types of functions (exports and closures)
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTopLevelFunctionDistinction()
         {
             const string input = "@f1 func f2() { var a = () => { }; }";
@@ -340,10 +341,10 @@ namespace ZScriptTests.CodeGeneration
             var normalFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("f2");
             var closureFunction = scope.GetDefinitionByName<TopLevelFunctionDefinition>("$__closure0");
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.IsNull(exportFunction);
-            Assert.IsNotNull(normalFunction);
-            Assert.IsNull(closureFunction);
+            Assert.False(container.HasErrors);
+            Assert.Null(exportFunction);
+            Assert.NotNull(normalFunction);
+            Assert.Null(closureFunction);
         }
 
         #endregion
@@ -353,7 +354,7 @@ namespace ZScriptTests.CodeGeneration
         /// <summary>
         /// Tests collection of local variables
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestLocalVariableCollection()
         {
             const string input = "var a; func f1() { var b; } class Class { var c; }";
@@ -369,9 +370,9 @@ namespace ZScriptTests.CodeGeneration
             // Search for the class that was parsed
             var locals = scope.GetDefinitionsByTypeRecursive<LocalVariableDefinition>().ToList();
 
-            Assert.IsFalse(container.HasErrors);
-            Assert.AreEqual(1, locals.Count);
-            Assert.AreEqual("b", locals[0].Name);
+            Assert.False(container.HasErrors);
+            Assert.Equal(1, locals.Count);
+            Assert.Equal("b", locals[0].Name);
         }
 
         #endregion

@@ -22,15 +22,14 @@
 using System;
 using System.Collections.Generic;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using Rhino.Mocks;
+
+using Xunit;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
-
 using ZScript.Elements;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
@@ -42,7 +41,6 @@ namespace ZScriptTests.Runtime.Typing
     /// <summary>
     /// Tests the TypeProvider class and related components
     /// </summary>
-    [TestClass]
     public class TypeProviderTests
     {
         #region Custom type support
@@ -50,7 +48,7 @@ namespace ZScriptTests.Runtime.Typing
         /// <summary>
         /// Tests storaging and fetching of custom types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCustomType()
         {
             var typeProvider = new TypeProvider();
@@ -65,114 +63,114 @@ namespace ZScriptTests.Runtime.Typing
 
             var type = typeProvider.TypeNamed("CustomType");
 
-            Assert.AreEqual(expectedType, type);
+            Assert.Equal(expectedType, type);
         }
 
         #endregion
 
         #region NativeTypeForTypeDf
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeInteger()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.IntegerType());
 
-            Assert.AreEqual(typeof(long), native);
+            Assert.Equal(typeof(long), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeBoolean()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.BooleanType());
 
-            Assert.AreEqual(typeof(bool), native);
+            Assert.Equal(typeof(bool), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeString()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.StringType());
 
-            Assert.AreEqual(typeof(string), native);
+            Assert.Equal(typeof(string), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeFloat()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.FloatType());
 
-            Assert.AreEqual(typeof(double), native);
+            Assert.Equal(typeof(double), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeVoid()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.VoidType());
 
-            Assert.AreEqual(typeof(void), native);
+            Assert.Equal(typeof(void), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeNull()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.NullType());
 
-            Assert.AreEqual(typeof(object), native);
+            Assert.Equal(typeof(object), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeList()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.ListForType(provider.IntegerType()));
 
-            Assert.AreEqual(typeof(List<long>), native);
+            Assert.Equal(typeof(List<long>), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeAnyList()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.ListForType(provider.AnyType()));
 
-            Assert.AreEqual(typeof(List<object>), native);
+            Assert.Equal(typeof(List<object>), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeDictionary()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.DictionaryForTypes(provider.StringType(), provider.FloatType()));
 
-            Assert.AreEqual(typeof(Dictionary<string, double>), native);
+            Assert.Equal(typeof(Dictionary<string, double>), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeObject()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(provider.ObjectType());
 
-            Assert.AreEqual(typeof(ZObject), native);
+            Assert.Equal(typeof(ZObject), native);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeAny()
         {
             var provider = new TypeProvider();
@@ -180,18 +178,18 @@ namespace ZScriptTests.Runtime.Typing
             var native1 = provider.NativeTypeForTypeDef(provider.AnyType());
             var native2 = provider.NativeTypeForTypeDef(provider.AnyType(), true);
 
-            Assert.AreEqual(null, native1);
-            Assert.AreEqual(typeof(object), native2);
+            Assert.Equal(null, native1);
+            Assert.Equal(typeof(object), native2);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNativeTypeClass()
         {
             var provider = new TypeProvider();
 
             var native = provider.NativeTypeForTypeDef(new ClassTypeDef("class"));
 
-            Assert.AreEqual(native, native);
+            Assert.Equal(native, native);
         }
 
         #endregion
@@ -201,64 +199,57 @@ namespace ZScriptTests.Runtime.Typing
         /// <summary>
         /// Tests the FindCommonType method with the same types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSameTypesFindCommonType()
         {
             var provider = new TypeProvider();
 
-            Assert.AreEqual(provider.IntegerType(),
-                provider.FindCommonType(provider.IntegerType(), provider.IntegerType()),
-                "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
+            Assert.Equal(provider.IntegerType(),
+                provider.FindCommonType(provider.IntegerType(), provider.IntegerType()));
 
-            Assert.AreEqual(provider.ListForType(provider.IntegerType()),
-                provider.FindCommonType(provider.ListForType(provider.IntegerType()), provider.ListForType(provider.IntegerType())),
-                "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
+            Assert.Equal(provider.ListForType(provider.IntegerType()),
+                provider.FindCommonType(provider.ListForType(provider.IntegerType()), provider.ListForType(provider.IntegerType())));
         }
 
         /// <summary>
         /// Tests the FindCommonType method with void and any types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestVoidAnyPropagationFindCommonType()
         {
             var provider = new TypeProvider();
 
-            Assert.AreEqual(provider.VoidType(), provider.FindCommonType(provider.VoidType(), provider.AnyType()), "Void always has preceedence over any in common type finding");
+            Assert.Equal(provider.VoidType(), provider.FindCommonType(provider.VoidType(), provider.AnyType()));
 
-            Assert.AreEqual(provider.AnyType(),
-                provider.FindCommonType(provider.AnyType(), provider.IntegerType()),
-                "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
+            Assert.Equal(provider.AnyType(),
+                provider.FindCommonType(provider.AnyType(), provider.IntegerType()));
             
-            Assert.AreEqual(provider.VoidType(),
-                provider.FindCommonType(provider.VoidType(), provider.IntegerType()),
-                "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
+            Assert.Equal(provider.VoidType(),
+                provider.FindCommonType(provider.VoidType(), provider.IntegerType()));
 
-            Assert.AreEqual(provider.AnyType(),
-                provider.FindCommonType(provider.ListForType(provider.AnyType()), provider.ListForType(provider.IntegerType())),
-                "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
+            Assert.Equal(provider.AnyType(),
+                provider.FindCommonType(provider.ListForType(provider.AnyType()), provider.ListForType(provider.IntegerType())));
 
-            Assert.AreEqual(provider.AnyType(),
-                provider.FindCommonType(provider.ListForType(provider.AnyType()), provider.ListForType(provider.VoidType())),
-                "Providing the exact same type to the FindCommonTypes should result in the same type being returned");
+            Assert.Equal(provider.AnyType(),
+                provider.FindCommonType(provider.ListForType(provider.AnyType()), provider.ListForType(provider.VoidType())));
         }
 
         /// <summary>
         /// Tests the FindCommonType method with convertible primitive types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestPrimitiveConversionFindCommonType()
         {
             var provider = new TypeProvider();
 
-            Assert.AreEqual(provider.FloatType(),
-                provider.FindCommonType(provider.IntegerType(), provider.FloatType()),
-                "Integers should be converted to floats when trying to find a common time between integers and floats mixedly");
+            Assert.Equal(provider.FloatType(),
+                provider.FindCommonType(provider.IntegerType(), provider.FloatType()));
         }
 
         /// <summary>
         /// Tests the FindCommonType method with callable types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSimpleCallableFindCommonType()
         {
             var provider = new TypeProvider();
@@ -269,14 +260,13 @@ namespace ZScriptTests.Runtime.Typing
             var callable1 = new CallableTypeDef(new [] { param1, param2 }, provider.IntegerType(), true);
             var callable2 = new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true);
 
-            Assert.AreEqual(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2),
-                "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
+            Assert.Equal(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2));
         }
         
         /// <summary>
         /// Tests the FindCommonType method with callable types, with one of the values containing a default value with the other not
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallableWithDefaultFindCommonType()
         {
             var provider = new TypeProvider();
@@ -289,14 +279,13 @@ namespace ZScriptTests.Runtime.Typing
             var callable1 = new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType(), true);
             var callable2 = new CallableTypeDef(new[] { param1, defaulParam2 }, provider.VoidType(), true);
 
-            Assert.AreEqual(new CallableTypeDef(new[] { param1, defaulParam2 }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2),
-                "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
+            Assert.Equal(new CallableTypeDef(new[] { param1, defaulParam2 }, provider.VoidType(), true), provider.FindCommonType(callable1, callable2));
         }
 
         /// <summary>
         /// Tests the FindCommonType method with array of callable types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArrayFindCommonType()
         {
             var provider = new TypeProvider();
@@ -307,14 +296,13 @@ namespace ZScriptTests.Runtime.Typing
             var array1 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.IntegerType(), true));
             var array2 = new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true));
 
-            Assert.AreEqual(new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true)), provider.FindCommonType(array1, array2),
-                "Trying to find a common type between two callables of same parameters but with a void type should result in a callable with a void return type");
+            Assert.Equal(new ListTypeDef(new CallableTypeDef(new[] { param1, param2 }, provider.VoidType(), true)), provider.FindCommonType(array1, array2));
         }
 
         /// <summary>
         /// Tests the FindCommonType method with dictionary types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionaryFindCommonType()
         {
             var provider = new TypeProvider();
@@ -324,14 +312,14 @@ namespace ZScriptTests.Runtime.Typing
 
             var expected1 = provider.DictionaryForTypes(provider.StringType(), provider.IntegerType());
 
-            Assert.AreEqual(expected1, provider.FindCommonType(dict1, dict2));
+            Assert.Equal(expected1, provider.FindCommonType(dict1, dict2));
 
             var dict3 = provider.DictionaryForTypes(provider.StringType(), provider.IntegerType());
             var dict4 = provider.DictionaryForTypes(provider.IntegerType(), provider.IntegerType());
 
             var expected2 = provider.AnyType();
 
-            Assert.AreEqual(expected2, provider.FindCommonType(dict3, dict4));
+            Assert.Equal(expected2, provider.FindCommonType(dict3, dict4));
         }
 
         #endregion
@@ -341,7 +329,7 @@ namespace ZScriptTests.Runtime.Typing
         /// <summary>
         /// Tests failed callable type cast checking by providing callables with different required argument count
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedDefaultArgumentClosureTypeImplicitCast()
         {
             // Set up the test
@@ -356,13 +344,13 @@ namespace ZScriptTests.Runtime.Typing
             var callableType = resolver.ResolveCallableType(parser.callableType());
             var closureType = resolver.ResolveClosureExpression(parser.closureExpression());
 
-            Assert.IsFalse(provider.CanImplicitCast(closureType, callableType), "Trying to cast callable types with less required parameters than the original should not be allowed");
+            Assert.False(provider.CanImplicitCast(closureType, callableType), "Trying to cast callable types with less required parameters than the original should not be allowed");
         }
 
         /// <summary>
         /// Tests successfull callable type cast checking by providing callables with same required argument count
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDefaultArgumentClosureTypeImplicitCast()
         {
             // Set up the test
@@ -377,7 +365,7 @@ namespace ZScriptTests.Runtime.Typing
             var callableType = resolver.ResolveCallableType(parser.callableType());
             var closureType = resolver.ResolveClosureExpression(parser.closureExpression());
 
-            Assert.IsTrue(provider.CanImplicitCast(closureType, callableType),
+            Assert.True(provider.CanImplicitCast(closureType, callableType),
                 "Trying to cast callable types with more total parameters, but same required parameters than the original should not be allowed");
         }
 
@@ -385,32 +373,31 @@ namespace ZScriptTests.Runtime.Typing
 
         #region Casting
 
-        [TestMethod]
+        [Fact]
         public void TestPassingPrimitiveCastOperation()
         {
             var typeProvider = new TypeProvider();
 
-            Assert.AreEqual(10, typeProvider.CastObject(10L, typeof(int)), "Type provider failed to cast to expected type");
-            Assert.AreEqual(10.0, typeProvider.CastObject(10L, typeof(double)), "Type provider failed to cast to expected type");
-            Assert.AreEqual(10.0f, typeProvider.CastObject(10L, typeof(float)), "Type provider failed to cast to expected type");
+            Assert.Equal(10, typeProvider.CastObject(10L, typeof(int)));
+            Assert.Equal(10.0, typeProvider.CastObject(10L, typeof(double)));
+            Assert.Equal(10.0f, typeProvider.CastObject(10L, typeof(float)));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPassingReferenceCastOperator()
         {
             var typeProvider = new TypeProvider();
             TestBaseClass testBaseClass = new TestDerivedClass();
 
-            Assert.IsInstanceOfType(typeProvider.CastObject(testBaseClass, typeof(TestDerivedClass)), typeof(TestDerivedClass), "Type provider failed to cast to expected type");
+            Assert.True(typeProvider.CastObject(testBaseClass, typeof(TestDerivedClass)) is TestDerivedClass);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidCastException), "Trying to cast an object from one type to an invalid type must raise an InvalidCastException at runtime")]
+        [Fact]
         public void TestFailingCastOperation()
         {
             var typeProvider = new TypeProvider();
 
-            typeProvider.CastObject("SneakyString", typeof(TestDerivedClass));
+            Assert.Throws<InvalidCastException>(() => typeProvider.CastObject("SneakyString", typeof(TestDerivedClass)));
         }
 
         #endregion

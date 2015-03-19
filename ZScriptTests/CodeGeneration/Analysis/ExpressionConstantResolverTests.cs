@@ -20,8 +20,7 @@
 #endregion
 
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Xunit;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
@@ -35,7 +34,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the ExpressionConstantResolver class and related components
     /// </summary>
-    [TestClass]
     public class ExpressionConstantResolverTests
     {
         #region Implicit casting tests
@@ -43,7 +41,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests a simple constant resolving with an integer that is caster to a float
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCastedIntegerResolving()
         {
             const string input = "10";
@@ -68,15 +66,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(10.0, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(10.0, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests a simple constant resolving with a float that is caster to an integer
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCastedFloatResolving()
         {
             const string input = "10.0";
@@ -101,15 +100,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(10L, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests implicit casting of expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExpressionImplicitCast()
         {
             const string input = "10 + 10";
@@ -134,15 +134,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(20.0, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(20.0, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests implicit casting of contents of an array literal
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCastListLiteral()
         {
             const string input = "[10, 1.1]";
@@ -168,7 +169,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.AreEqual(10.0, expression.arrayLiteral().expressionList().expression(0).ConstantValue, "The expander failed to cast the constants in the list literal");
+            // "The expander failed to cast the constants in the list literal"
+            Assert.Equal(10.0, expression.arrayLiteral().expressionList().expression(0).ConstantValue);
         }
 
         #endregion
@@ -176,7 +178,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests a simple constant resolving with a single constant atom
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantAtomResolving()
         {
             const string input = "10";
@@ -198,15 +200,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(10L, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests ignoring resolving with a single constant atom that contains a value access
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantAtomWithAccessResolving()
         {
             const string input = "10.ToString()";
@@ -228,13 +231,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsFalse(expression.IsConstant, "The expander expanded a constant that was not supposed to be expanded due to value access");
+            Assert.False(expression.IsConstant, "The expander expanded a constant that was not supposed to be expanded due to value access");
         }
 
         /// <summary>
         /// Tests a simple binary expression constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSimpleBinaryExpressionResolving()
         {
             const string input = "10 + 11";
@@ -256,15 +259,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(21L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(21L, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests function call parameter constant propagation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantParameterResolving()
         {
             const string input = "a(10 + 11)";
@@ -288,15 +292,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expressionList.expression(0).IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expressionList.expression(0).IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(21L, expressionList.expression(0).ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expressionList.expression(0).IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expressionList.expression(0).IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(21L, expressionList.expression(0).ConstantValue);
         }
 
         /// <summary>
         /// Tests function call parameter constant propagation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantSubscriptResolving()
         {
             const string input = "a[10 + 11]";
@@ -320,15 +325,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(exp.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(exp.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(21L, exp.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(exp.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(exp.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(21L, exp.ConstantValue);
         }
 
         /// <summary>
         /// Tests binary expression containing constant string concatenations constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStringResolving()
         {
             const string input = "10 + 'abc'";
@@ -350,15 +356,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual("10abc", expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal("10abc", expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests a compounded binary expression constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCompoundBinaryExpression()
         {
             const string input = "10 + 11 * 5 - 1";
@@ -380,15 +387,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(64L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(64L, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests a compounded binary expression containing logical operations constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestLogicalBinaryOperations()
         {
             const string input = "true || false && false";
@@ -410,15 +418,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(true, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(true, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests a compounded binary expression containing comparision operations constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestComparisionBinaryOperations()
         {
             const string input = "10 > 5 + 7";
@@ -440,15 +449,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(false, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(false, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests a compounded binary expression constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUnaryExpression()
         {
             const string input = "-10";
@@ -470,15 +480,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(-10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(-10L, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests constant propagation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantPropagation()
         {
             const string iConst = "10 + 10";
@@ -517,15 +528,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(20L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.True(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.True(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            // "The expander failed to expand the constants correctly"
+            Assert.Equal(20L, expression.ConstantValue);
         }
 
         /// <summary>
         /// Tests exception raising when executing invalid operations during constant resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestExceptionRaising()
         {
             const string input = "10 / 0";
@@ -548,7 +560,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidConstantOperation), "Failed to raise expected errors");
+            // "Failed to raise expected errors"
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidConstantOperation));
         }
     }
 }

@@ -19,8 +19,7 @@
 */
 #endregion
 using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScriptTests.Utils;
@@ -30,13 +29,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the functionality of the <see cref="DefinitionAnalyzer"/> class and related components
     /// </summary>
-    [TestClass]
     public class DefinitionsAnalyzerTests
     {
         /// <summary>
         /// Tests reporting duplicated local definitions in the same scope
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDuplicatedLocalDefinition()
         {
             const string input = "func f1() { var a; var a; }";
@@ -44,13 +42,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+            Assert.Equal(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests reporting duplicated global definitions in the same scope
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDuplicateGlobalDefinition()
         {
             const string input = "var a; var a;";
@@ -58,13 +56,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+            Assert.Equal(2, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests reporting undefined definition usages
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUndeclaredDefinitionUsage()
         {
             const string input = "func f() { var a = a; }";
@@ -72,13 +70,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(2, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition));
+            Assert.Equal(2, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UndeclaredDefinition));
         }
 
         /// <summary>
         /// Tests handling using definitions before shadowing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUsageBeforeShadowing()
         {
             const string input = "func f() { a(); var a = 10; } func a() { }";
@@ -88,13 +86,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+            Assert.Equal(0, generator.MessageContainer.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests global variable shadowing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGlobalVariableShadowing()
         {
             const string input = "var a; func f1() { var a; }";
@@ -102,13 +100,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+            Assert.Equal(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
 
         /// <summary>
         /// Tests local field shadowing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassFieldShadowing()
         {
             const string input = "class c1 { var i:int; func f1(i:int) { } }";
@@ -116,7 +114,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.ParseSources();
             generator.CollectDefinitions();
 
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
+            Assert.Equal(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.DuplicatedDefinition));
         }
     }
 }

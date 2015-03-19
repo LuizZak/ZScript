@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -27,13 +30,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests the parsing and execution of array code
     /// </summary>
-    [TestClass]
     public class ArrayTests
     {
         /// <summary>
         /// Tests parsing and execution of array literal creation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArrayLiteral()
         {
             const string input = "var a; func funca(){ a = [0, 1, 2]; }";
@@ -49,18 +51,18 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.IsInstanceOfType(memory.GetVariable("a"), typeof(IList), "The list created by the script is not of the expected type");
+            Assert.True(memory.GetVariable("a") is IList, "The list created by the script is not of the expected type");
             var list = (IList)memory.GetVariable("a");
 
-            Assert.AreEqual(0L, list[0], "The list did not have the expected values");
-            Assert.AreEqual(1L, list[1], "The list did not have the expected values");
-            Assert.AreEqual(2L, list[2], "The list did not have the expected values");
+            Assert.Equal(0L, list[0]);
+            Assert.Equal(1L, list[1]);
+            Assert.Equal(2L, list[2]);
         }
 
         /// <summary>
         /// Tests parsing and execution of nested array literal creation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNestedArrayLiteral()
         {
             const string input = "var a; func funca(){ a = [[0], 1, 2]; }";
@@ -76,19 +78,19 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.IsInstanceOfType(memory.GetVariable("a"), typeof(IList), "The list created by the script is not of the expected type");
+            Assert.True(memory.GetVariable("a") is IList, "The list created by the script is not of the expected type");
             var list = (IList)memory.GetVariable("a");
 
-            Assert.IsInstanceOfType(list[0], typeof(IList), "The list created by the script is not of the expected type");
-            Assert.AreEqual(0L, ((IList)list[0])[0], "The list did not have the expected values");
-            Assert.AreEqual(1L, list[1], "The list did not have the expected values");
-            Assert.AreEqual(2L, list[2], "The list did not have the expected values");
+            Assert.True(list[0] is IList, "The list created by the script is not of the expected type");
+            Assert.Equal(0L, ((IList)list[0])[0]);
+            Assert.Equal(1L, list[1]);
+            Assert.Equal(2L, list[2]);
         }
 
         /// <summary>
         /// Tests parsing and execution of array literal creation and access
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArrayLiteralAccess()
         {
             const string input = "var a = 0; func funca(){ a = [0, 1, 2][0]; }";
@@ -104,13 +106,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(0L, memory.GetVariable("a"), "The list did not have the expected values");
+            Assert.Equal(0L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests parsing and execution of nested array literal creation and access
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNestedArrayLiteralAccess()
         {
             const string input = "var a = 0; func funca(){ a = [[0, 1], 1, 2][0][1]; }";
@@ -126,13 +128,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(1L, memory.GetVariable("a"), "The list did not have the expected values");
+            Assert.Equal(1L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests parsing and execution of array literal value set
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSetArrayIndex()
         {
             const string input = "var a; func funca(){ a = [0, 1, 2]; a[0] = 1; }";
@@ -150,13 +152,13 @@ namespace ZScriptTests.Runtime
             // Assert the correct call was made
             var list = (IList)memory.GetVariable("a");
 
-            Assert.AreEqual(1L, list[0], "The list created by the script is not of the expected type");
+            Assert.Equal(1L, list[0]);
         }
 
         /// <summary>
         /// Tests parsing and execution of nested array literal value set
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSetNestedArrayIndex()
         {
             const string input = "var a; func funca(){ a = [[0, 1], 1, 2]; a[0][1] = 2; }";
@@ -174,7 +176,7 @@ namespace ZScriptTests.Runtime
             // Assert the correct call was made
             var list = (IList)memory.GetVariable("a");
 
-            Assert.AreEqual(2L, ((IList)list[0])[1], "The list created by the script is not of the expected type");
+            Assert.Equal(2L, ((IList)list[0])[1]);
         }
     }
 }

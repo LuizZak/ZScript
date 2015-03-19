@@ -18,13 +18,16 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Collections;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution
@@ -32,13 +35,12 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests usage of the New instruction on the VM
     /// </summary>
-    [TestClass]
     public class FunctionVmNewTests
     {
         /// <summary>
         /// Tests the New instruction
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCreateInteger()
         {
             // Create the set of tokens
@@ -60,11 +62,9 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(24, ((ArrayList)functionVm.Stack.Peek()).Capacity,
-                "The ArrayList created should have the capacity specified by the instructions, as passed to its constructor");
+            Assert.Equal(24, ((ArrayList)functionVm.Stack.Peek()).Capacity);
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ArrayList),
-                "The New instruction failed to execute as expected");
+            Assert.True(functionVm.Stack.Peek() is ArrayList);
         }
     }
 }

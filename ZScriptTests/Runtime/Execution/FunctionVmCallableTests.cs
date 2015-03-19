@@ -19,7 +19,8 @@
 */
 #endregion
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime;
@@ -33,13 +34,12 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests method calling functionalities of the FunctionVm class
     /// </summary>
-    [TestClass]
     public class FunctionVmCallableTests
     {
         /// <summary>
         /// Tests fetching a callable from a reflected method on the VM
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMethodCallable()
         {
             // Create the set of tokens
@@ -58,13 +58,13 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ClassMethod));
+            Assert.True(functionVm.Stack.Peek() is ClassMethod);
         }
 
         /// <summary>
         /// Tests fetching a callable from a reflected method on the VM
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMethodCallableCall()
         {
             // Create the set of tokens
@@ -85,13 +85,13 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual("10", functionVm.Stack.Peek());
+            Assert.Equal("10", functionVm.Stack.Peek());
         }
 
         /// <summary>
         /// Tests nesting multiple callables one next to another
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNestedMethodCallableCall()
         {
             // Create the set of tokens
@@ -119,7 +119,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(1, functionVm.Stack.Peek());
+            Assert.Equal(1, functionVm.Stack.Peek());
         }
     }
 }

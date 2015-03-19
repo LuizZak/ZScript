@@ -21,7 +21,7 @@
 
 using System.Linq;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.CodeGeneration.Sourcing;
 using ZScriptTests.Utils;
@@ -31,38 +31,37 @@ namespace ZScriptTests.CodeGeneration.Sourcing
     /// <summary>
     /// Tests the functionaliy of the SourceProvider class and related components
     /// </summary>
-    [TestClass]
     public class SourceProviderTests
     {
         /// <summary>
         /// Tests addition of a new source to a source provider
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestAddSource()
         {
             var provider = new SourceProvider();
             var stringSource1 = new ZScriptStringSource("");
             var stringSource2 = new ZScriptStringSource("");
 
-            Assert.AreEqual(0, provider.Sources.Length, "A newly created source provider should have 0 sources registered");
+            Assert.Equal(0, provider.Sources.Length); // "A newly created source provider should have 0 sources registered"
 
             provider.AddSource(stringSource1);
 
-            Assert.IsTrue(provider.Sources.Contains(stringSource1), "Adding a source to a source provider should reflect in the .Sources property");
+            Assert.True(provider.Sources.Contains(stringSource1), "Adding a source to a source provider should reflect in the .Sources property");
 
             provider.AddSource(stringSource2);
 
-            Assert.IsTrue(provider.Sources.Contains(stringSource2), "Adding a source to a source provider should reflect in the .Sources property");
+            Assert.True(provider.Sources.Contains(stringSource2), "Adding a source to a source provider should reflect in the .Sources property");
 
             provider.AddSource(stringSource2);
 
-            Assert.AreEqual(2, provider.Sources.Length, "Sources cannot appear more than once in the .Sources property after multiple sequential additions");
+            Assert.Equal(2, provider.Sources.Length); // "Sources cannot appear more than once in the .Sources property after multiple sequential additions"
         }
 
         /// <summary>
         /// Tests removal of a new source to a source provider
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestRemoveSource()
         {
             var provider = new SourceProvider();
@@ -75,14 +74,14 @@ namespace ZScriptTests.CodeGeneration.Sourcing
             provider.RemoveSource(stringSource1);
             provider.RemoveSource(stringSource2);
 
-            Assert.IsFalse(provider.Sources.Contains(stringSource1), "Removing a source from a source provider should reflect in the .Sources property");
-            Assert.IsFalse(provider.Sources.Contains(stringSource2), "Removing a source from a source provider should reflect in the .Sources property");
+            Assert.False(provider.Sources.Contains(stringSource1), "Removing a source from a source provider should reflect in the .Sources property");
+            Assert.False(provider.Sources.Contains(stringSource2), "Removing a source from a source provider should reflect in the .Sources property");
         }
 
         /// <summary>
         /// Tests clearing all the sources from a source provider
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClearSources()
         {
             var provider = new SourceProvider();
@@ -94,15 +93,15 @@ namespace ZScriptTests.CodeGeneration.Sourcing
 
             provider.Clear();
 
-            Assert.AreEqual(0, provider.Sources.Length, "After clearing a source provider, its source count must be reset to 0");
-            Assert.IsFalse(provider.Sources.Contains(stringSource1), "Removing a source from a source provider should reflect in the .Sources property");
-            Assert.IsFalse(provider.Sources.Contains(stringSource2), "Removing a source from a source provider should reflect in the .Sources property");
+            Assert.Equal(0, provider.Sources.Length); // "After clearing a source provider, its source count must be reset to 0"
+            Assert.False(provider.Sources.Contains(stringSource1), "Removing a source from a source provider should reflect in the .Sources property");
+            Assert.False(provider.Sources.Contains(stringSource2), "Removing a source from a source provider should reflect in the .Sources property");
         }
 
         /// <summary>
         /// Tests the retrieval of sources based on a parser rule context
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSourceForContext()
         {
             var provider = new SourceProvider();
@@ -123,10 +122,10 @@ namespace ZScriptTests.CodeGeneration.Sourcing
             var program3 = parser3.program();
             var program4 = parser4.globalVariable();
 
-            Assert.AreEqual(source1, provider.SourceForContext(source1.Tree.scriptBody().globalVariable(0)), "Failed to locate the correct source for the context");
-            Assert.AreEqual(source2, provider.SourceForContext(source2.Tree.scriptBody().globalVariable(0)), "Failed to locate the correct source for the context");
-            Assert.IsNull(provider.SourceForContext(program3.scriptBody().globalVariable(0)), "Failed to locate the correct source for the context");
-            Assert.IsNull(provider.SourceForContext(program4), "Failed to locate the correct source for the context");
+            Assert.Equal(source1, provider.SourceForContext(source1.Tree.scriptBody().globalVariable(0))); // "Failed to locate the correct source for the context"
+            Assert.Equal(source2, provider.SourceForContext(source2.Tree.scriptBody().globalVariable(0))); // "Failed to locate the correct source for the context"
+            Assert.Same(null, provider.SourceForContext(program3.scriptBody().globalVariable(0))); // "Failed to locate the correct source for the context"
+            Assert.Same(null, provider.SourceForContext(program4)); // "Failed to locate the correct source for the context"
         }
     }
 }

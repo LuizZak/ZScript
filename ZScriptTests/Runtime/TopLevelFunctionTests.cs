@@ -18,7 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -26,13 +28,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests parsing and execution of top level functions
     /// </summary>
-    [TestClass]
     public class TopLevelFunctionTests
     {
         /// <summary>
         /// Tests basic function calling
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicFunctionCall()
         {
             const string input = "@__trace(v...) func funca(){ funcb(); } func funcb() { __trace(1); }";
@@ -47,13 +48,13 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(1L, owner.TraceObjects[0], "The function call did not occur as expected");
+            Assert.Equal(1L, owner.TraceObjects[0]);
         }
 
         /// <summary>
         /// Tests function calling with multiple parameters
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMultiParametered()
         {
             const string input = "@__trace(v...) func funca(){ funcb(1, 2); } func funcb(a:int, b:int) { __trace(a, b); }";
@@ -68,14 +69,14 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(1L, owner.TraceObjects[0], "The function call did not occur as expected");
-            Assert.AreEqual(2L, owner.TraceObjects[1], "The function call did not occur as expected");
+            Assert.Equal(1L, owner.TraceObjects[0]);
+            Assert.Equal(2L, owner.TraceObjects[1]);
         }
 
         /// <summary>
         /// Tests function calling with default parameters
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDefaultParametered()
         {
             const string input = "@__trace(v...) func funca(){ funcb(); funcb(1); funcb(1, 2); } func funcb(a:int = 0, b:int = 0) { __trace(a, b); }";
@@ -90,20 +91,20 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(0L, owner.TraceObjects[0], "The function call did not occur as expected");
-            Assert.AreEqual(0L, owner.TraceObjects[1], "The function call did not occur as expected");
+            Assert.Equal(0L, owner.TraceObjects[0]);
+            Assert.Equal(0L, owner.TraceObjects[1]);
 
-            Assert.AreEqual(1L, owner.TraceObjects[2], "The function call did not occur as expected");
-            Assert.AreEqual(0L, owner.TraceObjects[3], "The function call did not occur as expected");
+            Assert.Equal(1L, owner.TraceObjects[2]);
+            Assert.Equal(0L, owner.TraceObjects[3]);
 
-            Assert.AreEqual(1L, owner.TraceObjects[4], "The function call did not occur as expected");
-            Assert.AreEqual(2L, owner.TraceObjects[5], "The function call did not occur as expected");
+            Assert.Equal(1L, owner.TraceObjects[4]);
+            Assert.Equal(2L, owner.TraceObjects[5]);
         }
 
         /// <summary>
         /// Tests function calling with variadic parameters
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestVariadicFunctionCall()
         {
             const string input = "@__trace(v...) func funca(){ funcb(); funcb(1); funcb(1, 2); } func funcb(args...) { __trace(args); }";
@@ -118,15 +119,15 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.AreEqual(1L, owner.TraceObjects[0], "The function call did not occur as expected");
-            Assert.AreEqual(1L, owner.TraceObjects[1], "The function call did not occur as expected");
-            Assert.AreEqual(2L, owner.TraceObjects[2], "The function call did not occur as expected");
+            Assert.Equal(1L, owner.TraceObjects[0]);
+            Assert.Equal(1L, owner.TraceObjects[1]);
+            Assert.Equal(2L, owner.TraceObjects[2]);
         }
 
         /// <summary>
         /// Tests shadowing a function by creating a local variable inside another function
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestShadowingFunction()
         {
             const string input = "@__trace(v...) func f1() { f2(); var f2 = 0; } func f2() { __trace(1); }";
@@ -141,7 +142,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f1");
 
             // Assert the correct call was made
-            Assert.AreEqual(1L, owner.TraceObjects[0], "The function call did not occur as expected");
+            Assert.Equal(1L, owner.TraceObjects[0]);
         }
     }
 }

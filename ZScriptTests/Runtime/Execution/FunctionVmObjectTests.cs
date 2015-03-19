@@ -18,7 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
 
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
@@ -31,7 +32,6 @@ namespace ZScriptTests.Runtime.Execution
     /// <summary>
     /// Tests ZObject creation/access functionality on the VM
     /// </summary>
-    [TestClass]
     public class FunctionVmObjectTests
     {
         #region Object Creation
@@ -39,7 +39,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests a simple object created with 2 values
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSimpleObjectCreation()
         {
             // Create the set of tokens
@@ -61,18 +61,18 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ZObject));
+            Assert.True(functionVm.Stack.Peek() is ZObject);
 
             var obj = (ZObject)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10, obj["abc"], "The object was not created successfully");
-            Assert.AreEqual(5, obj["def"], "The object was not created successfully");
+            Assert.Equal(10, obj["abc"]);
+            Assert.Equal(5, obj["def"]);
         }
 
         /// <summary>
         /// Tests a simple object created with 2 values, with one being computed
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectCreation()
         {
             // Create the set of tokens
@@ -96,12 +96,12 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ZObject));
+            Assert.True(functionVm.Stack.Peek() is ZObject);
 
             var obj = (ZObject)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10, obj["abc"], "The object was not created successfully");
-            Assert.AreEqual(12, obj["def"], "The object was not created successfully");
+            Assert.Equal(10, obj["abc"]);
+            Assert.Equal(12, obj["def"]);
         }
 
         #endregion
@@ -111,7 +111,7 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Tests fetching ZObject values using GetMember
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectMemberAccess()
         {
             // Create the set of tokens
@@ -135,17 +135,17 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(ZObjectMember));
+            Assert.True(functionVm.Stack.Peek() is ZObjectMember);
 
             var obj = (ZObjectMember)functionVm.Stack.Pop();
 
-            Assert.AreEqual(5, obj.GetValue(), "The object member wrapper was not created successfully");
+            Assert.Equal(5, obj.GetValue());
         }
 
         /// <summary>
         /// Tests setting ZObject values using GetMember
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectMemberGet()
         {
             // Create the set of tokens
@@ -172,7 +172,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(5, ((ZObject)context.Memory.GetVariable("a"))["def"], "The Set operation on the ZObjectMember failed");
+            Assert.Equal(5, ((ZObject)context.Memory.GetVariable("a"))["def"]);
         }
 
         #endregion

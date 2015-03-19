@@ -23,7 +23,7 @@ using System;
 
 using Antlr4.Runtime;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.Parsing;
 
@@ -32,136 +32,139 @@ namespace ZScriptTests.Parsing
     /// <summary>
     /// Tests the functionality of the ConstantAtomParser class and related components
     /// </summary>
-    [TestClass]
     public class ConstantAtomParserTests
     {
-        [TestMethod]
+        [Fact]
         public void TestIntegerNumericParse()
         {
             var parser = CreateParser("2136547");
             var token = parser.numericAtom();
             var number = ConstantAtomParser.ParseNumericAtom(token, false);
 
-            Assert.AreEqual(2136547L, number, "The integer number was not parsed correctly");
+            Assert.Equal(2136547L, number);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFloatNumericParse()
         {
             var parser = CreateParser("12345.6789");
             var token = parser.numericAtom();
             var number = ConstantAtomParser.ParseNumericAtom(token, false);
 
-            Assert.AreEqual(12345.6789, number, "The double number was not parsed correctly");
+            Assert.Equal(12345.6789, number);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHexadecimalParse()
         {
             var parser = CreateParser("0x012345");
             var token = parser.hexadecimalNumber();
             var number = ConstantAtomParser.ParseHexadecimalNumber(token);
 
-            Assert.AreEqual(0x12345, number, "The hexadecimal number was not parsed correctly");
+            Assert.Equal(0x12345, number);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHexadecimalDetection()
         {
             var parser = CreateParser("0x012345");
             var token = parser.constantAtom();
             var number = ConstantAtomParser.ParseConstantAtom(token);
 
-            Assert.AreEqual(0x12345L, number, "The hexadecimal number was not parsed correctly");
+            Assert.Equal(0x12345L, number);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBinaryParse()
         {
             var parser = CreateParser("0b110101");
             var token = parser.binaryNumber();
             var number = ConstantAtomParser.ParseBinaryNumber(token);
 
-            Assert.AreEqual(53L, number, "The binary number was not parsed correctly");
+            Assert.Equal(53L, number);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBinaryDetection()
         {
             var parser = CreateParser("0b110101");
             var token = parser.constantAtom();
             var number = ConstantAtomParser.ParseConstantAtom(token);
 
-            Assert.AreEqual(53L, number, "The binary number was not parsed correctly");
+            Assert.Equal(53L, number);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestStringParse()
         {
             var parser = CreateParser("\"a\\\"bc\\nd\\\\\\ref\"");
             var token = parser.stringLiteral();
             var str = ConstantAtomParser.ParseStringAtom(token);
 
-            Assert.AreEqual("a\"bc\nd\\\ref", str, "The string was not parsed correctly");
+            Assert.Equal("a\"bc\nd\\\ref", str);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSingleQuoteStringEscapeParse()
         {
             var parser = CreateParser("'Quo\\\\ted\\'Quoted'");
             var token = parser.stringLiteral();
             var str = ConstantAtomParser.ParseStringAtom(token);
 
-            Assert.AreEqual("Quo\\ted\'Quoted", str, "The string was not parsed correctly");
+            Assert.Equal("Quo\\ted\'Quoted", str);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSingleQuotesStringParse()
         {
             var parser = CreateParser("'abcdef'");
             var token = parser.stringLiteral();
             var str = ConstantAtomParser.ParseStringAtom(token);
 
-            Assert.AreEqual("abcdef", str, "The string was not parsed correctly");
+            Assert.Equal("abcdef", str);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Trying to format a string which contains a \\ that is located at the end of the string must raise a format exception")]
+        [Fact]
         public void TestSingleQuoteEscapeEofException()
         {
             var parser = CreateParser("'abc\\'");
             var token = parser.stringLiteral();
-            ConstantAtomParser.ParseStringAtom(token);
+
+            // "Trying to format a string which contains a \\ that is located at the end of the string must raise a format exception"
+            Assert.Throws<FormatException>(() => ConstantAtomParser.ParseStringAtom(token));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Trying to format a string which contains an unrecognized that is located at the end of the string must raise a format exception")]
+        [Fact]
         public void TestSingleQuoteInvalidEscapeException()
         {
             var parser = CreateParser("'abc\\a'");
             var token = parser.stringLiteral();
-            ConstantAtomParser.ParseStringAtom(token);
+
+            // "Trying to format a string which contains an unrecognized that is located at the end of the string must raise a format exception"
+            Assert.Throws<FormatException>(() => ConstantAtomParser.ParseStringAtom(token));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Trying to format a string which contains a \\ that is located at the end of the string must raise a format exception")]
+        [Fact]
         public void TestDoubleQuoteEscapeEofException()
         {
             var parser = CreateParser("\"abc\\\"");
             var token = parser.stringLiteral();
-            ConstantAtomParser.ParseStringAtom(token);
+
+            // "Trying to format a string which contains a \\ that is located at the end of the string must raise a format exception"
+            Assert.Throws<FormatException>(() => ConstantAtomParser.ParseStringAtom(token));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormatException), "Trying to format a string which contains an unrecognized that is located at the end of the string must raise a format exception")]
+        [Fact]
         public void TestDoubleQuoteInvalidEscapeException()
         {
             var parser = CreateParser("\"abc\\a\"");
             var token = parser.stringLiteral();
-            ConstantAtomParser.ParseStringAtom(token);
+
+            // "Trying to format a string which contains an unrecognized that is located at the end of the string must raise a format exception"
+            Assert.Throws<FormatException>(() => ConstantAtomParser.ParseStringAtom(token));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNegativeNumbersParse()
         {
             var parser = CreateParser("-100 -10.0");
@@ -169,11 +172,11 @@ namespace ZScriptTests.Parsing
             var value1 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
             var value2 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
 
-            Assert.AreEqual((long)-100, value1, "The numeric constant was not parsed correctly");
-            Assert.AreEqual(-10.0, value2, "The numeric constant was not parsed correctly");
+            Assert.Equal((long)-100, value1);
+            Assert.Equal(-10.0, value2);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCompileConstants()
         {
             var parser = CreateParser("true false null 'stringyString'");
@@ -183,10 +186,10 @@ namespace ZScriptTests.Parsing
             var value3 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
             var value4 = ConstantAtomParser.ParseCompileConstantAtom(parser.compileConstant());
 
-            Assert.AreEqual(true, value1, "The 'true' compile-time constant was not parsed correctly");
-            Assert.AreEqual(false, value2, "The 'false' compile-time constant was not parsed correctly");
-            Assert.AreEqual(null, value3, "The 'null' compile-time constant was not parsed correctly");
-            Assert.AreEqual("stringyString", value4, "The stirng compile-time constant was not parsed correctly");
+            Assert.Equal(true, value1);
+            Assert.Equal(false, value2);
+            Assert.Equal(null, value3);
+            Assert.Equal("stringyString", value4);
         }
 
         /// <summary>

@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -27,12 +30,11 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests export function calls
     /// </summary>
-    [TestClass]
     public class ExportFunctionTests
     {
         #region Parsing
 
-        [TestMethod]
+        [Fact]
         public void TestExportFunctionParse()
         {
             const string input = "@f2(i)";
@@ -40,10 +42,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
+            Assert.True(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestExportFunctionCallInFunctionParse()
         {
             const string input = "@f2(i:int) func f() { f2(10); }";
@@ -51,10 +53,10 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
             
-            Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
+            Assert.True(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestForwardExportFunctionCall()
         {
             const string input = "func f() { f2(10); } @f2(i:int)";
@@ -62,14 +64,14 @@ namespace ZScriptTests.Runtime
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();
 
-            Assert.IsTrue(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
+            Assert.True(definition.ZExportFunctionDefinitions.Any(f => f.Name == "f2"));
         }
 
         #endregion
 
         #region Execution
 
-        [TestMethod]
+        [Fact]
         public void TestExportFunctionCall()
         {
             const string input = "@__trace(i) func f() { __trace(10); __trace(11); }";
@@ -81,8 +83,8 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, owner.TraceObjects[0], "The export function was not called correctly");
-            Assert.AreEqual(11L, owner.TraceObjects[1], "The export function was not called correctly");
+            Assert.Equal(10L, owner.TraceObjects[0]);
+            Assert.Equal(11L, owner.TraceObjects[1]);
         }
 
         #endregion

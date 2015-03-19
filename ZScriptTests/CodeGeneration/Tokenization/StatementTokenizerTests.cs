@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Definitions;
@@ -31,16 +31,16 @@ using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Utils;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Tokenization
 {
-    [TestClass]
     public class StatementTokenizerTests
     {
         #region Empty statement generation
 
-        [TestMethod]
+        [Fact]
         public void TestEmptyStatementTokenGeneration()
         {
             const string message = "The tokens generated for the empty statement where not generated as expected";
@@ -72,7 +72,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #region Tokenization tests
 
-        [TestMethod]
+        [Fact]
         public void TestValuedVarTokenGeneration()
         {
             const string message = "The tokens generated for the variable declare statement where not generated as expected";
@@ -106,7 +106,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuelessVarTokenGeneration()
         {
             const string message = "The tokens generated for the variable declare statement where not generated as expected";
@@ -132,7 +132,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuedLetTokenGeneration()
         {
             const string message = "The tokens generated for the constant declare statement where not generated as expected";
@@ -167,7 +167,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuelessLetTokenGeneration()
         {
             const string message = "The tokens generated for the constant declare statement where not generated as expected";
@@ -193,7 +193,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestConstantLetTokenGeneration()
         {
             const string message = "The tokens generated for the constant declare statement where not generated as expected";
@@ -232,7 +232,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #region Execution tests
 
-        [TestMethod]
+        [Fact]
         public void TestIfCodeGeneration()
         {
             const string input = "func f() { var a = 0; if(a == 10) { a = 20; } }";
@@ -245,10 +245,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var owner = new TestRuntimeOwner();
             generator.GenerateRuntime(owner);
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIfElseCodeGeneration()
         {
             const string input = "func f() { var a = 0; var b = 0; if(a == 10) { a = 20; } else { b = 5; } }";
@@ -260,17 +260,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var owner = new TestRuntimeOwner();
             generator.GenerateRuntime(owner);
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIfElseIfCodeGeneration()
         {
             const string input = "var a = 0; var b = 0; var c = 0; func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -279,19 +279,19 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(0L, memory.GetVariable("a"));
-            Assert.AreEqual(0L, memory.GetVariable("c"));
-            Assert.AreEqual(5L, memory.GetVariable("b"), "The statement did not execute as expected");
+            Assert.Equal(0L, memory.GetVariable("a"));
+            Assert.Equal(0L, memory.GetVariable("c"));
+            Assert.Equal(5L, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNestedIfCodeGeneration()
         {
             const string input = "var a = 0; var b = 0; var c = 0; func f() { if(5 == 10) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -300,19 +300,19 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"), "The statement did not execute as expected");
-            Assert.AreEqual(0L, memory.GetVariable("c"));
-            Assert.AreEqual(5L, memory.GetVariable("b"), "The statement did not execute as expected");
+            Assert.Equal(10L, memory.GetVariable("a"));
+            Assert.Equal(0L, memory.GetVariable("c"));
+            Assert.Equal(5L, memory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIfExpressionShortCircuit()
         {
             const string input = "var a = 0; var b = 0; var c:int = 0; var d:int = 0; func f() { if(5 == 10 && d > 0) { a = 20; } else if(11 > 10) { b = 5; if(b > 2) { a = 10; } else { c = 10; } } else { c = 10; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -321,16 +321,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"), "The statement did not execute as expected");
-            Assert.AreEqual(0L, memory.GetVariable("c"));
-            Assert.AreEqual(5L, memory.GetVariable("b"), "The statement did not execute as expected");
+            Assert.Equal(10L, memory.GetVariable("a"));
+            Assert.Equal(0L, memory.GetVariable("c"));
+            Assert.Equal(5L, memory.GetVariable("b"));
         }
 
         #endregion
 
         #region Tokenization tests
 
-        [TestMethod]
+        [Fact]
         public void TestIfTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -368,7 +368,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
         
-        [TestMethod]
+        [Fact]
         public void TestIfElseTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -416,7 +416,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIfElseIfTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -480,7 +480,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNestedIfTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -573,7 +573,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant true value
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantTrueIfTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -612,7 +612,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant false value
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantFalseIfTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -651,7 +651,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         /// <summary>
         /// Tests the behavior of the tokenizer with if statements that always evaluate to a constant true/false value
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantIfElseTokenGeneration()
         {
             const string message = "The tokens generated for the if statement where not generated as expected";
@@ -712,7 +712,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #region FOR statement generation and execution
 
-        [TestMethod]
+        [Fact]
         public void TestForGeneration()
         {
             const string input = "var i = 0; var a = 0; func f() { for(i = 0; i < 10; i++) { a = i + 2; } }";
@@ -720,7 +720,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -728,11 +728,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(11L, runtime.GlobalMemory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestExpressionInitForGeneration()
         {
             const string input = "var i = 0; var a = 0; var b = 0; func f() { for(f2(); i < 10; i++) { a = i + 2; } } func f2() { b = 10; }";
@@ -740,7 +740,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -748,12 +748,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11L, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(11L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNoInitForGeneration()
         {
             const string input = "var i = 0; var a = 0; func f() { for(; i < 10; i++) { a = i + 2; } }";
@@ -761,7 +761,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -769,11 +769,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(11L, runtime.GlobalMemory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNoConditionForGeneration()
         {
             const string input = "var i = 0; var a = 0; func f() { for(i = 0; ; i++) { a = i + 2;  if(i == 9) { i++; break; } } }";
@@ -781,7 +781,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -789,11 +789,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(11L, runtime.GlobalMemory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestForBreakStatement()
         {
             const string input = "var i = 0; var a = 0; func f() { for(i = 0; i < 10; i++) { a = i + 2; break; } }";
@@ -801,7 +801,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -809,11 +809,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(2L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(2L, runtime.GlobalMemory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestForContinueStatement()
         {
             const string input = "var i = 0; var a = 0; var b = 0; func f() { for(i = 0; i < 10; i++) { a = i + 2; continue; b = a; } }";
@@ -821,7 +821,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -829,12 +829,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(11L, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(11L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNestedForStatement()
         {
             const string input = "var i = 0; var a = 0; var b = 0; func f() { for(i = 0; i < 10; i++) { for(var j = 0; j < 10; j++) { a = i + j + 2; continue; b = a; } } }";
@@ -842,7 +842,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generator = TestUtils.CreateGenerator(input);
 
             generator.ParseSources();
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -850,16 +850,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("i"));
-            Assert.AreEqual(20L, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("i"));
+            Assert.Equal(20L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("b"));
         }
 
         #endregion
 
         #region WHILE statement generation and execution
 
-        [TestMethod]
+        [Fact]
         public void TestWhileCodeGeneration()
         {
             const string input = "var a = 0; func f() { while(a < 10) { a++; } }";
@@ -868,7 +868,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -876,10 +876,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWhileContinueStatement()
         {
             const string input = "var a = 0; var b = 0; func f() { while(a < 10) { a++; continue; b = 10; } }";
@@ -888,7 +888,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -896,11 +896,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(0L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(0L, runtime.GlobalMemory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWhileBreakStatement()
         {
             const string input = "var a = 0; func f() { while(true) { a++; if(a >= 10) { break; } } }";
@@ -909,7 +909,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -917,10 +917,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("a"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNestedWhileStatement()
         {
             const string input = "var a = 0; var b = 0; func f() { while(a < 10) { a++; while(b / a < 10) { b++; } } }";
@@ -929,7 +929,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -937,11 +937,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(100L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(100L, runtime.GlobalMemory.GetVariable("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNestedWhileBreakStatement()
         {
             const string input = "var a = 0; var b = 0; func f() { while(a < 10) { a++; while(b / a < 10) { b++; if(b > 6) { break; } } } }";
@@ -950,7 +950,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -958,22 +958,22 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, runtime.GlobalMemory.GetVariable("a"));
-            Assert.AreEqual(16L, runtime.GlobalMemory.GetVariable("b"));
+            Assert.Equal(10L, runtime.GlobalMemory.GetVariable("a"));
+            Assert.Equal(16L, runtime.GlobalMemory.GetVariable("b"));
         }
 
         #endregion
 
         #region RETURN statement generation and execution
 
-        [TestMethod]
+        [Fact]
         public void TestReturnStatement()
         {
             const string input = "func f() : int { return 10+10; }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -981,17 +981,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var ret = runtime.CallFunction("f");
 
-            Assert.AreEqual(20L, ret, "The valued return statement did not execute as expected");
+            Assert.Equal(20L, ret);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuelessReturnStatement()
         {
             const string input = "func f() { return; }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -999,12 +999,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var ret = runtime.CallFunction("f");
 
-            Assert.IsNull(ret, "The valueless return statement did not execute as expected");
+            Assert.Same(null, ret);
         }
 
         #region Tokenization tests
 
-        [TestMethod]
+        [Fact]
         public void TestValuelessdReturnTokenGeneration()
         {
             const string message = "The tokens generated for the return statement where not generated as expected";
@@ -1034,7 +1034,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuedReturnTokenGeneration()
         {
             const string message = "The tokens generated for the return statement where not generated as expected";
@@ -1074,14 +1074,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #region SWITCH statement generation and execution
 
-        [TestMethod]
+        [Fact]
         public void TestSwitchStatement()
         {
             const string input = "var a = 5; var b = 20; var c = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -1090,17 +1090,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.Equal(10L, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDefaultSwitchStatement()
         {
             const string input = "var c = null; var d = null; func f() { var a = 5; var b = 20; switch(a + b) { case 10: c = 5; break; default: c = 10; break; } switch(a + b) { case 25: d = 10; break; default: d = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -1109,18 +1109,18 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, memory.GetVariable("c"), "The statement did not execute as expected");
-            Assert.AreEqual(10L, memory.GetVariable("d"), "The statement did not execute as expected");
+            Assert.Equal(10L, memory.GetVariable("c"));
+            Assert.Equal(10L, memory.GetVariable("d"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultipleCasesSwitchStatement()
         {
             const string input = "var a = 5; var b = 20; var c; func f() { switch(a + b) { case 10: case 25: case 30: c = 10; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -1129,17 +1129,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.Equal(10L, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuedSwitchStatement()
         {
             const string input = "var a = 5; var b = 20; var d; func f() { switch(let c = a + b) { case 10: case 25: case 30: d = c; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -1148,17 +1148,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(25L, memory.GetVariable("d"), "The statement did not execute as expected");
+            Assert.Equal(25L, memory.GetVariable("d"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestConstantSwitchStatement()
         {
             const string input = "let a = 5; let b = 20; var c = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -1167,17 +1167,17 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(10L, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.Equal(10L, memory.GetVariable("c"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestConstantDefaultSwitchStatement()
         {
             const string input = "let a = 5; let b = 20; var c = null; func f() { switch(a + b) { case 30: c = 10; break; case 31: c = 5; break; default: c = 1; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
-            Assert.IsFalse(generator.HasSyntaxErrors);
+            Assert.False(generator.HasSyntaxErrors);
 
             // Generate the runtime now
             var owner = new TestRuntimeOwner();
@@ -1186,12 +1186,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             runtime.CallFunction("f");
 
-            Assert.AreEqual(1L, memory.GetVariable("c"), "The statement did not execute as expected");
+            Assert.Equal(1L, memory.GetVariable("c"));
         }
 
         #region Tokenization tests
 
-        [TestMethod]
+        [Fact]
         public void TestBasicSwitchStatementGeneration()
         {
             const string message = "Faild to produce expected tokens for the switch statement";
@@ -1264,7 +1264,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestStaticTrueSwitchStatementGeneration()
         {
             const string message = "Faild to produce expected tokens for the switch statement";
@@ -1302,7 +1302,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestStaticFalseDefaultlessSwitchStatementGeneration()
         {
             const string message = "Faild to produce expected tokens for the switch statement";
@@ -1334,7 +1334,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestStaticFalseDefaultedSwitchStatementGeneration()
         {
             const string message = "Faild to produce expected tokens for the switch statement";
@@ -1372,7 +1372,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDefaultSwitchStatementGeneration()
         {
             const string message = "Faild to produce expected tokens for the switch statement";
@@ -1449,7 +1449,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestValuedSwitchStatementGeneration()
         {
             const string message = "Faild to produce expected tokens for the switch statement";

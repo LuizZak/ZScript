@@ -22,7 +22,7 @@
 using System;
 using System.Linq;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
@@ -36,7 +36,6 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// <summary>
     /// Tests the ExpressionTypeResolver class and related components
     /// </summary>
-    [TestClass]
     public class ExpressionTypeResolverTests
     {
         #region General Type Resolving
@@ -44,7 +43,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests callable type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallableTypeResolving()
         {
             // Set up the test
@@ -58,15 +57,18 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveCallableType(value);
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, type.ParameterTypes[0], "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.BooleanType, type.ParameterTypes[1], "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.AnyType, type.ReturnType, "The resolved type did not match the expected type");
+            // "The resolved type did not match the expected type"
+            Assert.Equal(TypeDef.IntegerType, type.ParameterTypes[0]);
+            // "The resolved type did not match the expected type"
+            Assert.Equal(TypeDef.BooleanType, type.ParameterTypes[1]);
+            // "The resolved type did not match the expected type"
+            Assert.Equal(TypeDef.AnyType, type.ReturnType);
         }
 
         /// <summary>
         /// Tests list type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestListType()
         {
             // Set up the test
@@ -81,15 +83,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type3 = (ListTypeDef)resolver.ResolveType(parser.type(), false);
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, type1.EnclosingType, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.IntegerType, type2.EnclosingType, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(TypeDef.IntegerType), type3.EnclosingType, "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, type1.EnclosingType); // "The resolved type did not match the expected type"
+            Assert.Equal(TypeDef.IntegerType, type2.EnclosingType); // "The resolved type did not match the expected type"
+            Assert.Equal(provider.ListForType(TypeDef.IntegerType), type3.EnclosingType); // "The resolved type did not match the expected type"
         }
 
         /// <summary>
         /// Tests dictionary type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionaryType()
         {
             // Set up the test
@@ -103,17 +105,17 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type2 = resolver.ResolveDictionaryType(parser.dictionaryType());
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, type1.SubscriptType, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.StringType, type1.EnclosingType, "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, type1.SubscriptType); // "The resolved type did not match the expected type"
+            Assert.Equal(TypeDef.StringType, type1.EnclosingType); // "The resolved type did not match the expected type"
 
-            Assert.AreEqual(provider.ListForType(TypeDef.IntegerType), type2.SubscriptType, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(TypeDef.StringType), type2.EnclosingType, "The resolved type did not match the expected type");
+            Assert.Equal(provider.ListForType(TypeDef.IntegerType), type2.SubscriptType); // "The resolved type did not match the expected type"
+            Assert.Equal(provider.ListForType(TypeDef.StringType), type2.EnclosingType); // "The resolved type did not match the expected type"
         }
 
         /// <summary>
         /// Tests subscripting a list-type object
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestListSubscript()
         {
             // Set up the test
@@ -126,13 +128,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveExpression(parser.expression());
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, type, "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, type);
         }
 
         /// <summary>
         /// Tests chaining calling of return values
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallableType()
         {
             // Set up the test
@@ -148,35 +150,35 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type4 = resolver.ResolveCallableType(parser.callableType());
 
             // Compare the result now
-            Assert.AreEqual(
+            Assert.Equal(
                 new CallableTypeDef(new[]
                 {
                     new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false),
                     new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false)
                 }, TypeDef.IntegerType, true),
-                type1, "The resolved type did not match the expected type");
+                type1);
 
-            Assert.AreEqual(
+            Assert.Equal(
                 new CallableTypeDef(new[]
                 {
                     new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false),
                     new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, false)
                 }, TypeDef.VoidType, true),
-                type2, "The resolved type did not match the expected type");
+                type2);
 
-            Assert.AreEqual(
+            Assert.Equal(
                 new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.IntegerType, true),
-                type3, "The resolved type did not match the expected type");
+                type3);
 
-            Assert.AreEqual(
+            Assert.Equal(
                 new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, false),
-                type4, "The resolved type did not match the expected type");
+                type4);
         }
 
         /// <summary>
         /// Tests chaining calling of return values
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestChainedCallable()
         {
             // Set up the test
@@ -189,7 +191,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveExpression(parser.expression());
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, type, "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, type);
         }
 
         #endregion
@@ -199,7 +201,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests resolving of types in an assignment expression
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestAssignmentExpressionResolving()
         {
             // Set up the test
@@ -215,11 +217,11 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type5 = resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, type1, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.BooleanType, type2, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.FloatType,   type3, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.StringType,  type4, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.FloatType,   type5, "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, type1);
+            Assert.Equal(TypeDef.BooleanType, type2);
+            Assert.Equal(TypeDef.FloatType,   type3);
+            Assert.Equal(TypeDef.StringType,  type4);
+            Assert.Equal(TypeDef.FloatType,   type5);
         }
 
         #endregion
@@ -229,7 +231,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests compile constant type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCompileConstantResolving()
         {
             // Set up the test
@@ -248,20 +250,20 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var stringConst = parser.compileConstant();
             
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, resolver.ResolveCompileConstant(intConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.IntegerType, resolver.ResolveCompileConstant(negativeIntConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.FloatType, resolver.ResolveCompileConstant(floatConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.FloatType, resolver.ResolveCompileConstant(negativeFloatConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveCompileConstant(boolTrueConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveCompileConstant(boolFalseConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.AnyType, resolver.ResolveCompileConstant(nullConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.StringType, resolver.ResolveCompileConstant(stringConst), "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, resolver.ResolveCompileConstant(intConst));
+            Assert.Equal(TypeDef.IntegerType, resolver.ResolveCompileConstant(negativeIntConst));
+            Assert.Equal(TypeDef.FloatType, resolver.ResolveCompileConstant(floatConst));
+            Assert.Equal(TypeDef.FloatType, resolver.ResolveCompileConstant(negativeFloatConst));
+            Assert.Equal(TypeDef.BooleanType, resolver.ResolveCompileConstant(boolTrueConst));
+            Assert.Equal(TypeDef.BooleanType, resolver.ResolveCompileConstant(boolFalseConst));
+            Assert.Equal(TypeDef.AnyType, resolver.ResolveCompileConstant(nullConst));
+            Assert.Equal(TypeDef.StringType, resolver.ResolveCompileConstant(stringConst));
         }
 
         /// <summary>
         /// Tests constant atom type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestConstantAtomResolving()
         {
             // Set up the test
@@ -278,12 +280,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var stringConst = parser.constantAtom();
 
             // Compare the result now
-            Assert.AreEqual(TypeDef.IntegerType, resolver.ResolveConstantAtom(intConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.FloatType, resolver.ResolveConstantAtom(floatConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveConstantAtom(boolTrueConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveConstantAtom(boolFalseConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.AnyType, resolver.ResolveConstantAtom(nullConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.StringType, resolver.ResolveConstantAtom(stringConst), "The resolved type did not match the expected type");
+            Assert.Equal(TypeDef.IntegerType, resolver.ResolveConstantAtom(intConst));
+            Assert.Equal(TypeDef.FloatType, resolver.ResolveConstantAtom(floatConst));
+            Assert.Equal(TypeDef.BooleanType, resolver.ResolveConstantAtom(boolTrueConst));
+            Assert.Equal(TypeDef.BooleanType, resolver.ResolveConstantAtom(boolFalseConst));
+            Assert.Equal(TypeDef.AnyType, resolver.ResolveConstantAtom(nullConst));
+            Assert.Equal(TypeDef.StringType, resolver.ResolveConstantAtom(stringConst));
         }
 
         #endregion
@@ -293,7 +295,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests object literal type solving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectLiteral()
         {
             // Set up the test
@@ -306,13 +308,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = parser.objectLiteral();
 
             // Compare the result now
-            Assert.AreEqual(typeProvider.ObjectType(), resolver.ResolveObjectLiteral(type), "The resolved type did not match the expected type");
+            Assert.Equal(typeProvider.ObjectType(), resolver.ResolveObjectLiteral(type));
         }
 
         /// <summary>
         /// Tests array literal type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestArrayLiteral()
         {
             // Set up the test
@@ -326,14 +328,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolvedType = resolver.ResolveArrayLiteral(type);
 
             // Compare the result now
-            Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolvedType, "The resolved type did not match the expected type");
-            Assert.AreEqual(typeProvider.IntegerType(), type.EvaluatedValueType, "The resolved type did not match the expected type");
+            Assert.Equal(typeProvider.ListForType(typeProvider.IntegerType()), resolvedType);
+            Assert.Equal(typeProvider.IntegerType(), type.EvaluatedValueType);
         }
 
         /// <summary>
         /// Tests dictionary literal type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionaryLiteral()
         {
             // Set up the test
@@ -348,9 +350,9 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolvedType = resolver.ResolveDictionaryLiteral(type);
 
             // Compare the result now
-            Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.StringType()), resolvedType, "The resolved type did not match the expected type");
-            Assert.AreEqual(typeProvider.IntegerType(), type.EvaluatedKeyType, "The resolved type did not match the expected type");
-            Assert.AreEqual(typeProvider.StringType(), type.EvaluatedValueType, "The resolved type did not match the expected type");
+            Assert.Equal(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.StringType()), resolvedType);
+            Assert.Equal(typeProvider.IntegerType(), type.EvaluatedKeyType);
+            Assert.Equal(typeProvider.StringType(), type.EvaluatedValueType);
         }
 
         #endregion
@@ -360,7 +362,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests callable argument type checking
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallableArgumentTypeChecking()
         {
             // Set up the test
@@ -376,13 +378,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to report expected errors about invalid type in arguments");
+            Assert.Equal(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests callable argument count checking
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallableArgumentCountCheck()
         {
             // Set up the test
@@ -405,8 +407,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments),  "Failed to report expected errors about mismatched argument count");
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooManyArguments), "Failed to report expected errors about mismatched argument count");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments));
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooManyArguments));
         }
 
         #endregion
@@ -416,7 +418,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests basic type casting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTypeCast()
         {
             // Set up the test
@@ -432,16 +434,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var exp4 = parser.statement().expression();
 
             // Compare the result now
-            Assert.AreEqual(provider.FloatType(), resolver.ResolveExpression(exp1), "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.IntegerType(), resolver.ResolveExpression(exp2), "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.BooleanType(), resolver.ResolveExpression(exp3), "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.IntegerType()), resolver.ResolveExpression(exp4), "The resolved type did not match the expected type");
+            Assert.Equal(provider.FloatType(), resolver.ResolveExpression(exp1));
+            Assert.Equal(provider.IntegerType(), resolver.ResolveExpression(exp2));
+            Assert.Equal(provider.BooleanType(), resolver.ResolveExpression(exp3));
+            Assert.Equal(provider.ListForType(provider.IntegerType()), resolver.ResolveExpression(exp4));
         }
 
         /// <summary>
         /// Tests implicit array casting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestImplicitArray()
         {
             // Set up the test
@@ -457,17 +459,17 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveAssignmentExpression(assignment);
             container.PrintMessages();
 
-            Assert.IsFalse(container.HasErrors);
+            Assert.False(container.HasErrors);
             // Compare the result now
-            Assert.AreEqual(provider.FloatType(), assignment.expression().arrayLiteral().expressionList().expression(0).ImplicitCastType, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ExpectedType, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ImplicitCastType, "The resolved type did not match the expected type");
+            Assert.Equal(provider.FloatType(), assignment.expression().arrayLiteral().expressionList().expression(0).ImplicitCastType);
+            Assert.Equal(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ExpectedType);
+            Assert.Equal(provider.ListForType(provider.FloatType()), assignment.expression().arrayLiteral().ImplicitCastType);
         }
 
         /// <summary>
         /// Tests multiple sequential type casting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMultipleCasting()
         {
             // Set up the test
@@ -480,7 +482,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var exp1 = parser.statement().expression();
 
             // Compare the result now
-            Assert.AreEqual(provider.ListForType(provider.IntegerType()), resolver.ResolveExpression(exp1), "The resolved type did not match the expected type");
+            Assert.Equal(provider.ListForType(provider.IntegerType()), resolver.ResolveExpression(exp1));
         }
 
         #endregion
@@ -490,7 +492,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests list subscription type checking
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestListSubscriptionTypeChecking()
         {
             // Set up the test
@@ -507,13 +509,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests checking of dictionary types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionarySubscriptionTypeChecking()
         {
             // Set up the test
@@ -528,7 +530,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         #endregion
@@ -538,7 +540,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests resolving the type of a class field
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassFieldTypeResolving()
         {
             // Set up the test
@@ -562,13 +564,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var type = resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(context.TypeProvider.IntegerType(), type, "Failed to get type of class field");
+            Assert.Equal(context.TypeProvider.IntegerType(), type);
         }
 
         /// <summary>
         /// Tests resolving the type of a class method call
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassMethodTypeResolving()
         {
             // Set up the test
@@ -592,7 +594,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var type = resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(context.TypeProvider.IntegerType(), type, "Failed to get type of class field");
+            Assert.Equal(context.TypeProvider.IntegerType(), type);
         }
 
         #endregion
@@ -602,7 +604,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests closure type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClosureTypeDefinition()
         {
             // Set up the test
@@ -618,15 +620,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveClosureExpression(value);
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[0], "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.BooleanType(), type.ParameterTypes[1], "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.IntegerType(), type.ReturnType, "The resolved type did not match the expected type");
+            Assert.Equal(provider.IntegerType(), type.ParameterTypes[0]);
+            Assert.Equal(provider.BooleanType(), type.ParameterTypes[1]);
+            Assert.Equal(provider.IntegerType(), type.ReturnType);
         }
 
         /// <summary>
         /// Tests complex closure type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestVariadicAndInferredClosureTypeDefinition()
         {
             // Set up the test
@@ -642,15 +644,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveClosureExpression(value);
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[0], "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.IntegerType()), type.ParameterTypes[1], "The resolved type did not match the expected type");
-            Assert.AreEqual(true, type.ParameterInfos[1].IsVariadic, "The resolved type did not match the expected type");
+            Assert.Equal(provider.IntegerType(), type.ParameterTypes[0]);
+            Assert.Equal(provider.ListForType(provider.IntegerType()), type.ParameterTypes[1]);
+            Assert.Equal(true, type.ParameterInfos[1].IsVariadic);
         }
 
         /// <summary>
         /// Tests closure type resolving by providing a closure with different total argument count but equal required argument count
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDefaultArgumentClosureTypeDefinition()
         {
             // Set up the test
@@ -664,13 +666,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Perform the parsing
             resolver.ResolveClosureExpression(parser.closureExpression());
 
-            Assert.AreEqual(0, container.CodeErrors.Length, "Errors where detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests closure type resolving by execution of callable
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCalledClosureType()
         {
             // Set up the test
@@ -686,7 +688,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveExpression(value);
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type, "The resolved type did not match the expected type");
+            Assert.Equal(provider.IntegerType(), type);
         }
 
         #endregion
@@ -696,7 +698,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests resolving the type of prefix expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestPrefixExpression()
         {
             // Set up the test
@@ -714,18 +716,18 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type4 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "Failed to evaluate the result of Prefix expression correctly");
-            Assert.AreEqual(provider.IntegerType(), type2, "Failed to evaluate the result of Prefix expression correctly");
-            Assert.AreEqual(provider.FloatType(), type3, "Failed to evaluate the result of Prefix expression correctly");
-            Assert.AreEqual(provider.FloatType(), type4, "Failed to evaluate the result of Prefix expression correctly");
+            Assert.Equal(provider.IntegerType(), type1);
+            Assert.Equal(provider.IntegerType(), type2);
+            Assert.Equal(provider.FloatType(), type3);
+            Assert.Equal(provider.FloatType(), type4);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Count());
         }
 
         /// <summary>
         /// Tests resolving the type of postfix expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestPostfixExpression()
         {
             // Set up the test
@@ -743,18 +745,18 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type4 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "Failed to evaluate the result of Postfix expression correctly");
-            Assert.AreEqual(provider.IntegerType(), type2, "Failed to evaluate the result of Postfix expression correctly");
-            Assert.AreEqual(provider.FloatType(), type3, "Failed to evaluate the result of Postfix expression correctly");
-            Assert.AreEqual(provider.FloatType(), type4, "Failed to evaluate the result of Postfix expression correctly");
+            Assert.Equal(provider.IntegerType(), type1);
+            Assert.Equal(provider.IntegerType(), type2);
+            Assert.Equal(provider.FloatType(), type3);
+            Assert.Equal(provider.FloatType(), type4);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Count());
         }
 
         /// <summary>
         /// Tests resolving the type of unary expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUnaryExpression()
         {
             // Set up the test
@@ -772,12 +774,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type4 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "Failed to evaluate the result of Unary expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type2, "Failed to evaluate the result of Unary expression correctly");
-            Assert.AreEqual(provider.FloatType(), type3, "Failed to evaluate the result of Unary expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type4, "Failed to evaluate the result of Unary expression correctly");
+            Assert.Equal(provider.IntegerType(), type1);
+            Assert.Equal(provider.BooleanType(), type2);
+            Assert.Equal(provider.FloatType(), type3);
+            Assert.Equal(provider.BooleanType(), type4);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Count());
         }
 
         #endregion
@@ -787,7 +789,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests resolving the type of basic arithmetic expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicArithmeticExpression()
         {
             // Set up the test
@@ -829,37 +831,37 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type18 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "Failed to evaluate the result of SUM expression correctly");
-            Assert.AreEqual(provider.FloatType(), type2, "Failed to evaluate the result of SUM expression correctly");
-            Assert.AreEqual(provider.FloatType(), type3, "Failed to evaluate the result of SUM expression correctly");
+            Assert.Equal(provider.IntegerType(), type1);
+            Assert.Equal(provider.FloatType(), type2);
+            Assert.Equal(provider.FloatType(), type3);
 
-            Assert.AreEqual(provider.IntegerType(), type4, "Failed to evaluate the result of SUBTRACTION expression correctly");
-            Assert.AreEqual(provider.FloatType(), type5, "Failed to evaluate the result of SUBTRACTION expression correctly");
-            Assert.AreEqual(provider.FloatType(), type6, "Failed to evaluate the result of SUBTRACTION expression correctly");
+            Assert.Equal(provider.IntegerType(), type4);
+            Assert.Equal(provider.FloatType(), type5);
+            Assert.Equal(provider.FloatType(), type6);
 
-            Assert.AreEqual(provider.IntegerType(), type7, "Failed to evaluate the result of MULTIPLICATION expression correctly");
-            Assert.AreEqual(provider.FloatType(), type8, "Failed to evaluate the result of MULTIPLICATION expression correctly");
-            Assert.AreEqual(provider.FloatType(), type9, "Failed to evaluate the result of MULTIPLICATION expression correctly");
+            Assert.Equal(provider.IntegerType(), type7);
+            Assert.Equal(provider.FloatType(), type8);
+            Assert.Equal(provider.FloatType(), type9);
 
-            Assert.AreEqual(provider.IntegerType(), type10, "Failed to evaluate the result of DIVISION expression correctly");
-            Assert.AreEqual(provider.FloatType(), type11, "Failed to evaluate the result of DIVISION expression correctly");
-            Assert.AreEqual(provider.FloatType(), type12, "Failed to evaluate the result of DIVISION expression correctly");
+            Assert.Equal(provider.IntegerType(), type10);
+            Assert.Equal(provider.FloatType(), type11);
+            Assert.Equal(provider.FloatType(), type12);
 
-            Assert.AreEqual(provider.IntegerType(), type13, "Failed to evaluate the result of MODULO expression correctly");
-            Assert.AreEqual(provider.FloatType(), type14, "Failed to evaluate the result of MODULO expression correctly");
-            Assert.AreEqual(provider.FloatType(), type15, "Failed to evaluate the result of MODULO expression correctly");
+            Assert.Equal(provider.IntegerType(), type13);
+            Assert.Equal(provider.FloatType(), type14);
+            Assert.Equal(provider.FloatType(), type15);
 
-            Assert.AreEqual(provider.AnyType(), type16, "Failed to evaluate the result of MODULO expression correctly");
-            Assert.AreEqual(provider.AnyType(), type17, "Failed to evaluate the result of MODULO expression correctly");
-            Assert.AreEqual(provider.AnyType(), type18, "Failed to evaluate the result of MODULO expression correctly");
+            Assert.Equal(provider.AnyType(), type16);
+            Assert.Equal(provider.AnyType(), type17);
+            Assert.Equal(provider.AnyType(), type18);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests string concatenation
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStringConcatenation()
         {
             // Set up the test
@@ -874,15 +876,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type1 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.StringType(), type1, "Failed to evaluate the result of expression correctly");
+            Assert.Equal(provider.StringType(), type1);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests string concatenation with any types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStringAnyConcatenation()
         {
             // Set up the test
@@ -897,15 +899,15 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type1 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.StringType(), type1, "Failed to evaluate the result of expression correctly");
+            Assert.Equal(provider.StringType(), type1);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of arithmetic expressions that are evaluated from complex scenarios (compounded, in parenthesis, evaluated from arrays, etc.)
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCompoundedArithmeticExpression()
         {
             // Set up the test
@@ -922,17 +924,17 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type3 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.FloatType(), type1, "Failed to evaluate the result of compound expression correctly");
-            Assert.AreEqual(provider.IntegerType(), type2, "Failed to evaluate the result of compound expression correctly");
-            Assert.AreEqual(provider.FloatType(), type3, "Failed to evaluate the result of compound expression correctly");
+            Assert.Equal(provider.FloatType(), type1);
+            Assert.Equal(provider.IntegerType(), type2);
+            Assert.Equal(provider.FloatType(), type3);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of basic bitwise expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicBitwiseExpression()
         {
             // Set up the test
@@ -949,17 +951,17 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type3 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "Failed to evaluate the result of BITWISE OR expression correctly");
-            Assert.AreEqual(provider.IntegerType(), type2, "Failed to evaluate the result of BITWISE XOR expression correctly");
-            Assert.AreEqual(provider.IntegerType(), type3, "Failed to evaluate the result of BITWISE AND expression correctly");
+            Assert.Equal(provider.IntegerType(), type1);
+            Assert.Equal(provider.IntegerType(), type2);
+            Assert.Equal(provider.IntegerType(), type3);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of basic comparision expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicComparisionExpression()
         {
             // Set up the test
@@ -979,20 +981,20 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type6 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.BooleanType(), type1, "Failed to evaluate the result of EQUALS expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type2, "Failed to evaluate the result of UNEQUALS expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type3, "Failed to evaluate the result of GREATER expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type4, "Failed to evaluate the result of LESS expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type5, "Failed to evaluate the result of GREATER OR EQUALS expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type6, "Failed to evaluate the result of LESS OR EQUALS expression correctly");
+            Assert.Equal(provider.BooleanType(), type1);
+            Assert.Equal(provider.BooleanType(), type2);
+            Assert.Equal(provider.BooleanType(), type3);
+            Assert.Equal(provider.BooleanType(), type4);
+            Assert.Equal(provider.BooleanType(), type5);
+            Assert.Equal(provider.BooleanType(), type6);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of basic logical expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBasicLogicalExpressions()
         {
             // Set up the test
@@ -1008,16 +1010,16 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type2 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.BooleanType(), type1, "Failed to evaluate the result of logical expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type2, "Failed to evaluate the result of logical expression correctly");
+            Assert.Equal(provider.BooleanType(), type1);
+            Assert.Equal(provider.BooleanType(), type2);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests utilizing the '|', '&' and '^' operators with boolean types for standard (non-short circuited) boolean operations
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStandardBooleanOperations()
         {
             // Set up the test
@@ -1034,11 +1036,11 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type3 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.BooleanType(), type1, "Failed to evaluate the result of standard boolean expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type2, "Failed to evaluate the result of standard boolean expression correctly");
-            Assert.AreEqual(provider.BooleanType(), type3, "Failed to evaluate the result of standard boolean expression correctly");
+            Assert.Equal(provider.BooleanType(), type1);
+            Assert.Equal(provider.BooleanType(), type2);
+            Assert.Equal(provider.BooleanType(), type3);
 
-            Assert.AreEqual(0, container.CodeErrors.Count(), "Errors were detected when not expected");
+            Assert.Equal(0, container.CodeErrors.Length);
         }
 
         #endregion
@@ -1048,7 +1050,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests ternary expression type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTernaryResolving()
         {
             // Set up the test
@@ -1066,8 +1068,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type2 = resolver.ResolveExpression(value2);
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.IntegerType()), type2, "The resolved type did not match the expected type");
+            Assert.Equal(provider.IntegerType(), type1);
+            Assert.Equal(provider.ListForType(provider.IntegerType()), type2);
         }
 
         #endregion
@@ -1077,7 +1079,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests error raising when using 'void' type in invalid contexts
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestInvalidVoid()
         {
             // Set up the test
@@ -1092,13 +1094,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveListType(parser.listType());
 
             // Compare the result now
-            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidVoidType), "Failed to raise expected errors");
+            Assert.Equal(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidVoidType));
         }
 
         /// <summary>
         /// Tests error raising for failed 'new' expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedNewExpression()
         {
             // Set up the test
@@ -1112,13 +1114,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType));
         }
 
         /// <summary>
         /// Tests error raising for basic type casting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUnkownType()
         {
             // Set up the test
@@ -1134,13 +1136,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveType(parser.type(), false);
 
             // Compare the result now
-            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType), "Failed to raise expected errors");
+            Assert.Equal(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType));
         }
 
         /// <summary>
         /// Tests dictionary literal type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedDictionaryLiteralCasting()
         {
             // Set up the test
@@ -1157,13 +1159,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveDictionaryLiteral(dictionary);
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests error raising for invalid implicit array casting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedImplicitArray()
         {
             // Set up the test
@@ -1179,13 +1181,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveAssignmentExpression(assignment);
             container.PrintMessages();
 
-            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.Equal(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests resolving of types in an assignment expression
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedAssignmentExpressionResolving()
         {
             // Set up the test
@@ -1203,13 +1205,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveAssignmentExpression(parser.statement().assignmentExpression());
 
             // Compare the result now
-            Assert.AreEqual(6, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
+            Assert.Equal(6, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests error raising when resolving the type of invalid prefix expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedPrefixExpression()
         {
             // Set up the test
@@ -1226,13 +1228,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to report expected errors");
+            Assert.Equal(4, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests error raising when resolving the type of invalid postfix expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedPostfixExpression()
         {
             // Set up the test
@@ -1249,13 +1251,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to report expected errors");
+            Assert.Equal(4, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests error raising when resolving the type of invalid unary expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedUnaryExpression()
         {
             // Set up the test
@@ -1272,13 +1274,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to report expected errors");
+            Assert.Equal(4, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests basic type casting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedTypeCast()
         {
             // Set up the test
@@ -1293,13 +1295,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
             
-            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
+            Assert.Equal(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests resolving the type of an arithmetic expression
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedArithmeticExpression()
         {
             // Set up the test
@@ -1316,14 +1318,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
-            Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "The expected error failed to be raised");
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.VoidOnBinaryExpression), "The expected error failed to be raised");
+            Assert.Equal(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation));
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.VoidOnBinaryExpression));
         }
 
         /// <summary>
         /// Tests resolving the type of arithmetic expressions that are evaluated from complex scenarios (compounded, in parenthesis, evaluated from arrays, etc.)
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedCompoundedArithmeticExpression()
         {
             // Set up the test
@@ -1342,13 +1344,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
 
-            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to raise the expected errors");
+            Assert.Equal(4, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of basic bitwise expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedBasicBitwiseExpression()
         {
             // Set up the test
@@ -1363,13 +1365,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(3, container.CodeErrors.Count(), "Failed to raise the expected errors");
+            Assert.Equal(3, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of basic comparision expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedBasicComparisionExpression()
         {
             // Set up the test
@@ -1388,13 +1390,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(6, container.CodeErrors.Count(), "Failed to raise the expected errors");
+            Assert.Equal(6, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests resolving the type of basic logical expressions
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedBasicLogicalExpressions()
         {
             // Set up the test
@@ -1409,14 +1411,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
-            
-            Assert.AreEqual(4, container.CodeErrors.Count(), "Failed to raise the expected errors");
+
+            Assert.Equal(4, container.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests error raising on closure type resolving by providing an argument type that does not match the default value
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedImplicitArgumentCast()
         {
             // Set up the test
@@ -1430,13 +1432,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Perform the parsing
             resolver.ResolveClosureExpression(parser.closureExpression());
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests failed ternary expression type resolving
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFailedTernaryOperation()
         {
             // Set up the test
@@ -1450,7 +1452,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Perform the parsing
             resolver.ResolveExpression(parser.statement().expression());
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         #endregion
@@ -1460,7 +1462,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests reporting of subscription warnings
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSubscriptWarning()
         {
             // Set up the test
@@ -1473,13 +1475,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToSubscriptNonList));
+            Assert.Equal(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToSubscriptNonList));
         }
 
         /// <summary>
         /// Tests reporting of function call warnings
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestFunctionCallWarning()
         {
             // Set up the test
@@ -1492,13 +1494,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.Equal(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
         }
 
         /// <summary>
         /// Tests raising warnings when trying to call non callables
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCallingUncallable()
         {
             const string input = "func f() { var a = 10; a(); }";
@@ -1508,14 +1510,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+            Assert.Equal(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.Equal(0, generator.MessageContainer.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests raising warnings when trying to call non callables
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestShadowedCallingUncallable()
         {
             const string input = "func f() { var a = 10; a(); } func a() { }";
@@ -1525,14 +1527,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+            Assert.Equal(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.Equal(0, generator.MessageContainer.CodeErrors.Length);
         }
 
         /// <summary>
         /// Tests handling using definitions before shadowing
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestUsageBeforeShadowing()
         {
             const string input = "func f() { a(); var a = 10; } func a() { }";
@@ -1542,8 +1544,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+            Assert.Equal(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.Equal(0, generator.MessageContainer.CodeErrors.Length);
         }
 
         #endregion
@@ -1553,8 +1555,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests exception raising during 'this' type resolving with no definition type provider defined
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "Trying to resolve a 'this' type with no definition type provider speciifed should result in an exception")]
+        [Fact]
         public void TestFailedThisResolvingException()
         {
             // Set up the test
@@ -1566,14 +1567,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
-            resolver.ResolveExpression(parser.statement().expression());
+            // "Trying to resolve a 'this' type with no definition type provider speciifed should result in an exception"
+            Assert.Throws<Exception>(() => { resolver.ResolveExpression(parser.statement().expression()); });
         }
 
         /// <summary>
         /// Tests exception raising during 'base' type resolving with no definition type provider defined
         /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "Trying to resolve a 'base' type with no definition type provider speciifed should result in an exception")]
+        [Fact]
         public void TestFailedBaseResolvingException()
         {
             // Set up the test
@@ -1585,7 +1586,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
 
             // Perform the parsing
-            resolver.ResolveExpression(parser.statement().expression());
+            // "Trying to resolve a 'base' type with no definition type provider speciifed should result in an exception"
+            Assert.Throws<Exception>(() => { resolver.ResolveExpression(parser.statement().expression()); });
         }
 
         #endregion
@@ -1595,7 +1597,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// <summary>
         /// Tests runtime parsing by assigning a value from a parameter with mismatching types
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestRuntimeVariadicParameter()
         {
             const string input = "func funca(a:int...){ var b:int = a; }";
@@ -1605,13 +1607,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
         
         /// <summary>
         /// Tests runtime parsing by assigning a mismatched type from an inferred type
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestRuntimeCallableResolve()
         {
             const string input = "func funca(a:int...){ var b = ():float => { return 1.0; }; var aa:int = b(); }";
@@ -1621,13 +1623,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         /// <summary>
         /// Tests runtime parsing by returning a mismatched value in a function
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestRuntimeMismatchedReturnTypes()
         {
             const string input = "func funca() : int { return 1.0; }";
@@ -1637,7 +1639,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.CollectDefinitions();
 
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
+            Assert.Equal(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
         }
 
         #endregion

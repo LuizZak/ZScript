@@ -18,8 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Xunit;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -27,13 +30,12 @@ namespace ZScriptTests.Runtime
     /// <summary>
     /// Tests subscription of different types of values on the VM
     /// </summary>
-    [TestClass]
     public class SubscriptingTests
     {
         /// <summary>
         /// Tests parsing and execution of dictionary subscription value fetching
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionarySubscriptGet()
         {
             const string input = "var a = 0; var b; func funca(){ a = b[\"abc\"]; }";
@@ -52,13 +54,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, memory.GetVariable("a"), "The VM failed to fetch the correct subscription for the dictionary object stored");
+            Assert.Equal(10L, memory.GetVariable("a"));
         }
 
         /// <summary>
         /// Tests parsing and execution of dictionary subscription value setting
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDictionarySubscriptSet()
         {
             const string input = "var b; func funca(){ b[\"abc\"] = 10; }";
@@ -78,13 +80,13 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(10L, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
+            Assert.Equal(10L, dict["abc"]);
         }
 
         /// <summary>
         /// Tests utilizing a subscript with a compound operator
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSubscriptCompoundAssign()
         {
             const string input = "var b; func funca(){ b['abc'] += 10; }";
@@ -104,7 +106,7 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("funca");
 
-            Assert.AreEqual(20L, dict["abc"], "The VM failed to set the correct subscription for the dictionary object stored");
+            Assert.Equal(20L, dict["abc"]);
         }
     }
 }
