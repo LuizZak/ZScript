@@ -428,7 +428,11 @@ namespace ZScript.Runtime.Typing
 
         public new bool Equals(object v1, object v2)
         {
-            return v1.Equals(v2);
+            // Null check
+            if (v1 == null && v2 == null)
+                return true;
+
+            return v1 != null && v1.Equals(v2);
         }
 
         public object ArithmeticNegate(object v1)
