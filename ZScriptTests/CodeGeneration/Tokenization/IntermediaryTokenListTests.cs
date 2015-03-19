@@ -109,8 +109,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(10),
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
-                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt), // Last clear stack is replaced with an Interrupt automatically
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack)
             };
 
             var actual = tokens.ToTokenList().Tokens;
@@ -123,6 +122,58 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Now verify the results
             TestUtils.AssertTokenListEquals(expectedTokens, actual, "The sequential ClearStack removal failed to behave as expected");
+        }
+
+        /// <summary>
+        /// Tests removal of sequential return instructions from a token list
+        /// </summary>
+        [TestMethod]
+        public void TestSequentialReturnRemoval()
+        {
+            var tJ1 = new JumpToken(null, true);
+            var tJ2 = new JumpToken(null, true);
+            var tJ3 = new JumpToken(null, true);
+
+            var tokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("a"),
+                tJ1,
+                TokenFactory.CreateMemberNameToken("b"),
+                tJ2,
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                tJ3,
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            tJ1.TargetToken = tokens[7];
+            tJ2.TargetToken = tokens[8];
+            tJ3.TargetToken = tokens[9];
+
+            var expectedTokens = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 7),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 7),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 7),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            var actual = tokens.ToTokenList().Tokens;
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(actual);
+
+            // Now verify the results
+            TestUtils.AssertTokenListEquals(expectedTokens, actual, "The sequential Ret removal failed to behave as expected");
         }
 
         #region JumpToken/JumpTarget expanding

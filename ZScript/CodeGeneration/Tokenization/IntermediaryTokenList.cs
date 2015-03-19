@@ -139,7 +139,9 @@ namespace ZScript.CodeGeneration.Tokenization
             // Remove the unreachable tokens
             RemoveUnreachableTokens(finalList);
             // Remove duplicater Clear Stack instructions
-            RemoveSequentialClearStacks(finalList);
+            RemoveSequentialInstructions(finalList, VmInstruction.ClearStack);
+            RemoveSequentialInstructions(finalList, VmInstruction.Ret);
+            RemoveSequentialInstructions(finalList, VmInstruction.Interrupt);
 
             // Optimize jumps once more
             JumpTokenOptimizer.OptimizeJumps(finalList);
@@ -399,10 +401,11 @@ namespace ZScript.CodeGeneration.Tokenization
         }
 
         /// <summary>
-        /// Removes all instances of dupicated ClearStack instructions
+        /// Removes all duplicated instances of a given instruction
         /// </summary>
         /// <param name="tokenList">The list of tokens to remove the duplicate instructions from</param>
-        private static void RemoveSequentialClearStacks(IList<Token> tokenList)
+        /// <param name="instruction">The instruction to remove duplicates of</param>
+        private static void RemoveSequentialInstructions(IList<Token> tokenList, VmInstruction instruction)
         {
             for (int i = 1; i < tokenList.Count; i++)
             {
@@ -410,17 +413,11 @@ namespace ZScript.CodeGeneration.Tokenization
                 var cur = tokenList[i];
 
                 if (last.Type == TokenType.Instruction &&
-                    last.Instruction == VmInstruction.ClearStack &&
+                    last.Instruction == instruction &&
                     cur.Type == TokenType.Instruction &&
-                    cur.Instruction == VmInstruction.ClearStack)
+                    cur.Instruction == instruction)
                 {
-                    // If before removal there are no more tokens, add a dummy Interrupt token to the end of the list
-                    if (i + 1 == tokenList.Count)
-                    {
-                        tokenList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Interrupt));
-                    }
-
-                    RemoveToken(tokenList, cur, tokenList[i + 1]);
+                    RemoveToken(tokenList, cur, last);
                     i--;
                 }
             }
