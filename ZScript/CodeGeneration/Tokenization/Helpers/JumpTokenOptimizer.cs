@@ -161,7 +161,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     tokens.Insert(i, replaceToken);
 
                     // If the previous token is a 'ClearStack', remove it, since clearing a stack before finishing the VM is useless
-                    if (i > 0 && tokens[i - 1].Instruction == VmInstruction.ClearStack)
+                    if (jumpToken.TargetToken.Instruction != VmInstruction.Ret && i > 0 && tokens[i - 1].Instruction == VmInstruction.ClearStack)
                     {
                         tokens.RemoveAt(i - 1);
                         i--;
