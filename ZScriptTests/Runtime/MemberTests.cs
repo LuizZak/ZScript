@@ -54,6 +54,28 @@ namespace ZScriptTests.Runtime
         }
 
         /// <summary>
+        /// Tests null-conditional member accessing
+        /// </summary>
+        [TestMethod]
+        public void TestNullConditionalMemberAccess()
+        {
+            const string input = "var a = null; func funca(){ var b:C = null; a = b?.f1; } class C { var f1:int = 0; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("funca");
+
+            // Assert the correct call was made
+            Assert.IsNull(memory.GetVariable("a"), "The member fetch did not occur as expected");
+        }
+
+        /// <summary>
         /// Tests compound assignments performed with member accesses
         /// </summary>
         [TestMethod]

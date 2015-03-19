@@ -1929,6 +1929,368 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
+        /// <summary>
+        /// Tests conditional member access with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalMemberAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?.Length";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+            var jmpT = new JumpToken(jTar, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT,
+                TokenFactory.CreateMemberNameToken("Length"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained conditional member access with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestChainedConditionalMemberAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?.b?.c";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar1 = new JumpTargetToken();
+            var jmpT1 = new JumpToken(jTar1, true, false, true, true);
+
+            var jTar2 = new JumpTargetToken();
+            var jmpT2 = new JumpToken(jTar2, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT1,
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT2,
+                TokenFactory.CreateMemberNameToken("c"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar2,
+                jTar1
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests conditional function call with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalFunctionCall()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+            var jmpT = new JumpToken(jTar, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT,
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                jTar
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests conditional access of a function call's return with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalAfterFunctionCall()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a()?.b";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+            var jmpT = new JumpToken(jTar, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT,
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained conditional function call with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestChainedConditionalFunctionCall()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?().b?()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar1 = new JumpTargetToken();
+            var jmpT1 = new JumpToken(jTar1, true, false, true, true);
+
+            var jTar2 = new JumpTargetToken();
+            var jmpT2 = new JumpToken(jTar2, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT1,
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT2,
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                jTar2,
+                jTar1
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests conditional subscription with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalSubscript()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?[0]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+            var jmpT = new JumpToken(jTar, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT,
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests conditional access of a subscription's return with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestConditionalAfterSubscript()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a[0]?.b";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+            var jmpT = new JumpToken(jTar, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT,
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests chained conditional subscription with a null-conditional operator
+        /// </summary>
+        [TestMethod]
+        public void TestChainedConditionalSubscript()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?[0].b?[0]";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar1 = new JumpTargetToken();
+            var jmpT1 = new JumpToken(jTar1, true, false, true, true);
+
+            var jTar2 = new JumpTargetToken();
+            var jmpT2 = new JumpToken(jTar2, true, false, true, true);
+
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT1,
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateMemberNameToken("b"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                jmpT2,
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                jTar2,
+                jTar1
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
         #endregion
     }
 }

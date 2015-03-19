@@ -97,7 +97,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     continue;
 
                 // Conditional jumps that always fail should be removed completely
-                if (i > 0 && i < tokens.Count - 1 && jumpToken.Conditional)
+                if (i > 0 && i < tokens.Count - 1 && jumpToken.Conditional && !jumpToken.NullCheck)
                 {
                     var valueToken = tokens[i - 1];
 
@@ -152,7 +152,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 }
                 
                 // If an unconditional jump points at a Return or Interrupt instruction, replace the jump with the instruction itself
-                if (!jumpToken.Conditional &&
+                if (!jumpToken.Conditional && !jumpToken.NullCheck &&
                     (jumpToken.TargetToken.Instruction == VmInstruction.Ret ||
                      jumpToken.TargetToken.Instruction == VmInstruction.Interrupt))
                 {
@@ -172,7 +172,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 }
 
                 // If a conditional peek type jump both preceedes and points to the same interrupt-type instruction, replace the token with the instruction itself
-                if (i < tokens.Count - 1 && jumpToken.Conditional && !jumpToken.ConsumesStack &&
+                if (i < tokens.Count - 1 && jumpToken.Conditional && !jumpToken.NullCheck && !jumpToken.ConsumesStack &&
                     (jumpToken.TargetToken.Instruction == VmInstruction.Ret ||
                      jumpToken.TargetToken.Instruction == VmInstruction.Interrupt) &&
                     (tokens[i + 1].Instruction == jumpToken.TargetToken.Instruction))
@@ -193,7 +193,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 }
 
                 // If a conditional jump jumps immediately after an immediate unconditional jump, remove the unconditional jump and flip the conditional jump's condition
-                if (i < tokens.Count - 2 && jumpToken.Conditional && jumpToken.ConsumesStack && tokens[i + 1] is JumpToken)
+                if (i < tokens.Count - 2 && jumpToken.Conditional && !jumpToken.NullCheck && jumpToken.ConsumesStack && tokens[i + 1] is JumpToken)
                 {
                     var immediateJump = (JumpToken)tokens[i + 1];
 
@@ -220,7 +220,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     if (nextJump.TargetToken == jumpToken.TargetToken &&
                         nextJump.Conditional == jumpToken.Conditional &&
                         nextJump.ConsumesStack == jumpToken.ConsumesStack &&
-                        nextJump.ConditionToJump == jumpToken.ConditionToJump)
+                        nextJump.ConditionToJump == jumpToken.ConditionToJump &&
+                        nextJump.NullCheck == jumpToken.NullCheck)
                     {
                         TryRemoveJumpInstruction(jumpToken, tokens);
                         i--;
@@ -254,7 +255,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             }
 
             // Conditional stack peek jump
-            if (!pointedJump.ConsumesStack && !pointingJump.ConsumesStack)
+            if (!pointedJump.ConsumesStack && !pointingJump.ConsumesStack && !pointedJump.NullCheck && !pointingJump.NullCheck)
             {
                 // Direct jumps forward, if they have the same condition
                 if (pointingJump.ConditionToJump == pointedJump.ConditionToJump)
@@ -288,7 +289,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <returns>Whether the method successfully removed the jump token</returns>
         private static bool TryRemoveJumpInstruction(JumpToken jmp, IntermediaryTokenList tokens, bool force = false, Token newTarget = null)
         {
-            if (jmp.Conditional && jmp.ConsumesStack && !force)
+            if (jmp.Conditional && (jmp.ConsumesStack || jmp.NullCheck) && !force)
                 return false;
 
             tokens.RemoveToken(jmp, newTarget ?? jmp.TargetToken);

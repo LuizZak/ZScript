@@ -18,8 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Text;
+
 using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
@@ -51,6 +53,11 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         public readonly bool ConsumesStack;
 
         /// <summary>
+        /// Whether this jump token is a null check token. Null checks replace tje JumpIfTrue/JumpIfFalse with JumpIfNull/JumpIfNotNull equivalents
+        /// </summary>
+        public readonly bool NullCheck;
+
+        /// <summary>
         /// Initializes a new instance of the JumpToken class
         /// </summary>
         /// <param name="targetToken">The target token to jump to</param>
@@ -62,10 +69,12 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// Setting to false realizes a 'Jump if false' type jump
         /// </param>
         /// <param name="consumesStack">Whether the jump instruction should consume the stack by popping or only peek it, leaving the boolean value on</param>
-        public JumpToken(Token targetToken, bool conditional = false, bool conditionToJump = true, bool consumesStack = true)
+        /// <param name="nullCheck">Whether this jump token is a null check token. Null checks replace tje JumpIfTrue/JumpIfFalse with JumpIfNull/JumpIfNotNull equivalents</param>
+        public JumpToken(Token targetToken, bool conditional = false, bool conditionToJump = true, bool consumesStack = true, bool nullCheck = false)
             : base(TokenType.Value, null)
         {
             TargetToken = targetToken;
+            NullCheck = nullCheck;
             Conditional = conditional;
             ConditionToJump = conditionToJump;
             ConsumesStack = consumesStack;
@@ -86,6 +95,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             builder.Append(", conditional:" + Conditional + "");
             builder.Append(", conditionToJump:" + ConditionToJump + "");
             builder.Append(", consumesStack:" + ConsumesStack + "");
+            builder.Append(", nullCheck:" + NullCheck + "");
             builder.Append(" }");
 
             return builder.ToString();
@@ -98,7 +108,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             if (other.GetType() != GetType()) return false;
-            return base.Equals(other) && Conditional.Equals(other.Conditional) && ConditionToJump.Equals(other.ConditionToJump) && ConsumesStack.Equals(other.ConsumesStack);
+            return base.Equals(other) && Conditional.Equals(other.Conditional) && ConditionToJump.Equals(other.ConditionToJump) && ConsumesStack.Equals(other.ConsumesStack) && NullCheck.Equals(other.NullCheck);
         }
 
         public override bool Equals(object obj)
@@ -117,6 +127,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 hashCode = (hashCode * 397) ^ Conditional.GetHashCode();
                 hashCode = (hashCode * 397) ^ ConditionToJump.GetHashCode();
                 hashCode = (hashCode * 397) ^ ConsumesStack.GetHashCode();
+                hashCode = (hashCode * 397) ^ NullCheck.GetHashCode();
                 return hashCode;
             }
         }

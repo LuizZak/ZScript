@@ -745,7 +745,8 @@ namespace ZScript.Runtime.Execution
 
             object value = PeekValueImplicit();
 
-            if (!((Type)token.TokenObject).IsInstanceOfType(value))
+            // Null values
+            if (value != null && !((Type)token.TokenObject).IsInstanceOfType(value))
             {
                 throw new VirtualMachineException("Cannot convert type " + value.GetType() + " to type " + token.TokenObject + ".");
             }

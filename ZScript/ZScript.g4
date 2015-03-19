@@ -148,6 +148,7 @@ expression:  '(' expression ')' valueAccess?
            // Unary expressions
            |  unaryOperator expression
            // Binary expressions
+           |  <assoc=right>expression T_NULL_COALESCE expression
            |  expression multOp expression
            |  expression additionOp expression
            |  expression relationalOp expression
@@ -196,7 +197,7 @@ fieldAccess  : '.' memberName;
 arrayAccess : '[' expression ']';
 
 objectAccess : (fieldAccess | arrayAccess) valueAccess?;
-valueAccess : (functionCall | fieldAccess | arrayAccess) valueAccess?;
+valueAccess : nullable=T_NULL_CONDITIONAL? (functionCall | fieldAccess | arrayAccess) valueAccess?;
 
 memberName : IDENT;
 
@@ -275,6 +276,9 @@ T_RIGHT_CURLY : '}';
 
 T_CLOSURE_RETURN : '->';
 T_CLOSURE_CALL : '=>';
+
+T_NULL_COALESCE : '??';
+T_NULL_CONDITIONAL : '?';
 
 // Primitive types
 T_INT    : 'int';

@@ -673,28 +673,37 @@ namespace ZScript.CodeGeneration.Tokenization
         private void VisitValueAccess(ZScriptParser.ValueAccessContext context)
         {
             _isRootMember = false;
+            // Verify null conditionality
+            JumpTargetToken endTarget = null;
 
-            while (true)
+            if (context.nullable != null)
             {
-                if (context.functionCall() != null)
-                {
-                    VisitFunctionCall(context.functionCall());
-                }
-                else if (context.arrayAccess() != null)
-                {
-                    VisitArrayAccess(context.arrayAccess());
-                }
-                else if (context.fieldAccess() != null)
-                {
-                    VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
-                }
-                if (context.valueAccess() != null)
-                {
-                    context = context.valueAccess();
-                    continue;
-                }
-                break;
+                endTarget = new JumpTargetToken();
+                // Add the duplicate token
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+                // Add the null-check jump
+                _tokens.Add(new JumpToken(endTarget, true, false, true, true));
             }
+
+            if (context.functionCall() != null)
+            {
+                VisitFunctionCall(context.functionCall());
+            }
+            else if (context.arrayAccess() != null)
+            {
+                VisitArrayAccess(context.arrayAccess());
+            }
+            else if (context.fieldAccess() != null)
+            {
+                VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
+            }
+            if (context.valueAccess() != null)
+            {
+                VisitValueAccess(context.valueAccess());
+            }
+
+            if(endTarget != null)
+                _tokens.Add(endTarget);
         }
 
         private void VisitFieldAccess(ZScriptParser.FieldAccessContext context, bool functionCall)

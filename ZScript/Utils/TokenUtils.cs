@@ -53,9 +53,16 @@ namespace ZScript.Utils
                     Console.Write(" JUMP");
                     if (jumpToken.Conditional)
                     {
-                        Console.Write(jumpToken.ConditionToJump ? "IfTrue" : "IfFalse");
-                        if(!jumpToken.ConsumesStack)
-                            Console.Write("Peek");
+                        if (jumpToken.NullCheck)
+                        {
+                            Console.Write(jumpToken.ConditionToJump ? "IfNotTrue" : "IfNull");
+                        }
+                        else
+                        {
+                            Console.Write(jumpToken.ConditionToJump ? "IfTrue" : "IfFalse");
+                            if (!jumpToken.ConsumesStack)
+                                Console.Write("Peek");
+                        }
                     }
                     Console.WriteLine("]");
                     continue;

@@ -448,6 +448,10 @@ namespace ZScript.CodeGeneration.Tokenization
             if (!token.Conditional)
                 return VmInstruction.Jump;
 
+            // Null check jump
+            if (token.NullCheck)
+                return token.ConditionToJump ? VmInstruction.JumpIfNotNull : VmInstruction.JumpIfNull;
+
             // Jump if true conditional jump
             if (token.ConditionToJump)
                 return token.ConsumesStack ? VmInstruction.JumpIfTrue : VmInstruction.JumpIfTruePeek;
