@@ -523,6 +523,70 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests constant propagation in a ternary expression that always results in true
+        /// </summary>
+        [TestMethod]
+        public void TestTrueTernaryPropagation()
+        {
+            const string input = "true ? 0 : 1";
+
+            var parserExp = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider, new TestDefinitionTypeProvider());
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parserExp.expression();
+
+            expression.expression(0).EvaluatedType = typeProvider.BooleanType();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(0L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
+        /// Tests constant propagation in a ternary expression that always results in false
+        /// </summary>
+        [TestMethod]
+        public void TestFalseTernaryPropagation()
+        {
+            const string input = "false ? 0 : 1";
+
+            var parserExp = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var generationContext = new RuntimeGenerationContext(null, null, typeProvider, new TestDefinitionTypeProvider());
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parserExp.expression();
+
+            expression.expression(0).EvaluatedType = typeProvider.BooleanType();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(1L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+        }
+
+        /// <summary>
         /// Tests null coalescing propagation
         /// </summary>
         [TestMethod]

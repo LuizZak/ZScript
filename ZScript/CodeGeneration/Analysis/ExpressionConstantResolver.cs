@@ -141,6 +141,10 @@ namespace ZScript.CodeGeneration.Analysis
             // No need to analyze an expression that was already marked as constant
             if (!context.IsConstant)
             {
+                if (context.expression().Length == 3)
+                {
+                    ResolveTernaryExpression(context);
+                }
                 if (context.expression().Length == 2)
                 {
                     ResolveBinaryExpression(context);
@@ -257,6 +261,37 @@ namespace ZScript.CodeGeneration.Analysis
                         var message = e.Message;
                         Context.MessageContainer.RegisterError(context, message, ErrorCode.InvalidConstantOperation);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves the ternary expression contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context containing the expression to resolve</param>
+        void ResolveTernaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            var exp1 = context.expression(0);
+            var exp2 = context.expression(1);
+            var exp3 = context.expression(2);
+
+            ResolveExpression(exp1);
+            ResolveExpression(exp2);
+            ResolveExpression(exp3);
+
+            if (exp1.IsConstant && exp1.IsConstantPrimitive)
+            {
+                if (true.Equals(exp1.ConstantValue) && exp2.IsConstant)
+                {
+                    context.IsConstant = true;
+                    context.IsConstantPrimitive = true;
+                    context.ConstantValue = exp2.ConstantValue;
+                }
+                if (false.Equals(exp1.ConstantValue) && exp3.IsConstant)
+                {
+                    context.IsConstant = true;
+                    context.IsConstantPrimitive = true;
+                    context.ConstantValue = exp3.ConstantValue;
                 }
             }
         }
