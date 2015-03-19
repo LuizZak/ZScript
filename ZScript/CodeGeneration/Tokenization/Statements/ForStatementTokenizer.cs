@@ -151,6 +151,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             {
                 tokens.AddRange(_context.TokenizeAssignmentExpression(init.assignmentExpression()));
             }
+
+            // Add a stack balancing instruction
+            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
         }
     }
 }
