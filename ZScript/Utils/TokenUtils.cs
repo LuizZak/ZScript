@@ -18,12 +18,12 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
-using ZScript.Runtime.Execution;
 
 namespace ZScript.Utils
 {
@@ -68,7 +68,6 @@ namespace ZScript.Utils
                     continue;
                 }
                 
-
                 PrintToken(token);
 
                 Console.WriteLine("");
@@ -133,7 +132,7 @@ namespace ZScript.Utils
                     }
                     break;
                 default:
-                    Console.Write(token.TokenObject);
+                    Console.Write(token.TokenObject ?? "null");
                     break;
             }
         }

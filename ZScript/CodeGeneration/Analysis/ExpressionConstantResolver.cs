@@ -219,6 +219,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context containing the expression to resolve</param>
         void ResolveBinaryExpression(ZScriptParser.ExpressionContext context)
         {
+            if (context.T_NULL_COALESCE() != null)
+            {
+                ResolveNullCoalesce(context);
+                return;
+            }
+
             var exp1 = context.expression(0);
             var exp2 = context.expression(1);
 
@@ -251,6 +257,39 @@ namespace ZScript.CodeGeneration.Analysis
                         var message = e.Message;
                         Context.MessageContainer.RegisterError(context, message, ErrorCode.InvalidConstantOperation);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves the null coalesce contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context containing the expression to resolve</param>
+        private void ResolveNullCoalesce(ZScriptParser.ExpressionContext context)
+        {
+            var exp1 = context.expression(0);
+            var exp2 = context.expression(1);
+
+            // Resolve the two expressions
+            ResolveExpression(exp1);
+            ResolveExpression(exp2);
+
+            // Propagate the constant value now
+            if (exp1.IsConstant && exp1.EvaluatedType != null && exp2.IsConstant && exp2.EvaluatedType != null)
+            {
+                // a is not null
+                if (exp1.ConstantValue != null)
+                {
+                    context.IsConstant = true;
+                    context.IsConstantPrimitive = exp2.IsConstantPrimitive;
+                    context.ConstantValue = exp2.ConstantValue;
+                }
+                // a is always null
+                else
+                {
+                    context.IsConstant = true;
+                    context.IsConstantPrimitive = exp2.IsConstantPrimitive;
+                    context.ConstantValue = exp2.ConstantValue;
                 }
             }
         }

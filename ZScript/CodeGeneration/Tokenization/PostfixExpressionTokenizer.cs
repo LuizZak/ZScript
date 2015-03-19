@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -582,6 +583,21 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitTernaryExpression(ZScriptParser.ExpressionContext context)
         {
+            // Constant evaluation
+            if (context.expression(0).IsConstant && context.expression(0).EvaluatedType == TypeProvider.BooleanType())
+            {
+                if (context.expression(0).ConstantValue.Equals(true))
+                {
+                    VisitExpression(context.expression(1));
+                }
+                else
+                {
+                    VisitExpression(context.expression(2));
+                }
+
+                return;
+            }
+
             // Pre-create the jump target token
             var endT = new JumpTargetToken();
             var falseT = new JumpTargetToken();
@@ -625,7 +641,24 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitNullCoalescingExpression(ZScriptParser.ExpressionContext context)
         {
-            // a ?? b
+            // Null coalescing expression: a ?? b
+
+            // Constant propagation
+            if (context.expression(0).IsConstant)
+            {
+                // a is never null
+                if (context.expression(0).ConstantValue != null)
+                {
+                    VisitExpression(context.expression(0));
+                }
+                // a is always null
+                else
+                {
+                    VisitExpression(context.expression(1));
+                }
+                
+                return;
+            }
 
             // Prepare jumps
             var target = new JumpTargetToken();

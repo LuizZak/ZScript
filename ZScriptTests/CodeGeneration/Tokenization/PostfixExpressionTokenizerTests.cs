@@ -776,6 +776,80 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             Assert.AreEqual(3L, memory.GetVariable("d"), "Ternary operator did not behave as expected");
         }
 
+        /// <summary>
+        /// Tests generation of ternary operation that always evaluates to false
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFalseTernary()
+        {
+            const string message = "The tokens generated for the ternary expression where not generated as expected";
+
+            const string input = "false ? 1 : 2";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            exp.expression(0).IsConstant = true;
+            exp.expression(0).IsConstantPrimitive = true;
+            exp.expression(0).ConstantValue = false;
+            exp.expression(0).EvaluatedType = TypeDef.BooleanType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(2L)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests generation of ternary operation that always evaluates to true
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrueTernary()
+        {
+            const string message = "The tokens generated for the ternary expression where not generated as expected";
+
+            const string input = "true ? 1 : 2";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            exp.expression(0).IsConstant = true;
+            exp.expression(0).IsConstantPrimitive = true;
+            exp.expression(0).ConstantValue = true;
+            exp.expression(0).EvaluatedType = TypeDef.BooleanType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(1L)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
         #endregion
 
         /// <summary>
@@ -2385,6 +2459,80 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateVariableToken("c", true),
                 jTar2,
                 jTar1
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests constant null coalescing expression propagation tokenization
+        /// </summary>
+        [TestMethod]
+        public void TestNullCoalescingConstantPropagation()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "null ?? (1 + 1)";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            exp.expression(0).IsConstant = true;
+            exp.expression(0).IsConstantPrimitive = true;
+            exp.expression(0).ConstantValue = null;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests constant null coalescing expression propagation tokenization
+        /// </summary>
+        [TestMethod]
+        public void TestNonNullNullCoalescingConstantPropagation()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "1 ?? null";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            exp.expression(0).IsConstant = true;
+            exp.expression(0).IsConstantPrimitive = true;
+            exp.expression(0).ConstantValue = 1L;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(1L)
             };
 
             Console.WriteLine("Dump of tokens: ");

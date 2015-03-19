@@ -18,8 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Linq;
+
 using ZScript.Runtime.Execution;
 
 namespace ZScript.Elements
@@ -35,7 +37,7 @@ namespace ZScript.Elements
         public readonly TokenType Type;
 
         /// <summary>
-        /// The token itself. When the Type corresponds to a VM instruction, this value is not used
+        /// The token itself. When the Type corresponds to a VM instruction, this value is used as operands for some instructions
         /// </summary>
         public readonly Object TokenObject;
 

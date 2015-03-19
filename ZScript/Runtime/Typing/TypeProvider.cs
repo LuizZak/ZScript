@@ -58,6 +58,11 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
+        /// Whether to provide default values for value types when trying to convert null to value types with <see cref="CastObject"/>
+        /// </summary>
+        public bool DefaultValueForNullValueType = true;
+
+        /// <summary>
         /// Initializes a new instance of the TypeProvider class
         /// </summary>
         public TypeProvider()
@@ -122,7 +127,12 @@ namespace ZScript.Runtime.Typing
             if (value == null)
             {
                 if (newType.IsValueType)
+                {
+                    if (DefaultValueForNullValueType)
+                        return Activator.CreateInstance(newType);
+
                     throw new Exception("Cannot convert 'null' to value type " + newType);
+                }
 
                 return null;
             }
