@@ -27,7 +27,9 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+
 using ZScript.Builders;
+
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
@@ -36,9 +38,12 @@ using ZScript.CodeGeneration.Sourcing;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
+
 using ZScript.Elements;
 using ZScript.Elements.ValueHolding;
+
 using ZScript.Parsing;
+
 using ZScript.Runtime;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
@@ -274,7 +279,7 @@ namespace ZScript.CodeGeneration
 
             // Expand the definitions contained within the collector
             var staticTypeAnalyzer = new StaticTypeAnalyzer(context);
-            staticTypeAnalyzer.Expand();
+            staticTypeAnalyzer.Analyze();
 
             returnAnalyzer.Analyze(context);
 
@@ -569,7 +574,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="arguments">An enumerable of function arguments read from the script</param>
         /// <returns>An array of function arguments generated from the given array of function argument definitions</returns>
-        private FunctionArgument[] GenerateFunctionArguments(IEnumerable<FunctionArgumentDefinition> arguments)
+        private static FunctionArgument[] GenerateFunctionArguments(IEnumerable<FunctionArgumentDefinition> arguments)
         {
             return
                 arguments.Select(
@@ -640,7 +645,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="source">The source scope to copy the definitions from</param>
         /// <param name="target">The second scope to copy the definitions to</param>
-        private void MergeScopesRecursive(CodeScope source, CodeScope target)
+        private static void MergeScopesRecursive(CodeScope source, CodeScope target)
         {
             // Re-create the scope tree on the target
             foreach (var subScope in source.ChildrenScopes)
@@ -802,7 +807,6 @@ namespace ZScript.CodeGeneration
                     }
                 }
 
-            notFound:
                 _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
 
                 return _context.TypeProvider.AnyType();
