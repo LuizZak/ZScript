@@ -1250,8 +1250,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // Default body
                 jtDefault,
 
-                // End of IF block
-                jtEnd
+                // End of Switch block
+                jtEnd,
+
+                // Stack balancing call
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1289,7 +1292,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateVariableToken("a", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
                 new JumpToken(jtEnd),
-                jtEnd,
+                jtEnd
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1435,8 +1438,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // End jump
                 new JumpToken(jtEnd),
 
-                // End of IF block
-                jtEnd
+                // End of Switch block
+                jtEnd,
+                // Stack balancing call
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1514,8 +1519,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // End jump
                 new JumpToken(jtEnd),
 
-                // End of IF block
-                jtEnd
+                // End of Switch block
+                jtEnd,
+
+                // Stack balancing call
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
             Console.WriteLine("Dump of tokens: ");

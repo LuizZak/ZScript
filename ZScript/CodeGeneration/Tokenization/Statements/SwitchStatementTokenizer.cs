@@ -148,6 +148,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // Stick the switch block end target at the end of the list
             tokens.Add(_switchBlockEndTarget);
 
+            // Add a stack balancing instruction
+            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+
             return tokens;
         }
 
