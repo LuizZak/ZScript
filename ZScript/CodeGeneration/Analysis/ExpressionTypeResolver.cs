@@ -536,9 +536,6 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.leftValueAccess() != null)
             {
                 type = ResolveLeftValueAccess(type, context, context.leftValueAccess());
-
-                // Disable constant checking when making accesses
-                context.IsConstant = false;
             }
             
             return type;
