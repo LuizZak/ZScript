@@ -138,6 +138,30 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         [TestMethod]
+        public void TestPop()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateBoxedValueToken(3),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(2, functionVm.Stack.Pop());
+            Assert.AreEqual(1, functionVm.Stack.Pop());
+        }
+
+        [TestMethod]
         public void TestSet()
         {
             // Create the set of tokens

@@ -144,8 +144,10 @@ namespace ZScript.Runtime.Execution
                                     _returnValue = PopValueImplicit();
                                     _hasReturnValue = true;
                                 }
-
                                 return;
+                            case VmInstruction.Pop:
+                                _stack.Pop();
+                                break;
                             case VmInstruction.Jump:
                                 _codePosition = (int)token.TokenObject;
                                 continue;
@@ -1021,6 +1023,9 @@ namespace ZScript.Runtime.Execution
 
         /// <summary>Interrupts the virtual machine</summary>
         Interrupt,
+
+        /// <summary>Pops and discards the top most value off of the stack</summary>
+        Pop,
 
         /// <summary>Postfix increment</summary>
         IncrementPostfix,
