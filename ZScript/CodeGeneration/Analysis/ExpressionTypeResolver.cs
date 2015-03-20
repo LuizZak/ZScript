@@ -294,7 +294,12 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             if(retType == null)
-                throw new Exception("Cannot resolve type of expression '" + context.GetText() + "'");
+            {
+                var message = "Cannot resolve type of expression '" + context.GetText() + "'. Make sure the typing is not cyclical or incomplete.";
+
+                MessageContainer.RegisterError(context, message, ErrorCode.UnkownType);
+                retType = TypeProvider.AnyType();
+            }
 
             context.EvaluatedType = retType;
 
