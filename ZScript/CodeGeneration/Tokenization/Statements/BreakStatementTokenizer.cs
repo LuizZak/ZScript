@@ -49,12 +49,14 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens tokenized from the given context</returns>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.BreakStatementContext context)
         {
-            if (_context.CurrentBreakTarget == null)
+            var tokenList = new IntermediaryTokenList();
+
+            if (_context.CurrentBreakTarget != null)
             {
-                return new IntermediaryTokenList();
+                tokenList.Add(new JumpToken(_context.CurrentBreakTarget));
             }
 
-            return new IntermediaryTokenList { new JumpToken(_context.CurrentBreakTarget) };
+            return tokenList;
         }
     }
 }
