@@ -18,8 +18,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
@@ -64,7 +66,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         public Token CurrentContinueTarget
         {
-            get { return _continueTargetStack.Count == 0 ? null : _continueTargetStack.Peek(); }
+            get { return _continueTargetStack.FirstOrDefault(); }
         }
 
         /// <summary>
@@ -73,7 +75,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         public Token CurrentBreakTarget
         {
-            get { return _breakTargetStack.Count == 0 ? null : _breakTargetStack.Peek(); }
+            get { return _breakTargetStack.FirstOrDefault(); }
         }
 
         /// <summary>
