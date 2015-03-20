@@ -87,14 +87,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
-        /// Gets the message container to report errors and warnings to
-        /// </summary>
-        public MessageContainer MessageContainer
-        {
-            get { return _messageContainer; }
-        }
-
-        /// <summary>
         /// Gets the generation context for this statement tokenizer
         /// </summary>
         public RuntimeGenerationContext GenerationContext
