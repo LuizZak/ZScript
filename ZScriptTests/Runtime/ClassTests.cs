@@ -128,6 +128,24 @@ namespace ZScriptTests.Runtime
             Assert.IsFalse(collector.HasErrors);
         }
 
+        /// <summary>
+        /// Tests creation of two classes that contain fields that have each other as types
+        /// </summary>
+        [TestMethod]
+        public void TestClassCrossFieldTyping()
+        {
+            const string input = "class C1 { var c2:C2; } class C2 { var c1:C1; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.IsFalse(collector.HasErrors);
+        }
+
         #region Parsing Errors
 
         /// <summary>

@@ -176,6 +176,26 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
+        /// Creates a new runtime generation context from the given scope
+        /// </summary>
+        /// <param name="scope">The scope to create the generation context around of</param>
+        /// <returns>A new RuntimeGenerationContext created from the given scope</returns>
+        private RuntimeGenerationContext CreateContext(CodeScope scope)
+        {
+            var context = new RuntimeGenerationContext(scope, _messageContainer, _typeProvider);
+            context.ContextTypeProvider = new ExpressionTypeResolver(context);
+            var definitionTypeProvider = new DefaultDefinitionTypeProvider(context);
+
+            // Assign the context
+            context.DefinitionTypeProvider = definitionTypeProvider;
+
+            // Register the native type source for the calss native type source
+            context.TypeProvider.RegisterCustomNativeTypeSource(_nativeTypeBuilder);
+
+            return context;
+        }
+
+        /// <summary>
         /// Parses the input string
         /// </summary>
         public void ParseSources()
@@ -293,26 +313,6 @@ namespace ZScript.CodeGeneration
             classExpander.PostVerification();
 
             return completeScope;
-        }
-
-        /// <summary>
-        /// Creates a new runtime generation context from the given scope
-        /// </summary>
-        /// <param name="scope">The scope to create the generation context around of</param>
-        /// <returns>A new RuntimeGenerationContext created from the given scope</returns>
-        private RuntimeGenerationContext CreateContext(CodeScope scope)
-        {
-            var context = new RuntimeGenerationContext(scope, _messageContainer, _typeProvider);
-            context.ContextTypeProvider = new ExpressionTypeResolver(context);
-            var definitionTypeProvider = new DefaultDefinitionTypeProvider(context);
-
-            // Assign the context
-            context.DefinitionTypeProvider = definitionTypeProvider;
-
-            // Register the native type source for the calss native type source
-            context.TypeProvider.RegisterCustomNativeTypeSource(_nativeTypeBuilder);
-
-            return context;
         }
 
         /// <summary>

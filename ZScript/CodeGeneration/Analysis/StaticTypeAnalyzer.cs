@@ -99,6 +99,9 @@ namespace ZScript.CodeGeneration.Analysis
             // Get all definitons
             var definitions = _baseScope.GetAllDefinitionsRecursive().ToArray();
 
+            // Register the classes
+            _classTypeSource.Classes.AddRange(definitions.OfType<ClassDefinition>());
+
             // Analyze class fields
             foreach (var classDef in definitions.OfType<ClassDefinition>())
             {
@@ -212,9 +215,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The class definition to expand</param>
         private void ExpandClassDefinition(ClassDefinition definition)
         {
-            // Register the class
-            _classTypeSource.Classes.Add(definition);
-
             // Expand the fields
             foreach (var classField in definition.GetAllFields())
             {
