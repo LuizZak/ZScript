@@ -398,18 +398,36 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 VisitArrayLiteral(context.arrayLiteral());
 
-                if (context.valueAccess() != null)
+                if (context.objectAccess() != null)
                 {
-                    VisitValueAccess(context.valueAccess());
+                    VisitObjectAccess(context.objectAccess());
+                }
+            }
+            else if (context.arrayLiteralInit() != null)
+            {
+                VisitArrayLiteralInit(context.arrayLiteralInit());
+
+                if (context.objectAccess() != null)
+                {
+                    VisitObjectAccess(context.objectAccess());
                 }
             }
             else if (context.dictionaryLiteral() != null)
             {
                 VisitDictionaryLiteral(context.dictionaryLiteral());
 
-                if (context.valueAccess() != null)
+                if (context.objectAccess() != null)
                 {
-                    VisitValueAccess(context.valueAccess());
+                    VisitObjectAccess(context.objectAccess());
+                }
+            }
+            else if (context.dictionaryLiteralInit() != null)
+            {
+                VisitDictionaryLiteralInit(context.dictionaryLiteralInit());
+
+                if (context.objectAccess() != null)
+                {
+                    VisitObjectAccess(context.objectAccess());
                 }
             }
             else if (context.objectLiteral() != null)
@@ -829,6 +847,18 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(context.EvaluatedValueType, true)));
         }
 
+        private void VisitArrayLiteralInit(ZScriptParser.ArrayLiteralInitContext context)
+        {
+            // Create a 0 token to notify no arguments
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
+
+            if (context.EvaluatedValueType == null)
+                throw new InvalidOperationException("Array literal initializer context lacked required type for values of the array.");
+
+            // Add the array creation token
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(context.EvaluatedValueType, true)));
+        }
+
         private void VisitDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
         {
             // Get the type for the key and value
@@ -842,6 +872,26 @@ namespace ZScript.CodeGeneration.Tokenization
 
             // Collect the entries
             VisitDictionaryEntryList(context.dictionaryEntryList());
+
+            // Add the dictionary creation token
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary,
+                new[]
+                {
+                    TypeProvider.NativeTypeForTypeDef(keyType, true),
+                    TypeProvider.NativeTypeForTypeDef(valueType, true)
+                }));
+        }
+
+        private void VisitDictionaryLiteralInit(ZScriptParser.DictionaryLiteralInitContext context)
+        {
+            // Get the type for the key and value
+            var keyType = context.EvaluatedKeyType;
+            var valueType = context.EvaluatedValueType;
+
+            if (keyType == null)
+                throw new InvalidOperationException("Dictionary literal initializer context lacked required type for key of dictionary.");
+            if (valueType == null)
+                throw new InvalidOperationException("Dictionary literal initializer context lacked required type for values of dictionary.");
 
             // Add the dictionary creation token
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary,

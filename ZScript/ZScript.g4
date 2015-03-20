@@ -139,8 +139,10 @@ expression:  '(' expression ')' valueAccess?
            // Literals
            |  memberName valueAccess?
            |  objectLiteral objectAccess?
-           |  arrayLiteral valueAccess?
-           |  dictionaryLiteral valueAccess?
+           |  arrayLiteral objectAccess?
+           |  dictionaryLiteral objectAccess?
+           |  arrayLiteralInit
+           |  dictionaryLiteralInit
            // 'new' expression
            |  newExpression valueAccess?
            // Type casting
@@ -209,6 +211,9 @@ stringLiteral : StringLiteral;
 
 dictionaryEntryList: ':' | (dictionaryEntry (',' dictionaryEntry)*);
 dictionaryEntry : expression ':' expression;
+
+arrayLiteralInit : '[' type ']' functionCall;
+dictionaryLiteralInit : '[' type ':' type ']' functionCall;
 
 objectEntryList: objectEntryDefinition (',' objectEntryDefinition)*;
 objectEntryDefinition: entryName ':' expression;

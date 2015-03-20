@@ -19,6 +19,7 @@
 */
 #endregion
 using System.Collections;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScriptTests.Utils;
 
@@ -49,12 +50,34 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.IsInstanceOfType(memory.GetVariable("a"), typeof(IList), "The list created by the script is not of the expected type");
+            Assert.IsInstanceOfType(memory.GetVariable("a"), typeof(IList<long>), "The list created by the script is not of the expected type");
             var list = (IList)memory.GetVariable("a");
 
             Assert.AreEqual(0L, list[0], "The list did not have the expected values");
             Assert.AreEqual(1L, list[1], "The list did not have the expected values");
             Assert.AreEqual(2L, list[2], "The list did not have the expected values");
+        }
+
+        /// <summary>
+        /// Tests parsing and execution of array literal intialization
+        /// </summary>
+        [TestMethod]
+        public void TestArrayLiteralInit()
+        {
+            const string input = "var a; func funca(){ a = [int](); }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("funca");
+
+            // Assert the correct call was made
+            Assert.IsInstanceOfType(memory.GetVariable("a"), typeof(IList<long>), "The list created by the script is not of the expected type");
         }
 
         /// <summary>

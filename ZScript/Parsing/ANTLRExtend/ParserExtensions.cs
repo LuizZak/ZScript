@@ -174,6 +174,28 @@ public partial class ZScriptParser
     }
 
     /// <summary>
+    /// Provides extensions to the ArrayLiteralInitContext for providing typing to array initializers
+    /// </summary>
+    partial class ArrayLiteralInitContext
+    {
+        /// <summary>
+        /// Gets or sets the expected type for this expression, being implicitly set from a parent expression during expression type analysis
+        /// </summary>
+        public ListTypeDef ImplicitCastType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the evaluated type for the values in the array
+        /// </summary>
+        public TypeDef EvaluatedValueType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
+        /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
+        /// </summary>
+        public ListTypeDef ExpectedType { get; set; }
+    }
+
+    /// <summary>
     /// Provides extensions to the DictionaryLiteralContext for providing implicit casting of dictionary contents
     /// </summary>
     partial class DictionaryLiteralContext
@@ -188,6 +210,33 @@ public partial class ZScriptParser
         /// </summary>
         public TypeDef EvaluatedKeyType { get; set; }
         
+        /// <summary>
+        /// Gets or sets the evaluated type for the values in the dictionary
+        /// </summary>
+        public TypeDef EvaluatedValueType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
+        /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
+        /// </summary>
+        public DictionaryTypeDef ExpectedType { get; set; }
+    }
+
+    /// <summary>
+    /// Provides extensions to the DictionaryLiteralInitContext for providing typing to dictionary initializers
+    /// </summary>
+    partial class DictionaryLiteralInitContext
+    {
+        /// <summary>
+        /// Gets or sets the expected type for this expression, being implicitly set from a parent expression during expression type analysis
+        /// </summary>
+        public DictionaryTypeDef ImplicitCastType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the evaluated type for the keys in the dictionary
+        /// </summary>
+        public TypeDef EvaluatedKeyType { get; set; }
+
         /// <summary>
         /// Gets or sets the evaluated type for the values in the dictionary
         /// </summary>

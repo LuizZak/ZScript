@@ -180,22 +180,42 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.arrayLiteral() != null)
             {
                 var expectedAsList = context.ExpectedType as ListTypeDef;
-                if (expectedAsList != null && (context.valueAccess() == null || context.valueAccess().arrayAccess() == null))
+                if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
                 {
                     context.arrayLiteral().ExpectedType = expectedAsList;
                 }
 
                 retType = ResolveArrayLiteral(context.arrayLiteral());
             }
+            if (context.arrayLiteralInit() != null)
+            {
+                var expectedAsList = context.ExpectedType as ListTypeDef;
+                if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
+                {
+                    context.arrayLiteralInit().ExpectedType = expectedAsList;
+                }
+
+                retType = ResolveArrayLiteralInit(context.arrayLiteralInit());
+            }
             if (context.dictionaryLiteral() != null)
             {
                 var expectedAsList = context.ExpectedType as DictionaryTypeDef;
-                if (expectedAsList != null && (context.valueAccess() == null || context.valueAccess().arrayAccess() == null))
+                if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
                 {
                     context.dictionaryLiteral().ExpectedType = expectedAsList;
                 }
 
                 retType = ResolveDictionaryLiteral(context.dictionaryLiteral());
+            }
+            if (context.dictionaryLiteralInit() != null)
+            {
+                var expectedAsList = context.ExpectedType as DictionaryTypeDef;
+                if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
+                {
+                    context.dictionaryLiteralInit().ExpectedType = expectedAsList;
+                }
+
+                retType = ResolveDictionaryLiteralInit(context.dictionaryLiteralInit());
             }
             if (context.objectLiteral() != null)
             {
@@ -1074,6 +1094,20 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Returns a TypeDef describing the type for a given context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The type for the context</returns>
+        public ListTypeDef ResolveArrayLiteralInit(ZScriptParser.ArrayLiteralInitContext context)
+        {
+            var type = ResolveType(context.type(), false);
+
+            context.EvaluatedValueType = type;
+
+            return TypeProvider.ListForType(type);
+        }
+
+        /// <summary>
         /// Returns a DictionaryTypeDef describing the type for a given dictionary literal context
         /// </summary>
         /// <param name="context">The context to resolve</param>
@@ -1156,6 +1190,22 @@ namespace ZScript.CodeGeneration.Analysis
             context.EvaluatedValueType = expectedValueType;
 
             return context.ImplicitCastType = TypeProvider.DictionaryForTypes(expectedKeyType, expectedValueType);
+        }
+
+        /// <summary>
+        /// Returns a TypeDef describing the type for a given context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The type for the context</returns>
+        public DictionaryTypeDef ResolveDictionaryLiteralInit(ZScriptParser.DictionaryLiteralInitContext context)
+        {
+            var keyType = ResolveType(context.type(0), false);
+            var valueType = ResolveType(context.type(1), false);
+
+            context.EvaluatedKeyType = keyType;
+            context.EvaluatedValueType = valueType;
+
+            return TypeProvider.DictionaryForTypes(keyType, valueType);
         }
 
         #endregion

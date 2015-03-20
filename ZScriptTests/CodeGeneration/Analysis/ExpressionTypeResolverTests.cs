@@ -331,6 +331,32 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests array literal initializer type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestArrayLiteralInit()
+        {
+            // Set up the test
+            const string input = "[int]() [int]()";
+
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
+
+            var typeContext = parser.arrayLiteralInit();
+            var resolvedType1 = resolver.ResolveArrayLiteralInit(typeContext);
+
+            var expContext = parser.expression();
+            var resolvedType2 = resolver.ResolveExpression(expContext);
+
+            // Compare the result now
+            Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolvedType1, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.IntegerType(), typeContext.EvaluatedValueType, "The resolved type did not match the expected type");
+
+            Assert.AreEqual(typeProvider.ListForType(typeProvider.IntegerType()), resolvedType2, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
         /// Tests dictionary literal type resolving
         /// </summary>
         [TestMethod]
@@ -351,6 +377,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.StringType()), resolvedType, "The resolved type did not match the expected type");
             Assert.AreEqual(typeProvider.IntegerType(), type.EvaluatedKeyType, "The resolved type did not match the expected type");
             Assert.AreEqual(typeProvider.StringType(), type.EvaluatedValueType, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests dictionary literal initializer type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryLiteralInit()
+        {
+            // Set up the test
+            const string input = "[int:int]() [int:int]()";
+
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
+
+            var typeContext = parser.dictionaryLiteralInit();
+            var resolvedType1 = resolver.ResolveDictionaryLiteralInit(typeContext);
+
+            var expContext = parser.expression();
+            var resolvedType2 = resolver.ResolveExpression(expContext);
+
+            // Compare the result now
+            Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.IntegerType()), resolvedType1, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.IntegerType(), typeContext.EvaluatedKeyType, "The resolved type did not match the expected type");
+            Assert.AreEqual(typeProvider.IntegerType(), typeContext.EvaluatedValueType, "The resolved type did not match the expected type");
+
+            Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.IntegerType()), resolvedType2, "The resolved type did not match the expected type");
         }
 
         #endregion
