@@ -127,7 +127,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var baseClass = _currentScope.GetDefinitionByName<ClassDefinition>(context.classInherit().className().GetText());
 
                 if(baseClass != null)
-                    RegisterDefinitionUsage(baseClass, context);
+                    RegisterDefinitionUsage(baseClass, context.classInherit().className());
             }
 
             EnterContextScope(context);
