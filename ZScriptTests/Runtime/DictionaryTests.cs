@@ -113,5 +113,22 @@ namespace ZScriptTests.Runtime
 
             Assert.AreEqual(0.0, dict[0], "The runtime failed to create the expected dictionary");
         }
+
+        /// <summary>
+        /// Tests execution of dictionary literal intialization
+        /// </summary>
+        [TestMethod]
+        public void TestExecuteDictionaryLiteralInit()
+        {
+            const string input = "var dict:any; func f() { dict = [int: float](); }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(null);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.IsInstanceOfType(memory.GetVariable("dict"), typeof(Dictionary<long, double>), "The list created by the script is not of the expected type");
+        }
     }
 }

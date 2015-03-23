@@ -1230,6 +1230,42 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         }
 
         /// <summary>
+        /// Tests tokenization of a array literal initializer
+        /// </summary>
+        [TestMethod]
+        public void TestArrayLiteralInit()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[int]()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.arrayLiteralInit().EvaluatedValueType = TypeDef.IntegerType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long))
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
         /// Tests tokenization of an empty array literal
         /// </summary>
         [TestMethod]
@@ -1314,6 +1350,43 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateStringToken("def"),
                 TokenFactory.CreateBoxedValueToken(2),
                 TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { typeof(long), typeof(string) })
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests tokenization of a dictionary literal initializer
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryLiteralInit()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "[int: int]()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteralInit().EvaluatedKeyType = TypeDef.IntegerType;
+            exp.dictionaryLiteralInit().EvaluatedValueType = TypeDef.IntegerType;
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateDictionary, new [] { typeof(long), typeof(long) })
             };
 
             Console.WriteLine("Dump of tokens: ");

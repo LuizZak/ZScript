@@ -884,6 +884,9 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitDictionaryLiteralInit(ZScriptParser.DictionaryLiteralInitContext context)
         {
+            // Create a 0 token to notify no arguments
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
+
             // Get the type for the key and value
             var keyType = context.EvaluatedKeyType;
             var valueType = context.EvaluatedValueType;
