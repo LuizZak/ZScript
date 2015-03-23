@@ -52,15 +52,15 @@ namespace ZScript.Runtime.Execution.Wrappers
 
             // Try to wrap around the class instance, if any of the fields equals to the passed member name
             var zCls = target as ZClassInstance;
-            if (zCls != null)
+            if (zCls == null)
+                return ClassMember.CreateMemberWrapper(target, memberName);
+
+            var fields = zCls.Class.Fields;
+            foreach (var field in fields)
             {
-                var fields = zCls.Class.Fields;
-                foreach (ZClassField field in fields)
+                if (field.Name == memberName)
                 {
-                    if (field.Name == memberName)
-                    {
-                        return new ZClassMember(zCls, memberName);
-                    }
+                    return new ZClassMember(zCls, memberName);
                 }
             }
 
@@ -83,15 +83,15 @@ namespace ZScript.Runtime.Execution.Wrappers
             if (zClassInstance != null)
             {
                 var zMethods = zClassInstance.Class.Methods;
-                for (int i = 0; i < zMethods.Length; i++)
+                foreach (var method in zMethods)
                 {
-                    if (zMethods[i].Name == callableName)
+                    if (method.Name == callableName)
                     {
-                        return new ZClassMethod(zClassInstance, zMethods[i]);
+                        return new ZClassMethod(zClassInstance, method);
                     }
                 }
             }
-            
+
             // Native method
             var methods = MethodsNamedFor(target.GetType(), callableName);
 

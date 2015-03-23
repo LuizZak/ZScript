@@ -40,12 +40,10 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
             // Collect definitions
             foreach (var definition in scope.Definitions)
             {
-                // Function and global variable definitions are skipt because they can be accessed from outside
-                if (definition is FunctionDefinition || definition is GlobalVariableDefinition ||
-                    (definition is ValueHolderDefinition && (((ValueHolderDefinition)definition).IsInstanceValue)))
-                    continue;
                 // Definitions missing context are injected by the definition collector and are not analyzed
-                if (definition.Context == null)
+                // Function and global variable definitions are skipt because they can be accessed from outside of the script domain by the runtime
+                if (definition.Context == null || definition is FunctionDefinition || definition is GlobalVariableDefinition ||
+                    (definition is ValueHolderDefinition && (((ValueHolderDefinition)definition).IsInstanceValue)))
                     continue;
 
                 var usages = scope.GetUsagesForDefinition(definition).ToArray();
