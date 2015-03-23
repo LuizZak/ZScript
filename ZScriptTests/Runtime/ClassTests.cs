@@ -148,6 +148,61 @@ namespace ZScriptTests.Runtime
             Assert.IsFalse(collector.HasErrors);
         }
 
+        #region Constructor handling
+
+        /// <summary>
+        /// Tests trying to create a constructor that overrides a class with a parametered constructor that misses a base() call
+        /// </summary>
+        [TestMethod]
+        public void TestMissingBaseCall()
+        {
+            const string input = "class T1 { func T1(a:string) { } }" +
+                                 "class T2 : T1 { func T2() { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingBaseCall));
+        }
+
+        /// <summary>
+        /// Tests trying to inherit a class but not override a constructor that calls the base constructor
+        /// </summary>
+        [TestMethod]
+        public void TestMissingOverridenConstructor()
+        {
+            const string input = "class T1 { func T1(a:string) { } }" +
+                                 "class T2 : T1 { }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingBaseCall));
+        }
+
+        /// <summary>
+        /// Tests trying to create a constructor that overrides a class with a parametered constructor that has a base() call
+        /// </summary>
+        [TestMethod]
+        public void TestValidBaseCall()
+        {
+            const string input = "class T1 { func T1(a:string) { } }" +
+                                 "class T2 : T1 { func T2() { base('a'); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingBaseCall));
+        }
+
+        #endregion
+
         #region Parsing Errors
 
         /// <summary>
@@ -643,6 +698,23 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(true, owner.TraceObjects[1], "Failed TestClass() is TestClass");
             Assert.AreEqual(true, owner.TraceObjects[2], "Failed TestClass() is TestBaseClass");
             Assert.AreEqual(false, owner.TraceObjects[3], "Failed TestBaseClass() is TestClass");
+        }
+
+        /// <summary>
+        /// Tests inherited classes automatically calling base constructors
+        /// </summary>
+        [TestMethod]
+        public void TestAutomaticBaseConstructor()
+        {
+            const string input = "@__trace(v...) func f1() { Derived(); } class Base { func Base() { __trace(10); } } class Derived : Base { }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
         #endregion

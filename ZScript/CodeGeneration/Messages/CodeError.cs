@@ -169,6 +169,8 @@ namespace ZScript.CodeGeneration.Messages
         NoBaseTarget,
         /// <summary>The field of a class cannot be resolved because it lacks an explicit type or its initial value is not a compile-time constant</summary>
         MissingFieldType,
+        /// <summary>The constructor for an inherite class misses a call to its parent constructor</summary>
+        MissingBaseCall,
 
         #endregion
     }

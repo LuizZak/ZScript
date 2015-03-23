@@ -42,6 +42,14 @@ namespace ZScript.CodeGeneration.Definitions
         public ZScriptParser.CompileConstantContext DefaultValue { get; set; }
 
         /// <summary>
+        /// Gets a value specifying whether this function argument is optional and can be omitted when calling the function
+        /// </summary>
+        public bool IsOptional
+        {
+            get { return IsVariadic || HasValue; }
+        }
+
+        /// <summary>
         /// Creates an argument information based on the information of this function argument
         /// </summary>
         /// <returns>A callble argument information generated from this function argument</returns>

@@ -477,21 +477,25 @@ namespace ZScript.CodeGeneration
                     fields.Add(field);
                 }
 
-                TokenList tokenList = new TokenList();
+                var tokenList = new TokenList();
 
                 if (classDef.PublicConstructor.BodyContext != null)
                     tokenList = tokenizer.TokenizeBody(classDef.PublicConstructor.BodyContext);
 
                 classDef.PublicConstructor.Tokens = tokenList;
 
+                ConstructorDefinition constructor = classDef.NonDefaultConstructor;
+
+                tokenList = constructor.Tokens;
+
                 // Tokenize constructor
-                ZMethod constructor = new ZMethod(classDef.PublicConstructor.Name, tokenList, GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
-                transformedMethods[classDef.PublicConstructor] = constructor;
+                var zConstructor = new ZMethod(constructor.Name, tokenList, GenerateFunctionArguments(constructor.Parameters));
+                transformedMethods[constructor] = zConstructor;
 
-                if (classDef.PublicConstructor.BaseMethod != null)
-                    baseMethodQueue[constructor] = classDef.PublicConstructor.BaseMethod;
+                if (constructor.BaseMethod != null)
+                    baseMethodQueue[zConstructor] = constructor.BaseMethod;
 
-                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor, _nativeTypeBuilder.TypeForClassType(classDef.ClassTypeDef)));
+                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), zConstructor, _nativeTypeBuilder.TypeForClassType(classDef.ClassTypeDef)));
             }
 
             // Run over the base methods, setting the correct base methods now

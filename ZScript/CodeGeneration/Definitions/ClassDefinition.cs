@@ -74,6 +74,24 @@ namespace ZScript.CodeGeneration.Definitions
         public ConstructorDefinition PublicConstructor { get; set; }
 
         /// <summary>
+        /// Gets the first non default constructor in the inheritance chain.
+        /// If there are no base classes and the class has a default constructor, that constructor is returned instead
+        /// </summary>
+        public ConstructorDefinition NonDefaultConstructor
+        {
+            get
+            {
+                if(BaseClass == null)
+                    return PublicConstructor;
+
+                if(!PublicConstructor.IsDefault)
+                    return PublicConstructor;
+
+                return BaseClass.PublicConstructor;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the base class for this class definition
         /// </summary>
         public ClassDefinition BaseClass { get; set; }
@@ -115,7 +133,7 @@ namespace ZScript.CodeGeneration.Definitions
         {
             if (PublicConstructor == null)
             {
-                PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0])
+                PublicConstructor = new ConstructorDefinition(this, null, new FunctionArgumentDefinition[0], true)
                 {
                     ReturnType = _classTypeDef,
                     HasReturnType = true,
@@ -327,15 +345,22 @@ namespace ZScript.CodeGeneration.Definitions
     public class ConstructorDefinition : MethodDefinition
     {
         /// <summary>
+        /// Gets a value specifying whether this is a default constructor, that is, a parameter-less empty constructor created by the compiler
+        /// </summary>
+        public bool IsDefault { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the ConstructorDefinition class
         /// </summary>
         /// <param name="classDefinition">The class definition this constructor belongs to</param>
         /// <param name="bodyContext">The body context for the constructor</param>
         /// <param name="parameters">The parameters for the constructor</param>
-        public ConstructorDefinition(ClassDefinition classDefinition, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
+        /// <param name="isDefault">Whether this is a default constructor, that is, a parameter-less empty constructor created by the compiler</param>
+        public ConstructorDefinition(ClassDefinition classDefinition, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, bool isDefault)
             : base(classDefinition.Name, bodyContext, parameters)
         {
             ReturnType = classDefinition.ClassTypeDef;
+            IsDefault = isDefault;
         }
     }
 }

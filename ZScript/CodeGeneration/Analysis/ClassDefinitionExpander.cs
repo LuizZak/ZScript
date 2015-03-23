@@ -73,6 +73,12 @@ namespace ZScript.CodeGeneration.Analysis
         {
             VerifyMethods();
             VerifyFields();
+
+            var classes = _baseScope.GetDefinitionsByTypeRecursive<ClassDefinition>().ToArray();
+            foreach (var cls in classes)
+            {
+                VerifyBaseConstructorCall(cls);
+            }
         }
 
         /// <summary>
@@ -197,6 +203,58 @@ namespace ZScript.CodeGeneration.Analysis
                 constructor.MethodDefinition.ReturnType = null;
                 constructor.MethodDefinition.HasReturnType = false;
             }
+        }
+
+        /// <summary>
+        /// Verifies base calls on overriden constructors
+        /// </summary>
+        /// <param name="definition">The class definition to verify the constructor of</param>
+        private void VerifyBaseConstructorCall(ClassDefinition definition)
+        {
+            // Verify base constructor call
+            if (definition.BaseClass == null) return;
+            if (definition.BaseClass.PublicConstructor.RequiredParametersCount <= 0) return;
+
+            // Verify whether the first call is a base call
+            if (definition.PublicConstructor.IsDefault)
+            {
+                var message = "Class '" + definition.Name + "' must implement a constructor that calls the base " + definition.BaseClass.PublicConstructor + " constructor";
+                _generationContext.MessageContainer.RegisterError(definition.Context, message, ErrorCode.MissingBaseCall);
+                return;
+            }
+
+            if(!HasValidBaseCall(definition.PublicConstructor))
+            {
+                var missingMessage = "First statement on constructor " + definition.PublicConstructor +
+                                 " must be a call to base " + definition.BaseClass.PublicConstructor +
+                                 " constructor";
+                _generationContext.MessageContainer.RegisterError(definition.PublicConstructor.Context, missingMessage, ErrorCode.MissingBaseCall);
+            }
+        }
+
+        /// <summary>
+        /// Returns whether the given constructor definition has a valid base call as the first statement
+        /// </summary>
+        /// <param name="definition">The constructor definition to analyzer</param>
+        /// <returns>Whether the given constructor has a valid base call</returns>
+        private bool HasValidBaseCall(ConstructorDefinition definition)
+        {
+            var body = definition.BodyContext;
+            var block = body.blockStatement();
+            var stmts = block.statement();
+
+            // Has at least one statement
+            if (stmts.Length < 1)
+                return false;
+            // The statement is an expression
+            var exp = stmts[0].expression();
+            if (exp == null)
+                return false;
+            // The statement is a base access
+            if (exp.T_BASE() == null)
+                return false;
+
+            return true;
         }
 
         /// <summary>

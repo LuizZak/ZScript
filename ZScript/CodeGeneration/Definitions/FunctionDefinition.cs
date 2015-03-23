@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using ZScript.Elements;
 using ZScript.Runtime.Typing.Elements;
 
@@ -51,6 +52,11 @@ namespace ZScript.CodeGeneration.Definitions
         /// The return type for this function
         /// </summary>
         private TypeDef _returnType;
+
+        /// <summary>
+        /// The count of required arguments for the function definition
+        /// </summary>
+        private readonly int _requiredCount;
 
         /// <summary>
         /// Gets or sets a value specifying whether this function definition has a return type associated with it
@@ -90,6 +96,14 @@ namespace ZScript.CodeGeneration.Definitions
         }
 
         /// <summary>
+        /// Gets the minimum number of arguments required for the function call
+        /// </summary>
+        public int RequiredParametersCount
+        {
+            get { return _requiredCount; }
+        }
+
+        /// ;<summary>
         /// Gets or sets the return type for the function
         /// </summary>
         public TypeDef ReturnType
@@ -127,6 +141,8 @@ namespace ZScript.CodeGeneration.Definitions
             ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();
             _bodyContext = bodyContext;
             _parameters = parameters;
+            _requiredCount = parameters.Count(p => !(p.IsOptional));
+
             RecreateCallableDefinition();
         }
 
