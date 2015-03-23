@@ -1317,6 +1317,22 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             tokenizer.TokenizeExpression(exp);
         }
 
+        /// <summary>
+        /// Tests exception raising when tokenizing an array literal initializer with no EvaluatedValueType set
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse an array that has a null EvaluatedValueType should raise an InvalidOperationException")]
+        public void TestArrayInitMissingValueKeyException()
+        {
+            const string input = "[int]()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            tokenizer.TokenizeExpression(exp);
+        }
+
         #endregion
 
         #region Dictionary literal
@@ -1558,6 +1574,44 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Provide the type for the expression
             exp.dictionaryLiteral().EvaluatedKeyType = TypeDef.StringType;
+
+            tokenizer.TokenizeExpression(exp);
+        }
+
+        /// <summary>
+        /// Tests exception raising when tokenizing a dictionary literal initializer with no EvaluatedKeyType set
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse a dictionary that has a null EvaluatedKeyType should raise an InvalidOperationException")]
+        public void TestDictionarInityMissingKeyTypeException()
+        {
+            const string input = "[int: string]()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteralInit().EvaluatedValueType = TypeDef.StringType;
+
+            tokenizer.TokenizeExpression(exp);
+        }
+
+        /// <summary>
+        /// Tests exception raising when tokenizing a dictionary literal initializer with no EvaluatedValueType set
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to parse a dictionary that has a null EvaluatedValueType should raise an InvalidOperationException")]
+        public void TestDictionarInitMissingValueTypeException()
+        {
+            const string input = "[int: string]()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            // Provide the type for the expression
+            exp.dictionaryLiteralInit().EvaluatedKeyType = TypeDef.StringType;
 
             tokenizer.TokenizeExpression(exp);
         }
