@@ -23,7 +23,10 @@ using ZScript.Elements;
 
 namespace ZScript.Utils
 {
-    public class ExpressionUtils
+    /// <summary>
+    /// Static class that contains helper functions to deal with expressions coming from the parser
+    /// </summary>
+    public static class ExpressionUtils
     {
         /// <summary>
         /// Returns the unary, arithmetic or logical operator on a given expression context.

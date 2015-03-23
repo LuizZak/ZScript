@@ -61,6 +61,21 @@ namespace ZScriptTests.Runtime
         }
 
         /// <summary>
+        /// Tests parsing of dictionary literal intialization with access
+        /// </summary>
+        [TestMethod]
+        public void TestParseDictionaryLiteralInitAccess()
+        {
+            const string input = "var dict = [int:string]()[0];";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.IsFalse(container.HasErrors);
+        }
+
+        /// <summary>
         /// Tests parsing of dictionary literals
         /// </summary>
         [TestMethod]

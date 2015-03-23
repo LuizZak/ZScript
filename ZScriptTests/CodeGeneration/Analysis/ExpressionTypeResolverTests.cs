@@ -357,6 +357,26 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests array literal initializer access type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestArrayLiteralInitAccess()
+        {
+            // Set up the test
+            const string input = "[int]()[0]";
+
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
+
+            var typeContext = parser.expression();
+            var resolvedType1 = resolver.ResolveExpression(typeContext);
+
+            // Compare the result now
+            Assert.AreEqual(typeProvider.IntegerType(), resolvedType1, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
         /// Tests dictionary literal type resolving
         /// </summary>
         [TestMethod]
@@ -404,6 +424,26 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(typeProvider.IntegerType(), typeContext.EvaluatedValueType, "The resolved type did not match the expected type");
 
             Assert.AreEqual(typeProvider.DictionaryForTypes(typeProvider.IntegerType(), typeProvider.IntegerType()), resolvedType2, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests dictionary literal initializer access type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestDictionaryLiteralInitAccess()
+        {
+            // Set up the test
+            const string input = "[int:int]()[0]";
+
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), typeProvider));
+
+            var typeContext = parser.expression();
+            var resolvedType1 = resolver.ResolveExpression(typeContext);
+
+            // Compare the result now
+            Assert.AreEqual(typeProvider.IntegerType(), resolvedType1, "The resolved type did not match the expected type");
         }
 
         #endregion

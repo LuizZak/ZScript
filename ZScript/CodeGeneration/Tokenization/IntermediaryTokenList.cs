@@ -232,7 +232,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <exception cref="Exception">One of the jump tokens points to a target token that is not inside the same token list</exception>
         public static List<Token> CreateExpandedTokenList(IList<Token> source)
         {
-            List<Token> expandedTokens = new List<Token>(source);
+            var expandedTokens = new List<Token>(source);
             
             // Iterate again the jump tokens, now fixing the address of the token pointing
             for (int i = 0; i < expandedTokens.Count; i++)
@@ -262,7 +262,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 var newToken = TokenFactory.CreateInstructionToken(InstructionForJumpToken(jumpToken), address);
 
                 // Replace any jump reference that may be pointing to this jump token
-                foreach (Token t in expandedTokens)
+                foreach (var t in expandedTokens)
                 {
                     // If this jump token is unconditional, just point the other token to this token's target
                     var token = t as JumpToken;

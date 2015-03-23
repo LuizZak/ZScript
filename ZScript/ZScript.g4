@@ -141,8 +141,8 @@ expression:  '(' expression ')' valueAccess?
            |  objectLiteral objectAccess?
            |  arrayLiteral objectAccess?
            |  dictionaryLiteral objectAccess?
-           |  arrayLiteralInit
-           |  dictionaryLiteralInit
+           |  arrayLiteralInit objectAccess?
+           |  dictionaryLiteralInit objectAccess?
            // 'new' expression
            |  newExpression valueAccess?
            // Type casting

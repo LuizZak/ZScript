@@ -32,6 +32,21 @@ namespace ZScriptTests.Runtime
     public class ArrayTests
     {
         /// <summary>
+        /// Tests parsing of dictionary literal intialization with access
+        /// </summary>
+        [TestMethod]
+        public void TestParseArrayLiteralInitAccess()
+        {
+            const string input = "var dict = [int]()[0]; var dict2 = [int]().Count;";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.IsFalse(container.HasErrors);
+        }
+
+        /// <summary>
         /// Tests parsing and execution of array literal creation
         /// </summary>
         [TestMethod]
