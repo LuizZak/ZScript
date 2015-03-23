@@ -90,6 +90,7 @@ namespace ZScript.Elements
             : base(classInstance.Class.ClassName, classInstance.Class.Constructor.Tokens, classInstance.Class.Constructor.Arguments)
         {
             _classInstance = classInstance;
+            BaseMethod = classInstance.Class.Constructor.BaseMethod;
         }
 
         /// <summary>

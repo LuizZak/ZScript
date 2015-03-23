@@ -484,8 +484,12 @@ namespace ZScript.CodeGeneration
 
                 classDef.PublicConstructor.Tokens = tokenList;
 
-                ZMethod constructor = new ZMethod(classDef.PublicConstructor.Name, tokenList,
-                                                    GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
+                // Tokenize constructor
+                ZMethod constructor = new ZMethod(classDef.PublicConstructor.Name, tokenList, GenerateFunctionArguments(classDef.PublicConstructor.Parameters));
+                transformedMethods[classDef.PublicConstructor] = constructor;
+
+                if (classDef.PublicConstructor.BaseMethod != null)
+                    baseMethodQueue[constructor] = classDef.PublicConstructor.BaseMethod;
 
                 classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), constructor, _nativeTypeBuilder.TypeForClassType(classDef.ClassTypeDef)));
             }

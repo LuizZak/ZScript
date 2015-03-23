@@ -80,7 +80,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestBaseConstructor()
         {
-            const string input = "class Base { } class Derived : Base { func Derived() { base(); } }";
+            const string input = "func f1() { Derived(); } class Base { } class Derived : Base { func Derived() { base(); } }";
 
             var generator = TestUtils.CreateGenerator(input);
             var collector = generator.MessageContainer;
@@ -90,6 +90,8 @@ namespace ZScriptTests.Runtime
 
             // Get the class created
             Assert.IsFalse(collector.HasErrors);
+
+            generator.GenerateRuntime(new TestRuntimeOwner()).CallFunction("f1");
         }
 
         /// <summary>
