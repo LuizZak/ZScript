@@ -555,13 +555,6 @@ namespace ZScript.CodeGeneration
         /// <param name="method">The method to define</param>
         void DefineMethod(MethodDefinition method)
         {
-            // Define the function inside a class context as a method, if any class context is available
-            if (GetClassScope() == null)
-            {
-                _currentScope.AddDefinition(method);
-                return;
-            }
-
             // Constructor detection
             if (method.Name == GetClassScope().Name)
             {
