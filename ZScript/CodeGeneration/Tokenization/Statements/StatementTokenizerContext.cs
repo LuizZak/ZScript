@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using ZScript.CodeGeneration.Analysis;
-using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 
@@ -49,11 +48,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// The code scope that is expose to the statements tokenizers
         /// </summary>
         private readonly CodeScope _scope;
-
-        /// <summary>
-        /// The message container to report errors and warnings to
-        /// </summary>
-        private readonly MessageContainer _messageContainer;
 
         /// <summary>
         /// The generation context for this statement tokenizer
@@ -101,7 +95,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public StatementTokenizerContext(RuntimeGenerationContext context)
         {
             _scope = context.BaseScope;
-            _messageContainer = context.MessageContainer;
 
             _generationContext = context;
         }

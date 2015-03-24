@@ -20,7 +20,6 @@
 #endregion
 using System.Collections.Generic;
 
-using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Utils;
@@ -224,10 +223,7 @@ namespace ZScript.CodeGeneration.Analysis
                     if (switchStatement != null)
                     {
                         // Set the break target
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget)
-                        {
-                            Context = switchStatement
-                        };
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget);
 
                         bool hasDefault = switchStatement.switchBlock().defaultBlock() != null;
                         var defaultBlock = switchStatement.switchBlock().defaultBlock();
@@ -315,8 +311,8 @@ namespace ZScript.CodeGeneration.Analysis
                     var whileStatement = stmt.whileStatement();
                     if (whileStatement != null)
                     {
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
-                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = whileStatement };
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget);
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget);
 
                         if (whileStatement.IsConstant)
                         {
@@ -346,8 +342,8 @@ namespace ZScript.CodeGeneration.Analysis
                     var forStatement = stmt.forStatement();
                     if (forStatement != null)
                     {
-                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
-                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget) { Context = forStatement };
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget);
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget);
 
                         if (forStatement.forCondition() == null || forStatement.forCondition().IsConstant)
                         {
@@ -492,11 +488,6 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         private class ControlFlowPointer
         {
-            /// <summary>
-            /// Special context that can be attributed to the control flow pointer
-            /// </summary>
-            public ParserRuleContext Context;
-
             /// <summary>
             /// The statements the control flow is flowing throgh
             /// </summary>

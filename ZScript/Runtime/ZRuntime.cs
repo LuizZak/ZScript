@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -220,6 +220,12 @@ namespace ZScript.Runtime
             var constructor = funcDef as ZConstructor;
             if (constructor != null)
             {
+                // Call the base constructor sequentially
+                if(constructor.BaseMethod != null)
+                {
+                    CallFunction(constructor.BaseMethod, arguments);
+                }
+
                 // Wrap the method's memory and the class' memory into a memory mapper
                 var classMemory = new MemoryMapper();
 
@@ -235,9 +241,7 @@ namespace ZScript.Runtime
                 constructor.InitFields(new VmContext(constructorMapper, _globalAddressedMemory, this, _owner, _typeProvider));
             }
 
-            var ret = CallFunctionWithMemory(funcDef, localMemory);
-
-            return ret;
+            return CallFunctionWithMemory(funcDef, localMemory);
         }
 
         /// <summary>

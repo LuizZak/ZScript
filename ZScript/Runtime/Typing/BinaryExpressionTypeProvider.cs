@@ -30,11 +30,6 @@ namespace ZScript.Runtime.Typing
     public class BinaryExpressionTypeProvider
     {
         /// <summary>
-        /// The type provider to use when searching types to return
-        /// </summary>
-        private readonly TypeProvider _provider;
-
-        /// <summary>
         /// Cached int type for faster check
         /// </summary>
         private readonly TypeDef _intType;
@@ -60,7 +55,6 @@ namespace ZScript.Runtime.Typing
         /// <param name="provider">The type provider to use when searching types to return</param>
         public BinaryExpressionTypeProvider(TypeProvider provider)
         {
-            _provider = provider;
             _intType = provider.IntegerType();
             _floatType = provider.FloatType();
             _boolType = provider.BooleanType();

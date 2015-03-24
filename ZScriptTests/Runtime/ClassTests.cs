@@ -717,6 +717,27 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(10L, owner.TraceObjects[0]);
         }
 
+        /// <summary>
+        /// Tests inherited classes automatically calling base constructors
+        /// </summary>
+        [TestMethod]
+        public void TestAutomaticSequentialBaseConstructor()
+        {
+            const string input = "@__trace(v...) func f1() { C(); }" +
+                                 "class A { func A() { __trace(10); } }" +
+                                 "class B : A { func B() { __trace(11); } }" +
+                                 "class C : B { }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
+            Assert.AreEqual(11L, owner.TraceObjects[1]);
+        }
+
         #endregion
 
         #endregion
