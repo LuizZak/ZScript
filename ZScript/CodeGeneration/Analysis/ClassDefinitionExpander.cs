@@ -211,9 +211,29 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The class definition to verify the constructor of</param>
         private void VerifyBaseConstructorCall(ClassDefinition definition)
         {
+            definition.PublicConstructor.RequiresBaseCall = true;
+
             // Verify base constructor call
             if (definition.BaseClass == null) return;
-            if (definition.BaseClass.PublicConstructor.RequiredParametersCount <= 0) return;
+            if (definition.BaseClass.PublicConstructor.RequiredParametersCount <= 0)
+            {
+                if (definition.PublicConstructor.IsDefault) return;
+
+                if (HasValidBaseCall(definition.PublicConstructor))
+                {
+                    if (BaseCallArgumentCount(definition.PublicConstructor) == 0)
+                    {
+                        const string message = "Redundant base call: Parameterless base constructor calls are automatically made by the compiler.";
+                        _generationContext.MessageContainer.RegisterWarning(GetBaseCallContext(definition.PublicConstructor), message, WarningCode.RedundantBaseCall);
+                    }
+                    else
+                    {
+                        definition.PublicConstructor.RequiresBaseCall = false;
+                    }
+                }
+
+                return;
+            }
 
             // Verify whether the first call is a base call
             if (definition.PublicConstructor.IsDefault)
@@ -237,7 +257,34 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definition">The constructor definition to analyzer</param>
         /// <returns>Whether the given constructor has a valid base call</returns>
-        private bool HasValidBaseCall(ConstructorDefinition definition)
+        private static bool HasValidBaseCall(ConstructorDefinition definition)
+        {
+            return GetBaseCallContext(definition) != null;
+        }
+
+        /// <summary>
+        /// Returns the ammount of arguments used in a base call, or -1, if no base call was found
+        /// </summary>
+        /// <param name="definition">The constructor definition to analyzer</param>
+        /// <returns>The ammount of arguments used in a base call, or -1, if no base call was found</returns>
+        private static int BaseCallArgumentCount(ConstructorDefinition definition)
+        {
+            var stmt = GetBaseCallContext(definition);
+            if (stmt == null)
+                return -1;
+
+            var expList = stmt.expression().valueAccess().functionCall().funcCallArguments().expressionList();
+
+            return expList == null ? 0 : expList.expression().Length;
+        }
+
+        /// <summary>
+        /// Gets the base call context for the given constructor definition.
+        /// If no base call is found on the constructor, null is returned instead
+        /// </summary>
+        /// <param name="definition">The constructor definition to analyzer</param>
+        /// <returns>The base call context for the given constructor definition, or null, if none was found</returns>
+        private static ZScriptParser.StatementContext GetBaseCallContext(ConstructorDefinition definition)
         {
             var body = definition.BodyContext;
             var block = body.blockStatement();
@@ -245,16 +292,14 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Has at least one statement
             if (stmts.Length < 1)
-                return false;
+                return null;
             // The statement is an expression
             var exp = stmts[0].expression();
             if (exp == null)
-                return false;
-            // The statement is a base access
-            if (exp.T_BASE() == null)
-                return false;
+                return null;
 
-            return true;
+            // The statement is a base access
+            return exp.T_BASE() == null ? null : stmts[0];
         }
 
         /// <summary>

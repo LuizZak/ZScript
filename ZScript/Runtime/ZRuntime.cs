@@ -221,7 +221,7 @@ namespace ZScript.Runtime
             if (constructor != null)
             {
                 // Call the base constructor sequentially
-                if(constructor.BaseMethod != null)
+                if(constructor.BaseMethod != null && constructor.RequiresBaseCall)
                 {
                     CallFunction(constructor.BaseMethod, arguments);
                 }
@@ -353,7 +353,7 @@ namespace ZScript.Runtime
         {
             var instType = (ZClassInstance)Activator.CreateInstance(zClass.NativeType, zClass);
 
-            return new ZConstructor(instType);
+            return new ZConstructor(instType, instType.Class.ConstructorRequiresBaseCall);
         }
 
         /// <summary>

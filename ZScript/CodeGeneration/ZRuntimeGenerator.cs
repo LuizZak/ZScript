@@ -495,7 +495,7 @@ namespace ZScript.CodeGeneration
                 if (constructor.BaseMethod != null)
                     baseMethodQueue[zConstructor] = constructor.BaseMethod;
 
-                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), zConstructor, _nativeTypeBuilder.TypeForClassType(classDef.ClassTypeDef)));
+                classes.Add(new ZClass(classDef.Name, methods.ToArray(), fields.ToArray(), zConstructor, _nativeTypeBuilder.TypeForClassType(classDef.ClassTypeDef), constructor.RequiresBaseCall));
             }
 
             // Run over the base methods, setting the correct base methods now

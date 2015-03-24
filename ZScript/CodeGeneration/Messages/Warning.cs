@@ -67,6 +67,9 @@ namespace ZScript.CodeGeneration.Messages
         ConstantIfCondition,
 
         /// <summary>Specifies a warning issued when an expression for a switch statement resolves to a constant value that matches a constant defined in a case label</summary>
-        ConstantSwitchExpression
+        ConstantSwitchExpression,
+
+        /// <summary>Wraning raised whenever a redundant base() call is placed inside an inherited constructor</summary>
+        RedundantBaseCall,
     }
 }

@@ -350,6 +350,11 @@ namespace ZScript.CodeGeneration.Definitions
         public bool IsDefault { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value specifying whether the constructor requires a base call, or the user already performed the call
+        /// </summary>
+        public bool RequiresBaseCall { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the ConstructorDefinition class
         /// </summary>
         /// <param name="classDefinition">The class definition this constructor belongs to</param>

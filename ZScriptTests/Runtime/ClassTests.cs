@@ -201,6 +201,40 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.MissingBaseCall));
         }
 
+        /// <summary>
+        /// Tests warning raising when making redundant base calls
+        /// </summary>
+        [TestMethod]
+        public void TestReduntandBaseCallWarning()
+        {
+            const string input = "class T1 { func T1() { } }" +
+                                 "class T2 : T1 { func T2() { base(); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.RedundantBaseCall));
+        }
+
+        /// <summary>
+        /// Tests silenced warning raising when making redundant base calls
+        /// </summary>
+        [TestMethod]
+        public void TestSilencedReduntandBaseCallWarning()
+        {
+            const string input = "class T1 { func T1(a:string = '') { } }" +
+                                 "class T2 : T1 { func T2() { base('a'); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.RedundantBaseCall));
+        }
+
         #endregion
 
         #region Parsing Errors
@@ -727,6 +761,26 @@ namespace ZScriptTests.Runtime
                                  "class A { func A() { __trace(10); } }" +
                                  "class B : A { func B() { __trace(11); } }" +
                                  "class C : B { }";
+
+            var owner = new TestRuntimeOwner();
+            var generator = TestUtils.CreateGenerator(input);
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f1");
+
+            Assert.AreEqual(10L, owner.TraceObjects[0]);
+            Assert.AreEqual(11L, owner.TraceObjects[1]);
+        }
+
+        /// <summary>
+        /// Tests inherited classes not automatically calling base constructors when a base() is placed inside
+        /// </summary>
+        [TestMethod]
+        public void TestAutomaticSilencedBaseConstructor()
+        {
+            const string input = "@__trace(v...) func f1() { B(); }" +
+                                 "class A { func A(a:int = 0) { __trace(10); } }" +
+                                 "class B : A { func B() { base(1); __trace(11); } }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);

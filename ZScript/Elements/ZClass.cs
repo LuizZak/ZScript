@@ -79,6 +79,11 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Gets a value specifying whether the constructor for this class requires a base call, or the user already performed the call
+        /// </summary>
+        public bool ConstructorRequiresBaseCall { get; private set; }
+
+        /// <summary>
         /// Gets the fields for this class
         /// </summary>
         public ZClassField[] Fields
@@ -102,13 +107,15 @@ namespace ZScript.Elements
         /// <param name="fields">The array of fields for the class</param>
         /// <param name="constructor">The constructor for this class</param>
         /// <param name="nativeType">The native type associated with this ZClass</param>
-        public ZClass(string className, ZMethod[] methods, ZClassField[] fields, ZMethod constructor, Type nativeType)
+        /// <param name="constructorRequiresBaseCall">Whether the constructor for this class requires a base call, or the user already performed the call</param>
+        public ZClass(string className, ZMethod[] methods, ZClassField[] fields, ZMethod constructor, Type nativeType, bool constructorRequiresBaseCall)
         {
             _className = className;
             _methods = methods;
             _fields = fields;
             _constructor = constructor;
             _nativeType = nativeType;
+            ConstructorRequiresBaseCall = constructorRequiresBaseCall;
         }
     }
 

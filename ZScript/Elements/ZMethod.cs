@@ -83,13 +83,20 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Gets a value specifying whether the constructor requires a base call, or the user already performed the call
+        /// </summary>
+        public bool RequiresBaseCall { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the ZConstructor class
         /// </summary>
         /// <param name="classInstance">The class instance to create a constructor of</param>
-        public ZConstructor(ZClassInstance classInstance)
+        /// <param name="requiresBaseCall">Whether the constructor requires a base call, or the user already performed the call</param>
+        public ZConstructor(ZClassInstance classInstance, bool requiresBaseCall)
             : base(classInstance.Class.ClassName, classInstance.Class.Constructor.Tokens, classInstance.Class.Constructor.Arguments)
         {
             _classInstance = classInstance;
+            RequiresBaseCall = requiresBaseCall;
             BaseMethod = classInstance.Class.Constructor.BaseMethod;
         }
 
