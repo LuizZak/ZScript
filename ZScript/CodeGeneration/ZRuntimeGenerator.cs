@@ -596,7 +596,7 @@ namespace ZScript.CodeGeneration
         /// <param name="source1">The first scope to merge</param>
         /// <param name="source2">The second scope to merge</param>
         /// <returns>A single code scope containing all of the definitions merged</returns>
-        private CodeScope MergeScopes(CodeScope source1, CodeScope source2)
+        private static CodeScope MergeScopes(CodeScope source1, CodeScope source2)
         {
             CodeScope newScope = new CodeScope();
 
@@ -604,6 +604,32 @@ namespace ZScript.CodeGeneration
             MergeScopesRecursive(source2, newScope);
             
             return newScope;
+        }
+
+        /// <summary>
+        /// Merges the definitions of a code scope into another code scope, recursively re-creating the scope tree on the target scope
+        /// </summary>
+        /// <param name="source">The source scope to copy the definitions from</param>
+        /// <param name="target">The second scope to copy the definitions to</param>
+        private static void MergeScopesRecursive(CodeScope source, CodeScope target)
+        {
+            // Re-create the scope tree on the target
+            foreach (var subScope in source.ChildrenScopes)
+            {
+                var scope = new CodeScope { Context = subScope.Context };
+                target.AddSubscope(scope);
+
+                MergeScopesRecursive(subScope, scope);
+            }
+
+            foreach (var d in source.Definitions)
+            {
+                target.AddDefinition(d);
+            }
+            foreach (var usage in source.DefinitionUsages)
+            {
+                target.AddDefinitionUsage(usage);
+            }
         }
 
         /// <summary>
@@ -644,32 +670,6 @@ namespace ZScript.CodeGeneration
 
                     _messageContainer.RegisterError(definition.Context, message, ErrorCode.DuplicatedDefinition);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Merges the definitions of a code scope into another code scope, recursively re-creating the scope tree on the target scope
-        /// </summary>
-        /// <param name="source">The source scope to copy the definitions from</param>
-        /// <param name="target">The second scope to copy the definitions to</param>
-        private static void MergeScopesRecursive(CodeScope source, CodeScope target)
-        {
-            // Re-create the scope tree on the target
-            foreach (var subScope in source.ChildrenScopes)
-            {
-                var scope = new CodeScope { Context = subScope.Context };
-                target.AddSubscope(scope);
-
-                MergeScopesRecursive(subScope, scope);
-            }
-
-            foreach (var d in source.Definitions)
-            {
-                target.AddDefinition(d);
-            }
-            foreach (var usage in source.DefinitionUsages)
-            {
-                target.AddDefinitionUsage(usage);
             }
         }
 
