@@ -384,7 +384,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
-        private ZFunction[] GenerateFunctions(RuntimeGenerationContext context)
+        private IEnumerable<ZFunction> GenerateFunctions(RuntimeGenerationContext context)
         {
             var scope = context.BaseScope;
 
@@ -406,7 +406,7 @@ namespace ZScript.CodeGeneration
                 zFuncs.Add(zFunction);
             }
 
-            return zFuncs.ToArray();
+            return zFuncs;
         }
 
         /// <summary>
@@ -414,7 +414,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZClasses available at the top-level scope</returns>
-        private ZClass[] GenerateClasses(RuntimeGenerationContext context)
+        private IEnumerable<ZClass> GenerateClasses(RuntimeGenerationContext context)
         {
             var scope = context.BaseScope;
 
@@ -504,7 +504,7 @@ namespace ZScript.CodeGeneration
                 zMethod.BaseMethod = transformedMethods[baseMethodQueue[zMethod]];
             }
 
-            return classes.ToArray();
+            return classes;
         }
 
         /// <summary>
@@ -512,7 +512,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZClosureFunction available at the top-level scope</returns>
-        private ZClosureFunction[] GenerateClosures(RuntimeGenerationContext context)
+        private IEnumerable<ZClosureFunction> GenerateClosures(RuntimeGenerationContext context)
         {
             var scope = context.BaseScope;
 
@@ -534,7 +534,7 @@ namespace ZScript.CodeGeneration
                 zClosures.Add(zFunction);
             }
 
-            return zClosures.ToArray();
+            return zClosures;
         }
 
         /// <summary>
@@ -542,13 +542,13 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing ZFunctions available at the top-level scope</returns>
-        private ZExportFunction[] GenerateExportFunctions(RuntimeGenerationContext context)
+        private IEnumerable<ZExportFunction> GenerateExportFunctions(RuntimeGenerationContext context)
         {
             var scope = context.BaseScope;
 
             var funcDefs = scope.Definitions.OfType<ExportFunctionDefinition>();
 
-            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Parameters))).ToArray();
+            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Parameters)));
         }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context for the runtime generation</param>
         /// <returns>An array containing GlobalVariables available at the top-level scope</returns>
-        private GlobalVariable[] GenerateGlobalVariables(RuntimeGenerationContext context)
+        private IEnumerable<GlobalVariable> GenerateGlobalVariables(RuntimeGenerationContext context)
         {
             var scope = context.BaseScope;
 
@@ -573,8 +573,7 @@ namespace ZScript.CodeGeneration
                             DefaultValue = null,
                             Type = _typeProvider.NativeTypeForTypeDef(def.Type),
                             ExpressionTokens = def.HasValue ? new TokenList(tokenizer.TokenizeExpression(def.ValueExpression.ExpressionContext)) : new TokenList()
-                        })
-                    .ToArray();
+                        });
         }
 
         /// <summary>
