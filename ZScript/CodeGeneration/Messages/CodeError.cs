@@ -91,6 +91,8 @@ namespace ZScript.CodeGeneration.Messages
 
         /// <summary>Specifies an error raised when a constant definition has no starting value assigned to it</summary>
         ValuelessConstantDeclaration,
+        /// <summary>Specifies an error raised when a value holder definition with a non-optional type has no starting value assigned to it</summary>
+        ValuelessNonOptionalDeclaration,
         /// <summary>A type of a value holder is incomplete (either void, lacking type, or 'null'-typed)</summary>
         IncompleteType,
 

@@ -100,7 +100,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestSelfReference()
         {
-            const string input = "class TestClass { var a:TestClass; }";
+            const string input = "class TestClass { var a:TestClass?; }";
 
             var generator = TestUtils.CreateGenerator(input);
             var collector = generator.MessageContainer;
@@ -136,7 +136,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestClassCrossFieldTyping()
         {
-            const string input = "class C1 { var c2:C2; } class C2 { var c1:C1; }";
+            const string input = "class C1 { var c2:C2?; } class C2 { var c1:C1?; }";
 
             var generator = TestUtils.CreateGenerator(input);
             var collector = generator.MessageContainer;
@@ -492,7 +492,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestBasicClass()
         {
-            const string input = "var a:any; func f1() { a = TestClass(); } class TestClass { }";
+            const string input = "var a:any?; func f1() { a = TestClass(); } class TestClass { }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -510,7 +510,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestConstructor()
         {
-            const string input = "var a:any; func f1() { var f = TestClass(10); a = f.field; } class TestClass { var field:int; func TestClass(i:int) { field = i; } }";
+            const string input = "var a:any?; func f1() { var f = TestClass(10); a = f.field; } class TestClass { var field:int = 0; func TestClass(i:int) { field = i; } }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -528,7 +528,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestGetField()
         {
-            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.field; } class TestClass { var field:int = 10; }";
+            const string input = "var a:any?; func f1() { var inst = TestClass(); a = inst.field; } class TestClass { var field:int = 10; }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -546,7 +546,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestSetField()
         {
-            const string input = "var a:any; func f1() { var inst = TestClass(); inst.field = 20; a = inst.field; } class TestClass { var field:int = 10; }";
+            const string input = "var a:any?; func f1() { var inst = TestClass(); inst.field = 20; a = inst.field; } class TestClass { var field:int = 10; }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -564,7 +564,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestMethod()
         {
-            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.calc(); } class TestClass { func calc() : int { return 10; } }";
+            const string input = "var a:any?; func f1() { var inst = TestClass(); a = inst.calc(); } class TestClass { func calc() : int { return 10; } }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -582,7 +582,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestThisVariable()
         {
-            const string input = "var a:any; func f1() { var inst = TestClass(); a = inst.f(); } class TestClass { var field:int = 10; func f() : int { return this.field; } }";
+            const string input = "var a:any?; func f1() { var inst = TestClass(); a = inst.f(); } class TestClass { var field:int = 10; func f() : int { return this.field; } }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -600,7 +600,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestDefaultValue()
         {
-            const string input = "var a:any; var b:any; func f1() { var inst = TestClass(); a = inst.field1; b = inst.field2; } class TestClass { var field1:int; var field2:TestClass; }";
+            const string input = "var a:any?; var b:any?; func f1() { var inst = TestClass(); a = inst.field1; b = inst.field2; } class TestClass { var field1:int?; var field2:TestClass?; }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -609,7 +609,7 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(default(long), memory.GetVariable("a"));
+            Assert.AreEqual(null, memory.GetVariable("a"));
             Assert.AreEqual(null, memory.GetVariable("b"));
         }
 
@@ -638,7 +638,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestAccessBaseField()
         {
-            const string input = "var a:int; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; } class TestClass : TestBaseClass { func access() : int { return field; } }";
+            const string input = "var a:int?; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; } class TestClass : TestBaseClass { func access() : int { return field; } }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -659,7 +659,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestAccessBaseMethod()
         {
-            const string input = "var a:int; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; func access() : int { return field; } } class TestClass : TestBaseClass { }";
+            const string input = "var a:int?; func f1() { var inst = TestClass(); a = inst.access(); } class TestBaseClass { var field:int = 10; func access() : int { return field; } } class TestClass : TestBaseClass { }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -680,7 +680,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestOverridenMethod()
         {
-            const string input = "var a:int; func f1() { var inst = TestClass(); inst.access(); }" +
+            const string input = "var a:int?; func f1() { var inst = TestClass(); inst.access(); }" +
                                  "class TestBaseClass { func access() { a = 10; } }" +
                                  "class TestClass : TestBaseClass { override func access() { a = 20; } }";
 
@@ -703,7 +703,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestCallBaseMethod()
         {
-            const string input = "var a:int; func f1() { var inst = TestClass(); inst.access(); }" +
+            const string input = "var a:int?; func f1() { var inst = TestClass(); inst.access(); }" +
                                  "class TestBaseClass { func access() { a = 10; } }" +
                                  "class TestClass : TestBaseClass { override func access() { base(); } }";
 

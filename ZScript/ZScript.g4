@@ -194,7 +194,7 @@ funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
 
 leftValue : (memberName | 'this') leftValueAccess?;
-leftValueAccess : (functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
+leftValueAccess : unwrap='!'? ((functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?));
 functionCall : funcCallArguments;
 fieldAccess  : '.' memberName;
 arrayAccess : '[' expression ']';

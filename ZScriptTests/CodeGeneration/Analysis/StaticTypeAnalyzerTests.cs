@@ -122,7 +122,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestClosureTypeInferringAssignment()
         {
-            const string input = "func f2() { var a: (int->int); a = i => { return 0; }; }";
+            const string input = "func f2() { var a: (int->int)?; a = i => { return 0; }; }";
             var generator = TestUtils.CreateGenerator(input);
             var provider = generator.TypeProvider;
             var scope = generator.CollectDefinitions();
@@ -161,7 +161,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestClassTypeNaming()
         {
-            const string input = "var a:TestClass; class TestClass { }";
+            const string input = "var a:TestClass?; class TestClass { }";
             var generator = TestUtils.CreateGenerator(input);
             generator.CollectDefinitions();
             generator.MessageContainer.PrintMessages();
@@ -893,6 +893,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type, "Faild to infer type of global variable");
             Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+        }
+
+        /// <summary>
+        /// Tests global variable type expanding and inferring
+        /// </summary>
+        [TestMethod]
+        public void TestEmptyNonOptional()
+        {
+            // Set up the test
+            const string input = "var a:int; var b:int?;";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.ValuelessNonOptionalDeclaration), "Failed to raise expected warnings");
         }
 
         #endregion

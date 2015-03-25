@@ -79,8 +79,16 @@ namespace ZScript.Elements
                 }
                 else
                 {
-                    // Init with the default value
-                    _classInstance.LocalMemory.SetVariable(field.Name, field.Type.IsValueType ? Activator.CreateInstance(field.Type) : null);
+                    // No type - maybe a nullable?
+                    if (field.Type == null)
+                    {
+                        _classInstance.LocalMemory.SetVariable(field.Name, null);
+                    }
+                    else
+                    {
+                        // Init with the default value
+                        _classInstance.LocalMemory.SetVariable(field.Name, field.Type.IsValueType ? Activator.CreateInstance(field.Type) : null);
+                    }
                 }
             }
         }

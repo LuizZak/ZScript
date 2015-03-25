@@ -763,7 +763,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestTernaryExecution()
         {
-            const string input = "var a = 1; var b = 2; var c = 3; var d:int; func f1() { d = !true ? a : !true ? b : c;  }";
+            const string input = "var a = 1; var b = 2; var c = 3; var d:int = 0; func f1() { d = !true ? a : !true ? b : c;  }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;

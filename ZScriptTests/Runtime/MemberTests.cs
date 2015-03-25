@@ -81,7 +81,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestMemberCompoundAssignment()
         {
-            const string input = "var a; func funca(){ a = { x:10 }; a.x += 10; }";
+            const string input = "var a:any?; func funca(){ a = { x:10 }; a!.x += 10; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

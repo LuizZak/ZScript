@@ -158,7 +158,7 @@ namespace ZScript.CodeGeneration.Analysis
         private void ProcessStatements(CodeScope scope)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
-            var traverser = new ExpressionStatementsTraverser(_generationContext, _typeResolver, resolver);
+            var traverser = new ExpressionStatementsTraverser(_generationContext, this, resolver);
             var definitions = scope.Definitions;
 
             foreach (var definition in definitions)
@@ -275,12 +275,18 @@ namespace ZScript.CodeGeneration.Analysis
         {
             if (!definition.HasValue)
             {
+                if (definition.Context != null && !(definition.Type is OptionalTypeDef) && !(definition is FunctionArgumentDefinition))
+                {
+                    var message = "Non-optional variable " + definition.Name + " requires a starting value";
+                    Container.RegisterError(definition.Context, message, ErrorCode.ValuelessNonOptionalDeclaration);
+                }
+
                 return;
             }
 
             // Compare applicability
             TypeDef valueType;
-
+            
             var argumentDefinition = definition as FunctionArgumentDefinition;
             if (argumentDefinition != null)
             {
@@ -288,7 +294,14 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else
             {
-                definition.ValueExpression.ExpressionContext.ExpectedType = definition.HasType ? definition.Type : null;
+                var expT = definition.HasType ? definition.Type : null;
+
+                if (expT is OptionalTypeDef)
+                {
+                    expT = ((OptionalTypeDef)expT).BaseWrappedType;
+                }
+
+                definition.ValueExpression.ExpressionContext.ExpectedType = expT;
                 definition.ValueExpression.ExpressionContext.HasTypeBeenEvaluated = false;
                 valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
             }
@@ -339,6 +352,11 @@ namespace ZScript.CodeGeneration.Analysis
             private readonly RuntimeGenerationContext _context;
 
             /// <summary>
+            /// The type analyzer that owns this ExpressionStatementsTraverser
+            /// </summary>
+            private readonly StaticTypeAnalyzer _typeAnalyzer;
+
+            /// <summary>
             /// The type resolver to use when resolving the expressions
             /// </summary>
             private readonly ExpressionTypeResolver _typeResolver;
@@ -365,9 +383,9 @@ namespace ZScript.CodeGeneration.Analysis
             /// Initializes a new instance of the ExpressionStatementsTraverser class
             /// </summary>
             /// <param name="context">The context for the runtime generation</param>
-            /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
+            /// <param name="typeAnalyzer">The type analyzer that owns this ExpressionStatementsTraverser</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            public ExpressionStatementsTraverser(RuntimeGenerationContext context, ExpressionTypeResolver typeResolver, ExpressionConstantResolver constantResolver)
+            public ExpressionStatementsTraverser(RuntimeGenerationContext context, StaticTypeAnalyzer typeAnalyzer, ExpressionConstantResolver constantResolver)
             {
                 var target = constantResolver.Context.DefinitionTypeProvider as ZRuntimeGenerator.DefaultDefinitionTypeProvider;
                 if (target != null)
@@ -376,7 +394,8 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 _context = context;
-                _typeResolver = typeResolver;
+                _typeAnalyzer = typeAnalyzer;
+                _typeResolver = typeAnalyzer._typeResolver;
                 _constantResolver = constantResolver;
 
                 _typeResolver.ClosureExpectedTypeNotifier = this;
@@ -608,81 +627,12 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             /// <summary>
-            /// Expands the type of a given variable definition
-            /// </summary>
-            /// <param name="definition">The definition to expand</param>
-            private void ExpandValueHolderDefinition(ValueHolderDefinition definition)
-            {
-                // Evaluate definition type
-                ExpandValueHolderType(definition);
-                ExpandValueHolderTypeFromValue(definition);
-            }
-
-            /// <summary>
-            /// Expands the type declaration of a given variable definition
-            /// </summary>
-            /// <param name="definition">The definition to expand</param>
-            private void ExpandValueHolderType(ValueHolderDefinition definition)
-            {
-                // Evaluate definition type
-                if (!definition.HasType)
-                {
-                    definition.Type = TypeProvider.AnyType();
-                }
-                else
-                {
-                    definition.Type = _typeResolver.ResolveType(definition.TypeContext, false);
-                }
-            }
-
-            /// <summary>
-            /// Expands the type of a given value holder definition from its initialization expression, if any
-            /// </summary>
-            /// <param name="definition">The definition to expand</param>
-            private void ExpandValueHolderTypeFromValue(ValueHolderDefinition definition)
-            {
-                if (!definition.HasValue)
-                {
-                    return;
-                }
-
-                // Compare applicability
-                TypeDef valueType;
-
-                var argumentDefinition = definition as FunctionArgumentDefinition;
-                if (argumentDefinition != null)
-                {
-                    valueType = _typeResolver.ResolveCompileConstant(argumentDefinition.DefaultValue);
-                }
-                else
-                {
-                    definition.ValueExpression.ExpressionContext.ExpectedType = definition.HasType ? definition.Type : null;
-                    definition.ValueExpression.ExpressionContext.HasTypeBeenEvaluated = false;
-                    valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
-                }
-
-                if (!definition.HasType)
-                {
-                    definition.Type = valueType;
-                    definition.HasInferredType = valueType != null;
-                }
-
-                var varType = definition.Type;
-
-                if (varType != null && !TypeProvider.CanImplicitCast(valueType, varType))
-                {
-                    var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
-                    _typeResolver.MessageContainer.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message, ErrorCode.InvalidCast, definition.Context);
-                }
-            }
-
-            /// <summary>
             /// Expands the type of a given function argument definition
             /// </summary>
             /// <param name="definition">The definition to expand</param>
             private void AnalyzeFunctionArgument(FunctionArgumentDefinition definition)
             {
-                ExpandValueHolderDefinition(definition);
+                _typeAnalyzer.ExpandValueHolderDefinition(definition);
 
                 if (definition.IsVariadic)
                 {
@@ -699,6 +649,7 @@ namespace ZScript.CodeGeneration.Analysis
                 // Find the context the closure was defined in
                 var definedContext = (ZScriptParser.ClosureExpressionContext)definition.Context;
                 var contextType = FindExpectedTypeForClosure(definedContext);
+
                 bool returnModified = false;
 
                 // Get the parameter types
@@ -783,7 +734,15 @@ namespace ZScript.CodeGeneration.Analysis
                 // Search closures registered on expected type closures list
                 if (closureContext.Parent != null)
                 {
-                    return ((ZScriptParser.ExpressionContext)closureContext.Parent).ExpectedType ?? TypeProvider.AnyType();
+                    var t = ((ZScriptParser.ExpressionContext)closureContext.Parent).ExpectedType ?? TypeProvider.AnyType();
+
+                    var optT = t as OptionalTypeDef;
+                    if (optT != null)
+                    {
+                        return optT.BaseWrappedType;
+                    }
+                    
+                    return t;
                 }
 
                 return TypeProvider.AnyType();

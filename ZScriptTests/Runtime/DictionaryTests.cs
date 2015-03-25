@@ -96,13 +96,13 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestExecuteDictionaryLiteral()
         {
-            const string input = "var dict:[int:string]; func f() { dict = [0: 'apples', 1: 'oranges']; }";
+            const string input = "var dict:[int:string] = [0: 'apples', 1: 'oranges'];";
 
             var generator = TestUtils.CreateGenerator(input);
             var runtime = generator.GenerateRuntime(null);
             var memory = runtime.GlobalMemory;
 
-            runtime.CallFunction("f");
+            runtime.ExpandGlobalVariables();
 
             var dict = (Dictionary<long, string>)memory.GetVariable("dict");
 
@@ -116,13 +116,13 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestExecuteImplicitDictionaryLiteral()
         {
-            const string input = "var dict:[int: float]; func f() { dict = [0: 0]; }";
+            const string input = "var dict:[int: float] = [0: 0];";
 
             var generator = TestUtils.CreateGenerator(input);
             var runtime = generator.GenerateRuntime(null);
             var memory = runtime.GlobalMemory;
 
-            runtime.CallFunction("f");
+            runtime.ExpandGlobalVariables();
 
             var dict = (Dictionary<long, double>)memory.GetVariable("dict");
 
@@ -135,13 +135,13 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestExecuteDictionaryLiteralInit()
         {
-            const string input = "var dict:any; func f() { dict = [int: float](); }";
+            const string input = "var dict:any = [int: float]();";
 
             var generator = TestUtils.CreateGenerator(input);
             var runtime = generator.GenerateRuntime(null);
             var memory = runtime.GlobalMemory;
 
-            runtime.CallFunction("f");
+            runtime.ExpandGlobalVariables();
 
             Assert.IsInstanceOfType(memory.GetVariable("dict"), typeof(Dictionary<long, double>), "The list created by the script is not of the expected type");
         }

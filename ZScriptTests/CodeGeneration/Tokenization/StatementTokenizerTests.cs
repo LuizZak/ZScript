@@ -1116,7 +1116,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestMultipleCasesSwitchStatement()
         {
-            const string input = "var a = 5; var b = 20; var c; func f() { switch(a + b) { case 10: case 25: case 30: c = 10; break; } }";
+            const string input = "var a = 5; var b = 20; var c:int?; func f() { switch(a + b) { case 10: case 25: case 30: c = 10; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -1135,7 +1135,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestValuedSwitchStatement()
         {
-            const string input = "var a = 5; var b = 20; var d; func f() { switch(let c = a + b) { case 10: case 25: case 30: d = c; break; } }";
+            const string input = "var a = 5; var b = 20; var d:int = 0; func f() { switch(let c = a + b) { case 10: case 25: case 30: d = c; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 

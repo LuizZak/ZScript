@@ -195,5 +195,55 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
         }
+
+        /// <summary>
+        /// Tests optional unwrapping in left values
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalUnwrappingLeftValue()
+        {
+            // Set up the test
+            const string input = "ol!.Count";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var type = resolver.ResolveLeftValue(parser.leftValue());
+
+            // Compare the result now
+            Assert.AreEqual(new NativeTypeDef(typeof(int)), type, "Failed to evaluate the result of expression correctly");
+
+            container.PrintMessages();
+
+            Assert.AreEqual(0, container.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests optional unwrapping in left values
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalUnwrappingLeftValueError()
+        {
+            // Set up the test
+            const string input = "l!.Count";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var type = resolver.ResolveLeftValue(parser.leftValue());
+
+            // Compare the result now
+            Assert.AreEqual(new NativeTypeDef(typeof(int)), type, "Failed to evaluate the result of expression correctly");
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToUnwrapNonOptional), "Failed to raise expected errors");
+        }
     }
 }

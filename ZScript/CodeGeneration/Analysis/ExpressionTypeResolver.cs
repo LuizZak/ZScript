@@ -536,8 +536,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return opt.WrappedType;
             }
             
-            var message = "Trying to unwrap non optional value type " + inner;
-            MessageContainer.RegisterError(context.expression(0), message, ErrorCode.TryingToUnwrapNonOptional);
+            RegisterNonOptionalUnwrapping(context.expression(0), inner);
 
             return TypeProvider.AnyType();
         }
@@ -626,6 +625,19 @@ namespace ZScript.CodeGeneration.Analysis
             // leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
             var type = TypeProvider.AnyType();
 
+            // Unwrap optional
+            if (context.unwrap != null)
+            {
+                if (leftValue is OptionalTypeDef)
+                {
+                    leftValue = ((OptionalTypeDef)leftValue).WrappedType;
+                }
+                else
+                {
+                    RegisterNonOptionalUnwrapping(leftValueContext, leftValue);
+                }
+            }
+
             if (context.functionCall() != null)
             {
                 ResolveFunctionCall(leftValue, leftValueContext, context.functionCall(), ref type);
@@ -665,7 +677,6 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ValueAccessContext context)
         {
             var type = TypeProvider.AnyType();
-
             // Unwrap optional
             if (leftValue is OptionalTypeDef && context.nullable != null)
             {
@@ -1465,6 +1476,17 @@ namespace ZScript.CodeGeneration.Analysis
         {
             string message = "Trying to access non-subscriptable '" + type + "' type like a list.";
             MessageContainer.RegisterError(context, message, ErrorCode.TryingToSubscriptNonList);
+        }
+
+        /// <summary>
+        /// Registers a message about unwrapping a non-optional type
+        /// </summary>
+        /// <param name="context">The context in which the unwrapping happened</param>
+        /// <param name="type">The type of the value trying to be unwrapped</param>
+        private void RegisterNonOptionalUnwrapping(ParserRuleContext context, TypeDef type)
+        {
+            var message = "Trying to unwrap non optional value type " + type;
+            MessageContainer.RegisterError(context, message, ErrorCode.TryingToUnwrapNonOptional);
         }
 
         #endregion
