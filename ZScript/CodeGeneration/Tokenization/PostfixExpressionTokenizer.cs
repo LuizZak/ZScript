@@ -468,15 +468,25 @@ namespace ZScript.CodeGeneration.Tokenization
 
             // Add implicit casting
             // We ignore callable type definitions because are non-castable, currently
-            if (context.ImplicitCastType != null && context.EvaluatedType != context.ImplicitCastType && !context.ImplicitCastType.IsAny && !(context.ExpectedType is CallableTypeDef))
+            if (context.ImplicitCastType != null && context.EvaluatedType != context.ImplicitCastType &&
+                !context.ImplicitCastType.IsAny && !(context.ExpectedType is CallableTypeDef) &&
+                context.EvaluatedType != TypeProvider.NullType())
             {
+                var opt = context.EvaluatedType as OptionalTypeDef;
+                if (opt != null && opt.BaseWrappedType == context.ImplicitCastType)
+                {
+                    return;
+                }
+
                 if (context.EvaluatedType == TypeProvider.AnyType())
                 {
-                    _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckType, TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType)));
+                    _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckType,
+                        TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType)));
                 }
                 else
                 {
-                    _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.ImplicitCastType));
+                    _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast,
+                        context.ImplicitCastType));
                 }
             }
         }
