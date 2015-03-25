@@ -405,7 +405,7 @@ namespace ZScript.Runtime
                 return;
             }
 
-            var vmContext = new VmContext(_globalMemory, _globalAddressedMemory, this);
+            var vmContext = new VmContext(_globalMemory, _globalAddressedMemory, this, _owner, _typeProvider);
 
             foreach (var vDef in _definition.GlobalVariableDefinitions)
             {
