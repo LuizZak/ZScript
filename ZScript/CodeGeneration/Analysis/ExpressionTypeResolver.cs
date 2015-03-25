@@ -692,7 +692,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return ResolveValueAccess(type, leftValueContext, context.valueAccess());
             }
 
-            return type;
+            return context.nullable != null ? TypeProvider.OptionalTypeForType(type) : type;
         }
 
         /// <summary>
