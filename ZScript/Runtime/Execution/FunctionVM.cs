@@ -748,8 +748,6 @@ namespace ZScript.Runtime.Execution
         /// <param name="token">The type check instruction token that contains the type to check against</param>
         void PerformTypeCheck(Token token)
         {
-            if (token == null) throw new ArgumentNullException("token");
-
             object value = PeekValueImplicit();
             var type = ((Type)token.TokenObject);
 
