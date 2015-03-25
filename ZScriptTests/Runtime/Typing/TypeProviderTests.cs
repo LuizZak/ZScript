@@ -206,6 +206,25 @@ namespace ZScriptTests.Runtime.Typing
             Assert.AreEqual(typeof(ICallableWrapper), native);
         }
 
+        [TestMethod]
+        public void TestNativeOptionalType()
+        {
+            var provider = new TypeProvider();
+
+            var nativeOptInt = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.IntegerType()));
+            var nativeOptBool = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.IntegerType()));
+
+            var nativeOptRef = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.AnyType()));
+
+            var nativeOptString = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.StringType()));
+
+            Assert.AreEqual(typeof(object), nativeOptInt);
+            Assert.AreEqual(typeof(object), nativeOptBool);
+            Assert.AreEqual(typeof(object), nativeOptRef);
+
+            Assert.AreEqual(typeof(string), nativeOptString);
+        }
+
         #endregion
 
         #region FindCommonType

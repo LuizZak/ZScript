@@ -820,6 +820,20 @@ namespace ZScript.Runtime.Typing
                     return typeof(object);
                 }
 
+                // Optional
+                var optDef = typeDef as OptionalTypeDef;
+                if (optDef != null)
+                {
+                    var nativeWrapped = _typeProvider.NativeTypeForTypeDef(optDef.BaseWrappedType, true);
+
+                    if (nativeWrapped.IsValueType)
+                    {
+                        return typeof(object);
+                    }
+
+                    return nativeWrapped;
+                }
+
                 // No equivalents
                 return null;
             }
