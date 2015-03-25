@@ -89,6 +89,7 @@
     <Compile Include="Runtime\Typing\Elements\ListTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\NativeTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\ObjectTypeDef.cs" />
+    <Compile Include="Runtime\Typing\Elements\OptionalTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\StringTypeDef.cs" />
     <Compile Include="CodeGeneration\DefinitionGenerator.cs" />
     <Compile Include="CodeGeneration\Messages\MessageContainer.cs" />

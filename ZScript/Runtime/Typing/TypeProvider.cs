@@ -230,6 +230,30 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
+        /// Returns a optional type for the given type def
+        /// </summary>
+        /// <param name="type">The type to wrap in an optional</param>
+        /// <returns>The optional type for the given type definition</returns>
+        public OptionalTypeDef OptionalTypeForType(TypeDef type)
+        {
+            return InternalOptionalTypeForType(type, 0);
+        }
+
+        /// <summary>
+        /// Returns a optional type for the given type def
+        /// </summary>
+        /// <param name="type">The type to wrap in an optional</param>
+        /// <param name="depth">The depth of the optional to create</param>
+        /// <returns>The optional type for the given type definition</returns>
+        private OptionalTypeDef InternalOptionalTypeForType(TypeDef type, int depth)
+        {
+            if (depth <= 0)
+                return new OptionalTypeDef(type);
+
+            return new OptionalTypeDef(InternalOptionalTypeForType(type, depth - 1));
+        }
+
+        /// <summary>
         /// Tries to come up with the most common type that fits the type of two provided types
         /// </summary>
         /// <param name="type1">The first type to infer</param>
@@ -269,6 +293,31 @@ namespace ZScript.Runtime.Typing
 
             if (withCast && (type1 == intType || type2 == intType) && (type1 == floatType || type2 == floatType))
                 return floatType;
+
+            // Optional and non-optional type
+            var opt1 = type1 as OptionalTypeDef;
+            var opt2 = type2 as OptionalTypeDef;
+            if (opt1 != null && opt2 == null)
+            {
+                if (opt1.BaseWrappedType == type2)
+                {
+                    return InternalOptionalTypeForType(type2, opt1.OptionalDepth);
+                }
+            }
+            else if(opt1 == null && opt2 != null)
+            {
+                if (opt2.BaseWrappedType == type1)
+                {
+                    return InternalOptionalTypeForType(type1, opt2.OptionalDepth);
+                }
+            }
+            else if (opt1 != null)
+            {
+                if (opt1.BaseWrappedType == opt2.BaseWrappedType)
+                {
+                    return InternalOptionalTypeForType(opt1.BaseWrappedType, Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
+                }
+            }
 
             // Class types
             var classT1 = type1 as ClassTypeDef;
@@ -382,6 +431,10 @@ namespace ZScript.Runtime.Typing
         /// <returns>Whether the origin type can be explicitly casted to the target type</returns>
         public bool CanExplicitCast(TypeDef origin, TypeDef target)
         {
+            // Explicit casts can always be performed if implicit casts can be performed
+            if (CanImplicitCast(origin, target))
+                return true;
+
             // Cannot convert voids
             if (origin.IsVoid || target.IsVoid)
                 return false;
@@ -469,6 +522,14 @@ namespace ZScript.Runtime.Typing
             // Class typing
             if (origin is ClassTypeDef && target is ClassTypeDef)
                 return CanImplicitCastClass((ClassTypeDef)origin, (ClassTypeDef)target);
+
+            // Optional typing
+            var optionalTarget = target as OptionalTypeDef;
+            if (optionalTarget != null)
+            {
+                if (CanImplicitCast(origin, optionalTarget.WrappedType))
+                    return true;
+            }
 
             // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
