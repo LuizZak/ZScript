@@ -19,19 +19,38 @@
 */
 #endregion
 using ZScript.Elements.ValueHolding;
+using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
+using ZScript.Runtime.Execution.Wrappers;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Elements
 {
     /// <summary>
     /// Specifies a closure function
     /// </summary>
-    public class ZClosureFunction : ZFunction
+    public class ZClosureFunction : ZFunction, ICallableWrapper
     {
         /// <summary>
         /// Gets or sets the currently captured memory for this closure function
         /// </summary>
         public MemoryMapper CapturedMemory { get; set; }
+
+        /// <summary>
+        /// The name for this closure
+        /// </summary>
+        public string CallableName
+        {
+            get { return Name; }
+        }
+
+        /// <summary>
+        /// The local memory for this closure
+        /// </summary>
+        public IMemory<string> LocalMemory
+        {
+            get { return CapturedMemory; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the ZClosureFunction class
@@ -56,6 +75,22 @@ namespace ZScript.Elements
             clone.CapturedMemory = CapturedMemory == null ? null : CapturedMemory.Clone();
 
             return clone;
+        }
+
+        // 
+        // ICallableWrapper.CallableTypeWithArguments implementation
+        // 
+        public CallableTypeDef CallableTypeWithArguments(params object[] arguments)
+        {
+            return Signature;
+        }
+
+        // 
+        // ICallableWrapper.Call implementation
+        // 
+        public object Call(VmContext context, params object[] arguments)
+        {
+            return context.Runtime.CallFunction(this, arguments);
         }
     }
 }

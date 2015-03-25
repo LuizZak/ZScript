@@ -114,7 +114,7 @@ namespace ZScript.Elements
 
                     functionVm.Execute();
 
-                    _classInstance.LocalMemory.SetVariable(field.Name, functionVm.Stack.Peek());
+                    _classInstance.LocalMemory.SetVariable(field.Name, functionVm.PopValueImplicit());
                 }
             }
         }

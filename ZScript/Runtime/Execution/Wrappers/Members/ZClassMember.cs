@@ -20,6 +20,8 @@
 #endregion
 using System;
 using System.Linq;
+using ZScript.Elements;
+using ZScript.Runtime.Execution.Wrappers.Callables;
 
 namespace ZScript.Runtime.Execution.Wrappers.Members
 {
@@ -39,44 +41,24 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         private readonly string _name;
 
         /// <summary>
+        /// The method this ZClassMember is pointing to, in case this is a method class member
+        /// </summary>
+        private readonly ZMethod _method;
+
+        /// <summary>
         /// The type of field stored in this ZClassMember
         /// </summary>
         private readonly Type _fieldType;
 
         /// <summary>
-        /// Initializes a new instance of the ZClassMember class
+        /// Whether the value on this ZClassMember is readonly
         /// </summary>
-        /// <param name="target">The ZClassInstance to wrap on ZClassMember</param>
-        /// <param name="name">The name of the ZClassInstance member to wrap</param>
-        public ZClassMember(ZClassInstance target, string name)
-        {
-            _target = target;
-            _name = name;
-
-            var field = target.Class.Fields.First(f => f.Name == name);
-
-            _fieldType = field.Type;
-        }
+        private readonly bool _isReadonly;
 
         /// <summary>
-        /// Sets the value of the member
+        /// Whether this ZClassMember points to a class method
         /// </summary>
-        /// <param name="value">The value to set</param>
-        public void SetValue(object value)
-        {
-            _target.LocalMemory.SetVariable(_name, value);
-        }
-
-        /// <summary>
-        /// Gets the value of the member referenced by this ZClassMember instance.
-        /// If no member with the specified name exists, an exception is raised
-        /// </summary>
-        /// <returns>The value referenced by this ZObjectMember</returns>
-        /// <exception cref="Exception">No member with the name referenced by this ZObjectMember exists</exception>
-        public object GetValue()
-        {
-            return _target.LocalMemory.GetVariable(_name);
-        }
+        private readonly bool _isMethod;
 
         /// <summary>
         /// The name of the member referenced by this ZClassMember
@@ -92,6 +74,67 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         public Type MemberType
         {
             get { return _fieldType; }
+        }
+
+        /// <summary>
+        /// Gets a value specifying whether whether the value on this ZClassMember is readonly
+        /// </summary>
+        public bool IsReadonly
+        {
+            get { return _isReadonly; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ZClassMember class
+        /// </summary>
+        /// <param name="target">The ZClassInstance to wrap on ZClassMember</param>
+        /// <param name="name">The name of the ZClassInstance member to wrap</param>
+        public ZClassMember(ZClassInstance target, string name)
+        {
+            _target = target;
+            _name = name;
+
+            if (target.Class.Fields.Any(f => f.Name == name))
+            {
+                var field = target.Class.Fields.First(f => f.Name == name);
+                _fieldType = field.Type;
+
+                _isReadonly = false;
+            }
+            else
+            {
+                _fieldType = typeof(ICallableWrapper);
+
+                _method = target.Class.Methods.First(m => m.Name == name);
+                _isMethod = true;
+                _isReadonly = true;
+            }
+        }
+
+        /// <summary>
+        /// Sets the value of the member
+        /// </summary>
+        /// <param name="value">The value to set</param>
+        /// <exception cref="InvalidOperationException">This ZClassMember is readonly</exception>
+        public void SetValue(object value)
+        {
+            if (_isReadonly)
+            {
+                throw new InvalidOperationException("Cannot reassign readonly class member");
+            }
+
+            _target.LocalMemory.SetVariable(_name, value);
+        }
+
+        /// <summary>
+        /// Gets the value of the member referenced by this ZClassMember instance.
+        /// If no member with the specified name exists, an exception is raised
+        /// </summary>
+        /// <returns>The value referenced by this ZObjectMember</returns>
+        /// <exception cref="Exception">No member with the name referenced by this ZObjectMember exists</exception>
+        public object GetValue()
+        {
+            return _isMethod ? new ZClassMethod(_target, _method) : _target.LocalMemory.GetVariable(_name);
         }
     }
 }

@@ -21,13 +21,14 @@
 using System;
 using System.Linq;
 using System.Text;
+using ZScript.Runtime.Execution.Wrappers;
 
 namespace ZScript.Runtime.Typing.Elements
 {
     /// <summary>
     /// Specifies a callable type definition
     /// </summary>
-    public class CallableTypeDef : TypeDef, IEquatable<CallableTypeDef>, ICallableTypeDef
+    public class CallableTypeDef : NativeTypeDef, IEquatable<CallableTypeDef>, ICallableTypeDef
     {
         /// <summary>
         /// The types for the parameter of this callable type definition
@@ -107,7 +108,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="returnType">The return type for this callable type definition</param>
         /// <param name="hasReturnType">Whether a return type was provided for this callable</param>
         public CallableTypeDef(CallableParameterInfo[] parameterInfos, TypeDef returnType, bool hasReturnType)
-            : base("callable")
+            : base(typeof(ICallableWrapper), "callable")
         {
             _parameterInfos = parameterInfos;
             _parameterTypes = parameterInfos.Select(i => i.ParameterType).ToArray();

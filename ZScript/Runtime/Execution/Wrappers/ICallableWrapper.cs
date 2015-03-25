@@ -40,8 +40,8 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// </summary>
         IMemory<string> LocalMemory { get; }
 
-            /// <summary>
-        /// REturns the type for the callable wrapped by this ICallableWrapper when presented with a given list of arguments
+        /// <summary>
+        /// Returns the type for the callable wrapped by this ICallableWrapper when presented with a given list of arguments
         /// </summary>
         /// <param name="arguments">The list of arguments to get the callable type info of</param>
         /// <returns>A CallableTypeDef for a given argument list</returns>

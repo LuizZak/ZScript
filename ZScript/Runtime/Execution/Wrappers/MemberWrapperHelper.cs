@@ -63,6 +63,14 @@ namespace ZScript.Runtime.Execution.Wrappers
                     return new ZClassMember(zCls, memberName);
                 }
             }
+            var zMethods = zCls.Class.Methods;
+            foreach (var method in zMethods)
+            {
+                if (method.Name == memberName)
+                {
+                    return new ZClassMember(zCls, memberName);
+                }
+            }
 
             // Fall-back to normal class member search
             return ClassMember.CreateMemberWrapper(target, memberName);
@@ -88,6 +96,15 @@ namespace ZScript.Runtime.Execution.Wrappers
                     if (method.Name == callableName)
                     {
                         return new ZClassMethod(zClassInstance, method);
+                    }
+                }
+                // Search fields now
+                var zFields = zClassInstance.Class.Fields;
+                foreach (var field in zFields)
+                {
+                    if (field.Name == callableName && field.Type == typeof(ICallableWrapper))
+                    {
+                        return (ICallableWrapper)zClassInstance.LocalMemory.GetVariable(field.Name);
                     }
                 }
             }

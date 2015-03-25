@@ -570,7 +570,7 @@ namespace ZScript.Runtime.Execution
             var wrapper = callable as ICallableWrapper;
             if (wrapper != null)
             {
-                _stack.Push(_context.Runtime.CallFunction(wrapper, arguments));
+                _stack.Push(_context.Runtime.CallWrapper(wrapper, arguments));
             }
         }
 

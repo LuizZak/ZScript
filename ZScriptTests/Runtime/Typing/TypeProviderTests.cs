@@ -32,6 +32,8 @@ using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
 using ZScript.Elements;
+using ZScript.Runtime;
+using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 
@@ -191,7 +193,17 @@ namespace ZScriptTests.Runtime.Typing
 
             var native = provider.NativeTypeForTypeDef(new ClassTypeDef("class"));
 
-            Assert.AreEqual(native, native);
+            Assert.AreEqual(typeof(ZClassInstance), native);
+        }
+
+        [TestMethod]
+        public void TestNativeTypeCallable()
+        {
+            var provider = new TypeProvider();
+
+            var native = provider.NativeTypeForTypeDef(new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], provider.AnyType(), false));
+
+            Assert.AreEqual(typeof(ICallableWrapper), native);
         }
 
         #endregion

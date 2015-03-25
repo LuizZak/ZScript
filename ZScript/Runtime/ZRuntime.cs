@@ -159,7 +159,7 @@ namespace ZScript.Runtime
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallFunction(ICallableWrapper callable, params object[] arguments)
+        public object CallWrapper(ICallableWrapper callable, params object[] arguments)
         {
             bool pushed = false;
 
