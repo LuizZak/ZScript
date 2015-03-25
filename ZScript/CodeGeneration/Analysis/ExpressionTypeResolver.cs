@@ -535,8 +535,8 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 return opt.WrappedType;
             }
-
-            const string message = "Trying to unwrap non optional value";
+            
+            var message = "Trying to unwrap non optional value type " + inner;
             MessageContainer.RegisterError(context.expression(0), message, ErrorCode.TryingToUnwrapNonOptional);
 
             return TypeProvider.AnyType();
