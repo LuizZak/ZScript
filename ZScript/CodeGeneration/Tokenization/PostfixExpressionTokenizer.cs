@@ -255,6 +255,12 @@ namespace ZScript.CodeGeneration.Tokenization
 
         void VisitLeftValueAccess(ZScriptParser.LeftValueAccessContext context)
         {
+            if (context.unwrap != null)
+            {
+                // Add null-check token
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckNull));
+            }
+
             if (context.functionCall() != null)
             {
                 VisitFunctionCall(context.functionCall());
@@ -301,8 +307,15 @@ namespace ZScript.CodeGeneration.Tokenization
             // Print the other side of the tree first
             if (context.expression().Length == 1)
             {
-                if(context.type() == null)
+                // Unwrapping
+                if (context.unwrap != null)
+                {
+                    VisitUnwrapExpression(context);
+                }
+                else if(context.type() == null)
+                {
                     VisitUnaryExpression(context);
+                }
                 else
                 {
                     // 'is' comparision
@@ -529,6 +542,18 @@ namespace ZScript.CodeGeneration.Tokenization
         private void VisitTypeName(ZScriptParser.TypeNameContext context)
         {
             _tokens.Add(TokenFactory.CreateStringToken(context.GetText()));
+        }
+
+        private void VisitUnwrapExpression(ZScriptParser.ExpressionContext context)
+        {
+            // Evaluate expression
+            VisitExpression(context.expression(0));
+
+            if (context.unwrap != null)
+            {
+                // Add null-check token
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckNull));
+            }
         }
 
         #region Type casting/checking

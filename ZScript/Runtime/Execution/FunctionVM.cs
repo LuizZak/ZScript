@@ -199,6 +199,11 @@ namespace ZScript.Runtime.Execution
                                 PerformTypeCheck(token);
                                 break;
 
+                            // Null check
+                            case VmInstruction.CheckNull:
+                                PerformNullCheck();
+                                break;
+
                             default:
                                 PerformInstruction(token.Instruction, token.TokenObject);
                                 break;
@@ -761,6 +766,19 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a null check on the value on top of the stack.
+        /// The value on top of the stack is not removed
+        /// </summary>
+        void PerformNullCheck()
+        {
+            // Null value types
+            if (PeekValueImplicit() == null)
+            {
+                throw new VirtualMachineException("Value on top of the stack is null");
+            }
+        }
+
+        /// <summary>
         /// Pops a value from the stack, and if it is a token, implicitly fetch the value from the memory
         /// </summary>
         /// <returns>A value popped from the stack, and fetched from memory, if needed</returns>
@@ -1086,6 +1104,8 @@ namespace ZScript.Runtime.Execution
         Cast,
         /// <summary>Performs a type check with the value on top of the stack, raising a runtime exception if the type does not matches the expected type</summary>
         CheckType,
+        /// <summary>Performs a null check with the value on top of the stack, raising a runtime exception if the value is null</summary>
+        CheckNull,
         
         /// <summary>Logical AND (&&) operation</summary>
         LogicalAnd,
