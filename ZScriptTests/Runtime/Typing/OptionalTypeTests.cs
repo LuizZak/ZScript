@@ -139,9 +139,6 @@ namespace ZScriptTests.Runtime.Typing
 
             Assert.IsTrue(provider.CanImplicitCast(nullType, optInt));
             Assert.IsTrue(provider.CanExplicitCast(nullType, optInt));
-
-            Assert.IsTrue(provider.CanImplicitCast(optInt, nullType));
-            Assert.IsTrue(provider.CanExplicitCast(optInt, nullType));
         }
     }
 }
