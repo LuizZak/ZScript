@@ -74,6 +74,8 @@ namespace ZScriptTests.Utils
                 return TypeDef.AnyType;
             if (definitionName.StartsWith("l"))
                 return new ListTypeDef(definitionName.Length == 0 ? TypeDef.IntegerType : TypeForDefinition(context, definitionName.Substring(1)));
+            if(definitionName.StartsWith("o"))
+                return new OptionalTypeDef(definitionName.Length == 0 ? TypeDef.IntegerType : TypeForDefinition(context, definitionName.Substring(1)));
 
             return TypeDef.AnyType;
         }

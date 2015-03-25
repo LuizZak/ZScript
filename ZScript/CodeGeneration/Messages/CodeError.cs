@@ -131,6 +131,8 @@ namespace ZScript.CodeGeneration.Messages
         TryingToSubscriptNonList,
         /// <summary>Trying to call an object that is not a callable</summary>
         TryingToCallNonCallable,
+        /// <summary>Trying to unwrap a non-optional value</summary>
+        TryingToUnwrapNonOptional,
 
         #endregion
 

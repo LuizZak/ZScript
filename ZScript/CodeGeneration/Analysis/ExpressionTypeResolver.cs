@@ -239,8 +239,13 @@ namespace ZScript.CodeGeneration.Analysis
             // Parenthesized expression
             if (context.expression().Length == 1)
             {
+                // Optional unwrapping
+                if (context.unwrap != null)
+                {
+                    retType = ResolveOptionalUnwrapping(context);
+                }
                 // Unary operation
-                if (context.unaryOperator() != null)
+                else if (context.unaryOperator() != null)
                 {
                     retType = ResolveUnaryExpression(context);
                 }
@@ -505,6 +510,32 @@ namespace ZScript.CodeGeneration.Analysis
             context.expression(2).ExpectedType = commonType;
 
             return commonType;
+        }
+
+        #endregion
+
+        #region Optional
+
+        /// <summary>
+        /// Returns a TypeDef describing the type for a given context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The type for the context</returns>
+        public TypeDef ResolveOptionalUnwrapping(ZScriptParser.ExpressionContext context)
+        {
+            // Resolve inner type
+            var inner = ResolveExpression(context.expression(0));
+
+            var opt = inner as OptionalTypeDef;
+            if (opt != null)
+            {
+                return opt.WrappedType;
+            }
+
+            const string message = "Trying to unwrap non optional value";
+            MessageContainer.RegisterError(context.expression(0), message, ErrorCode.TryingToUnwrapNonOptional);
+
+            return TypeProvider.AnyType();
         }
 
         #endregion
@@ -1318,6 +1349,10 @@ namespace ZScript.CodeGeneration.Analysis
             else if (context.dictionaryType() != null)
             {
                 type = ResolveDictionaryType(context.dictionaryType());
+            }
+            else if (context.optional != null)
+            {
+                type = TypeProvider.OptionalTypeForType(ResolveType(context.type(), false));
             }
             else
             {

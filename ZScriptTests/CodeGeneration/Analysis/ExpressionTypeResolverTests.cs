@@ -37,7 +37,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
     /// Tests the ExpressionTypeResolver class and related components
     /// </summary>
     [TestClass]
-    public class ExpressionTypeResolverTests
+    public partial class ExpressionTypeResolverTests
     {
         #region General Type Resolving
 
@@ -70,7 +70,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestListType()
         {
             // Set up the test
-            const string input = "[int] [int] [[int]]";
+            const string input = "[int] [float] [[int]]";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
@@ -78,12 +78,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var type1 = resolver.ResolveListType(parser.listType());
             var type2 = (ListTypeDef)resolver.ResolveType(parser.type(), false);
-            var type3 = (ListTypeDef)resolver.ResolveType(parser.type(), false);
 
             // Compare the result now
             Assert.AreEqual(TypeDef.IntegerType, type1.EnclosingType, "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.IntegerType, type2.EnclosingType, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(TypeDef.IntegerType), type3.EnclosingType, "The resolved type did not match the expected type");
+            Assert.AreEqual(TypeDef.FloatType, type2.EnclosingType, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests nested list type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestNestedListType()
+        {
+            // Set up the test
+            const string input = "[[int]]";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type = (ListTypeDef)resolver.ResolveType(parser.type(), false);
+
+            // Compare the result now
+            Assert.AreEqual(provider.ListForType(TypeDef.IntegerType), type.EnclosingType, "The resolved type did not match the expected type");
         }
 
         /// <summary>
