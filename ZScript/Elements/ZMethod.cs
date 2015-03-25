@@ -19,8 +19,6 @@
 */
 #endregion
 using ZScript.Elements.ValueHolding;
-using ZScript.Runtime;
-using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 
 namespace ZScript.Elements
@@ -61,62 +59,6 @@ namespace ZScript.Elements
             var newMethod = (ZMethod)MemberwiseClone();
 
             return newMethod;
-        }
-    }
-
-    /// <summary>
-    /// Represents a function that when executed creates an instance of a class
-    /// </summary>
-    public class ZConstructor : ZMethod
-    {
-        /// <summary>
-        /// The class instance this constructor will create
-        /// </summary>
-        private readonly ZClassInstance _classInstance;
-
-        /// <summary>
-        /// Gets the class instance this constructor will create
-        /// </summary>
-        public ZClassInstance ClassInstance
-        {
-            get { return _classInstance; }
-        }
-
-        /// <summary>
-        /// Gets a value specifying whether the constructor requires a base call, or the user already performed the call
-        /// </summary>
-        public bool RequiresBaseCall { get; private set; }
-
-        /// <summary>
-        /// Initializes a new instance of the ZConstructor class
-        /// </summary>
-        /// <param name="classInstance">The class instance to create a constructor of</param>
-        /// <param name="requiresBaseCall">Whether the constructor requires a base call, or the user already performed the call</param>
-        public ZConstructor(ZClassInstance classInstance, bool requiresBaseCall)
-            : base(classInstance.Class.ClassName, classInstance.Class.Constructor.Tokens, classInstance.Class.Constructor.Arguments)
-        {
-            _classInstance = classInstance;
-            RequiresBaseCall = requiresBaseCall;
-            BaseMethod = classInstance.Class.Constructor.BaseMethod;
-        }
-
-        /// <summary>
-        /// Performs the initialization of the fields of the class, using a given VmContext as context for the initialization
-        /// </summary>
-        public void InitFields(VmContext context)
-        {
-            foreach (var field in _classInstance.Class.Fields)
-            {
-                if (field.HasValue)
-                {
-                    // Execute a function VM and extract the value
-                    var functionVm = new FunctionVM(field.Tokens, context);
-
-                    functionVm.Execute();
-
-                    _classInstance.LocalMemory.SetVariable(field.Name, functionVm.PopValueImplicit());
-                }
-            }
         }
     }
 }
