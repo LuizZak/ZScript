@@ -60,7 +60,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="keyType">The types of values in the dictionary</param>
         /// <param name="valueType">The types of keys in the dictionary</param>
         public DictionaryTypeDef(TypeDef keyType, TypeDef valueType)
-            : base(typeof(Dictionary<,>))
+            : base(typeof(Dictionary<,>), "dictionary<" + keyType.Name + ":" + valueType.Name + ">")
         {
             _keyType = keyType;
             _valueType = valueType;

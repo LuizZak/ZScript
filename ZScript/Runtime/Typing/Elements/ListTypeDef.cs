@@ -52,7 +52,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="enclosingType">The type of items in this list type</param>
         public ListTypeDef(TypeDef enclosingType)
-            : base(typeof(List<>), "list")
+            : base(typeof(List<>), "list<" + enclosingType.Name + ">")
         {
             _enclosingType = enclosingType;
             // Default the subscript to integer
