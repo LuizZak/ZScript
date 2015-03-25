@@ -83,7 +83,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestParseClosureCallSubscript()
         {
-            const string input = "func f() { var c = (i) : int => { return 0; }(10)[0]; }";
+            const string input = "func f() { var c = (i) : [int] => { return [i]; }(10)[0]; }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
             var definition = generator.GenerateRuntimeDefinition();

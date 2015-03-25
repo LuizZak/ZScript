@@ -716,7 +716,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else if (!leftValue.IsAny)
             {
-                RegisterFunctionCallWarning(leftValue, context);
+                RegisterInvalidFunctionCall(leftValue, context);
             }
 
             // Update constant flag
@@ -828,7 +828,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else if (!leftValue.IsAny)
             {
-                RegisterSubscriptWarning(leftValue, context);
+                RegisterInvalidSubscript(leftValue, context);
             }
 
             // Update constant flag
@@ -1398,28 +1398,28 @@ namespace ZScript.CodeGeneration.Analysis
 
         #endregion
 
-        #region Warning raising
+        #region Message raising
 
         /// <summary>
-        /// Registers a warning about calling a non-callable type
+        /// Registers a message about calling a non-callable type
         /// </summary>
         /// <param name="type">The type of the object trying to be called</param>
         /// <param name="context">The context in which the function call happened</param>
-        private void RegisterFunctionCallWarning(TypeDef type, ParserRuleContext context)
+        private void RegisterInvalidFunctionCall(TypeDef type, ParserRuleContext context)
         {
-            string message = "Trying to call non-callable '" + type + "' type like a function may result in runtime errors.";
-            MessageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TryingToCallNonCallable, context);
+            string message = "Trying to call non-callable '" + type + "' type like a function.";
+            MessageContainer.RegisterError(context, message, ErrorCode.TryingToCallNonCallable);
         }
 
         /// <summary>
-        /// Registers a warning about subscripting a non-subscriptable type
+        /// Registers a message about subscripting a non-subscriptable type
         /// </summary>
         /// <param name="type">The type of the object trying to be subscripted</param>
         /// <param name="context">The context in which the subscription happened</param>
-        private void RegisterSubscriptWarning(TypeDef type, ParserRuleContext context)
+        private void RegisterInvalidSubscript(TypeDef type, ParserRuleContext context)
         {
-            string message = "Trying to access non-subscriptable '" + type + "' type like a list may result in runtime errors.";
-            MessageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TryingToSubscriptNonList, context);
+            string message = "Trying to access non-subscriptable '" + type + "' type like a list.";
+            MessageContainer.RegisterError(context, message, ErrorCode.TryingToSubscriptNonList);
         }
 
         #endregion

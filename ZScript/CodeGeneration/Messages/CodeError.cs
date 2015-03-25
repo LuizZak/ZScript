@@ -127,6 +127,10 @@ namespace ZScript.CodeGeneration.Messages
         UnkownType,
         /// <summary>Trying to use the 'void' type in invalid contexts</summary>
         InvalidVoidType,
+        /// <summary>Trying to access an object that is not a list with subscription</summary>
+        TryingToSubscriptNonList,
+        /// <summary>Trying to call an object that is not a callable</summary>
+        TryingToCallNonCallable,
 
         #endregion
 

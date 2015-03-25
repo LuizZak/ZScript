@@ -58,11 +58,6 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>A definition is created, but its value is only set and never get</summary>
         DefinitionOnlySet,
 
-        /// <summary>Trying to access an object that is not a list with subscription</summary>
-        TryingToSubscriptNonList,
-        /// <summary>Trying to call an object that is not a callable</summary>
-        TryingToCallNonCallable,
-
         /// <summary>Specifies a warning issued when a condition for an if statement resolves to a constant</summary>
         ConstantIfCondition,
 

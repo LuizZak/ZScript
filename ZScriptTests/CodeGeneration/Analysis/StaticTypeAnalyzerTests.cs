@@ -627,7 +627,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+            Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable), "Failed to raise expected warnings");
         }
 
         /// <summary>
@@ -645,7 +645,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+            Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable), "Failed to raise expected warnings");
         }
 
         /// <summary>
@@ -869,7 +869,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var scope = generator.CollectDefinitions();
 
             Assert.AreEqual(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type, "Faild to infer type of global variable");
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable), "Failed to raise expected warnings");
+            Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable), "Failed to raise expected warnings");
         }
 
         #endregion

@@ -1598,7 +1598,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToSubscriptNonList));
+            Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToSubscriptNonList));
         }
 
         /// <summary>
@@ -1617,7 +1617,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             resolver.ResolveExpression(parser.expression());
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.AreEqual(1, container.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable));
         }
 
         /// <summary>
@@ -1633,8 +1633,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable));
         }
 
         /// <summary>
@@ -1650,8 +1649,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(1, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
-            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable));
         }
 
         /// <summary>
@@ -1667,7 +1665,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             generator.MessageContainer.PrintMessages();
 
-            Assert.AreEqual(0, generator.MessageContainer.Warnings.Count(w => w.WarningCode == WarningCode.TryingToCallNonCallable));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(e => e.ErrorCode == ErrorCode.TryingToCallNonCallable));
             Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
         }
 
