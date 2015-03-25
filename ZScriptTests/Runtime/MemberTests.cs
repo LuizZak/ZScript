@@ -59,7 +59,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestNullConditionalMemberAccess()
         {
-            const string input = "var a = null; func funca(){ var b:C = null; a = b?.f1; } class C { var f1:int = 0; }";
+            const string input = "var a:any? = null; func funca(){ var b:C? = null; a = b?.f1; } class C { var f1:int = 0; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

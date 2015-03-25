@@ -103,6 +103,10 @@ namespace ZScriptTests.Runtime.Typing
             var optFloat = provider.OptionalTypeForType(provider.FloatType());
             var optOptFloat = provider.OptionalTypeForType(optFloat);
 
+            // Null values
+            Assert.AreEqual(optInt, provider.FindCommonType(optInt, provider.NullType()));
+            Assert.AreEqual(optInt, provider.FindCommonType(provider.NullType(), optInt));
+
             Assert.AreEqual(optInt, provider.FindCommonType(optInt, optInt));
             
             Assert.AreEqual(optInt, provider.FindCommonType(optInt, provider.IntegerType()));
@@ -120,6 +124,24 @@ namespace ZScriptTests.Runtime.Typing
 
             Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptFloat, optOptInt));
             Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptInt, optOptFloat));
+        }
+
+        /// <summary>
+        /// Tests optional compatibility with null-typed values
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalNullCompatibility()
+        {
+            var provider = new TypeProvider();
+
+            var optInt = provider.OptionalTypeForType(provider.IntegerType());
+            var nullType = provider.NullType();
+
+            Assert.IsTrue(provider.CanImplicitCast(nullType, optInt));
+            Assert.IsTrue(provider.CanExplicitCast(nullType, optInt));
+
+            Assert.IsTrue(provider.CanImplicitCast(optInt, nullType));
+            Assert.IsTrue(provider.CanExplicitCast(optInt, nullType));
         }
     }
 }

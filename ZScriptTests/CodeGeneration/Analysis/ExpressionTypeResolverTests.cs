@@ -271,7 +271,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(TypeDef.FloatType, resolver.ResolveCompileConstant(negativeFloatConst), "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveCompileConstant(boolTrueConst), "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveCompileConstant(boolFalseConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.AnyType, resolver.ResolveCompileConstant(nullConst), "The resolved type did not match the expected type");
+            Assert.AreEqual(TypeDef.NullType, resolver.ResolveCompileConstant(nullConst), "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.StringType, resolver.ResolveCompileConstant(stringConst), "The resolved type did not match the expected type");
         }
 
@@ -299,7 +299,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(TypeDef.FloatType, resolver.ResolveConstantAtom(floatConst), "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveConstantAtom(boolTrueConst), "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.BooleanType, resolver.ResolveConstantAtom(boolFalseConst), "The resolved type did not match the expected type");
-            Assert.AreEqual(TypeDef.AnyType, resolver.ResolveConstantAtom(nullConst), "The resolved type did not match the expected type");
+            Assert.AreEqual(TypeDef.NullType, resolver.ResolveConstantAtom(nullConst), "The resolved type did not match the expected type");
             Assert.AreEqual(TypeDef.StringType, resolver.ResolveConstantAtom(stringConst), "The resolved type did not match the expected type");
         }
 

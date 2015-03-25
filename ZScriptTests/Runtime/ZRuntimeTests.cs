@@ -229,7 +229,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestGlobalVariables()
         {
-            const string input = "var a = 0; var b = null;";
+            const string input = "var a = 0; var b:any? = null;";
             var generator = TestUtils.CreateGenerator(input);
             generator.Debug = true;
             generator.ParseSources();

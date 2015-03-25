@@ -26,6 +26,7 @@ using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis
@@ -58,6 +59,32 @@ namespace ZScriptTests.CodeGeneration.Analysis
             container.PrintMessages();
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests optional implicit castin omission
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalImplicitCasting()
+        {
+            // Set up the test
+            const string input = "10;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var expression = parser.statement().expression();
+            expression.ExpectedType = provider.OptionalTypeForType(provider.IntegerType());
+
+            resolver.ResolveExpression(expression);
+
+            // Compare the result now
+            Assert.AreEqual(provider.IntegerType(), expression.ImplicitCastType, "Failed to evaluate the result of expression correctly");
+
+            container.PrintMessages();
         }
 
         /// <summary>
@@ -131,7 +158,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests resolving a complex optional type context
         /// </summary>
         [TestMethod]
-        public void TestCimplexOptionalTypeResolving()
+        public void TestComplexOptionalTypeResolving()
         {
             // Set up the test
             const string input = "[float?]";
@@ -144,6 +171,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
             Assert.AreEqual(provider.ListForType(provider.OptionalTypeForType(provider.FloatType())), type, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests null conditional on optional value
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalNullConditional()
+        {
+            // Set up the test
+            const string input = "ol?.Count;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(new NativeTypeDef(typeof(int)), type1, "Failed to evaluate the result of expression correctly");
+
+            container.PrintMessages();
         }
     }
 }

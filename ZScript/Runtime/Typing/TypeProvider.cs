@@ -499,8 +499,8 @@ namespace ZScript.Runtime.Typing
             if (origin == target)
                 return true;
 
-            // Assigning from null is allowed
-            if (origin == NullType())
+            // Assigning from null is allowed only on optionals
+            if (origin == NullType() && target is OptionalTypeDef)
                 return true;
 
             // int -> float

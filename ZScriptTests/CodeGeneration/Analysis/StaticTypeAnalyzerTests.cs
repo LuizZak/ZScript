@@ -834,6 +834,28 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Parameters
+
+        /// <summary>
+        /// Tests global variable type expanding and inferring
+        /// </summary>
+        [TestMethod]
+        public void TestParameterAnalysis()
+        {
+            // Set up the test
+            const string input = "func f(a = null) { }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteType), "Failed to raise expected errors");
+        }
+
+        #endregion
+
         #region Global variable analysis
 
         /// <summary>
@@ -843,7 +865,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestGlobalVariableTypeInferring()
         {
             // Set up the test
-            const string input = "let a = 10; let b:bool = 10;";
+            const string input = "let a = 10; let b:bool = 10; let c = null;";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -852,6 +874,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(provider.IntegerType(), scope.GetDefinitionByName<GlobalVariableDefinition>("a").Type, "Faild to infer type of global variable");
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteType), "Failed to raise expected errors");
         }
 
         /// <summary>

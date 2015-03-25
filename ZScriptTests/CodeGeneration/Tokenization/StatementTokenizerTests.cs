@@ -1077,7 +1077,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestSwitchStatement()
         {
-            const string input = "var a = 5; var b = 20; var c = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
+            const string input = "var a:int = 5; var b:int = 20; var c:int? = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -1096,7 +1096,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestDefaultSwitchStatement()
         {
-            const string input = "var c = null; var d = null; func f() { var a = 5; var b = 20; switch(a + b) { case 10: c = 5; break; default: c = 10; break; } switch(a + b) { case 25: d = 10; break; default: d = 5; break; } }";
+            const string input = "var c:int? = null; var d:int? = null; func f() { var a = 5; var b = 20; switch(a + b) { case 10: c = 5; break; default: c = 10; break; } switch(a + b) { case 25: d = 10; break; default: d = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -1154,7 +1154,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestConstantSwitchStatement()
         {
-            const string input = "let a = 5; let b = 20; var c = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
+            const string input = "let a = 5; let b = 20; var c:int? = null; func f() { switch(a + b) { case 25: c = 10; break; case 30: c = 5; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 
@@ -1173,7 +1173,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestConstantDefaultSwitchStatement()
         {
-            const string input = "let a = 5; let b = 20; var c = null; func f() { switch(a + b) { case 30: c = 10; break; case 31: c = 5; break; default: c = 1; break; } }";
+            const string input = "let a = 5; let b = 20; var c:int? = null; func f() { switch(a + b) { case 30: c = 10; break; case 31: c = 5; break; default: c = 1; break; } }";
             var generator = TestUtils.CreateGenerator(input);
             generator.ParseSources();
 

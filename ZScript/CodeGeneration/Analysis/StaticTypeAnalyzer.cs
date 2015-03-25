@@ -301,11 +301,16 @@ namespace ZScript.CodeGeneration.Analysis
 
             var varType = definition.Type;
 
+            if (varType == TypeProvider.NullType())
+            {
+                var message = "Cannot infer type of null-valued value holder " + definition.Name;
+                Container.RegisterError(definition.Context, message, ErrorCode.IncompleteType);
+            }
+
             if (varType != null && !TypeProvider.CanImplicitCast(valueType, varType))
             {
                 var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
-                Container.RegisterError(definition.Context.Start.Line, definition.Context.Start.Column, message,
-                    ErrorCode.InvalidCast, definition.Context);
+                Container.RegisterError(definition.Context, message, ErrorCode.InvalidCast);
             }
         }
 

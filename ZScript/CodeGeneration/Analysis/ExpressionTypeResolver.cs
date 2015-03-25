@@ -329,7 +329,11 @@ namespace ZScript.CodeGeneration.Analysis
             context.EvaluatedType = retType;
 
             if (context.ExpectedType != null)
-                context.ImplicitCastType = context.ExpectedType;
+            {
+                var def = context.ExpectedType as OptionalTypeDef;
+
+                context.ImplicitCastType = def != null ? def.BaseWrappedType : context.ExpectedType;
+            }
 
             context.HasTypeBeenEvaluated = true;
 
@@ -661,6 +665,12 @@ namespace ZScript.CodeGeneration.Analysis
         public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ValueAccessContext context)
         {
             var type = TypeProvider.AnyType();
+
+            // Unwrap optional
+            if (leftValue is OptionalTypeDef && context.nullable != null)
+            {
+                leftValue = ((OptionalTypeDef)leftValue).WrappedType;
+            }
 
             if (context.arrayAccess() != null)
             {
@@ -1264,7 +1274,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.T_NULL() != null)
             {
-                return TypeProvider.AnyType();
+                return TypeProvider.NullType();
             }
 
             throw new Exception("Cannot resolve type for constant atom " + context);
@@ -1291,7 +1301,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.T_NULL() != null)
             {
-                return TypeProvider.AnyType();
+                return TypeProvider.NullType();
             }
 
             throw new Exception("Cannot resolve type for compie time constant " + context);
