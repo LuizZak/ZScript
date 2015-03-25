@@ -114,7 +114,12 @@ namespace ZScript.Builders
 
             DefineConstructor(definition, typeBuilder);
 
-            return _mappedTypes[definition] = typeBuilder.CreateType();
+            var type = typeBuilder.CreateType();
+
+            _mappedTypes[definition] = type;
+            definition.ClassTypeDef.ClassNativeType = type;
+
+            return type;
         }
 
         /// <summary>

@@ -1613,6 +1613,26 @@ namespace ZScriptTests.Runtime.Execution
             functionVm.Execute();
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(VirtualMachineException), "Expected exception after failed runtime type check")]
+        public void TestFailedNullValueTypeTypeCheck()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(null),
+                TokenFactory.CreateInstructionToken(VmInstruction.CheckType, typeof(long))
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null, null, null, new TypeProvider()); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+        }
+
         #endregion
 
         #region Bitwise Operations

@@ -262,6 +262,16 @@ namespace ZScript.CodeGeneration.Definitions
     public class ClassTypeDef : NativeTypeDef
     {
         /// <summary>
+        /// The native type for the class, after evaluation
+        /// </summary>
+        private Type _classNativeType;
+
+        /// <summary>
+        /// The type for the constructor pointed by this ClassTypeDef
+        /// </summary>
+        public CallableTypeDef ConstructorType;
+
+        /// <summary>
         /// Gets or sets the base type for this ClassTypeDef.
         /// If the value provided is a base type of this class, an ArgumentException is raised
         /// </summary>
@@ -295,9 +305,17 @@ namespace ZScript.CodeGeneration.Definitions
         }
 
         /// <summary>
-        /// The type for the constructor pointed by this ClassTypeDef
+        /// Gets or sets the native type for the class, after evaluation
         /// </summary>
-        public CallableTypeDef ConstructorType;
+        public Type ClassNativeType
+        {
+            get { return _classNativeType; }
+            set
+            {
+                _classNativeType = value;
+                nativeType = value;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the ClassTypeDef class

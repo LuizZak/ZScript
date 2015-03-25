@@ -746,11 +746,17 @@ namespace ZScript.Runtime.Execution
             if (token == null) throw new ArgumentNullException("token");
 
             object value = PeekValueImplicit();
+            var type = ((Type)token.TokenObject);
 
-            // Null values
-            if (value != null && !((Type)token.TokenObject).IsInstanceOfType(value))
+            // Null value types
+            if (value == null && type.IsValueType)
             {
-                throw new VirtualMachineException("Cannot convert type " + value.GetType() + " to type " + token.TokenObject + ".");
+                throw new VirtualMachineException("Cannot convert null to value type type " + type + ".");
+            }
+            // Null values
+            if (value != null && !type.IsInstanceOfType(value))
+            {
+                throw new VirtualMachineException("Cannot convert type " + value.GetType() + " to type " + type + ".");
             }
         }
 

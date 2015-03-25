@@ -21,7 +21,6 @@
 using System;
 using System.Linq;
 using ZScript.Elements;
-using ZScript.Runtime.Execution.Wrappers.Callables;
 
 namespace ZScript.Runtime.Execution.Wrappers.Members
 {
@@ -134,7 +133,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <exception cref="Exception">No member with the name referenced by this ZObjectMember exists</exception>
         public object GetValue()
         {
-            return _isMethod ? new ZClassMethod(_target, _method) : _target.LocalMemory.GetVariable(_name);
+            return _isMethod ? new Callables.ZClassMethod(_target, _method) : _target.LocalMemory.GetVariable(_name);
         }
     }
 }
