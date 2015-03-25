@@ -113,7 +113,7 @@ valueHolderDecl : (var='var' | let='let') valueHolderName (':' type)? ('=' expre
 valueHolderName : memberName;
 
 // Types
-type : objectType | typeName | callableType | listType | dictionaryType;
+type : type optional=T_NULL_CONDITIONAL | objectType | typeName | callableType | listType | dictionaryType;
 objectType       : 'object';
 typeName         : primitiveType | complexTypeName;
 complexTypeName  : IDENT ('.' IDENT)*;
@@ -129,6 +129,7 @@ callableArgType  : type variadic='...'?;
 ////
 expression:  '(' expression ')' valueAccess?
            | '(' assignmentExpression ')'
+           |  expression unwrap='!' valueAccess?
            // Primary expressions
            |  T_THIS objectAccess?
            |  T_BASE valueAccess?
