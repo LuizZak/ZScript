@@ -27,7 +27,7 @@ namespace ZScript.Runtime.Typing.Elements
     /// <summary>
     /// Specifies a type definition
     /// </summary>
-    public class TypeDef : IEquatable<TypeDef>
+    public class TypeDef : ITypeDef
     {
         /// <summary>
         /// The name for this type
@@ -431,6 +431,32 @@ namespace ZScript.Runtime.Typing.Elements
             stringType.baseType = objectType;
             boolType.baseType = objectType;
         }
+    }
+
+    /// <summary>
+    /// Interface to be implemented by type definitions
+    /// </summary>
+    public interface ITypeDef : IEquatable<TypeDef>
+    {
+        /// <summary>
+        /// Gets the name for this type
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Gets a value specifying whether this type definition represents the 'any' type
+        /// </summary>
+        bool IsAny { get; }
+
+        /// <summary>
+        /// Gets a value specifying whether this type definition represents the 'void' type
+        /// </summary>
+        bool IsVoid { get; }
+
+        /// <summary>
+        /// Gets a value specifying whether this type definition represents a native type
+        /// </summary>
+        bool IsNative { get; }
     }
 
     /// <summary>
