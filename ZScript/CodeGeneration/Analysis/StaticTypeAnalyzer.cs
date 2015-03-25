@@ -572,55 +572,9 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="valueHolderDecl">The context containing the value declaration to analyze</param>
             private void AnalyzeVariableDeclaration(ZScriptParser.ValueHolderDeclContext valueHolderDecl)
             {
+                _typeAnalyzer.ExpandValueHolderDefinition(valueHolderDecl.Definition);
+
                 var localDef = valueHolderDecl.Definition as LocalVariableDefinition;
-
-                var definition = valueHolderDecl.Definition;
-                var varType = definition.Type ?? _constantResolver.Context.TypeProvider.AnyType();
-
-                if (definition.TypeContext != null)
-                {
-                    varType = _typeResolver.ResolveType(definition.TypeContext, false);
-                }
-
-                definition.Type = varType;
-
-                var expression = valueHolderDecl.expression();
-                if (expression == null)
-                {
-                    if (localDef != null)
-                        AddLocal(localDef);
-
-                    return;
-                }
-
-                if (expression.HasTypeBeenEvaluated)
-                {
-                    _constantResolver.ExpandConstants(expression);
-                    if (localDef != null)
-                        AddLocal(localDef);
-
-                    return;
-                }
-
-                if (definition.TypeContext != null)
-                {
-                    expression.ExpectedType = varType;
-                }
-
-                var valueType = _typeResolver.ResolveExpression(expression);
-                _constantResolver.ExpandConstants(expression);
-
-                // Inferring
-                if (definition.TypeContext == null)
-                {
-                    definition.Type = valueType;
-                }
-
-                if (varType != null && valueType != null && !_typeResolver.TypeProvider.CanImplicitCast(valueType, varType))
-                {
-                    var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;
-                    _typeResolver.MessageContainer.RegisterError(definition.Context, message, ErrorCode.InvalidCast);
-                }
 
                 if (localDef != null)
                     AddLocal(localDef);
