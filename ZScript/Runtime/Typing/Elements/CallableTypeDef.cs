@@ -286,7 +286,7 @@ namespace ZScript.Runtime.Typing.Elements
                 _hasType = hasType;
                 _hasDefault = hasDefault;
                 _isVariadic = isVariadic;
-                _rawParameterType = _parameterType == null ? null : _isVariadic ? ((ListTypeDef)_parameterType).EnclosingType : _parameterType;
+                _rawParameterType = _parameterType == null ? null : _isVariadic && _parameterType is ListTypeDef ? ((ListTypeDef)_parameterType).EnclosingType : _parameterType;
             }
 
             #region Equality members
