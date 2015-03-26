@@ -280,12 +280,12 @@ namespace ZScript.Runtime.Typing
                 return AnyType();
 
             // Null interaction: Return the non-null type, and if both are null, return null as well
-            if (type1 == NullType())
-                return type2;
-            if (type2 == NullType())
-                return type1;
-            if(type1 == NullType() && type2 == NullType())
+            if (type1 == NullType() && type2 == NullType())
                 return NullType();
+            if (type1 == NullType())
+                return type2 is OptionalTypeDef ? type2 : OptionalTypeForType(type2);
+            if (type2 == NullType())
+                return type1 is OptionalTypeDef ? type1 : OptionalTypeForType(type1);
 
             // Integer -> Float conversion
             var intType = IntegerType();

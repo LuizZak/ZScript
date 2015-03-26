@@ -557,7 +557,7 @@ namespace ZScript.CodeGeneration.Analysis
             var type1 = ResolveExpression(context.expression(0));
             var type2 = ResolveExpression(context.expression(1));
 
-            if (!(type1 is OptionalTypeDef))
+            if (!(type1 is OptionalTypeDef) && type1 != TypeProvider.NullType())
             {
                 RegisterNonOptionalNullCoalesceLeftSide(context);
             }

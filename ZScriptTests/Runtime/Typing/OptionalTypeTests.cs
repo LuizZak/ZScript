@@ -127,6 +127,21 @@ namespace ZScriptTests.Runtime.Typing
         }
 
         /// <summary>
+        /// Tests FindCommonType with different configutarion of null and non-optional types
+        /// </summary>
+        [TestMethod]
+        public void TestNullOptionalCommonType()
+        {
+            var provider = new TypeProvider();
+
+            var intType = provider.IntegerType();
+
+            // Null values
+            Assert.AreEqual(provider.OptionalTypeForType(intType), provider.FindCommonType(intType, provider.NullType()));
+            Assert.AreEqual(provider.OptionalTypeForType(intType), provider.FindCommonType(provider.NullType(), intType));
+        }
+
+        /// <summary>
         /// Tests optional compatibility with null-typed values
         /// </summary>
         [TestMethod]

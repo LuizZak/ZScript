@@ -631,7 +631,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
             var typeProvider = new TypeProvider();
-            var generationContext = new RuntimeGenerationContext(null, null, typeProvider, new TestDefinitionTypeProvider());
+            var generationContext = new RuntimeGenerationContext(null, new MessageContainer(), typeProvider, new TestDefinitionTypeProvider());
             var typeResolver = new ExpressionTypeResolver(generationContext);
             var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
 
