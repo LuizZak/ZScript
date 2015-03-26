@@ -81,6 +81,15 @@ namespace ZScript.Runtime.Typing.Elements
             _wrappedType = wrappedType;
         }
 
+        /// <summary>
+        /// Gets a string representation of this OptionalTypeDef
+        /// </summary>
+        /// <returns>A string representation of this OptionalTypeDef</returns>
+        public override string ToString()
+        {
+            return _wrappedType + "?";
+        }
+
         #region Equality members
 
         public bool Equals(OptionalTypeDef other)
