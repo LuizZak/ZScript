@@ -1595,15 +1595,11 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise the expected errors");
         }
 
-        #endregion
-
-        #region Warning raising
-
         /// <summary>
-        /// Tests reporting of subscription warnings
+        /// Tests reporting of subscription errors
         /// </summary>
         [TestMethod]
-        public void TestSubscriptWarning()
+        public void TestSubscriptError()
         {
             // Set up the test
             const string input = "() : int => {}[0]";
@@ -1619,10 +1615,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests reporting of function call warnings
+        /// Tests reporting of function call errors
         /// </summary>
         [TestMethod]
-        public void TestFunctionCallWarning()
+        public void TestFunctionCallError()
         {
             // Set up the test
             const string input = "() : int => {}()()";
@@ -1638,7 +1634,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests raising warnings when trying to call non callables
+        /// Tests raising errors when trying to call non callables
         /// </summary>
         [TestMethod]
         public void TestCallingUncallable()
@@ -1654,7 +1650,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests raising warnings when trying to call non callables
+        /// Tests raising errors when trying to call non callables
         /// </summary>
         [TestMethod]
         public void TestShadowedCallingUncallable()

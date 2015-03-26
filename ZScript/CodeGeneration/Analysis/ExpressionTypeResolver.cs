@@ -536,7 +536,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return opt.WrappedType;
             }
             
-            RegisterNonOptionalUnwrapping(context.expression(0), inner);
+            RegisterNonOptionalUnwrapping(inner, context.expression(0));
 
             return TypeProvider.AnyType();
         }
@@ -556,6 +556,11 @@ namespace ZScript.CodeGeneration.Analysis
             // Find type of expressions on both sides
             var type1 = ResolveExpression(context.expression(0));
             var type2 = ResolveExpression(context.expression(1));
+
+            if (!(type1 is OptionalTypeDef))
+            {
+                RegisterNonOptionalNullCoalesceLeftSide(context);
+            }
 
             var commonType = TypeProvider.FindCommonType(type1, type2);
 
@@ -634,7 +639,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else
                 {
-                    RegisterNonOptionalUnwrapping(leftValueContext, leftValue);
+                    RegisterNonOptionalUnwrapping(leftValue, leftValueContext);
                 }
             }
 
@@ -686,7 +691,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else
                 {
-                    RegisterNonOptionalUnwrapping(context, leftValue);
+                    RegisterNonOptionalUnwrapping(leftValue, context);
                 }
             }
 
@@ -1468,7 +1473,7 @@ namespace ZScript.CodeGeneration.Analysis
 
         #endregion
 
-        #region Message raising
+        #region Message registering
 
         /// <summary>
         /// Registers a message about calling a non-callable type
@@ -1495,12 +1500,22 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Registers a message about unwrapping a non-optional type
         /// </summary>
-        /// <param name="context">The context in which the unwrapping happened</param>
         /// <param name="type">The type of the value trying to be unwrapped</param>
-        private void RegisterNonOptionalUnwrapping(ParserRuleContext context, TypeDef type)
+        /// <param name="context">The context in which the unwrapping happened</param>
+        private void RegisterNonOptionalUnwrapping(TypeDef type, ParserRuleContext context)
         {
             var message = "Trying to unwrap non optional value type " + type;
             MessageContainer.RegisterError(context, message, ErrorCode.TryingToUnwrapNonOptional);
+        }
+
+        /// <summary>
+        /// Registers a message about a non-optional null-coalesce left side
+        /// </summary>
+        /// <param name="context">The context in which the unwrapping happened</param>
+        private void RegisterNonOptionalNullCoalesceLeftSide(ParserRuleContext context)
+        {
+            const string message = "Left side of null-coalesce is non-optional and never returns null";
+            MessageContainer.RegisterWarning(context, message, WarningCode.NonOptionalNullCoalesceLeftSize);
         }
 
         #endregion
