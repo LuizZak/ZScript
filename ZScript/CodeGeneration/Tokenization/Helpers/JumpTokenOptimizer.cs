@@ -50,8 +50,6 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
         public static void OptimizeJumps(IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
-            return;
-
             tokens.BindJumpTargets(endJumpTargetInstruction);
 
             // Optimize the jump flow
