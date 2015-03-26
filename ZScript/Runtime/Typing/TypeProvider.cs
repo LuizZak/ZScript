@@ -657,14 +657,21 @@ namespace ZScript.Runtime.Typing
 
             // Check implicit return type, ignoring void return types on the target
             // (since the origin return value will never be used, if the target's return value is void)
-            if (!target.ReturnType.IsVoid && origin.ReturnType != target.ReturnType && !target.ReturnType.IsAny)
-                return false;
+            if (!target.ReturnType.IsVoid)
+            {
+                // Optional configuration
+                if (!InternalAreTypesCompatible(target.ReturnType, origin.ReturnType))
+                    return false;
+            }
 
             // Check argument implicit casts
             int c = Math.Min(origin.RequiredArgumentsCount, target.RequiredArgumentsCount);
             for (int i = 0; i < c; i++)
             {
-                if (origin.ParameterTypes[i] != target.ParameterTypes[i] && !origin.ParameterTypes[i].IsAny)
+                var typeO = origin.ParameterTypes[i];
+                var typeT = target.ParameterTypes[i];
+
+                if (!InternalAreTypesCompatible(typeO, typeT))
                     return false;
             }
 
@@ -674,11 +681,47 @@ namespace ZScript.Runtime.Typing
                 if (!origin.HasVariadic)
                     return false;
 
-                if (target.VariadicParameter.RawParameterType != origin.VariadicParameter.RawParameterType && !origin.VariadicParameter.RawParameterType.IsAny)
+                var varT = target.VariadicParameter.RawParameterType;
+                var varO = origin.VariadicParameter.RawParameterType;
+
+                if (!InternalAreTypesCompatible(varO, varT))
                     return false;
             }
 
             // Callable types are compatible
+            return true;
+        }
+
+        /// <summary>
+        /// Internal method used to help deal with value compatibility of types that are passed around
+        /// </summary>
+        /// <param name="origin">The origin type to verify</param>
+        /// <param name="target">The target type to verify</param>
+        /// <returns>Whether the types are compatible or not</returns>
+        private bool InternalAreTypesCompatible(TypeDef origin, TypeDef target)
+        {
+            // Types match
+            if (origin == target)
+                return true;
+
+            // Optionallity
+            var optO = origin as OptionalTypeDef;
+            var optT = target as OptionalTypeDef;
+
+            if (optO != null && optT != null)
+                return InternalAreTypesCompatible(optO.WrappedType, optT.WrappedType);
+
+            // Optional parameter compatibility rules:
+            // The test passes if any of the conditions are true:
+            // 
+            // 1. Target and origin have the same optionality configuration (same underlying type, same depth)
+            // 2. Origin has an optional type which wraps the target type
+            if (optO != null && optO.WrappedType == target)
+                return true;
+
+            if (origin != target && !origin.IsAny)
+                return false;
+
             return true;
         }
 

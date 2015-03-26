@@ -455,10 +455,10 @@ namespace ZScriptTests.Runtime.Typing
         }
 
         /// <summary>
-        /// Tests failed callable type cast checking by providing callables with differente variadic signatures
+        /// Tests failed callable type cast checking by providing callables with different variadic signatures
         /// </summary>
         [TestMethod]
-        public void TestFailedMismatchedVariadicCallableImplicitCast()
+        public void TestVariadicSignatureCallableImplicitCast()
         {
             // Set up the test
             const string input = "(int...->) () => {} (int...->) (i:int...) => {} (->) (i:int...) => {}";
@@ -484,10 +484,10 @@ namespace ZScriptTests.Runtime.Typing
         }
 
         /// <summary>
-        /// Tests callable type cast checking by providing callables with differente variadic type signatures
+        /// Tests callable type cast checking by providing callables with different variadic type signatures
         /// </summary>
         [TestMethod]
-        public void TestMismatchedVariadicTypeCallableImplicitCast()
+        public void TestVariadicTypeCallableImplicitCast()
         {
             // Set up the test
             const string input = "(int...->) (i:float...) => {} (int...->) (i:any...) => {}";
@@ -506,6 +506,97 @@ namespace ZScriptTests.Runtime.Typing
 
             Assert.IsFalse(provider.CanImplicitCast(closureType1, callableType1));
             Assert.IsTrue(provider.CanImplicitCast(closureType2, callableType2));
+        }
+
+        /// <summary>
+        /// Tests callable type cast checking by providing callables with different variadic type signatures
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalVariadicTypeCallableImplicitCast()
+        {
+            // Set up the test
+            const string input = "(int?...->) (i:int?...) => {} (int?...->) (i:any?...) => {}";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var callableType1 = resolver.ResolveCallableType(parser.callableType());
+            var closureType1 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType2 = resolver.ResolveCallableType(parser.callableType());
+            var closureType2 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsTrue(provider.CanImplicitCast(closureType1, callableType1));
+            Assert.IsTrue(provider.CanImplicitCast(closureType2, callableType2));
+        }
+
+        /// <summary>
+        /// Tests callable type cast checking by providing callables with different optional parameter configurations
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalParameterCallableImplicitCast()
+        {
+            // Set up the test
+            const string input = "(int?->) (i:int?) => {} (int->) (i:int?) => {} (int?->) (i:int) => {} (int?->) (i:int? ?) => {}";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var callableType1 = resolver.ResolveCallableType(parser.callableType());
+            var closureType1 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType2 = resolver.ResolveCallableType(parser.callableType());
+            var closureType2 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType3 = resolver.ResolveCallableType(parser.callableType());
+            var closureType3 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType4 = resolver.ResolveCallableType(parser.callableType());
+            var closureType4 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsTrue(provider.CanImplicitCast(closureType1, callableType1));
+            Assert.IsTrue(provider.CanImplicitCast(closureType2, callableType2));
+            Assert.IsFalse(provider.CanImplicitCast(closureType3, callableType3));
+            Assert.IsTrue(provider.CanImplicitCast(closureType4, callableType4));
+        }
+
+        /// <summary>
+        /// Tests callable type cast checking by providing callables with different optional return configurations
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalReturnCallableImplicitCast()
+        {
+            // Set up the test
+            const string input = "(->int?) ():int? => {} (->int) ():int? => {} (->int?) ():int? => {} (->int?) ():int? ? => {}";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var callableType1 = resolver.ResolveCallableType(parser.callableType());
+            var closureType1 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType2 = resolver.ResolveCallableType(parser.callableType());
+            var closureType2 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType3 = resolver.ResolveCallableType(parser.callableType());
+            var closureType3 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType4 = resolver.ResolveCallableType(parser.callableType());
+            var closureType4 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsTrue(provider.CanImplicitCast(closureType1, callableType1));
+            Assert.IsFalse(provider.CanImplicitCast(closureType2, callableType2));
+            Assert.IsTrue(provider.CanImplicitCast(closureType3, callableType3));
+            Assert.IsFalse(provider.CanImplicitCast(closureType4, callableType4));
         }
 
         #endregion

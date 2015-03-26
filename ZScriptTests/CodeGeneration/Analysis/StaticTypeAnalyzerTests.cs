@@ -603,7 +603,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestForStatementConditionConstantChecking()
         {
             // Set up the test
-            const string input = "func f() { for(let i = 0;i++ = 0;) { } }";
+            const string input = "func f() { for(let i = 0;i++;) { } }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
