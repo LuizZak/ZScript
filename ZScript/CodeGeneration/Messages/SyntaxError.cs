@@ -42,5 +42,19 @@ namespace ZScript.CodeGeneration.Messages
             Line = line;
             Message = message;
         }
+
+        /// <summary>
+        /// Transforms this code message into a string
+        /// </summary>
+        /// <returns>The string representation of this code message</returns>
+        public override string ToString()
+        {
+            if (string.IsNullOrWhiteSpace(ContextName))
+            {
+                return "Sytax error at line " + Line + " position " + Column + ": " + Message;
+            }
+
+            return "Syntax error at " + ContextName + " at line " + Line + " position " + Column + ": " + Message;
+        }
     }
 }

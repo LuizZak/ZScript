@@ -102,5 +102,11 @@ namespace ZScript.CodeGeneration.Messages
                 return "";
             }
         }
+
+        /// <summary>
+        /// Transforms this code message into a string
+        /// </summary>
+        /// <returns>The string representation of this code message</returns>
+        public override abstract string ToString();
     }
 }

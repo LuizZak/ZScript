@@ -73,6 +73,20 @@ namespace ZScript.CodeGeneration.Messages
 
             return message;
         }
+
+        /// <summary>
+        /// Transforms this code message into a string
+        /// </summary>
+        /// <returns>The string representation of this code message</returns>
+        public override string ToString()
+        {
+            if (string.IsNullOrWhiteSpace(ContextName))
+            {
+                return "Error at line " + Line + " position " + Column + ": " + Message;
+            }
+
+            return "Error at " + ContextName + " at line " + Line + " position " + Column + ": " + Message;
+        }
     }
 
     /// <summary>

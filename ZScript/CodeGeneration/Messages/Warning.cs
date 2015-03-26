@@ -44,6 +44,20 @@ namespace ZScript.CodeGeneration.Messages
             Message = message;
             WarningCode = warningCode;
         }
+
+        /// <summary>
+        /// Transforms this code message into a string
+        /// </summary>
+        /// <returns>The string representation of this code message</returns>
+        public override string ToString()
+        {
+            if (string.IsNullOrWhiteSpace(ContextName))
+            {
+                return "Warning at line " + Line + " position " + Column + ": " + Message;
+            }
+
+            return "Warning at " + ContextName + " at line " + Line + " position " + Column + ": " + Message;
+        }
     }
 
     /// <summary>
@@ -66,5 +80,8 @@ namespace ZScript.CodeGeneration.Messages
 
         /// <summary>Wraning raised whenever a redundant base() call is placed inside an inherited constructor</summary>
         RedundantBaseCall,
+
+        /// <summary>Warning raised when the expression on the left side of a null-coalesce is a non-optional value</summary>
+        NonOptionalNullCoalesceLeftSize,
     }
 }

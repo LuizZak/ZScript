@@ -126,17 +126,17 @@ namespace ZScript.CodeGeneration.Messages
         {
             foreach (var error in SyntaxErrors)
             {
-                Console.WriteLine("Syntax Error at " + error.ContextName + " at line " + error.Line + " position " + error.Column + ": " + error.Message);
+                Console.WriteLine(error);
             }
 
             foreach (var error in CodeErrors)
             {
-                Console.WriteLine("Error at " + error.ContextName + " at line " + error.Line + " position " + error.Column + ": " + error.Message);
+                Console.WriteLine(error);
             }
 
             foreach (var warning in Warnings)
             {
-                Console.WriteLine("Warning at " + warning.ContextName + " at line " + warning.Line + " position " + warning.Column + ": " + warning.Message);
+                Console.WriteLine(warning);
             }
         }
 
