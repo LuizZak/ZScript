@@ -2815,8 +2815,45 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 // 'a'
                 TokenFactory.CreateVariableToken("a", true),
-                // Duplicate for jump check
                 TokenFactory.CreateInstructionToken(VmInstruction.CheckNull),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests simple optional unwrapping tokenization with value access
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalUnwrappingAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a!()";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jTar = new JumpTargetToken();
+
+            var expectedTokens = new List<Token>
+            {
+                // 'a'
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.CheckNull),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
             };
 
             Console.WriteLine("Dump of tokens: ");

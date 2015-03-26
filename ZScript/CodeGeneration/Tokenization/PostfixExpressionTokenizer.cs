@@ -559,10 +559,12 @@ namespace ZScript.CodeGeneration.Tokenization
             // Evaluate expression
             VisitExpression(context.expression(0));
 
-            if (context.unwrap != null)
+            // Add null-check token
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckNull));
+
+            if (context.valueAccess() != null)
             {
-                // Add null-check token
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckNull));
+                VisitValueAccess(context.valueAccess());
             }
         }
 
