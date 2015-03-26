@@ -50,6 +50,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
         public static void OptimizeJumps(IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
+            return;
+
             tokens.BindJumpTargets(endJumpTargetInstruction);
 
             // Optimize the jump flow
@@ -163,7 +165,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     // If the previous token is a 'ClearStack', remove it, since clearing a stack before finishing the VM is useless
                     if (jumpToken.TargetToken.Instruction != VmInstruction.Ret && i > 0 && tokens[i - 1].Instruction == VmInstruction.ClearStack)
                     {
-                        tokens.RemoveAt(i - 1);
+                        tokens.RemoveToken(tokens[i - 1], replaceToken);
                         i--;
                     }
 

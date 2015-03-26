@@ -300,7 +300,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <exception cref="ArgumentException">The provided jump token is not part of this token list</exception>
         public static int OffsetForJump(IList<Token> tokens, JumpToken jumpToken)
         {
-            if (!tokens.ContainsReference(jumpToken))
+            if (!tokens.ContainsReference(jumpToken) || !tokens.ContainsReference(jumpToken.TargetToken))
                 throw new ArgumentException("The provided token does not exists inside this intermediate token list object", "jumpToken");
 
             return tokens.IndexOfReference(jumpToken.TargetToken);
