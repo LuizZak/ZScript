@@ -297,6 +297,7 @@ namespace ZScript.Runtime.Typing
             // Optional and non-optional type
             var opt1 = type1 as OptionalTypeDef;
             var opt2 = type2 as OptionalTypeDef;
+            // Type 1 is non-optional / Type 2 is optional
             if (opt1 != null && opt2 == null)
             {
                 if (opt1.BaseWrappedType == type2)
@@ -304,6 +305,7 @@ namespace ZScript.Runtime.Typing
                     return InternalOptionalTypeForType(type2, opt1.OptionalDepth);
                 }
             }
+            // Type 1 is optional / Type 2 is non-optional
             else if(opt1 == null && opt2 != null)
             {
                 if (opt2.BaseWrappedType == type1)
@@ -311,12 +313,15 @@ namespace ZScript.Runtime.Typing
                     return InternalOptionalTypeForType(type1, opt2.OptionalDepth);
                 }
             }
+            // Type 1 and type2 are optional
             else if (opt1 != null)
             {
                 if (opt1.BaseWrappedType == opt2.BaseWrappedType)
                 {
                     return InternalOptionalTypeForType(opt1.BaseWrappedType, Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
                 }
+
+                return InternalOptionalTypeForType(AnyType(), Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
             }
 
             // Class types

@@ -103,6 +103,8 @@ namespace ZScriptTests.Runtime.Typing
             var optFloat = provider.OptionalTypeForType(provider.FloatType());
             var optOptFloat = provider.OptionalTypeForType(optFloat);
 
+            var optAny = provider.OptionalTypeForType(provider.AnyType());
+
             // Null values
             Assert.AreEqual(optInt, provider.FindCommonType(optInt, provider.NullType()));
             Assert.AreEqual(optInt, provider.FindCommonType(provider.NullType(), optInt));
@@ -116,14 +118,31 @@ namespace ZScriptTests.Runtime.Typing
             Assert.AreEqual(optOptInt, provider.FindCommonType(optInt, optOptInt));
 
             // Unequality
-            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optInt, optFloat));
-            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optFloat, optInt));
+            Assert.AreEqual(optAny, provider.FindCommonType(optInt, optFloat));
+            Assert.AreEqual(optAny, provider.FindCommonType(optFloat, optInt));
 
-            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptFloat, optInt));
-            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optInt, optOptFloat));
+            Assert.AreEqual(optAny, provider.FindCommonType(optOptFloat, optInt));
+            Assert.AreEqual(optAny, provider.FindCommonType(optInt, optOptFloat));
 
-            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptFloat, optOptInt));
-            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptInt, optOptFloat));
+            Assert.AreEqual(optAny, provider.FindCommonType(optOptFloat, optOptInt));
+            Assert.AreEqual(optAny, provider.FindCommonType(optOptInt, optOptFloat));
+        }
+
+        /// <summary>
+        /// Tests FindCommonType with optional and compatible non-optional types
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalInternalCommonType()
+        {
+            var provider = new TypeProvider();
+
+            var optInt = provider.OptionalTypeForType(provider.IntegerType());
+            var optAny = provider.OptionalTypeForType(provider.AnyType());
+            var optFloat = provider.OptionalTypeForType(provider.FloatType());
+
+            // Null values
+            Assert.AreEqual(optAny, provider.FindCommonType(optInt, optFloat));
+            Assert.AreEqual(optAny, provider.FindCommonType(optFloat, optInt));
         }
 
         /// <summary>

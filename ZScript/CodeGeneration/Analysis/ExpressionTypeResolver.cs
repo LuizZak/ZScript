@@ -557,12 +557,33 @@ namespace ZScript.CodeGeneration.Analysis
             var type1 = ResolveExpression(context.expression(0));
             var type2 = ResolveExpression(context.expression(1));
 
-            if (!(type1 is OptionalTypeDef) && type1 != TypeProvider.NullType())
+            // Type1 is constantly null
+            if (type1 == TypeProvider.NullType())
+            {
+                return type2;
+            }
+            var opt1 = type1 as OptionalTypeDef;
+            if (opt1 == null)
             {
                 RegisterNonOptionalNullCoalesceLeftSide(context);
+                return type1;
             }
 
-            var commonType = TypeProvider.FindCommonType(type1, type2);
+            var commonType = TypeProvider.FindCommonType(opt1.WrappedType, type2);
+
+            var opt2 = type2 as OptionalTypeDef;
+            if (opt2 != null && opt1.BaseWrappedType == opt2.BaseWrappedType)
+            {
+                commonType = TypeProvider.FindCommonType(opt1, opt2);
+            }
+
+            if (commonType == TypeProvider.AnyType())
+            {
+                string message = "Cannot apply null-coalesce operator between values of type " + type1 + " and " + type2;
+                MessageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
+
+                return TypeProvider.AnyType();
+            }
 
             // Adjust expected types
             context.expression(0).ExpectedType = commonType;

@@ -291,7 +291,34 @@ namespace ZScriptTests.CodeGeneration.Analysis
             container.PrintMessages();
 
             // Compare the result now
-            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), type, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.IntegerType(), type, "Failed to evaluate the result of expression correctly");
+        }
+
+        /// <summary>
+        /// Tests type resolving of null-coalesce on mixed optionals and non-optionals
+        /// </summary>
+        [TestMethod]
+        public void TestNullCoalesceOnNestedOptional()
+        {
+            // Set up the test
+            const string input = "ooi ?: i; oi ?: ooi; ooi ?: oi ?: i;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+            var type2 = resolver.ResolveExpression(parser.statement().expression());
+            var type3 = resolver.ResolveExpression(parser.statement().expression());
+
+            container.PrintMessages();
+
+            // Compare the result now
+            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), type1, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.OptionalTypeForType(provider.OptionalTypeForType(provider.IntegerType())), type2, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.OptionalTypeForType(provider.OptionalTypeForType(provider.IntegerType())), type3, "Failed to evaluate the result of expression correctly");
         }
 
         /// <summary>

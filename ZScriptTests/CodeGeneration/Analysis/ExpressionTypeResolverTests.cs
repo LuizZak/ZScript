@@ -1185,13 +1185,13 @@ namespace ZScriptTests.CodeGeneration.Analysis
         #region Null coalescing resolving
 
         /// <summary>
-        /// Tests ternary expression type resolving
+        /// Tests null-coalescing type resolving
         /// </summary>
         [TestMethod]
         public void TestNullCoalescing()
         {
             // Set up the test
-            const string input = "i ?: f; [f] ?: [f]; b ?: i;";
+            const string input = "of ?: of; [of] ?: [of]; ob ?: oi;";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
@@ -1207,9 +1207,55 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type3 = resolver.ResolveExpression(value3);
 
             // Compare the result now
-            Assert.AreEqual(provider.FloatType(), type1, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.FloatType()), type2, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.OptionalTypeForType(provider.FloatType()), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.OptionalTypeForType(provider.FloatType())), type2, "The resolved type did not match the expected type");
             Assert.AreEqual(provider.AnyType(), type3, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests incompatible type error raising on null-coalescing type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestIncompatibleTypesNullCoalescing()
+        {
+            // Set up the test
+            const string input = "ob ?: oi;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            var value1 = parser.statement().expression();
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(value1);
+
+            // Compare the result now
+            Assert.AreEqual(provider.AnyType(), type1);
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation));
+        }
+
+        /// <summary>
+        /// Tests constantly null left side null-coalescing type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestLeftNullConstantCoalescing()
+        {
+            // Set up the test
+            const string input = "null ?: i;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var value1 = parser.statement().expression();
+
+            // Perform the parsing
+            var type1 = resolver.ResolveExpression(value1);
+
+            // Compare the result now
+            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
         }
 
         #endregion
