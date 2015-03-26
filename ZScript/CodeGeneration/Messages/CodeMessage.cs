@@ -51,7 +51,7 @@ namespace ZScript.CodeGeneration.Messages
         /// Gets or sets a token object that can be used to identify special contexts.
         /// This token may be null, if none was present during the time this message was created
         /// </summary>
-        public IToken Token { get; set; } 
+        public IToken Token { get; set; }
 
         /// <summary>
         /// Gets a friendly version of the context for this code message

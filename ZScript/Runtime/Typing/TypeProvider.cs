@@ -657,14 +657,24 @@ namespace ZScript.Runtime.Typing
 
             // Check implicit return type, ignoring void return types on the target
             // (since the origin return value will never be used, if the target's return value is void)
-            if (!target.ReturnType.IsVoid && !CanImplicitCast(origin.ReturnType, target.ReturnType))
+            if (!target.ReturnType.IsVoid && origin.ReturnType != target.ReturnType && !target.ReturnType.IsAny)
                 return false;
 
             // Check argument implicit casts
             int c = Math.Min(origin.RequiredArgumentsCount, target.RequiredArgumentsCount);
             for (int i = 0; i < c; i++)
             {
-                if (!CanImplicitCast(origin.ParameterTypes[i], target.ParameterTypes[i]))
+                if (origin.ParameterTypes[i] != target.ParameterTypes[i] && !origin.ParameterTypes[i].IsAny)
+                    return false;
+            }
+
+            // Check variadic type compatibility
+            if (target.HasVariadic)
+            {
+                if (!origin.HasVariadic)
+                    return false;
+
+                if (target.VariadicParameter.RawParameterType != origin.VariadicParameter.RawParameterType && !origin.VariadicParameter.RawParameterType.IsAny)
                     return false;
             }
 

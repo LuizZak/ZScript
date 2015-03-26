@@ -72,6 +72,21 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets the information for the variadic parameter of this callable type definition.
+        /// The value returned is null, if no variadic parameter exists on this callable type def
+        /// </summary>
+        public CallableParameterInfo VariadicParameter
+        {
+            get
+            {
+                if (!_hasVariadic)
+                    return null;
+
+                return ParameterInfos.First(p => p.IsVariadic);
+            }
+        }
+
+        /// <summary>
         /// Gets the count of arguments required by this callable type definition
         /// </summary>
         public int RequiredArgumentsCount
@@ -85,7 +100,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         public int MaximumArgumentsCount
         {
-            get { return _hasVariadic ? int.MaxValue : _parameterInfos.Length; }
+            get { return HasVariadic ? int.MaxValue : _parameterInfos.Length; }
         }
 
         /// <summary>
@@ -99,6 +114,14 @@ namespace ZScript.Runtime.Typing.Elements
         public TypeDef ReturnType
         {
             get { return _returnType; }
+        }
+
+        /// <summary>
+        /// Gets a value specifying whether any of the arguments for this callable type definition is variadic
+        /// </summary>
+        public bool HasVariadic
+        {
+            get { return _hasVariadic; }
         }
 
         /// <summary>

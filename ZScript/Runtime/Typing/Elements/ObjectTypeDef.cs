@@ -29,11 +29,16 @@ namespace ZScript.Runtime.Typing.Elements
     public class ObjectTypeDef : NativeTypeDef, IListTypeDef
     {
         /// <summary>
+        /// Cached object representing the type of objects subscript on this ObjectTypeDef
+        /// </summary>
+        private readonly OptionalTypeDef _optionalTypeDef = new OptionalTypeDef(AnyType);
+
+        /// <summary>
         /// Gets the type of objects subscript on this ObjectTypeDef
         /// </summary>
         public TypeDef EnclosingType
         {
-            get { return AnyType; }
+            get { return _optionalTypeDef; }
         }
 
         /// <summary>

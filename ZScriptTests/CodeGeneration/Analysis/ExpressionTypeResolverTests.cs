@@ -753,7 +753,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
             Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[0], "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.ListForType(provider.IntegerType()), type.ParameterTypes[1], "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[1], "The resolved type did not match the expected type");
             Assert.AreEqual(true, type.ParameterInfos[1].IsVariadic, "The resolved type did not match the expected type");
         }
 

@@ -73,6 +73,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             
             var closure = scope.GetDefinitionsByType<ClosureDefinition>().First();
 
+            generator.MessageContainer.PrintMessages();
+
             Assert.IsFalse(generator.HasErrors);
             Assert.AreEqual(provider.AnyType(), closure.Parameters[0].Type, "The parameter type of the closure was not inferred correctly");
             Assert.AreEqual(provider.IntegerType(), closure.ReturnType, "The return type of the closure was not inferred correctly");

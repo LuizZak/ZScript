@@ -106,6 +106,11 @@ public partial class ZScriptParser
         /// Gets or sets the closure definition associated with this closure expression
         /// </summary>
         public ClosureDefinition Definition { get; set; }
+
+        /// <summary>
+        /// Whether the type of this closure expression was inferred before
+        /// </summary>
+        public bool IsInferred { get; set; }
     }
 
     /// <summary>

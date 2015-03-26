@@ -837,6 +837,8 @@ namespace ZScript.CodeGeneration.Analysis
             public void ClosureTypeMatched(ZScriptParser.ClosureExpressionContext context, TypeDef expectedType)
             {
                 AnalyzeClosureDefinition(context.Definition);
+
+                context.IsInferred = true;
             }
         }
 

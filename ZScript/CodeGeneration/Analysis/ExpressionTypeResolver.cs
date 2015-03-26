@@ -686,7 +686,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
                 else
                 {
-                    RegisterNonOptionalUnwrapping(leftValueContext, leftValue);
+                    RegisterNonOptionalUnwrapping(context, leftValue);
                 }
             }
 
@@ -972,6 +972,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public CallableTypeDef ResolveClosureExpression(ZScriptParser.ClosureExpressionContext context)
         {
+            if (context.IsInferred)
+            {
+                return context.Definition.CallableTypeDef;
+            }
+
             var parameters = new List<FunctionArgumentDefinition>();
             var hasReturnType = context.returnType() != null;
 
@@ -1020,6 +1025,8 @@ namespace ZScript.CodeGeneration.Analysis
                 returnType = context.Definition.ReturnType;
             }
 
+            context.IsInferred = true;
+
             return new CallableTypeDef(parameters.Select(a => a.ToArgumentInfo()).ToArray(), returnType, hasReturnType);
         }
 
@@ -1061,7 +1068,7 @@ namespace ZScript.CodeGeneration.Analysis
                 type = TypeProvider.AnyType();
             }
 
-            return context.variadic != null ? TypeProvider.ListForType(type) : type;
+            return type;
         }
 
         #endregion

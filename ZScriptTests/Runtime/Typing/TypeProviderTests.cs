@@ -433,7 +433,7 @@ namespace ZScriptTests.Runtime.Typing
         }
 
         /// <summary>
-        /// Tests successfull callable type cast checking by providing callables with same required argument count
+        /// Tests successful callable type cast checking by providing callables with same required argument count
         /// </summary>
         [TestMethod]
         public void TestDefaultArgumentClosureTypeImplicitCast()
@@ -452,6 +452,60 @@ namespace ZScriptTests.Runtime.Typing
 
             Assert.IsTrue(provider.CanImplicitCast(closureType, callableType),
                 "Trying to cast callable types with more total parameters, but same required parameters than the original should not be allowed");
+        }
+
+        /// <summary>
+        /// Tests failed callable type cast checking by providing callables with differente variadic signatures
+        /// </summary>
+        [TestMethod]
+        public void TestFailedMismatchedVariadicCallableImplicitCast()
+        {
+            // Set up the test
+            const string input = "(int...->) () => {} (int...->) (i:int...) => {} (->) (i:int...) => {}";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var callableType1 = resolver.ResolveCallableType(parser.callableType());
+            var closureType1 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType2 = resolver.ResolveCallableType(parser.callableType());
+            var closureType2 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType3 = resolver.ResolveCallableType(parser.callableType());
+            var closureType3 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsFalse(provider.CanImplicitCast(closureType1, callableType1));
+            Assert.IsTrue(provider.CanImplicitCast(closureType2, callableType2));
+            Assert.IsTrue(provider.CanImplicitCast(closureType3, callableType3));
+        }
+
+        /// <summary>
+        /// Tests callable type cast checking by providing callables with differente variadic type signatures
+        /// </summary>
+        [TestMethod]
+        public void TestMismatchedVariadicTypeCallableImplicitCast()
+        {
+            // Set up the test
+            const string input = "(int...->) (i:float...) => {} (int...->) (i:any...) => {}";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var callableType1 = resolver.ResolveCallableType(parser.callableType());
+            var closureType1 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            var callableType2 = resolver.ResolveCallableType(parser.callableType());
+            var closureType2 = resolver.ResolveClosureExpression(parser.closureExpression());
+
+            Assert.IsFalse(provider.CanImplicitCast(closureType1, callableType1));
+            Assert.IsTrue(provider.CanImplicitCast(closureType2, callableType2));
         }
 
         #endregion

@@ -134,7 +134,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestNestedObjectSubscript()
         {
-            const string input = "var b:any?; func funca(){ var a = { x: { x:10 } }; b = a['x']['x']; }";
+            const string input = "var b:any?; func funca(){ var a = { x: { x:10 } }; b = a['x']?['x']; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
