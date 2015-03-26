@@ -245,5 +245,30 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToUnwrapNonOptional), "Failed to raise expected errors");
         }
+
+        /// <summary>
+        /// Tests error raising when trying to use null-conditionals in non-optional values
+        /// </summary>
+        [TestMethod]
+        public void TestNonOptionalNullConditional()
+        {
+            // Set up the test
+            const string input = "l?.Count";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var type = resolver.ResolveExpression(parser.expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.OptionalTypeForType(new NativeTypeDef(typeof(int))), type, "Failed to evaluate the result of expression correctly");
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToUnwrapNonOptional), "Failed to raise expected errors");
+        }
     }
 }

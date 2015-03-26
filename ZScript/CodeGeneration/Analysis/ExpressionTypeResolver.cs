@@ -678,9 +678,16 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var type = TypeProvider.AnyType();
             // Unwrap optional
-            if (leftValue is OptionalTypeDef && context.nullable != null)
+            if (context.nullable != null)
             {
-                leftValue = ((OptionalTypeDef)leftValue).WrappedType;
+                if (leftValue is OptionalTypeDef)
+                {
+                    leftValue = ((OptionalTypeDef)leftValue).WrappedType;
+                }
+                else
+                {
+                    RegisterNonOptionalUnwrapping(leftValueContext, leftValue);
+                }
             }
 
             if (context.arrayAccess() != null)
