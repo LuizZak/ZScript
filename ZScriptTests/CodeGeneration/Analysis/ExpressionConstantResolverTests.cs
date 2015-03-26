@@ -592,7 +592,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestNullCoalescePropagation()
         {
-            const string input = "null ?? 1";
+            const string input = "null ?: 1";
 
             var parserExp = TestUtils.CreateParser(input);
 
@@ -625,7 +625,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestNonNullNullCoalescePropagation()
         {
-            const string input = "0 ?? 1";
+            const string input = "0 ?: 1";
 
             var parserExp = TestUtils.CreateParser(input);
 

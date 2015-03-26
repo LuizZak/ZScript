@@ -1191,7 +1191,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestNullCoalescing()
         {
             // Set up the test
-            const string input = "i ?? f; [f] ?? [f]; b ?? i;";
+            const string input = "i ?: f; [f] ?: [f]; b ?: i;";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();

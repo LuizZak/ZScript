@@ -2621,7 +2621,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string message = "Failed to generate expected tokens";
 
-            const string input = "a ?? b";
+            const string input = "a ?: b";
             var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
@@ -2664,7 +2664,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string message = "Failed to generate expected tokens";
 
-            const string input = "a ?? b ?? c";
+            const string input = "a ?: b ?: c";
             var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
@@ -2722,7 +2722,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string message = "Failed to generate expected tokens";
 
-            const string input = "null ?? (1 + 1)";
+            const string input = "null ?: (1 + 1)";
             var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
@@ -2760,7 +2760,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         {
             const string message = "Failed to generate expected tokens";
 
-            const string input = "1 ?? null";
+            const string input = "1 ?: null";
             var parser = TestUtils.CreateParser(input);
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 

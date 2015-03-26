@@ -115,7 +115,7 @@ public partial class ZScriptParser : Parser {
 		"'override'", "'object'", "'sequence'", "'this'", "'base'", "'var'", "'let'", 
 		"'const'", "'new'", "'is'", "'if'", "'else'", "'while'", "'for'", "'break'", 
 		"'continue'", "'switch'", "'case'", "'default'", "'return'", "'('", "')'", 
-		"'['", "']'", "'{'", "'}'", "'->'", "'=>'", "'??'", "'?'", "'int'", "'float'", 
+		"'['", "']'", "'{'", "'}'", "'->'", "'=>'", "'?:'", "'?'", "'int'", "'float'", 
 		"'void'", "'any'", "'string'", "'bool'", null, null, null, null, "'false'", 
 		"'true'", "'null'", "'''", "'\"'", "'...'", "':'", "';'", "'.'", "','", 
 		"'*'", "'/'", "'%'", "'!'", "'+'", "'-'", "'++'", "'--'", "'&'", "'^'", 
