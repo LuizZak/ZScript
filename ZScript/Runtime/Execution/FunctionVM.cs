@@ -345,10 +345,6 @@ namespace ZScript.Runtime.Execution
             var value = GetValue(variable);
             var type = NumberTypeForBoxedNumber(value);
 
-            if (instruction != VmInstruction.IncrementPostfix && instruction != VmInstruction.IncrementPrefix &&
-                instruction != VmInstruction.DecrementPostfix && instruction != VmInstruction.DecrementPrefix)
-                throw new ArgumentException("The provided instruction is not a valid increment/decrement instruction");
-
             int changeOnStack = instruction == VmInstruction.IncrementPrefix  ?  1 :
                                 instruction == VmInstruction.DecrementPrefix  ? -1 : 0;
 

@@ -91,27 +91,11 @@ namespace ZScript.CodeGeneration
         private readonly ClassNativeTypeBuilder _nativeTypeBuilder;
 
         /// <summary>
-        /// Returns the array of all the syntax errors that were found during the parsing of the script
-        /// </summary>
-        public SyntaxError[] SyntaxErrors
-        {
-            get { return _messageContainer.SyntaxErrors; }
-        }
-
-        /// <summary>
         /// Gets a value specifying whether there were any syntax errors on the script generation process
         /// </summary>
         public bool HasSyntaxErrors
         {
             get { return _messageContainer.HasSyntaxErrors; }
-        }
-
-        /// <summary>
-        /// Gets a value specifying whether there were any code errors on the runtime generation process
-        /// </summary>
-        public bool HasCodeErrors
-        {
-            get { return _messageContainer.HasCodeErrors; }
         }
 
         /// <summary>
