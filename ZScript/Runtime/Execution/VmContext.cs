@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing;
 
@@ -54,6 +55,11 @@ namespace ZScript.Runtime.Execution
         public readonly TypeProvider TypeProvider;
 
         /// <summary>
+        /// The type list for the VM context
+        /// </summary>
+        public readonly TypeList TypeList;
+
+        /// <summary>
         /// Initializes a new instance of the VmContext class
         /// </summary>
         /// <param name="memory">The memory for this VM context</param>
@@ -84,13 +90,15 @@ namespace ZScript.Runtime.Execution
         /// <param name="runtime">The current runtime to associate with this VmContext</param>
         /// <param name="owner">The owner to associate with this VmContext</param>
         /// <param name="typeProvider">Type provider for runtime type conversions</param>
-        public VmContext(IMemory<string> memory, IMemory<int> addressedMemory, ZRuntime runtime, IRuntimeOwner owner, TypeProvider typeProvider)
+        /// <param name="typeList">A type list object containing dynamic types to be used by the virtual machine to deal with generic typing</param>
+        public VmContext(IMemory<string> memory, IMemory<int> addressedMemory, ZRuntime runtime, IRuntimeOwner owner, TypeProvider typeProvider, TypeList typeList = null)
         {
             Memory = memory;
             AddressedMemory = addressedMemory;
             Runtime = runtime;
             Owner = owner;
             TypeProvider = typeProvider;
+            TypeList = typeList;
         }
     }
 }

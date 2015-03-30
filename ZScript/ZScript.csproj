@@ -78,6 +78,7 @@
     <Compile Include="Elements\ZConstructor.cs" />
     <Compile Include="Elements\ZMethod.cs" />
     <Compile Include="Parsing\ANTLRExtend\ParserExtensions.cs" />
+    <Compile Include="Runtime\Execution\TypeList.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Callables\ClassMethod.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Callables\ZClassMethod.cs" />
     <Compile Include="Runtime\Execution\Wrappers\ICallableWrapper.cs" />

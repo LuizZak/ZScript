@@ -455,12 +455,12 @@ namespace ZScript.Runtime.Execution
 
                 // Array literal creation
                 case VmInstruction.CreateArray:
-                    PerformArrayCreation(parameter);
+                    PerformArrayCreation(token);
                     break;
                     
                 // Dictionary literal creation
                 case VmInstruction.CreateDictionary:
-                    PerformDictionaryCreation(parameter);
+                    PerformDictionaryCreation(token);
                     break;
 
                 // Subscripter fetching
@@ -618,14 +618,14 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs an array creation using the values on the stack, pushing the created array back into the top of the stack
         /// </summary>
-        /// <param name="parameter">The parameter for the array creation, taken directly from a valid array creation instruction token</param>
-        void PerformArrayCreation(object parameter)
+        /// <param name="token">The token for the array creation instruction</param>
+        void PerformArrayCreation(Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
 
             // Create the list
-            var array = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType((Type)parameter));
+            var array = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(ExtractType(token)));
 
             for (int i = 0; i < argCount; i++)
             {
@@ -639,14 +639,14 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs a dictionary creation using the values on the stack, pushing the created dictionary back into the top of the stack
         /// </summary>
-        /// <param name="parameter">The parameter for the dictionary creation, taken directly from a valid dictionary creation instruction token</param>
-        void PerformDictionaryCreation(object parameter)
+        /// <param name="token">The token for the dictionary creation</param>
+        void PerformDictionaryCreation(Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
 
             // Get the types for the dictionary key and values
-            var types = (Type[])parameter;
+            var types = ExtractTypes(token);
             var keyType = types[0];
             var valueType = types[1];
 
@@ -762,7 +762,7 @@ namespace ZScript.Runtime.Execution
         {
             object value = PopValueImplicit();
 
-            _stack.Push(((Type)token.TokenObject).IsInstanceOfType(value));
+            _stack.Push(ExtractType(token).IsInstanceOfType(value));
         }
 
         /// <summary>
@@ -772,7 +772,7 @@ namespace ZScript.Runtime.Execution
         void PerformCastOperation(Token token)
         {
             object value = PopValueImplicit();
-            object castedObject = _context.TypeProvider.CastObject(value, (Type)token.TokenObject);
+            object castedObject = _context.TypeProvider.CastObject(value, ExtractType(token));
 
             _stack.Push(castedObject);
         }
@@ -785,7 +785,7 @@ namespace ZScript.Runtime.Execution
         void PerformTypeCheck(Token token)
         {
             object value = PeekValueImplicit();
-            var type = ((Type)token.TokenObject);
+            var type = ExtractType(token);
 
             // Null value types
             if (value == null && type.IsValueType)
@@ -842,6 +842,60 @@ namespace ZScript.Runtime.Execution
 
             _stack.Push(opt.HasInnerValue);
         }
+
+        /// <summary>
+        /// Extracts the type contained within a given token.
+        /// The type is extacted if the token contains a valid TokenObject derived from Type or an integer that points to a type
+        /// from the type stack contained within the VM context.
+        /// An exception is raised if the type cannot be extracted successfully
+        /// </summary>
+        /// <param name="token">The token containing the type to extract</param>
+        /// <returns>A type extracted from the given token</returns>
+        Type ExtractType(Token token)
+        {
+            var type = token.TokenObject as Type;
+            if(type != null)
+                return type;
+
+            if (token.TokenObject is int)
+            {
+                return _context.TypeList.TypeAtIndex((int)token.TokenObject);
+            }
+
+            throw new VirtualMachineException("Could not extract type from tokens " + token);
+        }
+
+        /// <summary>
+        /// Extracts the types contained within a given token.
+        /// The types are extacted if the token contains a valid TokenObject derived from a Type array or an integer array that points to the types
+        /// from the type stack contained within the VM context.
+        /// An exception is raised if the types cannot be extracted successfully
+        /// </summary>
+        /// <param name="token">The token containing the types to extract</param>
+        /// <returns>An array of types extracted from the given token</returns>
+        Type[] ExtractTypes(Token token)
+        {
+            var type = token.TokenObject as Type[];
+            if (type != null)
+                return type;
+
+            var ind = token.TokenObject as int[];
+            if (ind != null)
+            {
+                var types = new Type[ind.Length];
+
+                for (int i = 0; i < ind.Length; i++)
+                {
+                    types[i] = _context.TypeList.TypeAtIndex(ind[i]);
+                }
+
+                return types;
+            }
+
+            throw new VirtualMachineException("Could not extract type from tokens " + token);
+        }
+
+        #region Value manipulation
 
         /// <summary>
         /// Pops a value from the stack, and if it is a token, implicitly fetch the value from the memory
@@ -1018,6 +1072,8 @@ namespace ZScript.Runtime.Execution
 
             throw new VirtualMachineException("Unexpected variable '" + valueContainer + "' that cannot have its value set");
         }
+
+        #endregion
 
         /// <summary>
         /// Returns the number type for a given boxed number type
