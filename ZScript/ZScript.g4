@@ -19,7 +19,7 @@ scriptBody : (functionDefinition | globalVariable | exportDefinition | classDefi
 ////
 //// Class Definition
 ////
-classDefinition : 'class' className classInherit? classBody;
+classDefinition : 'class' className genericParametersDefinition? classInherit? classBody;
 classInherit : ':' className;
 className : IDENT;
 classBody : '{' (classField | classMethod)* '}';
@@ -47,7 +47,7 @@ frameNumber         : INT;
 ////
 //// Function definition
 ////
-functionDefinition : 'func' functionName functionArguments? returnType? functionBody;
+functionDefinition : 'func' functionName genericParametersDefinition? functionArguments? returnType? functionBody;
 exportDefinition : '@' functionName functionArguments? returnType?;
 
 functionName : IDENT;
@@ -57,6 +57,18 @@ argumentList : functionArg (',' functionArg)*;
 returnType : ':' type;
 functionArg : argumentName (':' type)? (variadic='...' | ('=' compileConstant))?;
 argumentName : IDENT;
+
+////
+//// Generic paramtering
+////
+genericParametersDefinition : '<' genericParameterDefinitionList genericConstraintList? '>';
+genericParameterDefinitionList : genericType (',' genericType)*;
+genericConstraintList : 'where' genericConstraint (',' genericConstraint)*;
+genericConstraint : genericType ':' genericType;
+genericType : IDENT;
+
+genericParameters : '<' genericParameterList '>';
+genericParameterList : type (',' type)*;
 
 ////
 //// Type alias
@@ -116,7 +128,7 @@ valueHolderName : memberName;
 type : type optional=T_NULL_CONDITIONAL | objectType | typeName | callableType | listType | dictionaryType;
 objectType       : 'object';
 typeName         : primitiveType | complexTypeName;
-complexTypeName  : IDENT ('.' IDENT)*;
+complexTypeName  : IDENT ('.' IDENT)* genericParameters?;
 primitiveType    : T_INT | T_FLOAT | T_VOID | T_ANY | T_STRING | T_BOOL;
 callableType     : '(' callableTypeList? '->' type? ')';
 listType         : '[' type ']';
@@ -200,7 +212,7 @@ fieldAccess  : '.' memberName;
 arrayAccess : '[' expression ']';
 
 objectAccess : (fieldAccess | arrayAccess) valueAccess?;
-valueAccess : nullable=T_NULL_CONDITIONAL? (functionCall | fieldAccess | arrayAccess) valueAccess?;
+valueAccess : nullable=T_NULL_CONDITIONAL* (functionCall | fieldAccess | arrayAccess) valueAccess?;
 
 memberName : IDENT;
 

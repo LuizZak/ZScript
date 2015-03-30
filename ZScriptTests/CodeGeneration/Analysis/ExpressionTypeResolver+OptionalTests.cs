@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -286,12 +288,71 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             // Perform the parsing
-            var type = resolver.ResolveExpression(parser.expression());
+            var expression = parser.expression();
+            var type = resolver.ResolveExpression(expression);
 
             container.PrintMessages();
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.IntegerType(), type);
+            Assert.AreEqual(provider.IntegerType(), expression.expression(1).ExpectedType);
+        }
+
+        /// <summary>
+        /// Tests type resolving of null-coalesce on and modification of expected type of expressions on the left and right side of the coalescing operator
+        /// </summary>
+        [TestMethod]
+        public void TestNullCoalesceExpectedTyping()
+        {
+            // Set up the test
+            const string input = "ooi ?: i";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Perform the parsing
+            var expression = parser.expression();
+            var type = resolver.ResolveExpression(expression);
+
+            container.PrintMessages();
+
+            // Compare the result now
+            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), type);
+            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), expression.expression(1).ExpectedType);
+        }
+
+        /// <summary>
+        /// Tests type resolving of null-coalesce on and modification of expected type of expressions on the left and right side of the coalescing operator
+        /// </summary>
+        [TestMethod]
+        public void TestNestedNullCoalesceExpectedTyping()
+        {
+            // Set up the test
+            const string input = "oooi ?: ooi ?: i";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            // Cache this here so we avoid chaining
+            Func<TypeDef, TypeDef> opt = provider.OptionalTypeForType;
+            var intT = provider.IntegerType();
+
+            // Perform the parsing
+            var expression = parser.expression();
+            var type = resolver.ResolveExpression(expression);
+
+            container.PrintMessages();
+
+            // Compare the result now
+            Assert.AreEqual(opt(opt(intT)), type);
+            Assert.AreEqual(opt(opt(intT)), expression.expression(1).ExpectedType);
+
+            Assert.AreEqual(opt(intT), expression.expression(1).expression(0).ExpectedType);
+            Assert.AreEqual(opt(intT), expression.expression(1).expression(1).ExpectedType);
         }
 
         /// <summary>
@@ -318,7 +379,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Compare the result now
             Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), type1, "Failed to evaluate the result of expression correctly");
             Assert.AreEqual(provider.OptionalTypeForType(provider.OptionalTypeForType(provider.IntegerType())), type2, "Failed to evaluate the result of expression correctly");
-            Assert.AreEqual(provider.OptionalTypeForType(provider.OptionalTypeForType(provider.IntegerType())), type3, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), type3, "Failed to evaluate the result of expression correctly");
         }
 
         /// <summary>

@@ -73,6 +73,7 @@
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedToken.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedTokenExpander.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenList.cs" />
+    <Compile Include="Elements\Optional.cs" />
     <Compile Include="Elements\ZClass.cs" />
     <Compile Include="Elements\ZConstructor.cs" />
     <Compile Include="Elements\ZMethod.cs" />

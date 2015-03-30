@@ -21,9 +21,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Reflection;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
+using ZScript.Runtime.Execution.Wrappers.Callables;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution
@@ -201,11 +202,11 @@ namespace ZScript.Runtime.Execution
 
                             // Null check
                             case VmInstruction.CheckNull:
-                                PerformNullCheck();
+                                PerformCheckNull();
                                 break;
 
                             default:
-                                PerformInstruction(token.Instruction, token.TokenObject);
+                                PerformInstruction(token);
                                 break;
                         }
 
@@ -395,11 +396,13 @@ namespace ZScript.Runtime.Execution
         /// Performs an instruction specified by a given instruction.
         /// If the instruction provided is not a valid command/control instruction (e.g. it's an operator)
         /// </summary>
-        /// <param name="instruction">The instruction to perform</param>
-        /// <param name="parameter">The parameter for the instruction</param>
+        /// <param name="token">The token containing the instruction to perform</param>
         /// <exception cref="ArgumentException">The provided instruction is not a valid command instruction</exception>
-        void PerformInstruction(VmInstruction instruction, object parameter)
+        void PerformInstruction(Token token)
         {
+            var instruction = token.Instruction;
+            var parameter = token.TokenObject;
+
             switch (instruction)
             {
                 // No operation
@@ -447,7 +450,7 @@ namespace ZScript.Runtime.Execution
 
                 // Function call
                 case VmInstruction.Call:
-                    PerformFunctionCall();
+                    PerformFunctionCall(token);
                     break;
 
                 // Array literal creation
@@ -483,6 +486,16 @@ namespace ZScript.Runtime.Execution
                 // New instruction
                 case VmInstruction.New:
                     PerformNewInstruction();
+                    break;
+
+                // Unwrap
+                case VmInstruction.Unwrap:
+                    PerformUnwrap();
+                    break;
+
+                // Safe unwrap
+                case VmInstruction.SafeUnwrap:
+                    PerformSafeUnwrap();
                     break;
 
                 default:
@@ -540,7 +553,8 @@ namespace ZScript.Runtime.Execution
         /// Performs a function call, utilizing the objects on the stack to locate and call the function
         /// on the current runtime
         /// </summary>
-        void PerformFunctionCall()
+        /// <param name="token">The token for the Call instruction being executed</param>
+        void PerformFunctionCall(Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
@@ -553,8 +567,34 @@ namespace ZScript.Runtime.Execution
                 arguments[argCount - i - 1] = PopValueImplicit();
             }
 
-            // Pop the function to call
-            var callable = PopCallable();
+            object callable;
+
+            // Verify whether the call instruction contains a wrapped method information
+            if (token.TokenObject != null)
+            {
+                var mInfo = token.TokenObject as MethodInfo;
+                if (mInfo != null)
+                {
+                    callable = new ClassMethod(PopValueImplicit(), new[] {mInfo});
+                }
+                else
+                {
+                    var zMethod = token.TokenObject as ZMethod;
+                    if (zMethod != null)
+                    {
+                        callable = new ZClassMethod((ZClassInstance)PopValueImplicit(), zMethod);
+                    }
+                    else
+                    {
+                        throw new VirtualMachineException("Operand on Call instruction is not a valid method or ZMethod reference");
+                    }
+                }
+            }
+            else
+            {
+                // Pop the function to call
+                callable = PopCallable();
+            }
 
             var closure = callable as ZClosureFunction;
             if (closure != null)
@@ -763,13 +803,44 @@ namespace ZScript.Runtime.Execution
         /// Performs a null check on the value on top of the stack.
         /// The value on top of the stack is not removed
         /// </summary>
-        void PerformNullCheck()
+        void PerformCheckNull()
         {
-            // Null value types
-            if (PeekValueImplicit() == null)
+            var obj = PeekValueImplicit();
+
+            // Null and empty optional values
+            var optional = obj as IOptional;
+            if (obj == null || optional != null && !optional.HasInnerValue)
             {
                 throw new VirtualMachineException("Value on top of the stack is null");
             }
+        }
+
+        /// <summary>
+        /// Performs an unwrap on the optional value contained on top of the stack.
+        /// The contained value is pushed on top of the stack.
+        /// Raises an exception, if the value on top of the stack is not an optional value
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The value on top of the stack is not an optional value</exception>
+        void PerformUnwrap()
+        {
+            var opt = (IOptional)PopValueImplicit();
+
+            _stack.Push(opt.InnerValue);
+        }
+
+        /// <summary>
+        /// Performs a safe unwrap on the optional value contained on top of the stack.
+        /// The contained value is pushed on the stack followed by a boolean value stating whether the unwrapping was successful.
+        /// Raises an exception, if the value on top of the stack is not an optional value
+        /// </summary>
+        void PerformSafeUnwrap()
+        {
+            var opt = (IOptional)PopValueImplicit();
+
+            if(opt.HasInnerValue)
+                _stack.Push(opt.InnerValue);
+
+            _stack.Push(opt.HasInnerValue);
         }
 
         /// <summary>
@@ -1100,6 +1171,13 @@ namespace ZScript.Runtime.Execution
         CheckType,
         /// <summary>Performs a null check with the value on top of the stack, raising a runtime exception if the value is null</summary>
         CheckNull,
+        /// <summary>Performs an unwrap operation on the optional contained on the top of the stack, pushing the wrapped value back on top of the stack</summary>
+        Unwrap,
+        /// <summary>
+        /// Performs a safe unwrap operation on the optional contained on the top of the stack, pushing the wrapped value,
+        /// if it existed, and a boolean value stating whether the optional contained a value.
+        /// </summary>
+        SafeUnwrap,
         
         /// <summary>Logical AND (&&) operation</summary>
         LogicalAnd,

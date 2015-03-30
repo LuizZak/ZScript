@@ -357,6 +357,78 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitArgumentName([NotNull] ZScriptParser.ArgumentNameContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParametersDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericParametersDefinition([NotNull] ZScriptParser.GenericParametersDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParametersDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericParametersDefinition([NotNull] ZScriptParser.GenericParametersDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericParameters([NotNull] ZScriptParser.GenericParametersContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericParameters([NotNull] ZScriptParser.GenericParametersContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericConstraintList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericConstraintList([NotNull] ZScriptParser.GenericConstraintListContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericConstraintList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericConstraintList([NotNull] ZScriptParser.GenericConstraintListContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericConstraint"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericConstraint([NotNull] ZScriptParser.GenericConstraintContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericConstraint"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericConstraint([NotNull] ZScriptParser.GenericConstraintContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericType([NotNull] ZScriptParser.GenericTypeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericType"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericType([NotNull] ZScriptParser.GenericTypeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAlias"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

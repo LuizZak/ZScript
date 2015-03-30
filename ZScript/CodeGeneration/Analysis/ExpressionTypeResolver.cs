@@ -571,12 +571,6 @@ namespace ZScript.CodeGeneration.Analysis
 
             var commonType = TypeProvider.FindCommonType(opt1.WrappedType, type2);
 
-            var opt2 = type2 as OptionalTypeDef;
-            if (opt2 != null && opt1.BaseWrappedType == opt2.BaseWrappedType)
-            {
-                commonType = TypeProvider.FindCommonType(opt1, opt2);
-            }
-
             if (commonType == TypeProvider.AnyType())
             {
                 string message = "Cannot apply null-coalesce operator between values of type " + type1 + " and " + type2;

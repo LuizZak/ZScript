@@ -24,6 +24,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Elements;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -600,7 +601,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestDefaultValue()
         {
-            const string input = "var a:any?; var b:any?; func f1() { var inst = TestClass(); a = inst.field1; b = inst.field2; } class TestClass { var field1:int?; var field2:TestClass?; }";
+            const string input = "var a:any?; var b:any?; func f1() { var inst = TestClass(); a = inst.field1; b = inst.field2; } class TestClass { var field1:int?; var field2:bool?; }";
 
             var owner = new TestRuntimeOwner();
             var generator = TestUtils.CreateGenerator(input);
@@ -609,8 +610,8 @@ namespace ZScriptTests.Runtime
 
             runtime.CallFunction("f1");
 
-            Assert.AreEqual(null, memory.GetVariable("a"));
-            Assert.AreEqual(null, memory.GetVariable("b"));
+            Assert.AreEqual(new Optional<long>(), memory.GetVariable("a"));
+            Assert.AreEqual(new Optional<bool>(), memory.GetVariable("b"));
         }
 
         #region Inheritance tests

@@ -118,14 +118,14 @@ namespace ZScriptTests.Runtime.Typing
             Assert.AreEqual(optOptInt, provider.FindCommonType(optInt, optOptInt));
 
             // Unequality
-            Assert.AreEqual(optAny, provider.FindCommonType(optInt, optFloat));
-            Assert.AreEqual(optAny, provider.FindCommonType(optFloat, optInt));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optInt, optFloat));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optFloat, optInt));
 
-            Assert.AreEqual(optAny, provider.FindCommonType(optOptFloat, optInt));
-            Assert.AreEqual(optAny, provider.FindCommonType(optInt, optOptFloat));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptFloat, optInt));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optInt, optOptFloat));
 
-            Assert.AreEqual(optAny, provider.FindCommonType(optOptFloat, optOptInt));
-            Assert.AreEqual(optAny, provider.FindCommonType(optOptInt, optOptFloat));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptFloat, optOptInt));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optOptInt, optOptFloat));
         }
 
         /// <summary>
@@ -141,8 +141,8 @@ namespace ZScriptTests.Runtime.Typing
             var optFloat = provider.OptionalTypeForType(provider.FloatType());
 
             // Null values
-            Assert.AreEqual(optAny, provider.FindCommonType(optInt, optFloat));
-            Assert.AreEqual(optAny, provider.FindCommonType(optFloat, optInt));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optInt, optFloat));
+            Assert.AreEqual(provider.AnyType(), provider.FindCommonType(optFloat, optInt));
         }
 
         /// <summary>

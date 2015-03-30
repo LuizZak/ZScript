@@ -25,6 +25,7 @@ using System.Linq;
 
 using System.Reflection;
 using ZScript.CodeGeneration.Definitions;
+using ZScript.Elements;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Runtime.Typing
@@ -321,7 +322,8 @@ namespace ZScript.Runtime.Typing
                     return InternalOptionalTypeForType(opt1.BaseWrappedType, Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
                 }
 
-                return InternalOptionalTypeForType(AnyType(), Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
+                //return InternalOptionalTypeForType(AnyType(), Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
+                return AnyType();
             }
 
             // Class types
@@ -884,12 +886,8 @@ namespace ZScript.Runtime.Typing
                 {
                     var nativeWrapped = _typeProvider.NativeTypeForTypeDef(optDef.BaseWrappedType, true);
 
-                    if (nativeWrapped.IsValueType)
-                    {
-                        return typeof(object);
-                    }
-
-                    return nativeWrapped;
+                    // Create the option instance
+                    return typeof(Optional<>).MakeGenericType(nativeWrapped);
                 }
 
                 // No equivalents

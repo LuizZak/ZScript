@@ -212,17 +212,17 @@ namespace ZScriptTests.Runtime.Typing
             var provider = new TypeProvider();
 
             var nativeOptInt = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.IntegerType()));
-            var nativeOptBool = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.IntegerType()));
+            var nativeOptBool = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.BooleanType()));
 
             var nativeOptRef = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.AnyType()));
 
             var nativeOptString = provider.NativeTypeForTypeDef(provider.OptionalTypeForType(provider.StringType()));
 
-            Assert.AreEqual(typeof(object), nativeOptInt);
-            Assert.AreEqual(typeof(object), nativeOptBool);
-            Assert.AreEqual(typeof(object), nativeOptRef);
+            Assert.AreEqual(typeof(Optional<long>), nativeOptInt);
+            Assert.AreEqual(typeof(Optional<bool>), nativeOptBool);
+            Assert.AreEqual(typeof(Optional<object>), nativeOptRef);
 
-            Assert.AreEqual(typeof(string), nativeOptString);
+            Assert.AreEqual(typeof(Optional<string>), nativeOptString);
         }
 
         #endregion

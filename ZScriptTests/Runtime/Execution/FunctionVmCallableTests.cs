@@ -20,12 +20,14 @@
 #endregion
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
 using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers.Callables;
+
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime.Execution
@@ -75,6 +77,33 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, new ZRuntime(new ZRuntimeDefinition(), new TestRuntimeOwner()));
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual("10", functionVm.Stack.Peek());
+        }
+
+        /// <summary>
+        /// Tests calling a method that is bound to a Call instruction as an instruction operand
+        /// </summary>
+        [TestMethod]
+        public void TestCachedMethodCallableCall()
+        {
+            var method = typeof(object).GetMethod("ToString");
+
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, method)
             };
 
             var tokenList = new TokenList(t);
