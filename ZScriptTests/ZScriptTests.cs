@@ -37,67 +37,6 @@ namespace ZScriptTests
         // These are some of the first dummy tests created, used mostly as integration tests.
         // These are kept here mostly because of th- actually no reason whatsoever, but I keep them in anyway
 
-        /// <summary>
-        /// Test mostly used to test expression token generation
-        /// </summary>
-        [TestMethod]
-        public void TestExpressionCodeGeneration()
-        {
-            const string input = "var a; var b; var c; var d; var i; var gameFPS; var toFloat; var a5; var elevatorDisplayLights; var toInt; var _floor; var enArray; var level;" +
-                                 "func f()" +
-                                 "{" +
-                                 "  a = ((a = c) && b);" +
-                                 "  (a == 10 || c > 10) && (b());" +
-                                 "  a && false;" +
-                                 "  (a == 10) && (b());" +
-                                 "  (a == 10 && c > 10) || (b());" +
-                                 "  a = a && (c && b > 0) && a;" +
-                                 "  (a+(5+5).a)[0];" +
-                                 "  a.b(1 + 5);" +
-                                 "  a[i].get[1] = 0;" +
-                                 "  a[i].get[0];" +
-                                 "  a = 5 * (2 + a()) - 5;" +
-                                 "  gameFPS = toFloat(1000 / level.MainEngine.Game.TargetElapsedTime.TotalMilliseconds);" +
-                                 "  a++;" +
-                                 "  a.a++;" +
-                                 "  a[0].a++;" +
-                                 "  a = b++ - 5;" +
-                                 "  a = 0;" +
-                                 "  a = b = c;" +
-                                 "  b += 1;" +
-                                 "  b += (b = 1);" +
-                                 "  a = b + (c = 0) * 1;" +
-                                 "  a = b + (c += 2) * 1;" +
-                                 "  a[i] = 0;" +
-                                 "  a[i][1 + 1] = 0;" +
-                                 "  a[i][1 + 1] += 0;" +
-                                 "  a[i][1 + 1] *= 0;" +
-                                 "  a.get();" +
-                                 "  a[i].get();" +
-                                 "  a[i].get()[0] = 0;" +
-                                 "  5 + a(5,-6);" +
-                                 "  -6;" +
-                                 "  5 + ((1 + 2) * 4) - 3;" +
-                                 "  a5*(a(10*5 + 7 * ((7+5)*7), 5 + a(5, -6))[0]);" +
-                                 "  elevatorDisplayLights[i].X = 273 + toInt((_floor / 21.0) * 17);" +
-                                 "  enArray[i].AIEnabled = false;" +
-                                 "}";
-
-            var owner = new TestRuntimeOwner();
-
-            var sw = Stopwatch.StartNew();
-
-            var generator = TestUtils.CreateGenerator(input);
-            generator.ParseSources();
-
-            // Generate the runtime now
-            generator.GenerateRuntime(owner);
-
-            Console.WriteLine(sw.ElapsedMilliseconds + "");
-
-            Assert.IsFalse(generator.HasSyntaxErrors);
-        }
-
         [TestMethod]
         public void TestVirtualMachine()
         {
