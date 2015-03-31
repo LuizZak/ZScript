@@ -25,6 +25,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
+using ZScript.Elements.ValueHolding;
+using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing;
@@ -188,6 +190,100 @@ namespace ZScriptTests.Runtime.Execution
 
             Assert.AreEqual(10L, list["0"]);
             Assert.AreEqual(11L, list["1"]);
+        }
+
+        /// <summary>
+        /// Tests a generic function call that passes generic parameter types
+        /// </summary>
+        [TestMethod]
+        public void TestGenericFunctionCall()
+        {
+            // Create the dummy generic function
+            var tFunc = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, 0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            var function = new ZFunction("func1", tFunc.ToTokenList(), new FunctionArgument[0]);
+            var runtimeDef = new ZRuntimeDefinition(); runtimeDef.AddFunctionDef(function);
+            var runtime = new ZRuntime(runtimeDef, null);
+
+            // Create the set of tokens
+            var t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("func1"),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CallGeneric, new [] { typeof(long) })
+            };
+
+            // Create the type list
+            var typeProvider = new TypeProvider();
+
+            var memory = new Memory();
+            var context = new VmContext(memory, null, runtime, null, typeProvider);
+
+            var functionVm = new FunctionVM(new TokenList(t), context);
+
+            functionVm.Execute();
+
+            var list = (List<long>)functionVm.Stack.Pop();
+
+            Assert.AreEqual(10L, list[0]);
+        }
+
+        /// <summary>
+        /// Tests a generic function call that passes generic parameter types from its own list of generic types
+        /// </summary>
+        [TestMethod]
+        public void TestGenericGenericFunctionCall()
+        {
+            // Create the dummy generic function
+            var tFunc1 = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, 0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            // Create the dummy generic function
+            var tFunc2 = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("func1"),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CallGeneric, new [] { 0 }),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret),
+            };
+
+            var func1 = new ZFunction("func1", tFunc1.ToTokenList(), new FunctionArgument[0]);
+            var func2 = new ZFunction("func2", tFunc2.ToTokenList(), new FunctionArgument[0]);
+            var runtimeDef = new ZRuntimeDefinition(); runtimeDef.AddFunctionDefs(new []{ func1, func2 });
+            var runtime = new ZRuntime(runtimeDef, null);
+
+            // Create the set of tokens
+            var t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateMemberNameToken("func2"),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CallGeneric, new [] { typeof(long) })
+            };
+
+            // Create the type list
+            var typeProvider = new TypeProvider();
+
+            var memory = new Memory();
+            var context = new VmContext(memory, null, runtime, null, typeProvider);
+
+            var functionVm = new FunctionVM(new TokenList(t), context);
+
+            functionVm.Execute();
+
+            var list = (List<long>)functionVm.Stack.Pop();
+
+            Assert.AreEqual(10L, list[0]);
         }
     }
 }

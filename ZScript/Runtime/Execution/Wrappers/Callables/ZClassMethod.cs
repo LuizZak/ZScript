@@ -75,7 +75,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the method call</returns>
         /// <exception cref="Exception"></exception>
-        public object Call(VmContext context, params object[] arguments)
+        public object Call(VmContext context, CallArguments arguments)
         {
             // Wrap the context's local memory
             MemoryMapper mapper = new MemoryMapper();
@@ -83,9 +83,9 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
             // Add the local memory of the class object
             mapper.AddMemory(_target.LocalMemory);
             // Create the arguments for the function and wrap them too
-            mapper.AddMemory(Memory.CreateMemoryFromArgs(_method, arguments));
+            mapper.AddMemory(Memory.CreateMemoryFromArgs(_method, arguments.Arguments));
 
-            return context.Runtime.CallFunctionWithMemory(_method, mapper);
+            return context.Runtime.CallFunctionWithMemory(_method, mapper, arguments);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// </summary>
         /// <param name="arguments">The list of arguments to get the callable type info of</param>
         /// <returns>A CallableTypeDef for a given argument list</returns>
-        public CallableTypeDef CallableTypeWithArguments(params object[] arguments)
+        public CallableTypeDef CallableTypeWithArguments(CallArguments arguments)
         {
             return _method.Signature;
         }

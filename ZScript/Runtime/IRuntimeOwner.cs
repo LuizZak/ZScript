@@ -31,9 +31,9 @@ namespace ZScript.Runtime
         /// Called by the runtime when an export function was invoked by the script
         /// </summary>
         /// <param name="func">The function that was invoked</param>
-        /// <param name="parameters">The list of parameters the function was called with</param>
+        /// <param name="arguments">The argument information for the function call, containing the list of arguments and list of generic types passed</param>
         /// <returns>The return value for the function call</returns>
-        object CallFunction(ZExportFunction func, params object[] parameters);
+        object CallFunction(ZExportFunction func, CallArguments arguments);
 
         /// <summary>
         /// Called by the runtime when an export function was invoked by the script, used to verify whether
@@ -47,8 +47,8 @@ namespace ZScript.Runtime
         /// Called by the runtime when a 'new' instruction has been hit
         /// </summary>
         /// <param name="typeName">The name of the type trying to be instantiated</param>
-        /// <param name="parameters">The parameters collected from the function call</param>
+        /// <param name="arguments">The argumetns for the constructor call, containing the list of arguments and list of generic types passed</param>
         /// <returns>The newly created object</returns>
-        object CreateType(string typeName, params object[] parameters);
+        object CreateType(string typeName, CallArguments arguments);
     }
 }

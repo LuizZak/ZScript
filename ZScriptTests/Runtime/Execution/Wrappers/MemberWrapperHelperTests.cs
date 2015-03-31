@@ -87,7 +87,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
             var member = MemberWrapperHelper.CreateCallableWrapper(target, "ToString");
 
             Assert.AreEqual("ToString", member.CallableName, "The callable name must match the callable name specified in the constructor");
-            Assert.AreEqual(target.ToString(), member.Call(null), "The value returned by the callable is incorrect");
+            Assert.AreEqual(target.ToString(), member.Call(null, new CallArguments()), "The value returned by the callable is incorrect");
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers
             var context = new VmContext(new Memory(), null, runtime, null, null);
 
             Assert.AreEqual("func1", member.CallableName, "The callable name property must match the callable specified in the constructor");
-            Assert.AreEqual(10L, member.Call(context), "The value returned by the callable is incorrect");
+            Assert.AreEqual(10L, member.Call(context, new CallArguments()), "The value returned by the callable is incorrect");
         }
     }
 }

@@ -43,9 +43,9 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <summary>
         /// Returns the type for the callable wrapped by this ICallableWrapper when presented with a given list of arguments
         /// </summary>
-        /// <param name="arguments">The list of arguments to get the callable type info of</param>
+        /// <param name="arguments">The arguments to get the callable type info of</param>
         /// <returns>A CallableTypeDef for a given argument list</returns>
-        CallableTypeDef CallableTypeWithArguments(params object[] arguments);
+        CallableTypeDef CallableTypeWithArguments(CallArguments arguments);
 
         /// <summary>
         /// Performs a call of the callable, utilizing a given array as arguments
@@ -53,6 +53,6 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="arguments">The arguments for the call</param>
         /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the call. Will be null, if the wrapped callable's return type is void</returns>
-        object Call(VmContext context, params object[] arguments);
+        object Call(VmContext context, CallArguments arguments);
     }
 }

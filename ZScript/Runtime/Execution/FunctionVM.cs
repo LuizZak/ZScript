@@ -18,10 +18,12 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Execution.Wrappers.Callables;
@@ -401,7 +403,6 @@ namespace ZScript.Runtime.Execution
         void PerformInstruction(Token token)
         {
             var instruction = token.Instruction;
-            var parameter = token.TokenObject;
 
             switch (instruction)
             {
@@ -451,6 +452,11 @@ namespace ZScript.Runtime.Execution
                 // Function call
                 case VmInstruction.Call:
                     PerformFunctionCall(token);
+                    break;
+
+                // Generic function call
+                case VmInstruction.CallGeneric:
+                    PerformGenericFunctionCall(token);
                     break;
 
                 // Array literal creation
@@ -550,6 +556,32 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a generic function call, utilizing the objects on the stack to locate and call the function
+        /// on the current runtime, and using the operands on the token as the generic parameters
+        /// </summary>
+        /// <param name="token">The token for the CallGeneric instruction being executed</param>
+        void PerformGenericFunctionCall(Token token)
+        {
+            // Pop the argument count
+            int argCount = (int)_stack.Pop();
+
+            // Pop the arguments from the stackh
+            var arguments = new object[argCount];
+
+            for (int i = 0; i < argCount; i++)
+            {
+                arguments[argCount - i - 1] = PopValueImplicit();
+            }
+
+            object callable = PopCallable();
+
+            // Fetch the generic types
+            var types = ExtractTypes(token);
+
+            CallFunction(callable, types, arguments);
+        }
+
+        /// <summary>
         /// Performs a function call, utilizing the objects on the stack to locate and call the function
         /// on the current runtime
         /// </summary>
@@ -596,6 +628,14 @@ namespace ZScript.Runtime.Execution
                 callable = PopCallable();
             }
 
+            CallFunction(callable, new Type[0], arguments);
+        }
+
+        /// <summary>
+        /// Calls a callable function object with the specified parameters on this FunctionVM
+        /// </summary>
+        private void CallFunction(object callable, Type[] genericTypes, object[] arguments)
+        {
             var closure = callable as ZClosureFunction;
             if (closure != null)
             {
@@ -605,13 +645,13 @@ namespace ZScript.Runtime.Execution
             var zFunction = callable as ZFunction;
             if (zFunction != null)
             {
-                _stack.Push(_context.Runtime.CallFunction(zFunction, arguments));
+                _stack.Push(_context.Runtime.CallFunction(zFunction, new CallArguments(arguments, genericTypes)));
                 return;
             }
             var wrapper = callable as ICallableWrapper;
             if (wrapper != null)
             {
-                _stack.Push(_context.Runtime.CallWrapper(wrapper, arguments));
+                _stack.Push(_context.Runtime.CallWrapper(wrapper, new CallArguments(arguments, genericTypes)));
             }
         }
 
@@ -705,7 +745,7 @@ namespace ZScript.Runtime.Execution
             // Pop the type to create
             var typeName = (string)_stack.Pop();
 
-            _stack.Push(_context.Owner.CreateType(typeName, arguments.ToArray()));
+            _stack.Push(_context.Owner.CreateType(typeName, new CallArguments(arguments.ToArray())));
         }
         
         /// <summary>
@@ -1244,6 +1284,8 @@ namespace ZScript.Runtime.Execution
         Ret,
         /// <summary>Performs a function call with the information provided on the stack</summary>
         Call,
+        /// <summary>Performs a generic function call with the information provided on the stack</summary>
+        CallGeneric,
         /// <summary>Fetches the member of a value on the stack</summary>
         GetMember,
         /// <summary>Fetches the subscript of the object on top of the stack</summary>

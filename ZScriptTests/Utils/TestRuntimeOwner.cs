@@ -44,11 +44,11 @@ namespace ZScriptTests.Utils
         /// <param name="func">The function that was invoked</param>
         /// <param name="parameters">The list of parameters the function was called with</param>
         /// <returns>The return value for the function call</returns>
-        public object CallFunction(ZExportFunction func, params object[] parameters)
+        public object CallFunction(ZExportFunction func, CallArguments parameters)
         {
             if (func.Name == "__trace")
             {
-                foreach (var parameter in parameters)
+                foreach (var parameter in parameters.Arguments)
                 {
                     var varArgs = parameter as Memory.VarArgsArrayList;
                     if (varArgs != null)
@@ -68,7 +68,7 @@ namespace ZScriptTests.Utils
             }
             if (func.Name == "print")
             {
-                foreach (var parameter in parameters)
+                foreach (var parameter in parameters.Arguments)
                 {
                     var varArgs = parameter as Memory.VarArgsArrayList;
                     if (varArgs != null)
@@ -110,14 +110,14 @@ namespace ZScriptTests.Utils
         /// <param name="typeName">The name of the type trying to be instantiated</param>
         /// <param name="parameters">The parameters collected from the function call</param>
         /// <returns>The newly created object</returns>
-        public object CreateType(string typeName, params object[] parameters)
+        public object CreateType(string typeName, CallArguments parameters)
         {
             var type = Type.GetType(typeName);
 
             if(type == null)
                 throw new Exception("No type with type name '" + typeName + "' detected.");
             
-            var types = Type.GetTypeArray(parameters);
+            var types = Type.GetTypeArray(parameters.Arguments);
             var ps = new ParameterModifier[1];
             ps[0] = new ParameterModifier(types.Length);
 
@@ -129,7 +129,7 @@ namespace ZScriptTests.Utils
                 throw new Exception("No constructor overload for type '" + type + "' conforms to the passed types.");
             }
 
-            return c.Invoke(parameters);
+            return c.Invoke(parameters.Arguments);
         }
     }
 }

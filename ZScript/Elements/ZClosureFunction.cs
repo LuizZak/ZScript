@@ -19,6 +19,7 @@
 */
 #endregion
 using ZScript.Elements.ValueHolding;
+using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Execution.Wrappers;
@@ -80,7 +81,7 @@ namespace ZScript.Elements
         // 
         // ICallableWrapper.CallableTypeWithArguments implementation
         // 
-        public CallableTypeDef CallableTypeWithArguments(params object[] arguments)
+        public CallableTypeDef CallableTypeWithArguments(CallArguments arguments)
         {
             return Signature;
         }
@@ -88,7 +89,7 @@ namespace ZScript.Elements
         // 
         // ICallableWrapper.Call implementation
         // 
-        public object Call(VmContext context, params object[] arguments)
+        public object Call(VmContext context, CallArguments arguments)
         {
             return context.Runtime.CallFunction(this, arguments);
         }

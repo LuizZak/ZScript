@@ -76,12 +76,12 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the method call</returns>
         /// <exception cref="Exception"></exception>
-        public object Call(VmContext context, params object[] arguments)
+        public object Call(VmContext context, CallArguments arguments)
         {
             // TODO: Se how we are going to deal with long -> int conversions during native calls
-            var method = MatchMethod(arguments);
+            var method = MatchMethod(arguments.Arguments);
 
-            return method.Invoke(_target, arguments);
+            return method.Invoke(_target, arguments.Arguments);
         }
 
         /// <summary>
@@ -90,9 +90,9 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// </summary>
         /// <param name="arguments">The list of arguments to get the callable type info of</param>
         /// <returns>A CallableTypeDef for a given argument list</returns>
-        public CallableTypeDef CallableTypeWithArguments(params object[] arguments)
+        public CallableTypeDef CallableTypeWithArguments(CallArguments arguments)
         {
-            var info = MatchMethod(arguments);
+            var info = MatchMethod(arguments.Arguments);
 
             if (info != null)
                 return CallableFromMethodInfo(info);

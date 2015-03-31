@@ -136,18 +136,32 @@ namespace ZScript.Runtime
         /// The method raises an exception when the function call fails for any reason
         /// </summary>
         /// <param name="functionName">The name of the function to execute</param>
-        /// <param name="arguments">The arguments for the function to execute</param>
+        /// <param name="callArgs">The arguments for the function to execute</param>
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallFunction(string functionName, params object[] arguments)
+        public object CallFunction(string functionName, params object[] callArgs)
+        {
+            return CallFunction(functionName, new CallArguments(callArgs));
+        }
+
+        /// <summary>
+        /// Calls a function with a specified name, using an array of objects as arguments.
+        /// The method raises an exception when the function call fails for any reason
+        /// </summary>
+        /// <param name="functionName">The name of the function to execute</param>
+        /// <param name="callArgs">The arguments for the function to execute</param>
+        /// <returns>The return of the function that was called</returns>
+        /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
+        /// <exception cref="Exception">The function call failed</exception>
+        public object CallFunction(string functionName, CallArguments callArgs)
         {
             var funcDef = FunctionWithName(functionName);
 
             if(funcDef == null)
                 throw new Exception("Trying to call undefined function '" + functionName + "'");
 
-            return CallFunction(funcDef, arguments);
+            return CallFunction(funcDef, callArgs);
         }
 
         /// <summary>
@@ -155,11 +169,11 @@ namespace ZScript.Runtime
         /// The method raises an exception when the function call fails for any reason
         /// </summary>
         /// <param name="callable">The callable to execute</param>
-        /// <param name="arguments">The arguments for the function to execute</param>
+        /// <param name="callArgs">The arguments for the function to execute</param>
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallWrapper(ICallableWrapper callable, params object[] arguments)
+        public object CallWrapper(ICallableWrapper callable, CallArguments callArgs)
         {
             bool pushed = false;
 
@@ -169,7 +183,7 @@ namespace ZScript.Runtime
                 pushed = true;
             }
 
-            var ret = callable.Call(new VmContext(_globalMemory, _globalAddressedMemory, this, _owner, _typeProvider), arguments);
+            var ret = callable.Call(new VmContext(_globalMemory, _globalAddressedMemory, this, _owner, _typeProvider), callArgs);
 
             if (pushed)
                 _localMemoriesStack.Pop();
@@ -182,11 +196,11 @@ namespace ZScript.Runtime
         /// The method raises an exception when the function call fails for any reason
         /// </summary>
         /// <param name="funcDef">The function to execute</param>
-        /// <param name="arguments">The arguments for the function to execute</param>
+        /// <param name="callArgs">The arguments for the function to execute</param>
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallFunction(ZFunction funcDef, params object[] arguments)
+        public object CallFunction(ZFunction funcDef, CallArguments callArgs)
         {
             // TODO: Clean the clutter on this method
             if (funcDef == null) throw new ArgumentNullException("funcDef");
@@ -201,12 +215,12 @@ namespace ZScript.Runtime
             if (exportFunction != null)
             {
                 if(_owner.RespondsToFunction(exportFunction))
-                    return _owner.CallFunction(exportFunction, arguments);
+                    return _owner.CallFunction(exportFunction, callArgs);
 
                 throw new UnrecognizedExportFunctionException("The runtime owner responded false to RespondsToFunction: It does not recognizes the export function " + funcDef);
             }
 
-            IMemory<string> localMemory = Memory.CreateMemoryFromArgs(funcDef, arguments);
+            IMemory<string> localMemory = Memory.CreateMemoryFromArgs(funcDef, callArgs.Arguments);
 
             // Closures must trap the local memory into their own scope
             if (funcDef.IsClosure)
@@ -223,7 +237,7 @@ namespace ZScript.Runtime
                 // Call the base constructor sequentially
                 if(constructor.BaseMethod != null && constructor.RequiresBaseCall)
                 {
-                    CallFunction(constructor.BaseMethod, arguments);
+                    CallFunction(constructor.BaseMethod, callArgs);
                 }
 
                 // Wrap the method's memory and the class' memory into a memory mapper
@@ -238,10 +252,10 @@ namespace ZScript.Runtime
                 MemoryMapper constructorMapper = new MemoryMapper();
                 constructorMapper.AddMemory(_globalMemory);
                 constructorMapper.AddMemory(constructor.ClassInstance.LocalMemory);
-                constructor.InitFields(new VmContext(constructorMapper, _globalAddressedMemory, this, _owner, _typeProvider));
+                constructor.InitFields(new VmContext(constructorMapper, _globalAddressedMemory, this, _owner, _typeProvider, new TypeList(callArgs.GenericTypes)));
             }
 
-            return CallFunctionWithMemory(funcDef, localMemory);
+            return CallFunctionWithMemory(funcDef, localMemory, callArgs);
         }
 
         /// <summary>
@@ -250,10 +264,11 @@ namespace ZScript.Runtime
         /// </summary>
         /// <param name="funcDef">The function to execute</param>
         /// <param name="localMemory">The local memory for the method to call</param>
+        /// <param name="callArgs">The arguments for the function call</param>
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallFunctionWithMemory(ZFunction funcDef, IMemory<string> localMemory)
+        public object CallFunctionWithMemory(ZFunction funcDef, IMemory<string> localMemory, CallArguments callArgs)
         {
             // TODO: Clean the clutter on this method
             if (funcDef == null) throw new ArgumentNullException("funcDef");
@@ -272,7 +287,7 @@ namespace ZScript.Runtime
             _localMemoriesStack.Push(localMemory);
             _functionStack.Push(funcDef);
 
-            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider));
+            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider, new TypeList(callArgs.GenericTypes)));
             vm.Execute();
 
             _functionStack.Pop();
@@ -423,6 +438,49 @@ namespace ZScript.Runtime
             }
 
             _expandedGlobals = true;
+        }
+    }
+
+    /// <summary>
+    /// Class that encapsulates information about a function call
+    /// </summary>
+    public class CallArguments
+    {
+        /// <summary>
+        /// The parameters for the function call
+        /// </summary>
+        public readonly object[] Arguments;
+
+        /// <summary>
+        /// Whether the function call contains generic type information
+        /// </summary>
+        public readonly bool IsGeneric;
+
+        /// <summary>
+        /// The generic types being passed to the function call
+        /// </summary>
+        public readonly Type[] GenericTypes;
+
+        /// <summary>
+        /// Initializes a new instance of the CallInformation class with a set of parameters as arguments
+        /// </summary>
+        /// <param name="arguments">The parameters for the function call</param>
+        public CallArguments(params object[] arguments)
+            : this(arguments, new Type[0])
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CallInformation class with a set of parameters as arguments and a set of generic types
+        /// </summary>
+        /// <param name="arguments">The parameters for the function call</param>
+        /// <param name="genericTypes">The generic types being passed to the function call</param>
+        public CallArguments(object[] arguments, Type[] genericTypes)
+        {
+            Arguments = arguments;
+            GenericTypes = genericTypes;
+            IsGeneric = genericTypes.Length > 0;
         }
     }
 
