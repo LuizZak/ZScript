@@ -59,6 +59,11 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly ClassTypeSource _classTypeSource;
 
         /// <summary>
+        /// Type source for generics
+        /// </summary>
+        private readonly GenericTypeSource _genericTypeSource;
+
+        /// <summary>
         /// Gets the type provider for this static type analyzer
         /// </summary>
         private TypeProvider TypeProvider
@@ -86,6 +91,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             _typeResolver = new ExpressionTypeResolver(generationContext);
             _classTypeSource = new ClassTypeSource();
+            _genericTypeSource = new GenericTypeSource();
         }
 
         /// <summary>
@@ -95,6 +101,10 @@ namespace ZScript.CodeGeneration.Analysis
         {
             // Assign the type source for the type provider
             TypeProvider.RegisterCustomTypeSource(_classTypeSource);
+            TypeProvider.RegisterCustomTypeSource(_genericTypeSource);
+
+            // Clear generic context
+            _genericTypeSource.Clear();
 
             // Get all definitons
             var definitions = _baseScope.GetAllDefinitionsRecursive().ToArray();
@@ -163,8 +173,20 @@ namespace ZScript.CodeGeneration.Analysis
 
             foreach (var definition in definitions)
             {
+                // Generic signature context
+                var funcDef = definition as FunctionDefinition;
+                if (funcDef != null)
+                {
+                    _genericTypeSource.PushGenericContext(funcDef.GenericSignature);
+                }
+
                 if(!(definition is ClosureDefinition) && definition.Context != null)
                     traverser.Traverse(definition.Context);
+
+                if (funcDef != null)
+                {
+                    _genericTypeSource.PopContext();
+                }
             }
         }
 
@@ -194,6 +216,9 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 if (statement.expression() == null) continue;
 
+                // Push the context for the function definition's generic context
+                _genericTypeSource.PushGenericContext(statement.TargetFunction.GenericSignature);
+
                 // Resolve a second time, inferring types to closures
                 statement.expression().ExpectedType = definition.ReturnType;
 
@@ -206,6 +231,9 @@ namespace ZScript.CodeGeneration.Analysis
                     var message = "Cannot implicitly convert return value type " + type + ", function expects return type of " + definition.ReturnType;
                     Container.RegisterError(target.Start.Line, target.Start.Column, message, ErrorCode.InvalidCast, target);
                 }
+
+                // Pop the generic signature context
+                _genericTypeSource.PopContext();
             }
         }
 
@@ -1172,6 +1200,72 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     if (definition.Name == typeName)
                         return definition.ClassTypeDef;
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Custom type source that can feed types based on generic types defined within generic contexts
+        /// </summary>
+        class GenericTypeSource : ICustomTypeSource
+        {
+            /// <summary>
+            /// The current generic signature context stack
+            /// </summary>
+            private readonly Stack<GenericSignatureInformation> _genericContextStack = new Stack<GenericSignatureInformation>();
+
+            /// <summary>
+            /// Pushes a generic context on this generic type source
+            /// </summary>
+            /// <param name="context">The context to push on this generic type source</param>
+            public void PushGenericContext(GenericSignatureInformation context)
+            {
+                _genericContextStack.Push(context);
+            }
+
+            /// <summary>
+            /// Pops a generic context from this generic type source
+            /// </summary>
+            public void PopContext()
+            {
+                _genericContextStack.Pop();
+            }
+
+            /// <summary>
+            /// Clears this generic type source of all of its current contexts
+            /// </summary>
+            public void Clear()
+            {
+                _genericContextStack.Clear();
+            }
+
+            // 
+            // ICustomTypeSource.HasType implementation
+            // 
+            public bool HasType(string typeName)
+            {
+                foreach (var signature in _genericContextStack)
+                {
+                    var type = signature.GenericTypes.FirstOrDefault(g => g.Name == typeName);
+                    if (type != null)
+                        return true;
+                }
+
+                return false;
+            }
+
+            // 
+            // ICustomTypeSource.TypeNamed implementation
+            // 
+            public TypeDef TypeNamed(string typeName)
+            {
+                foreach (var signature in _genericContextStack)
+                {
+                    var type = signature.GenericTypes.FirstOrDefault(g => g.Name == typeName);
+                    if (type != null)
+                        return type;
                 }
 
                 return null;

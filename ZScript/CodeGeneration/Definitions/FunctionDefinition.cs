@@ -46,7 +46,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// The generic signature information for this function definition
         /// </summary>
-        private readonly GenericSignatureInformation _genericParameters;
+        private readonly GenericSignatureInformation _genericSignature;
 
         /// <summary>
         /// The return type for this function
@@ -98,16 +98,16 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// gets the generic signature information for this function definition
         /// </summary>
-        public GenericSignatureInformation GenericParameters
+        public GenericSignatureInformation GenericSignature
         {
-            get { return _genericParameters; }
+            get { return _genericSignature; }
         }
 
         /// <summary>
         /// Gets a value specifying whether this function definition is generic in nature.
         /// Functions are considered generic if they have one or more generic type defined
         /// </summary>
-        public bool IsGeneric { get { return _genericParameters.GenericTypes.Length > 0; } }
+        public bool IsGeneric { get { return _genericSignature.GenericTypes.Length > 0; } }
 
         /// <summary>
         /// Gets the minimum number of arguments required for the function call
@@ -158,14 +158,14 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="name">The name for the definition</param>
         /// <param name="bodyContext">The context containing the function body's statements</param>
         /// <param name="parameters">The arguments for this function definition</param>
-        /// <param name="genericParameters">The generic types for this function definition</param>
-        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericParameters)
+        /// <param name="genericSignature">The generic types for this function definition</param>
+        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericSignature)
         {
             Name = name;
             ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();
             _bodyContext = bodyContext;
             _parameters = parameters;
-            _genericParameters = genericParameters;
+            _genericSignature = genericSignature;
             _requiredCount = parameters.Count(p => !(p.IsOptional));
 
             RecreateCallableDefinition();

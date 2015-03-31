@@ -112,6 +112,7 @@
     <Compile Include="Runtime\Execution\Wrappers\Subscripters\PropertySubscripterWrapperTests.cs" />
     <Compile Include="Runtime\ExportFunctionTests.cs" />
     <Compile Include="Runtime\FunctionAccessTests.cs" />
+    <Compile Include="Runtime\GenericFunctionTests.cs" />
     <Compile Include="Runtime\MemberTests.cs" />
     <Compile Include="Runtime\ObjectLiteralTests.cs" />
     <Compile Include="Runtime\SubscriptingTests.cs" />

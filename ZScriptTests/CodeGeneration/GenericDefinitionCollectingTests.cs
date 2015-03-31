@@ -60,8 +60,8 @@ namespace ZScriptTests.CodeGeneration
 
             // Check the generic types
             Assert.IsTrue(genericFunc.IsGeneric);
-            Assert.AreEqual(1, genericFunc.GenericParameters.GenericTypes.Length);
-            Assert.AreEqual(1, genericFunc.GenericParameters.GenericTypes.Count(g => g.Name == "T"));
+            Assert.AreEqual(1, genericFunc.GenericSignature.GenericTypes.Length);
+            Assert.AreEqual(1, genericFunc.GenericSignature.GenericTypes.Count(g => g.Name == "T"));
 
             Assert.IsFalse(nonGenericF.IsGeneric);
         }

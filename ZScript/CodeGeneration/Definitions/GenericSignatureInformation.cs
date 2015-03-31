@@ -19,6 +19,8 @@
 */
 #endregion
 
+using ZScript.Runtime.Typing.Elements;
+
 namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
@@ -61,15 +63,16 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Represents a generic type definition for a function signature
     /// </summary>
-    public class GenericTypeDefinition : Definition
+    public class GenericTypeDefinition : TypeDef
     {
         /// <summary>
         /// Initializes a new instance of the GenericTypeDefinition class with a generic name specified
         /// </summary>
         /// <param name="name">The name for the generic type</param>
         public GenericTypeDefinition(string name)
+            : base(name, false)
         {
-            Name = name;
+            
         }
     }
 }
