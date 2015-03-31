@@ -73,6 +73,7 @@
     <Compile Include="CodeGeneration\Analysis\UnusedDefinitionAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\DefinitionsCollectorTests.cs" />
     <Compile Include="CodeGeneration\Definitions\ClassDefinitionTests.cs" />
+    <Compile Include="CodeGeneration\GenericDefinitionCollectingTests.cs" />
     <Compile Include="CodeGeneration\MultipleSourcesTests.cs" />
     <Compile Include="CodeGeneration\Sourcing\SourceProviderTests.cs" />
     <Compile Include="CodeGeneration\Sourcing\ZScriptFileSourceTests.cs" />

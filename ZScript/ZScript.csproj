@@ -59,6 +59,7 @@
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver.cs" />
+    <Compile Include="CodeGeneration\Definitions\GenericSignatureInformation.cs" />
     <Compile Include="CodeGeneration\Definitions\SequenceFrameDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\TopLevelFunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\TypeFieldDefinition.cs" />

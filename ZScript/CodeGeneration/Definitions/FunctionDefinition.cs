@@ -44,9 +44,9 @@ namespace ZScript.CodeGeneration.Definitions
         private readonly FunctionArgumentDefinition[] _parameters;
 
         /// <summary>
-        /// Cached callable definition
+        /// The generic signature information for this function definition
         /// </summary>
-        private CallableTypeDef _callableTypeDef;
+        private readonly GenericSignatureInformation _genericParameters;
 
         /// <summary>
         /// The return type for this function
@@ -96,6 +96,20 @@ namespace ZScript.CodeGeneration.Definitions
         }
 
         /// <summary>
+        /// gets the generic signature information for this function definition
+        /// </summary>
+        public GenericSignatureInformation GenericParameters
+        {
+            get { return _genericParameters; }
+        }
+
+        /// <summary>
+        /// Gets a value specifying whether this function definition is generic in nature.
+        /// Functions are considered generic if they have one or more generic type defined
+        /// </summary>
+        public bool IsGeneric { get { return _genericParameters.GenericTypes.Length > 0; } }
+
+        /// <summary>
         /// Gets the minimum number of arguments required for the function call
         /// </summary>
         public int RequiredParametersCount
@@ -124,10 +138,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets the callable type definition associated with this function definition
         /// </summary>
-        public CallableTypeDef CallableTypeDef
-        {
-            get { return _callableTypeDef; }
-        }
+        public CallableTypeDef CallableTypeDef { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the FunctionDefinition class
@@ -136,11 +147,25 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="bodyContext">The context containing the function body's statements</param>
         /// <param name="parameters">The arguments for this function definition</param>
         public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
+            : this(name, bodyContext, parameters, new GenericSignatureInformation())
+        {
+            
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the FunctionDefinition class
+        /// </summary>
+        /// <param name="name">The name for the definition</param>
+        /// <param name="bodyContext">The context containing the function body's statements</param>
+        /// <param name="parameters">The arguments for this function definition</param>
+        /// <param name="genericParameters">The generic types for this function definition</param>
+        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericParameters)
         {
             Name = name;
             ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();
             _bodyContext = bodyContext;
             _parameters = parameters;
+            _genericParameters = genericParameters;
             _requiredCount = parameters.Count(p => !(p.IsOptional));
 
             RecreateCallableDefinition();
@@ -151,7 +176,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         public void RecreateCallableDefinition()
         {
-            _callableTypeDef = new CallableTypeDef(_parameters.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.VoidType, HasReturnType);
+            CallableTypeDef = new CallableTypeDef(_parameters.Select(a => a.ToArgumentInfo()).ToArray(), ReturnType ?? TypeDef.VoidType, HasReturnType);
         }
 
         /// <summary>

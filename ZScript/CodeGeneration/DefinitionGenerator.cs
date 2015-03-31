@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System.Linq;
 using Antlr4.Runtime;
 using ZScript.CodeGeneration.Definitions;
 
@@ -78,7 +79,7 @@ namespace ZScript.CodeGeneration
         public static TopLevelFunctionDefinition GenerateTopLevelFunctionDef(ZScriptParser.FunctionDefinitionContext context)
         {
             var f = new TopLevelFunctionDefinition(context.functionName().IDENT().GetText(), context.functionBody(),
-                CollectFunctionArguments(context.functionArguments()))
+                CollectFunctionArguments(context.functionArguments()), CollectGenericSignature(context.genericParametersDefinition()))
             {
                 Context = context,
                 HasReturnType = context.returnType() != null,
@@ -172,7 +173,7 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Returns an array of function arguments from a given function definition context
+        /// Returns an array of function arguments from a given function argument list definition context
         /// </summary>
         /// <param name="context">The context to collect the function arguments from</param>
         /// <returns>An array of function arguments that were collected</returns>
@@ -193,6 +194,33 @@ namespace ZScript.CodeGeneration
             }
 
             return args;
+        }
+
+        /// <summary>
+        /// Returns a generic type signature information object from a given generic parameters definition context
+        /// </summary>
+        /// <param name="context">The context to collect the generic signature information from</param>
+        /// <returns>The generic signature information that were collected</returns>
+        public static GenericSignatureInformation CollectGenericSignature(ZScriptParser.GenericParametersDefinitionContext context)
+        {
+            if (context == null)
+                return new GenericSignatureInformation();
+
+            // Collect the generic types
+            var list = context.genericParameterDefinitionList();
+            var types = list.genericType().Select(CollectGenericType).ToArray();
+
+            return new GenericSignatureInformation(types);
+        }
+
+        /// <summary>
+        /// Returns a generic type definition from a given generic parameters definition context
+        /// </summary>
+        /// <param name="context">The context to collect the generic type from</param>
+        /// <returns>The generic type definition that were collected</returns>
+        public static GenericTypeDefinition CollectGenericType(ZScriptParser.GenericTypeContext context)
+        {
+            return new GenericTypeDefinition(context.IDENT().GetText());
         }
 
         /// <summary>

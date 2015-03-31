@@ -309,25 +309,15 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitGenericParametersDefinition([NotNull] ZScriptParser.GenericParametersDefinitionContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterDefinitionList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterGenericParameters([NotNull] ZScriptParser.GenericParametersContext context);
+	void EnterGenericParameterDefinitionList([NotNull] ZScriptParser.GenericParameterDefinitionListContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterDefinitionList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitGenericParameters([NotNull] ZScriptParser.GenericParametersContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context);
+	void ExitGenericParameterDefinitionList([NotNull] ZScriptParser.GenericParameterDefinitionListContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.genericConstraintList"/>.
 	/// </summary>
@@ -358,6 +348,26 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitGenericType([NotNull] ZScriptParser.GenericTypeContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericParameters([NotNull] ZScriptParser.GenericParametersContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericParameters([NotNull] ZScriptParser.GenericParametersContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAlias"/>.
 	/// </summary>

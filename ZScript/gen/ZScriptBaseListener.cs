@@ -369,29 +369,17 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitGenericParametersDefinition([NotNull] ZScriptParser.GenericParametersDefinitionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterDefinitionList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterGenericParameters([NotNull] ZScriptParser.GenericParametersContext context) { }
+	public virtual void EnterGenericParameterDefinitionList([NotNull] ZScriptParser.GenericParameterDefinitionListContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterDefinitionList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitGenericParameters([NotNull] ZScriptParser.GenericParametersContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context) { }
+	public virtual void ExitGenericParameterDefinitionList([NotNull] ZScriptParser.GenericParameterDefinitionListContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.genericConstraintList"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -428,6 +416,30 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitGenericType([NotNull] ZScriptParser.GenericTypeContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericParameters([NotNull] ZScriptParser.GenericParametersContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericParameters([NotNull] ZScriptParser.GenericParametersContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAlias"/>.
 	/// <para>The default implementation does nothing.</para>

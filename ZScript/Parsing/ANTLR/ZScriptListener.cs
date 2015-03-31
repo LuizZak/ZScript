@@ -299,6 +299,76 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitArgumentName([NotNull] ZScriptParser.ArgumentNameContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParametersDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericParametersDefinition([NotNull] ZScriptParser.GenericParametersDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParametersDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericParametersDefinition([NotNull] ZScriptParser.GenericParametersDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterDefinitionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericParameterDefinitionList([NotNull] ZScriptParser.GenericParameterDefinitionListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterDefinitionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericParameterDefinitionList([NotNull] ZScriptParser.GenericParameterDefinitionListContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericConstraintList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericConstraintList([NotNull] ZScriptParser.GenericConstraintListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericConstraintList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericConstraintList([NotNull] ZScriptParser.GenericConstraintListContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericConstraint"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericConstraint([NotNull] ZScriptParser.GenericConstraintContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericConstraint"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericConstraint([NotNull] ZScriptParser.GenericConstraintContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericType([NotNull] ZScriptParser.GenericTypeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericType([NotNull] ZScriptParser.GenericTypeContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericParameters([NotNull] ZScriptParser.GenericParametersContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameters"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericParameters([NotNull] ZScriptParser.GenericParametersContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.genericParameterList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenericParameterList([NotNull] ZScriptParser.GenericParameterListContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.typeAlias"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

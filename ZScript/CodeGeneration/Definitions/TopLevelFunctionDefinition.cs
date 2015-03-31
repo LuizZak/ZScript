@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
@@ -31,7 +32,9 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="name">The name for the definition</param>
         /// <param name="bodyContext">The context containing the function body's statements</param>
         /// <param name="parameters">The arguments for this function definition</param>
-        public TopLevelFunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters) : base(name, bodyContext, parameters)
+        /// <param name="genericSignature">The generic signature for the function</param>
+        public TopLevelFunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericSignature)
+            : base(name, bodyContext, parameters, genericSignature)
         {
 
         }
