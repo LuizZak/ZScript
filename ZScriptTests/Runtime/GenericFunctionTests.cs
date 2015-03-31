@@ -67,5 +67,43 @@ namespace ZScriptTests.Runtime
 
             Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
+
+        /// <summary>
+        /// Tests referencing a generic type on a return type
+        /// </summary>
+        [TestMethod]
+        public void TestGenericReturnType()
+        {
+            const string input = "func funca<T>() : T? { var a:T? = null; return a; }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            // Assert the correct call was made
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
+
+        /// <summary>
+        /// Tests referencing a generic type on a function argument
+        /// </summary>
+        [TestMethod]
+        public void TestGenericArgument()
+        {
+            const string input = "func funca<T>(a:T) { }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            // Assert the correct call was made
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
     }
 }

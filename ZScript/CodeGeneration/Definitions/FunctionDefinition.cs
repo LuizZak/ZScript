@@ -169,6 +169,12 @@ namespace ZScript.CodeGeneration.Definitions
             _requiredCount = parameters.Count(p => !(p.IsOptional));
 
             RecreateCallableDefinition();
+
+            // Bind the function arguments
+            foreach (var arg in parameters)
+            {
+                arg.Function = this;
+            }
         }
 
         /// <summary>

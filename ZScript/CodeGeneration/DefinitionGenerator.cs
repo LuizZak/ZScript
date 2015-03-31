@@ -189,7 +189,6 @@ namespace ZScript.CodeGeneration
             foreach (var arg in argList)
             {
                 var a = GenerateFunctionArgumentDef(arg);
-
                 args[i++] = a;
             }
 

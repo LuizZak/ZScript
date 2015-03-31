@@ -25,7 +25,7 @@ using ZScript.Runtime.Typing.Elements;
 namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
-    /// Specifies a variable definition
+    /// Specifies a function argument definition
     /// </summary>
     public class FunctionArgumentDefinition : ValueHolderDefinition
     {
@@ -35,6 +35,11 @@ namespace ZScript.CodeGeneration.Definitions
         /// Functions can only have one variadic argument, appearing at the end of the argument list
         /// </summary>
         public bool IsVariadic { get; set; }
+
+        /// <summary>
+        /// Gets the function definition that owns this function argument definition
+        /// </summary>
+        public FunctionDefinition Function { get; set; }
 
         /// <summary>
         /// The compile-time constant defining the value for the function argument

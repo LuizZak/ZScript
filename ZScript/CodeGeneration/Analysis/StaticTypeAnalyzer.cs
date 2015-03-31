@@ -199,7 +199,12 @@ namespace ZScript.CodeGeneration.Analysis
             if (!definition.HasReturnType || definition.ReturnTypeContext == null)
                 return;
 
+            // Push the context for the function definition's generic context
+            _genericTypeSource.PushGenericContext(definition.GenericSignature);
+
             definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
+
+            _genericTypeSource.PopContext();
         }
 
         /// <summary>
@@ -361,12 +366,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The definition to expand</param>
         private void ExpandFunctionArgument(FunctionArgumentDefinition definition)
         {
+            // Push the generic context
+            _genericTypeSource.PushGenericContext(definition.Function.GenericSignature);
+
             ExpandValueHolderDefinition(definition);
 
             if (definition.IsVariadic)
             {
                 definition.Type = TypeProvider.ListForType(definition.Type);
             }
+
+            _genericTypeSource.PopContext();
         }
 
         /// <summary>
