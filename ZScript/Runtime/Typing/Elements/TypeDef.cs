@@ -460,6 +460,19 @@ namespace ZScript.Runtime.Typing.Elements
     }
 
     /// <summary>
+    /// Interface to be implemented by types that can inherit from base types
+    /// </summary>
+    public interface IInheritableTypeDef : ITypeDef
+    {
+        /// <summary>
+        /// Gets or sets the base type for this ClassTypeDef.
+        /// If the value provided is a base type of this class, an ArgumentException is raised
+        /// </summary>
+        /// <exception cref="ArgumentException">The provided type value causes a circular inheritance chain</exception>
+        TypeDef BaseType { get; set; }
+    }
+
+    /// <summary>
     /// Represents information about a type's member
     /// </summary>
     public abstract class TypeMemberDef

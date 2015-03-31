@@ -289,12 +289,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The definition to expand</param>
         private void ExpandValueHolderType(ValueHolderDefinition definition)
         {
+            definition.Type = TypeProvider.AnyType();
+
             // Evaluate definition type
-            if (!definition.HasType)
-            {
-                definition.Type = TypeProvider.AnyType();
-            }
-            else
+            if (definition.HasType)
             {
                 definition.Type = _typeResolver.ResolveType(definition.TypeContext, false);
             }

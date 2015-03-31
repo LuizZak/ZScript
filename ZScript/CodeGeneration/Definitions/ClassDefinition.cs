@@ -259,7 +259,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Represents a type that describes a class
     /// </summary>
-    public class ClassTypeDef : NativeTypeDef
+    public class ClassTypeDef : NativeTypeDef, IInheritableTypeDef
     {
         /// <summary>
         /// The native type for the class, after evaluation
@@ -285,14 +285,14 @@ namespace ZScript.CodeGeneration.Definitions
 
                 while (b != null)
                 {
-                    if (b is ClassTypeDef)
+                    if (b is IInheritableTypeDef)
                     {
                         if (b == this)
                         {
                             throw new ArgumentException("Circular inheritance chain detected on argument");
                         }
 
-                        b = ((ClassTypeDef)b).baseType;
+                        b = ((IInheritableTypeDef)b).BaseType;
                     }
                     else
                     {

@@ -65,5 +65,36 @@ namespace ZScriptTests.CodeGeneration
 
             Assert.IsFalse(nonGenericF.IsGeneric);
         }
+
+        /// <summary>
+        /// Tests collection of generic constraints in a top-level function definition
+        /// </summary>
+        [TestMethod]
+        public void TestCollectGenericConstraints()
+        {
+            const string input = "func f1<T, U where T: U>() { }";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var collector = new DefinitionsCollector(container);
+
+            collector.Collect(parser.program());
+
+            var scope = collector.CollectedBaseScope;
+
+            // Search for the class that was parsed
+            var genericFunc = scope.GetDefinitionByName<TopLevelFunctionDefinition>("f1");
+
+            Assert.IsFalse(container.HasErrors);
+
+            // Check the generic types
+            Assert.IsTrue(genericFunc.IsGeneric);
+            Assert.AreEqual(2, genericFunc.GenericSignature.GenericTypes.Length);
+            Assert.AreEqual(1, genericFunc.GenericSignature.GenericTypes.Count(g => g.Name == "T"));
+            Assert.AreEqual(1, genericFunc.GenericSignature.GenericTypes.Count(g => g.Name == "U"));
+
+            Assert.AreEqual(1, genericFunc.GenericSignature.Constraints.Length);
+            Assert.AreEqual(new GenericTypeConstraint("T", "U"), genericFunc.GenericSignature.Constraints[0]);
+        }
     }
 }

@@ -208,8 +208,14 @@ namespace ZScript.CodeGeneration
             // Collect the generic types
             var list = context.genericParameterDefinitionList();
             var types = list.genericType().Select(CollectGenericType).ToArray();
+            GenericTypeConstraint[] constraints = new GenericTypeConstraint[0];
 
-            return new GenericSignatureInformation(types);
+            if (context.genericConstraintList() != null)
+            {
+                constraints = context.genericConstraintList().genericConstraint().Select(CollectGenericTypeConstraint).ToArray();
+            }
+
+            return new GenericSignatureInformation(types, constraints);
         }
 
         /// <summary>
@@ -220,6 +226,16 @@ namespace ZScript.CodeGeneration
         public static GenericTypeDefinition CollectGenericType(ZScriptParser.GenericTypeContext context)
         {
             return new GenericTypeDefinition(context.IDENT().GetText());
+        }
+
+        /// <summary>
+        /// Returns a generic type definition from a given generic parameters definition context
+        /// </summary>
+        /// <param name="context">The context to collect the generic type from</param>
+        /// <returns>The generic type definition that were collected</returns>
+        public static GenericTypeConstraint CollectGenericTypeConstraint(ZScriptParser.GenericConstraintContext context)
+        {
+            return new GenericTypeConstraint(context.genericType().IDENT().GetText(), context.complexTypeName().GetText());
         }
 
         /// <summary>
