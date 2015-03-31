@@ -64,7 +64,7 @@ argumentName : IDENT;
 genericParametersDefinition : '<' genericParameterDefinitionList genericConstraintList? '>';
 genericParameterDefinitionList : genericType (',' genericType)*;
 genericConstraintList : 'where' genericConstraint (',' genericConstraint)*;
-genericConstraint : genericType ':' genericType;
+genericConstraint : genericType ':' complexTypeName;
 genericType : IDENT;
 
 genericParameters : '<' genericParameterList '>';
