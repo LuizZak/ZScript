@@ -26,6 +26,7 @@ using Antlr4.Runtime.Sharpen;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Analysis.Definitions
 {
@@ -90,20 +91,25 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                     continue;
                 }
 
-                var baseType = signature.GenericTypes.FirstOrDefault(t => t.Name == constraint.BaseTypeName);
+                var baseType = _context.TypeProvider.TypeNamed(constraint.BaseTypeName) as IInheritableTypeDef;
                 // Not resolveable at this time
                 if (baseType == null)
-                    continue;
+                {
+                    baseType = _context.TypeProvider.TypeNamed(constraint.BaseTypeName) as IInheritableTypeDef;
+
+                    if(baseType == null)
+                        continue;
+                }
 
                 // Detect cyclical referencing
-                if (baseType.IsSubtypeOf(type))
+                if (baseType.IsSubtypeOf(type) || baseType == type)
                 {
                     var message = "Cyclical generic constraining detected between " + type + " and " + baseType;
                     _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.CyclicalGenericConstraint);
                     break;
                 }
 
-                type.BaseType = baseType;
+                type.BaseType = (TypeDef)baseType;
             }
         }
     }

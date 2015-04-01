@@ -202,15 +202,15 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The definition to expand</param>
         private void ExpandFunctionDefinition(FunctionDefinition definition)
         {
-            _genericAnalyzer.AnalyzeSignature(definition.GenericSignature);
-
-            if (!definition.HasReturnType || definition.ReturnTypeContext == null)
-                return;
-
             // Push the context for the function definition's generic context
             _genericTypeSource.PushGenericContext(definition.GenericSignature);
 
-            definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
+            _genericAnalyzer.AnalyzeSignature(definition.GenericSignature);
+
+            if (definition.HasReturnType && definition.ReturnTypeContext != null)
+            {
+                definition.ReturnType = _typeResolver.ResolveType(definition.ReturnTypeContext.type(), true);
+            }
 
             _genericTypeSource.PopContext();
         }
