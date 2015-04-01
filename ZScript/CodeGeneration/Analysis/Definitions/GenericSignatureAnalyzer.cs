@@ -25,6 +25,7 @@ using Antlr4.Runtime.Sharpen;
 
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Analysis.Definitions
@@ -96,18 +97,11 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                     continue;
 
                 // Detect cyclical referencing
-                IInheritableTypeDef b = baseType;
-
-                while (b != null)
+                if (baseType.IsSubtypeOf(type))
                 {
-                    if (type.Equals(b))
-                    {
-                        var message = "Cyclical generic constraining detected between " + type + " and " + b;
-                        _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.CyclicalGenericConstraint);
-                        break;
-                    }
-
-                    b = b.BaseType as IInheritableTypeDef;
+                    var message = "Cyclical generic constraining detected between " + type + " and " + baseType;
+                    _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.CyclicalGenericConstraint);
+                    break;
                 }
 
                 type.BaseType = baseType;

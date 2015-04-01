@@ -476,7 +476,7 @@ namespace ZScript.Runtime.Typing
 
             // Class typing
             if (origin is ClassTypeDef && target is ClassTypeDef)
-                return CanExplicitCastClass((ClassTypeDef)origin, (ClassTypeDef)target);
+                return CanExplicitCastInheritable((ClassTypeDef)origin, (ClassTypeDef)target);
 
             // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
@@ -527,8 +527,8 @@ namespace ZScript.Runtime.Typing
                 return false;
 
             // Class typing
-            if (origin is ClassTypeDef && target is ClassTypeDef)
-                return CanImplicitCastClass((ClassTypeDef)origin, (ClassTypeDef)target);
+            if (origin is IInheritableTypeDef && target is IInheritableTypeDef)
+                return CanImplicitCastInheritable((IInheritableTypeDef)origin, (IInheritableTypeDef)target);
 
             // Optional typing
             var optionalTarget = target as OptionalTypeDef;
@@ -557,12 +557,12 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
-        /// Returns whether the two class types can be implicitly casted from one to another
+        /// Returns whether the two inheritable types can be implicitly casted from one to another
         /// </summary>
         /// <param name="origin">The origin type to cast from</param>
         /// <param name="target">The type target to cast to</param>
         /// <returns>Whether the types can be implicitly casted</returns>
-        private bool CanImplicitCastClass(ClassTypeDef origin, ClassTypeDef target)
+        private bool CanImplicitCastInheritable(IInheritableTypeDef origin, IInheritableTypeDef target)
         {
             // Check if origin is in the inheritance chain of target
             var curC = origin;
@@ -572,22 +572,22 @@ namespace ZScript.Runtime.Typing
                 if (curC == target)
                     return true;
                 
-                curC = curC.BaseType as ClassTypeDef;
+                curC = curC.BaseType as IInheritableTypeDef;
             }
 
             return false;
         }
 
         /// <summary>
-        /// Returns whether the two class types can be explicitly casted from one to another
+        /// Returns whether the two inheritable types can be explicitly casted from one to another
         /// </summary>
         /// <param name="origin">The origin type to cast from</param>
         /// <param name="target">The type target to cast to</param>
         /// <returns>Whether the types can be explicitly casted</returns>
-        private bool CanExplicitCastClass(ClassTypeDef origin, ClassTypeDef target)
+        private bool CanExplicitCastInheritable(IInheritableTypeDef origin, IInheritableTypeDef target)
         {
             // Implicit casts enable explicit casts by default
-            if (CanImplicitCastClass(origin, target))
+            if (CanImplicitCastInheritable(origin, target))
                 return true;
 
             // Check if target is derived from origin by checking if it's in the inheritance chain of origin
@@ -598,7 +598,7 @@ namespace ZScript.Runtime.Typing
                 if (curC == origin)
                     return true;
 
-                curC = curC.BaseType as ClassTypeDef;
+                curC = curC.BaseType as IInheritableTypeDef;
             }
 
             return false;
