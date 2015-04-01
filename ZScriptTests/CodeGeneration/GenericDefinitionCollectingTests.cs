@@ -94,7 +94,8 @@ namespace ZScriptTests.CodeGeneration
             Assert.AreEqual(1, genericFunc.GenericSignature.GenericTypes.Count(g => g.Name == "U"));
 
             Assert.AreEqual(1, genericFunc.GenericSignature.Constraints.Length);
-            Assert.AreEqual(new GenericTypeConstraint("T", "U"), genericFunc.GenericSignature.Constraints[0]);
+            Assert.AreEqual("T", genericFunc.GenericSignature.Constraints[0].TypeName);
+            Assert.AreEqual("U", genericFunc.GenericSignature.Constraints[0].BaseTypeName);
         }
     }
 }

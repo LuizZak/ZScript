@@ -25,7 +25,7 @@ using System.Linq;
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-
+using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
@@ -52,6 +52,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// The type resolver used to expand the types
         /// </summary>
         private readonly ExpressionTypeResolver _typeResolver;
+
+        /// <summary>
+        /// The generic type analyzer used to expand generic types
+        /// </summary>
+        private readonly GenericSignatureAnalyzer _genericAnalyzer;
 
         /// <summary>
         /// Type source for classes
@@ -92,6 +97,7 @@ namespace ZScript.CodeGeneration.Analysis
             _typeResolver = new ExpressionTypeResolver(generationContext);
             _classTypeSource = new ClassTypeSource();
             _genericTypeSource = new GenericTypeSource();
+            _genericAnalyzer = new GenericSignatureAnalyzer(generationContext);
         }
 
         /// <summary>
@@ -196,6 +202,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="definition">The definition to expand</param>
         private void ExpandFunctionDefinition(FunctionDefinition definition)
         {
+            _genericAnalyzer.AnalyzeSignature(definition.GenericSignature);
+
             if (!definition.HasReturnType || definition.ReturnTypeContext == null)
                 return;
 

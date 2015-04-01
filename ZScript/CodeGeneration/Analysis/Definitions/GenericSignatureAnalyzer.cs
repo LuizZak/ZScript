@@ -20,7 +20,11 @@
 #endregion
 
 using System.Linq;
+
+using Antlr4.Runtime.Sharpen;
+
 using ZScript.CodeGeneration.Definitions;
+using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Analysis.Definitions
@@ -36,18 +40,12 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         private readonly RuntimeGenerationContext _context;
 
         /// <summary>
-        /// The generic signature resolver used during analysis
-        /// </summary>
-        private readonly GenericSignatureResolver _resolver;
-
-        /// <summary>
         /// Initializes a new instance of the GenericParametersAnalyzer class
         /// </summary>
         /// <param name="context">The context for the analysis</param>
         public GenericSignatureAnalyzer(RuntimeGenerationContext context)
         {
             _context = context;
-            _resolver = new GenericSignatureResolver();
         }
 
         /// <summary>
@@ -70,22 +68,9 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// <param name="signature">The generic signature to analyze</param>
         public void AnalyzeSignature(GenericSignatureInformation signature)
         {
-            
-        }
-    }
+            // Hashset of types constrained in the signature, used to detect duplicated constraints
+            var constraints = new HashSet<string>();
 
-    /// <summary>
-    /// Class capable of resolving constraint signatures and raise diagnostics about the validity of signatures
-    /// </summary>
-    public class GenericSignatureResolver
-    {
-        /// <summary>
-        /// Resolves the given generic signature information object
-        /// </summary>
-        /// <param name="signature">The generic signature to resolve</param>
-        /// <returns>A result for the resolving</returns>
-        public ResolvingResult Resolve(GenericSignatureInformation signature)
-        {
             // Resolve the constraints
             foreach (var constraint in signature.Constraints)
             {
@@ -93,7 +78,16 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                 var type = signature.GenericTypes.FirstOrDefault(t => t.Name == constraint.TypeName);
                 if (type == null)
                 {
-                    return new ResolvingResult(false, "Generic type T does not exists in current context");
+                    var message = "Unknown generic type " + constraint.TypeName + " that cannot be constrained in this context";
+                    _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.UnkownGenericTypeName);
+                    continue;
+                }
+
+                if (!constraints.Add(constraint.TypeName))
+                {
+                    var message = "Duplicated generic constraint for generic type " + constraint.TypeName;
+                    _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.DupliatedGenericConstraint);
+                    continue;
                 }
 
                 var baseType = signature.GenericTypes.FirstOrDefault(t => t.Name == constraint.BaseTypeName);
@@ -108,40 +102,15 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                 {
                     if (type.Equals(b))
                     {
-                        return new ResolvingResult(false, "Cyclical referencing of types " + type + " and " + baseType);
+                        var message = "Cyclical generic constraining detected between " + type + " and " + b;
+                        _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.CyclicalGenericConstraint);
+                        break;
                     }
 
                     b = b.BaseType as IInheritableTypeDef;
                 }
 
                 type.BaseType = baseType;
-            }
-
-            return new ResolvingResult(true, "");
-        }
-
-        /// <summary>
-        /// Structure that represents the result of a signature analysis
-        /// </summary>
-        public struct ResolvingResult
-        {
-            /// <summary>
-            /// Gets a value specifying whether the signature was valid
-            /// </summary>
-            public readonly bool IsValid;
-
-            /// <summary>
-            /// A message containing additional information about a resolving
-            /// </summary>
-            public readonly string Message;
-
-            /// <summary>
-            /// Initializes a new ResolvingResult struct
-            /// </summary>
-            public ResolvingResult(bool isValid, string message)
-            {
-                IsValid = isValid;
-                Message = message;
             }
         }
     }

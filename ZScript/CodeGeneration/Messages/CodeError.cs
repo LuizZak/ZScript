@@ -197,5 +197,16 @@ namespace ZScript.CodeGeneration.Messages
         MissingBaseCall,
 
         #endregion
+
+        #region Generic signature analysis errors
+
+        /// <summary>There is already a generic constraint for the specified generic type</summary>
+        DupliatedGenericConstraint,
+        /// <summary>There is cyclical generic inheritance constraining between two generic types</summary>
+        CyclicalGenericConstraint,
+        /// <summary>A generic type name used in a constraint is not a valid type</summary>
+        UnkownGenericTypeName,
+
+        #endregion
     }
 }

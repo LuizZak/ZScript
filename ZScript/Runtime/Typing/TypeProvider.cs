@@ -327,18 +327,18 @@ namespace ZScript.Runtime.Typing
             }
 
             // Class types
-            var classT1 = type1 as ClassTypeDef;
-            var classT2 = type2 as ClassTypeDef;
+            var classT1 = type1 as IInheritableTypeDef;
+            var classT2 = type2 as IInheritableTypeDef;
             if (classT1 != null && classT2 != null)
             {
                 // Check inheritance
                 if (classT1.IsSubtypeOf(classT2))
                 {
-                    return classT2;
+                    return type2;
                 }
                 if (classT2.IsSubtypeOf(classT1))
                 {
-                    return classT1;
+                    return type1;
                 }
 
                 // Search in the inheritance chain of one of the classes
@@ -534,6 +534,9 @@ namespace ZScript.Runtime.Typing
             var optionalTarget = target as OptionalTypeDef;
             if (optionalTarget != null)
             {
+                if (InternalAreTypesCompatible(origin, target))
+                    return true;
+
                 if (CanImplicitCast(origin, optionalTarget.WrappedType))
                     return true;
             }
@@ -726,6 +729,12 @@ namespace ZScript.Runtime.Typing
             if (optO != null && optO.WrappedType == target)
                 return true;
 
+            // Inheritance
+            if (origin is IInheritableTypeDef && ((IInheritableTypeDef)origin).IsSubtypeOf(target))
+            {
+                return true;
+            }
+
             if (origin != target && !origin.IsAny)
                 return false;
 
@@ -893,6 +902,41 @@ namespace ZScript.Runtime.Typing
                 // No equivalents
                 return null;
             }
+        }
+    }
+
+    /// <summary>
+    /// Class that contains helper type methods
+    /// </summary>
+    public static class TypeHelpers
+    {
+        /// <summary>
+        /// Returns a value specifying whether a IInheritableTypeDef is a subtype of a given type
+        /// </summary>
+        /// <param name="inheritedType">The inherited type to analyze</param>
+        /// <param name="type">The type to search for</param>
+        /// <returns>Whether the given type is in the inheritance chain of this class type def</returns>
+        public static bool IsSubtypeOf(this IInheritableTypeDef inheritedType, ITypeDef type)
+        {
+            var b = (TypeDef)inheritedType;
+
+            while (b != null)
+            {
+                if (b == (type as TypeDef))
+                {
+                    return true;
+                }
+                if (b is IInheritableTypeDef)
+                {
+                    b = ((IInheritableTypeDef)b).BaseType;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return false;
         }
     }
 

@@ -225,7 +225,7 @@ namespace ZScript.CodeGeneration
         /// <returns>The generic type definition that were collected</returns>
         public static GenericTypeDefinition CollectGenericType(ZScriptParser.GenericTypeContext context)
         {
-            return new GenericTypeDefinition(context.IDENT().GetText());
+            return new GenericTypeDefinition(context.IDENT().GetText()) { Context = context };
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace ZScript.CodeGeneration
         /// <returns>The generic type definition that were collected</returns>
         public static GenericTypeConstraint CollectGenericTypeConstraint(ZScriptParser.GenericConstraintContext context)
         {
-            return new GenericTypeConstraint(context.genericType().IDENT().GetText(), context.complexTypeName().GetText());
+            return new GenericTypeConstraint(context.genericType().IDENT().GetText(), context.complexTypeName().GetText(), context);
         }
 
         /// <summary>

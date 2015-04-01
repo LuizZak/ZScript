@@ -326,35 +326,6 @@ namespace ZScript.CodeGeneration.Definitions
         {
 
         }
-
-        /// <summary>
-        /// Returns a value specifying whether this ClassTypeDef is a subtype of a given type
-        /// </summary>
-        /// <param name="type">The type to search for</param>
-        /// <returns>Whether the given type is in the inheritance chain of this class type def</returns>
-        public bool IsSubtypeOf(TypeDef type)
-        {
-            var b = BaseType;
-
-            while (b != null)
-            {
-                if (b is ClassTypeDef)
-                {
-                    if (b == type)
-                    {
-                        return true;
-                    }
-
-                    b = ((ClassTypeDef)b).baseType;
-                }
-                else
-                {
-                    return b == type;
-                }
-            }
-
-            return false;
-        }
     }
 
     /// <summary>

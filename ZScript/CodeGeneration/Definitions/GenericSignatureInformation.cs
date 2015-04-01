@@ -102,6 +102,11 @@ namespace ZScript.CodeGeneration.Definitions
         }
 
         /// <summary>
+        /// Gets or sets the context this generic type definition was defined in
+        /// </summary>
+        public ZScriptParser.GenericTypeContext Context { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the GenericTypeDefinition class with a generic name specified
         /// </summary>
         /// <param name="name">The name for the generic type</param>
@@ -118,29 +123,35 @@ namespace ZScript.CodeGeneration.Definitions
     public struct GenericTypeConstraint : IEquatable<GenericTypeConstraint>
     {
         /// <summary>
-        /// The name of the type to constraint
+        /// Gets the name of the type to constraint
         /// </summary>
         public readonly string TypeName;
 
         /// <summary>
-        /// The name of the type the type name is supposed to inherit from
+        /// Gets the name of the type the type name is supposed to inherit from
         /// </summary>
         public readonly string BaseTypeName;
 
         /// <summary>
+        /// Gets the context this generic type constraint was defined in
+        /// </summary>
+        public readonly ZScriptParser.GenericConstraintContext Context;
+
+        /// <summary>
         /// Initializes a new GenericTypeConstraint structure
         /// </summary>
-        public GenericTypeConstraint(string typeName, string baseTypeName)
+        public GenericTypeConstraint(string typeName, string baseTypeName, ZScriptParser.GenericConstraintContext context)
         {
             TypeName = typeName;
             BaseTypeName = baseTypeName;
+            Context = context;
         }
 
         #region Equality members
 
         public bool Equals(GenericTypeConstraint other)
         {
-            return string.Equals(BaseTypeName, other.BaseTypeName) && string.Equals(TypeName, other.TypeName);
+            return string.Equals(BaseTypeName, other.BaseTypeName) && string.Equals(TypeName, other.TypeName) && Context == other.Context;
         }
 
         public override bool Equals(object obj)
@@ -153,7 +164,9 @@ namespace ZScript.CodeGeneration.Definitions
         {
             unchecked
             {
-                return ((BaseTypeName != null ? BaseTypeName.GetHashCode() : 0) * 397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
+                return ((BaseTypeName != null ? BaseTypeName.GetHashCode() : 0) * 397) ^
+                       ((TypeName != null ? TypeName.GetHashCode() : 0) * 397) ^
+                       (Context != null ? Context.GetHashCode() : 0);
             }
         }
 
