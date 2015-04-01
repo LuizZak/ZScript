@@ -20,12 +20,15 @@
 #endregion
 
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Runtime.Typing;
 
 namespace ZScriptTests.CodeGeneration.Analysis.Definitions
 {
@@ -95,7 +98,11 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
             var constraints = new[] { new GenericTypeConstraint("T", "U", null) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T"), new GenericTypeDefinition("U") }, constraints);
             var container = new MessageContainer();
-            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container));
+            var typeProvider = new TypeProvider();
+            var genericTypeSource = new GenericTypeSource();
+            genericTypeSource.PushGenericContext(signature);
+            typeProvider.RegisterCustomTypeSource(genericTypeSource);
+            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container, typeProvider: typeProvider));
 
             analyzer.AnalyzeSignature(signature);
 
@@ -114,7 +121,11 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
             var constraints = new[] { new GenericTypeConstraint("N", "U", null) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T") }, constraints);
             var container = new MessageContainer();
-            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container));
+            var typeProvider = new TypeProvider();
+            var genericTypeSource = new GenericTypeSource();
+            genericTypeSource.PushGenericContext(signature);
+            typeProvider.RegisterCustomTypeSource(genericTypeSource);
+            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container, typeProvider: typeProvider));
 
             analyzer.AnalyzeSignature(signature);
 
@@ -133,7 +144,11 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
             var constraints = new[] { new GenericTypeConstraint("T", "U", null), new GenericTypeConstraint("U", "T", null) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T"), new GenericTypeDefinition("U") }, constraints);
             var container = new MessageContainer();
-            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container));
+            var typeProvider = new TypeProvider();
+            var genericTypeSource = new GenericTypeSource();
+            genericTypeSource.PushGenericContext(signature);
+            typeProvider.RegisterCustomTypeSource(genericTypeSource);
+            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container, typeProvider: typeProvider));
 
             analyzer.AnalyzeSignature(signature);
 
@@ -152,7 +167,11 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
             var constraints = new[] { new GenericTypeConstraint("T", "U", null), new GenericTypeConstraint("T", "V", null) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T"), new GenericTypeDefinition("U") }, constraints);
             var container = new MessageContainer();
-            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container));
+            var typeProvider = new TypeProvider();
+            var genericTypeSource = new GenericTypeSource();
+            genericTypeSource.PushGenericContext(signature);
+            typeProvider.RegisterCustomTypeSource(genericTypeSource);
+            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container, typeProvider: typeProvider));
 
             analyzer.AnalyzeSignature(signature);
 
