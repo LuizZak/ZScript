@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using System.Reflection;
-using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
 using ZScript.Runtime.Typing.Elements;
 
@@ -326,7 +325,7 @@ namespace ZScript.Runtime.Typing
                 return AnyType();
             }
 
-            // Class types
+            // Inheritable types
             var classT1 = type1 as IInheritableTypeDef;
             var classT2 = type2 as IInheritableTypeDef;
             if (classT1 != null && classT2 != null)
@@ -349,9 +348,9 @@ namespace ZScript.Runtime.Typing
                     if (classT1.IsSubtypeOf(b) && classT2.IsSubtypeOf(b))
                         return b;
 
-                    if (b is ClassTypeDef)
+                    if (b is IInheritableTypeDef)
                     {
-                        b = ((ClassTypeDef)b).BaseType;
+                        b = ((IInheritableTypeDef)b).BaseType;
                     }
                     else
                     {
@@ -474,9 +473,9 @@ namespace ZScript.Runtime.Typing
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
-            // Class typing
-            if (origin is ClassTypeDef && target is ClassTypeDef)
-                return CanExplicitCastInheritable((ClassTypeDef)origin, (ClassTypeDef)target);
+            // Inheritable typing
+            if (origin is IInheritableTypeDef && target is IInheritableTypeDef)
+                return CanExplicitCastInheritable((IInheritableTypeDef)origin, (IInheritableTypeDef)target);
 
             // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;

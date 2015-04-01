@@ -26,7 +26,6 @@ using Antlr4.Runtime.Sharpen;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
-using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Analysis.Definitions
 {
