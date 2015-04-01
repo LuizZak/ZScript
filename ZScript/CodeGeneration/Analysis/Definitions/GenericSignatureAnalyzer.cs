@@ -80,14 +80,14 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                 if (type == null)
                 {
                     var message = "Unknown generic type " + constraint.TypeName + " that cannot be constrained in this context";
-                    _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.UnkownGenericTypeName);
+                    _context.MessageContainer.RegisterError(constraint.Context.genericType(), message, ErrorCode.UnkownGenericTypeName);
                     continue;
                 }
 
                 if (!constraints.Add(constraint.TypeName))
                 {
                     var message = "Duplicated generic constraint for generic type " + constraint.TypeName;
-                    _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.DupliatedGenericConstraint);
+                    _context.MessageContainer.RegisterError(constraint.Context.genericType(), message, ErrorCode.DupliatedGenericConstraint);
                     continue;
                 }
 
@@ -98,11 +98,15 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                     baseType = _context.TypeProvider.TypeNamed(constraint.BaseTypeName) as IInheritableTypeDef;
 
                     if(baseType == null)
+                    {
+                        var message = "Unkown type " + constraint.BaseTypeName;
+                        _context.MessageContainer.RegisterError(constraint.Context.complexTypeName(), message, ErrorCode.UnkownType);
                         continue;
+                    }
                 }
 
                 // Detect cyclical referencing
-                if (baseType.IsSubtypeOf(type) || baseType == type)
+                if (baseType.IsSubtypeOf(type) || type == (baseType as GenericTypeDefinition))
                 {
                     var message = "Cyclical generic constraining detected between " + type + " and " + baseType;
                     _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.CyclicalGenericConstraint);

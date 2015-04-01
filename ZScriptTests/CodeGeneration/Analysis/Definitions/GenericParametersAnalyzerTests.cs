@@ -136,6 +136,29 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
         }
 
         /// <summary>
+        /// Tests detecting unexisting type names in base types in constraints
+        /// </summary>
+        [TestMethod]
+        public void TestUnknownBaseTypeConstraint()
+        {
+            var constraints = new[] { new GenericTypeConstraint("T", "U", null) };
+            var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T") }, constraints);
+            var container = new MessageContainer();
+            var typeProvider = new TypeProvider();
+            var genericTypeSource = new GenericTypeSource();
+            genericTypeSource.PushGenericContext(signature);
+            typeProvider.RegisterCustomTypeSource(genericTypeSource);
+            var analyzer = new GenericSignatureAnalyzer(new RuntimeGenerationContext(messageContainer: container, typeProvider: typeProvider));
+
+            analyzer.AnalyzeSignature(signature);
+
+            container.PrintMessages();
+
+            Assert.IsTrue(container.HasErrors);
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnkownType));
+        }
+
+        /// <summary>
         /// Tests detecting cyclical generic type constraint errors
         /// </summary>
         [TestMethod]
