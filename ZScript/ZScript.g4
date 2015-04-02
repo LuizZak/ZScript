@@ -83,7 +83,7 @@ typeAliasInherit  : '<-' typeAliasName;
 ////
 //// Statements
 ////
-statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDeclareStatement);
+statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | forEachStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDeclareStatement);
 blockStatement : '{' statement* '}';
 
 ////
@@ -108,6 +108,9 @@ forStatement : 'for' '(' forInit? ';' forCondition? ';' forIncrement? ')' statem
 forInit : valueHolderDecl | expression | assignmentExpression;
 forCondition : expression;
 forIncrement : expression;
+
+// For each
+forEachStatement : 'for' '(' valueHolderDefine 'in' expression ')' statement;
 
 // Return statement
 returnStatement : 'return' value=expression? ';';

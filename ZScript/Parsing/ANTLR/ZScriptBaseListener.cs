@@ -669,6 +669,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitForIncrement([NotNull] ZScriptParser.ForIncrementContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.forEachStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterForEachStatement([NotNull] ZScriptParser.ForEachStatementContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.forEachStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitForEachStatement([NotNull] ZScriptParser.ForEachStatementContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.returnStatement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
