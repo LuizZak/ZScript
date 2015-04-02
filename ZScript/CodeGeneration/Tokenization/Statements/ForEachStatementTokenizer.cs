@@ -115,7 +115,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // Body target
             tokens.Add(_bodyTarget);
             // 4: Assign <item> as $TEMP.Current
-            var value = TokenFactory.CreateMemberAccess(tempDef.Name, "Current", true);
+            var value = TokenFactory.CreateMemberAccess(tempDef.Name, "Current", MemberAccessType.FieldAccess, true);
             tokens.AddRange(TokenFactory.CreateVariableAssignment(context.forEachHeader().valueHolderDefine().valueHolderName().memberName().IDENT().GetText(), value));
 
             // 5: { Loop body }
@@ -124,18 +124,23 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // Condition jump target
             tokens.Add(_conditionTarget);
             // 6: Call $TEMP.MoveNext()
-            tokens.AddRange(TokenFactory.CreateFunctionCall(tempDef.Name, "MoveNext"));
+            tokens.AddRange(TokenFactory.CreateMethodCall(tempDef.Name, "MoveNext"));
             // 7: [JumpIfTrue 4]
             tokens.Add(new JumpToken(_bodyTarget, true));
             // For Block end
             tokens.Add(_forBlockEndTarget);
 
-            tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
-            tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
-            tokens.Add(new JumpToken(jumpOverDispose, true, false));
             // 8: Call $TEMP.Dispose()
-            tokens.AddRange(TokenFactory.CreateFunctionCall(tempDef.Name, "Dispose"));
+            tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
+            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+            tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
+            
+            // Verify whether the object is an IDisposable instance
+            tokens.Add(new JumpToken(jumpOverDispose, true, false));
+            tokens.AddRange(TokenFactory.CreateMemberAccess("Dispose", MemberAccessType.MethodAccess, true));
+            tokens.AddRange(TokenFactory.CreateFunctionCall());
             tokens.Add(jumpOverDispose);
+
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
 
             // Store the temporary definition back into the temporary definition collection

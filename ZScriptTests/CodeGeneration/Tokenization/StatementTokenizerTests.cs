@@ -1021,9 +1021,9 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
                 new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Dispose"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
@@ -1118,9 +1118,9 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
                 new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Dispose"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
@@ -1215,9 +1215,9 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
                 new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Dispose"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
