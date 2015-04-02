@@ -31,18 +31,9 @@ namespace ZScript.CodeGeneration
     public class ZScriptSyntaxErrorListener : BaseErrorListener
     {
         /// <summary>
-        /// The container errors will be reported to
-        /// </summary>
-        private MessageContainer _messageContainer;
-
-        /// <summary>
         /// Gets or sets the container errors will be reported to
         /// </summary>
-        public MessageContainer MessageContainer
-        {
-            get { return _messageContainer; }
-            set { _messageContainer = value; }
-        }
+        public MessageContainer MessageContainer { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the ZScriptErrorListener class
@@ -50,7 +41,7 @@ namespace ZScript.CodeGeneration
         /// <param name="messageContainer">The container errors will be reported to</param>
         public ZScriptSyntaxErrorListener(MessageContainer messageContainer)
         {
-            _messageContainer = messageContainer;
+            MessageContainer = messageContainer;
         }
 
         // 
@@ -58,7 +49,7 @@ namespace ZScript.CodeGeneration
         // 
         public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
-            _messageContainer.RegisterSyntaxError(new SyntaxError(offendingSymbol, line, charPositionInLine, msg));
+            MessageContainer.RegisterSyntaxError(new SyntaxError(offendingSymbol, line, charPositionInLine, msg));
         }
     }
 }
