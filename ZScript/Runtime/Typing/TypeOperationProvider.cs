@@ -76,9 +76,9 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Sum(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _doubleTypeOperator.Sum((double)v1, (double)v2);
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Sum((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Sum((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
                     return _doubleTypeOperator.Sum(Convert.ToDouble(v1), Convert.ToDouble(v2));
@@ -132,9 +132,9 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Multiply(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _doubleTypeOperator.Multiply((double)v1, (double)v2);
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Multiply((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Multiply((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
                     return _doubleTypeOperator.Multiply(Convert.ToDouble(v1), Convert.ToDouble(v2));
@@ -160,9 +160,9 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Divide(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _doubleTypeOperator.Divide((double)v1, (double)v2);
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Divide((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Divide((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
                     return _doubleTypeOperator.Divide(Convert.ToDouble(v1), Convert.ToDouble(v2));
@@ -188,9 +188,9 @@ namespace ZScript.Runtime.Typing
                     return _longTypeOperator.Modulo(Convert.ToInt64(v1), Convert.ToInt64(v2));
 
                 case NumberClass.ExactFloat:
-                    return _doubleTypeOperator.Modulo((double)v1, (double)v2);
-                case NumberClass.ExactDouble:
                     return _doubleTypeOperator.Modulo((float)v1, (float)v2);
+                case NumberClass.ExactDouble:
+                    return _doubleTypeOperator.Modulo((double)v1, (double)v2);
                 case NumberClass.Float:
                 case NumberClass.Double:
                     return _doubleTypeOperator.Modulo(Convert.ToDouble(v1), Convert.ToDouble(v2));
