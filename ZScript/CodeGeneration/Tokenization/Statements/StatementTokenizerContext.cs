@@ -35,6 +35,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
     public class StatementTokenizerContext
     {
         /// <summary>
+        /// The inner temporary variable creator for this statement tokenizer context
+        /// </summary>
+        private readonly InnerTemporaryCreator _tempCreator;
+
+        /// <summary>
         /// The stack of continue targets
         /// </summary>
         private readonly Stack<Token> _continueTargetStack = new Stack<Token>();
@@ -89,6 +94,14 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
+        /// Gets the temporary definition creator for this StatementTokenizerContext instance
+        /// </summary>
+        public ITemporaryDefinitionCreator TemporaryDefinitionCreator
+        {
+            get { return _tempCreator; }
+        }
+
+        /// ;<summary>
         /// Initializes a new instance of the StatementTokenizerContext class
         /// </summary>
         /// <param name="context">The context for the runtime generation</param>
@@ -97,6 +110,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             _scope = context.BaseScope;
 
             _generationContext = context;
+            _tempCreator = new InnerTemporaryCreator();
         }
 
         /// <summary>
@@ -138,6 +152,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             else if (statement.forStatement() != null)
             {
                 statementTokens = TokenizeForStatement(statement.forStatement());
+            }
+            else if (statement.forEachStatement() != null)
+            {
+                statementTokens = TokenizeForEachStatement(statement.forEachStatement());
             }
             else if (statement.whileStatement() != null)
             {
@@ -204,6 +222,17 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public IntermediaryTokenList TokenizeForStatement(ZScriptParser.ForStatementContext statement)
         {
             var tokenizer = new ForStatementTokenizer(this);
+            return tokenizer.TokenizeStatement(statement);
+        }
+
+        /// <summary>
+        /// Tokenizes a given FOR EACH statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="statement">The statement to tokenize</param>
+        /// <returns>A list of tokens that corresponds to the for each statement</returns>
+        public IntermediaryTokenList TokenizeForEachStatement(ZScriptParser.ForEachStatementContext statement)
+        {
+            var tokenizer = new ForEachStatementTokenizer(this);
             return tokenizer.TokenizeStatement(statement);
         }
 
@@ -358,6 +387,64 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public void PopBreakTarget()
         {
             _breakTargetStack.Pop();
+        }
+
+        private class InnerTemporaryCreator : ITemporaryDefinitionCreator
+        {
+            private readonly List<TemporaryDefinition> _usedDefinitions = new List<TemporaryDefinition>(); 
+
+            public TemporaryDefinition GetDefinition()
+            {
+                var temp = new TemporaryDefinition("$TEMP" + _usedDefinitions.Count);
+
+                _usedDefinitions.Add(temp);
+
+                return temp;
+            }
+
+            public void ReleaseDefinition(TemporaryDefinition definition)
+            {
+                _usedDefinitions.Remove(definition);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Interface to be implemented by objects capable of creating temporary hidden definitions that can be used in code scopes
+    /// </summary>
+    public interface ITemporaryDefinitionCreator
+    {
+        /// <summary>
+        /// Generates a new temporary definition on this ITemporaryDefinitionCreator
+        /// </summary>
+        /// <returns>The temporary definition that was created</returns>
+        TemporaryDefinition GetDefinition();
+
+        /// <summary>
+        /// Marks a given temporary definition as released.
+        /// After releasing, a definition is not considered valid anymore, and a new call to GenerateDefinition has to be made for a new definition
+        /// </summary>
+        /// <param name="definition">The temporary definition to release</param>
+        void ReleaseDefinition(TemporaryDefinition definition);
+    }
+
+    /// <summary>
+    /// Defines a temporary definition in code
+    /// </summary>
+    public class TemporaryDefinition
+    {
+        /// <summary>
+        /// Gets the name for this temporary definition
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the TemporaryDefinition class
+        /// </summary>
+        /// <param name="name">The name of the definition to create</param>
+        public TemporaryDefinition(string name)
+        {
+            Name = name;
         }
     }
 }

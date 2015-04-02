@@ -2809,8 +2809,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
-            var jTar = new JumpTargetToken();
-
             var expectedTokens = new List<Token>
             {
                 // 'a'
@@ -2845,8 +2843,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
-            var jTar = new JumpTargetToken();
-
             var expectedTokens = new List<Token>
             {
                 // 'a'

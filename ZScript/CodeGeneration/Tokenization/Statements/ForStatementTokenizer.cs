@@ -25,7 +25,7 @@ using ZScript.Runtime.Execution;
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
-    /// Class capable of the tokenizing FOR statements
+    /// Class capable of tokenizing FOR statements
     /// </summary>
     public class ForStatementTokenizer
     {

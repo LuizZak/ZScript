@@ -670,6 +670,64 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region For each statement analysis
+
+        /// <summary>
+        /// Tests checking iterable expressions on for-each statements
+        /// </summary>
+        [TestMethod]
+        public void TestForEachStatementTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { for(var a in [0, 1]) { } for(var a in 0) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests checking varaible type on for-each statements
+        /// </summary>
+        [TestMethod]
+        public void TestForEachStatementHardTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { for(var a:int in [0, 1]) { } for(var a:float in [0, 1]) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests proper propagation of loop variable type
+        /// </summary>
+        [TestMethod]
+        public void TestForEachStatementLoopVariableTypePropagation()
+        {
+            // Set up the test
+            const string input = "func f() { for(var a:int in [0, 1]) { a = 0.0; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        #endregion
+
         #region Switch statement analysis
 
         /// <summary>

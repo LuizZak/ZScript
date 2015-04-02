@@ -569,6 +569,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitForEachStatement([NotNull] ZScriptParser.ForEachStatementContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.forEachHeader"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterForEachHeader([NotNull] ZScriptParser.ForEachHeaderContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.forEachHeader"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitForEachHeader([NotNull] ZScriptParser.ForEachHeaderContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.returnStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

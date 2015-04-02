@@ -212,6 +212,24 @@ namespace ZScript.CodeGeneration
             PopScope();
         }
 
+        public override void EnterForEachStatement(ZScriptParser.ForEachStatementContext context)
+        {
+            PushScope(context);
+        }
+
+        public override void EnterForEachHeader(ZScriptParser.ForEachHeaderContext context)
+        {
+            base.EnterForEachHeader(context);
+            
+            // Define the inner variable
+            context.LoopVariable = DefineLocalVariable(context.valueHolderDefine());
+        }
+
+        public override void ExitForEachStatement(ZScriptParser.ForEachStatementContext context)
+        {
+            PopScope();
+        }
+
         public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
         {
             PushScope(context);
@@ -441,6 +459,23 @@ namespace ZScript.CodeGeneration
             CheckCollisions(def, variable);
 
             _currentScope.AddDefinition(def);
+        }
+
+        /// <summary>
+        /// Defines a new variable in the current top-most scope
+        /// </summary>
+        /// <param name="variable">The context containing the variable to define</param>
+        LocalVariableDefinition DefineLocalVariable(ZScriptParser.ValueHolderDefineContext variable)
+        {
+            var def = DefinitionGenerator.GenerateLocalVariable(variable);
+
+            def.IsInstanceValue = IsInInstanceScope();
+
+            CheckCollisions(def, variable);
+
+            _currentScope.AddDefinition(def);
+
+            return def;
         }
 
         /// <summary>

@@ -430,6 +430,16 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
+        /// Returns a value specifying whether the given type is an enumerable type
+        /// </summary>
+        /// <param name="type">The type to verify</param>
+        /// <returns>True if type is enumerable, false otherwise</returns>
+        public bool IsEnumerable(TypeDef type)
+        {
+            return type is ListTypeDef;
+        }
+
+        /// <summary>
         /// Returns whether an origin type can be cast to a target type
         /// </summary>
         /// <param name="origin">The origin type to cast</param>
@@ -533,7 +543,7 @@ namespace ZScript.Runtime.Typing
             var optionalTarget = target as OptionalTypeDef;
             if (optionalTarget != null)
             {
-                if (InternalAreTypesCompatible(origin, target))
+                if (AreTypesCompatible(origin, target))
                     return true;
 
                 if (CanImplicitCast(origin, optionalTarget.WrappedType))
@@ -669,7 +679,7 @@ namespace ZScript.Runtime.Typing
             if (!target.ReturnType.IsVoid)
             {
                 // Optional configuration
-                if (!InternalAreTypesCompatible(target.ReturnType, origin.ReturnType))
+                if (!AreTypesCompatible(target.ReturnType, origin.ReturnType))
                     return false;
             }
 
@@ -680,7 +690,7 @@ namespace ZScript.Runtime.Typing
                 var typeO = origin.ParameterTypes[i];
                 var typeT = target.ParameterTypes[i];
 
-                if (!InternalAreTypesCompatible(typeO, typeT))
+                if (!AreTypesCompatible(typeO, typeT))
                     return false;
             }
 
@@ -693,7 +703,7 @@ namespace ZScript.Runtime.Typing
                 var varT = target.VariadicParameter.RawParameterType;
                 var varO = origin.VariadicParameter.RawParameterType;
 
-                if (!InternalAreTypesCompatible(varO, varT))
+                if (!AreTypesCompatible(varO, varT))
                     return false;
             }
 
@@ -702,12 +712,12 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
-        /// Internal method used to help deal with value compatibility of types that are passed around
+        /// Method used to help deal with value compatibility of types that are passed around
         /// </summary>
         /// <param name="origin">The origin type to verify</param>
         /// <param name="target">The target type to verify</param>
         /// <returns>Whether the types are compatible or not</returns>
-        private bool InternalAreTypesCompatible(TypeDef origin, TypeDef target)
+        public bool AreTypesCompatible(TypeDef origin, TypeDef target)
         {
             // Types match
             if (origin == target)
@@ -718,7 +728,7 @@ namespace ZScript.Runtime.Typing
             var optT = target as OptionalTypeDef;
 
             if (optO != null && optT != null)
-                return InternalAreTypesCompatible(optO.WrappedType, optT.WrappedType);
+                return AreTypesCompatible(optO.WrappedType, optT.WrappedType);
 
             // Optional parameter compatibility rules:
             // The test passes if any of the conditions are true:

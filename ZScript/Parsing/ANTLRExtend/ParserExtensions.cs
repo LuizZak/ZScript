@@ -327,6 +327,17 @@ public partial class ZScriptParser
     }
 
     /// <summary>
+    /// Provides extensions to the ForEachHeaderContext for storing the loop variable definition
+    /// </summary>
+    partial class ForEachHeaderContext
+    {
+        /// <summary>
+        /// Gets or sets the loop variable for the for each statement
+        /// </summary>
+        public LocalVariableDefinition LoopVariable { get; set; }
+    }
+
+    /// <summary>
     /// Provides extensions to the SwitchStatementContext for providing constant evaluation flagging
     /// </summary>
     partial class SwitchStatementContext

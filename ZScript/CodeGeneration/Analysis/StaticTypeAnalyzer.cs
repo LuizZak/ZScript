@@ -876,6 +876,47 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // 
+            // EnterForEachHeader override
+            // 
+            public override void EnterForEachHeader(ZScriptParser.ForEachHeaderContext context)
+            {
+                // Verify type of the expression
+                var valueType = _typeResolver.ResolveExpression(context.expression());
+
+                // Verify compatibility
+                if (!_context.TypeProvider.IsEnumerable(valueType))
+                {
+                    _context.MessageContainer.RegisterError(context.expression(), "Value on for each loop must be a enumerable list type", ErrorCode.InvalidCast);
+                }
+
+                // Type of variable is the inner type of the value
+                var itemType = _context.TypeProvider.AnyType();
+                var listTypeDef = valueType as IListTypeDef;
+                if (listTypeDef != null)
+                {
+                    itemType = listTypeDef.EnclosingType;
+                }
+
+                var loopVar = context.LoopVariable;
+                loopVar.ValueExpression = new Expression(context.expression());
+                loopVar.HasValue = true;
+
+                _typeAnalyzer.ExpandValueHolderType(loopVar);
+
+                var varType = loopVar.Type;
+
+                if (loopVar.HasType && varType != null && !TypeProvider.AreTypesCompatible(itemType, varType))
+                {
+                    var message = "Cannot assign value of type " + itemType + " to variable of type " + varType;
+                    _context.MessageContainer.RegisterError(loopVar.Context, message, ErrorCode.InvalidCast);
+                }
+                
+                loopVar.Type = itemType;
+
+                AddLocal(loopVar);
+            }
+
+            // 
             // IClosureExpectedTypeNotifier.ClosureTypeMatched implementation
             // 
             public void ClosureTypeMatched(ZScriptParser.ClosureExpressionContext context, TypeDef expectedType)

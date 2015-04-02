@@ -219,6 +219,25 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
+        public override void EnterForEachStatement(ZScriptParser.ForEachStatementContext context)
+        {
+            EnterContextScope(context);
+
+            PushDefinitionScope();
+        }
+
+        public override void ExitForEachHeader(ZScriptParser.ForEachHeaderContext context)
+        {
+            AddDefinition(context.LoopVariable);
+        }
+
+        public override void ExitForEachStatement(ZScriptParser.ForEachStatementContext context)
+        {
+            PopDefinitionScope();
+
+            ExitContextScope();
+        }
+
         public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
         {
             EnterContextScope(context);

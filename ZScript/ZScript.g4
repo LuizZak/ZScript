@@ -110,7 +110,8 @@ forCondition : expression;
 forIncrement : expression;
 
 // For each
-forEachStatement : 'for' '(' valueHolderDefine 'in' expression ')' statement;
+forEachStatement : 'for' forEachHeader statement;
+forEachHeader : '(' valueHolderDefine 'in' expression ')';
 
 // Return statement
 returnStatement : 'return' value=expression? ';';

@@ -297,6 +297,20 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the local variable definition</param>
         /// <returns>A new local variable definition based on the given value holder declaration context</returns>
+        public static LocalVariableDefinition GenerateLocalVariable(ZScriptParser.ValueHolderDefineContext context)
+        {
+            var def = new LocalVariableDefinition();
+
+            FillValueHolderDef(def, context);
+
+            return def;
+        }
+
+        /// <summary>
+        /// Creates a new local variable definition from a given value holder context
+        /// </summary>
+        /// <param name="context">The context containing the local variable definition</param>
+        /// <returns>A new local variable definition based on the given value holder declaration context</returns>
         public static TypeFieldDefinition GenerateClassField(ZScriptParser.ClassFieldContext context)
         {
             // TODO: Oh god what is this
@@ -328,19 +342,39 @@ namespace ZScript.CodeGeneration
         /// <param name="context">The value declaration context that the definition will be filled with</param>
         public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDeclContext context)
         {
-            def.Name = context.valueHolderDefine().valueHolderName().memberName().IDENT().GetText();
             def.Context = context;
+
+            FillValueHolderDef(def, context.valueHolderDefine());
+
             def.HasValue = context.expression() != null;
-            def.HasType = context.valueHolderDefine().type() != null;
             def.ValueExpression = new Expression(context.expression());
-            def.IsConstant = context.valueHolderDefine().let != null;
-            def.IdentifierContext = context.valueHolderDefine().valueHolderName().memberName();
 
             context.Definition = def;
 
             if (def.HasType)
             {
                 def.TypeContext = context.valueHolderDefine().type();
+            }
+        }
+
+        /// <summary>
+        /// Fills a value holder definition with the contents of a given
+        /// </summary>
+        /// <param name="def">The definition to fill</param>
+        /// <param name="context">The value declaration context that the definition will be filled with</param>
+        public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDefineContext context)
+        {
+            def.Context = context;
+
+            def.Name = context.valueHolderName().memberName().IDENT().GetText();
+            def.Context = context;
+            def.HasType = context.type() != null;
+            def.IsConstant = context.let != null;
+            def.IdentifierContext = context.valueHolderName().memberName();
+
+            if (def.HasType)
+            {
+                def.TypeContext = context.type();
             }
         }
     }
