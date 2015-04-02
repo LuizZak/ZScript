@@ -27,6 +27,7 @@ using System.Reflection;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Execution.Wrappers.Callables;
+using ZScript.Runtime.Execution.Wrappers.Members;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution
@@ -476,7 +477,7 @@ namespace ZScript.Runtime.Execution
 
                 // Field fetching
                 case VmInstruction.GetMember:
-                    PerformGetMember();
+                    PerformGetMember(token);
                     break;
 
                 // Method fetching
@@ -765,8 +766,24 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs a member-fetch on the object on top of the stack, pushing a resulting IMemberWrapper back on the stack
         /// </summary>
-        void PerformGetMember()
+        void PerformGetMember(Token token)
         {
+            if (token.TokenObject != null)
+            {
+                var fieldInfo = token.TokenObject as FieldInfo;
+                if (fieldInfo != null)
+                {
+                    _stack.Push(ClassMember.CreateFieldWrapper(PopValueImplicit(), fieldInfo));
+                    return;
+                }
+                var propInfo = token.TokenObject as PropertyInfo;
+                if (propInfo != null)
+                {
+                    _stack.Push(ClassMember.CreatePropertyWrapper(PopValueImplicit(), propInfo));
+                    return;
+                }
+            }
+
             object memberName = _stack.Pop();
             object target = PopValueImplicit();
 

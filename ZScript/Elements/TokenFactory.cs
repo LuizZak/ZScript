@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing.Elements;
@@ -329,6 +330,44 @@ namespace ZScript.Elements
         }
 
         /// <summary>
+        /// Creates an enumerable of tokens containing a syntax for a method call on a specified variable with the specified argument list
+        /// </summary>
+        /// <param name="variableName">The name of the variable to call the function on</param>
+        /// <param name="method">The reflected method to call on the variable</param>
+        /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
+        /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
+        public static IEnumerable<Token> CreateMethodCall(string variableName, MethodInfo method, params IEnumerable<Token>[] argumentList)
+        {
+            var tokens = new List<Token> { CreateVariableToken(variableName, true) };
+
+            tokens.AddRange(CreateFunctionCall(method, argumentList));
+
+            return tokens;
+        }
+
+        /// <summary>
+        /// Creates an enumerable of tokens containing a syntax for a function call on a specified variable with the specified argument list
+        /// </summary>
+        /// <param name="methodInfo">A reflected method information to call on</param>
+        /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
+        /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
+        public static IEnumerable<Token> CreateFunctionCall(MethodInfo methodInfo, params IEnumerable<Token>[] argumentList)
+        {
+            var tokens = new List<Token>();
+
+            // Add the arguments
+            foreach (var args in argumentList)
+            {
+                tokens.AddRange(args);
+            }
+
+            tokens.Add(CreateBoxedValueToken(argumentList.Length));
+            tokens.Add(CreateInstructionToken(VmInstruction.Call, methodInfo));
+
+            return tokens;
+        }
+
+        /// <summary>
         /// Creates an enumerable of tokens containing a syntax for a function call on a specified variable with the specified argument list
         /// </summary>
         /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
@@ -376,6 +415,48 @@ namespace ZScript.Elements
             }
 
             if (accessType != MemberAccessType.MethodAccess && isGetAccess)
+                tokens.Add(CreateInstructionToken(VmInstruction.Get));
+
+            return tokens;
+        }
+
+        /// <summary>
+        /// Creates an enumerable of tokens containing a syntax for a member get on a specified variable with the specified argument list
+        /// </summary>
+        /// <param name="variableName">The name of the variable to call the function on</param>
+        /// <param name="property">The member to get from the variable</param>
+        /// <param name="isGetAccess">Whether to add a Get instruction after the member fetch</param>
+        /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
+        public static IEnumerable<Token> CreateMemberAccess(string variableName, PropertyInfo property, bool isGetAccess)
+        {
+            var tokens = new List<Token>
+            {
+                CreateVariableToken(variableName, true),
+                CreateInstructionToken(VmInstruction.GetMember, property)
+            };
+
+            if (isGetAccess)
+                tokens.Add(CreateInstructionToken(VmInstruction.Get));
+
+            return tokens;
+        }
+
+        /// <summary>
+        /// Creates an enumerable of tokens containing a syntax for a member get on a specified variable with the specified argument list
+        /// </summary>
+        /// <param name="variableName">The name of the variable to call the function on</param>
+        /// <param name="field">The member to get from the variable</param>
+        /// <param name="isGetAccess">Whether to add a Get instruction after the member fetch</param>
+        /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
+        public static IEnumerable<Token> CreateMemberAccess(string variableName, FieldInfo field, bool isGetAccess)
+        {
+            var tokens = new List<Token>
+            {
+                CreateVariableToken(variableName, true),
+                CreateInstructionToken(VmInstruction.GetMember, field)
+            };
+
+            if (isGetAccess)
                 tokens.Add(CreateInstructionToken(VmInstruction.Get));
 
             return tokens;

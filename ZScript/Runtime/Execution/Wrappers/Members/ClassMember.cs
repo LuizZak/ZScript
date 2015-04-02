@@ -67,19 +67,41 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <exception cref="ArgumentException">The member name provided does not points to a valid visible field or property</exception>
         public static ClassMember CreateMemberWrapper(object target, string memberName)
         {
-            FieldInfo field = target.GetType().GetField(memberName);
+            var field = target.GetType().GetField(memberName);
             if (field != null)
             {
-                return new FieldClassMember(target, field);
+                return CreateFieldWrapper(target, field);
             }
 
-            PropertyInfo prop = target.GetType().GetProperty(memberName);
+            var prop = target.GetType().GetProperty(memberName);
             if (prop != null)
             {
-                return new PropertyClassMember(target, prop);
+                return CreatePropertyWrapper(target, prop);
             }
 
             throw new ArgumentException("No public member of name '" + memberName + "' found on object of type '" + target.GetType() + "'", "memberName");
+        }
+
+        /// <summary>
+        /// Returns a FieldClassMember that wraps a field from a target class.
+        /// </summary>
+        /// <param name="target">The target to get the member from</param>
+        /// <param name="field">The field to get</param>
+        /// <returns>A ClassMember that wraps the field</returns>
+        public static FieldClassMember CreateFieldWrapper(object target, FieldInfo field)
+        {
+            return new FieldClassMember(target, field);
+        }
+
+        /// <summary>
+        /// Returns a PropertyClassMember that wraps a property from a target class.
+        /// </summary>
+        /// <param name="target">The target to get the member from</param>
+        /// <param name="prop">The property to get</param>
+        /// <returns>A ClassMember that wraps the property</returns>
+        public static PropertyClassMember CreatePropertyWrapper(object target, PropertyInfo prop)
+        {
+            return new PropertyClassMember(target, prop);
         }
     }
 }

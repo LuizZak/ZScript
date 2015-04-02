@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -69,6 +70,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         {
             var tokens = new IntermediaryTokenList();
 
+            // Get some cached member infos for the iterators
+            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
+            var currentProp = typeof(IEnumerator).GetProperty("Current");
+
             var jumpOverDispose = new JumpTargetToken();
 
             _forBlockEndTarget = new JumpTargetToken();
@@ -115,7 +121,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // Body target
             tokens.Add(_bodyTarget);
             // 4: Assign <item> as $TEMP.Current
-            var value = TokenFactory.CreateMemberAccess(tempDef.Name, "Current", MemberAccessType.FieldAccess, true);
+            var value = TokenFactory.CreateMemberAccess(tempDef.Name, currentProp, true);
             tokens.AddRange(TokenFactory.CreateVariableAssignment(context.forEachHeader().valueHolderDefine().valueHolderName().memberName().IDENT().GetText(), value));
 
             // 5: { Loop body }
@@ -124,7 +130,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // Condition jump target
             tokens.Add(_conditionTarget);
             // 6: Call $TEMP.MoveNext()
-            tokens.AddRange(TokenFactory.CreateMethodCall(tempDef.Name, "MoveNext"));
+            tokens.AddRange(TokenFactory.CreateMethodCall(tempDef.Name, moveNextMethod));
             // 7: [JumpIfTrue 4]
             tokens.Add(new JumpToken(_bodyTarget, true));
             // For Block end
@@ -134,11 +140,11 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
             tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
-            
+
             // Verify whether the object is an IDisposable instance
             tokens.Add(new JumpToken(jumpOverDispose, true, false));
-            tokens.AddRange(TokenFactory.CreateMemberAccess("Dispose", MemberAccessType.MethodAccess, true));
-            tokens.AddRange(TokenFactory.CreateFunctionCall());
+            //tokens.AddRange(TokenFactory.CreateMemberAccess("Dispose", MemberAccessType.MethodAccess, true));
+            tokens.AddRange(TokenFactory.CreateFunctionCall(disposeMethod));
             tokens.Add(jumpOverDispose);
 
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));

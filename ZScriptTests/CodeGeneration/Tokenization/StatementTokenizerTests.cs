@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -957,6 +958,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var stmt = parser.forEachStatement();
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
+            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
+            var currentProp = typeof(IEnumerator).GetProperty("Current");
+
             /*
                 // Loop head
                 1: Evaluate <list>
@@ -998,8 +1003,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopBody,
                 // 4: Assign <item> as $TEMP.Current
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateMemberNameToken("Current"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember, currentProp),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
                 TokenFactory.CreateVariableToken("item", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
@@ -1012,10 +1016,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopVerify,
                 // 6: Call $TEMP.MoveNext()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateMemberNameToken("MoveNext"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, moveNextMethod),
                 // 7: [JumpIfTrue 5]
                 new JumpToken(loopBody, true),
                 loopEnd,
@@ -1024,10 +1026,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
                 new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateMemberNameToken("Dispose"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, disposeMethod),
                 skipDispose,
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
@@ -1055,6 +1055,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var stmt = parser.forEachStatement();
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
+            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
+            var currentProp = typeof(IEnumerator).GetProperty("Current");
+
             /*
                 // Loop head
                 1: Evaluate <list>
@@ -1096,8 +1100,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopBody,
                 // 4: Assign <item> as $TEMP.Current
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateMemberNameToken("Current"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember, currentProp),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
                 TokenFactory.CreateVariableToken("item", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
@@ -1109,10 +1112,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopVerify,
                 // 6: Call $TEMP.MoveNext()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateMemberNameToken("MoveNext"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, moveNextMethod),
                 // 7: [JumpIfTrue 5]
                 new JumpToken(loopBody, true),
                 loopEnd,
@@ -1121,10 +1122,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
                 new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateMemberNameToken("Dispose"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, disposeMethod),
                 skipDispose,
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
@@ -1152,6 +1151,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var stmt = parser.forEachStatement();
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
+            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
+            var currentProp = typeof(IEnumerator).GetProperty("Current");
+
             /*
                 // Loop head
                 1: Evaluate <list>
@@ -1193,8 +1196,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopBody,
                 // 4: Assign <item> as $TEMP.Current
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateMemberNameToken("Current"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember, currentProp),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
                 TokenFactory.CreateVariableToken("item", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
@@ -1206,10 +1208,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopVerify,
                 // 6: Call $TEMP.MoveNext()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateMemberNameToken("MoveNext"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, moveNextMethod),
                 // 7: [JumpIfTrue 5]
                 new JumpToken(loopBody, true),
                 loopEnd,
@@ -1218,10 +1218,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
                 TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
                 new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateMemberNameToken("Dispose"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, disposeMethod),
                 skipDispose,
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
