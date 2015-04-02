@@ -975,9 +975,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             */
 
             // Create the expected list
-            var jt1 = new JumpTargetToken();
-            var jt2 = new JumpTargetToken();
-            var jt3 = new JumpTargetToken();
+            var loopVerify = new JumpTargetToken();
+            var loopBody = new JumpTargetToken();
+            var loopEnd = new JumpTargetToken();
+            var skipDispose = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // Loop head
@@ -993,8 +994,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // Loop iterating
                 // 3: [Jump 6]
-                new JumpToken(jt1),
-                jt2,
+                new JumpToken(loopVerify),
+                loopBody,
                 // 4: Assign <item> as $TEMP.Current
                 TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Current"),
@@ -1008,7 +1009,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
                 
                 // Loop verifying
-                jt1,
+                loopVerify,
                 // 6: Call $TEMP.MoveNext()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("MoveNext"),
@@ -1016,14 +1017,18 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
                 // 7: [JumpIfTrue 5]
-                new JumpToken(jt2, true),
-                jt3,
+                new JumpToken(loopBody, true),
+                loopEnd,
                 // 8: Call $TEMP.Dispose()
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
+                new JumpToken(skipDispose, true, false),
                 TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Dispose"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                skipDispose,
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
@@ -1071,6 +1076,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var loopVerify = new JumpTargetToken();
             var loopBody = new JumpTargetToken();
             var loopEnd = new JumpTargetToken();
+            var skipDispose = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // Loop head
@@ -1112,10 +1118,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
+                new JumpToken(skipDispose, true, false),
+                TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Dispose"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                skipDispose,
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
@@ -1163,6 +1173,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var loopVerify = new JumpTargetToken();
             var loopBody = new JumpTargetToken();
             var loopEnd = new JumpTargetToken();
+            var skipDispose = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // Loop head
@@ -1204,10 +1215,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
+                new JumpToken(skipDispose, true, false),
+                TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateMemberNameToken("Dispose"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                skipDispose,
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 

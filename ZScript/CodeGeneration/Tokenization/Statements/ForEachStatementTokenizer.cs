@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -67,6 +68,8 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.ForEachStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
+
+            var jumpOverDispose = new JumpTargetToken();
 
             _forBlockEndTarget = new JumpTargetToken();
             _conditionTarget = new JumpTargetToken();
@@ -126,8 +129,13 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             tokens.Add(new JumpToken(_bodyTarget, true));
             // For Block end
             tokens.Add(_forBlockEndTarget);
+
+            tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
+            tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
+            tokens.Add(new JumpToken(jumpOverDispose, true, false));
             // 8: Call $TEMP.Dispose()
             tokens.AddRange(TokenFactory.CreateFunctionCall(tempDef.Name, "Dispose"));
+            tokens.Add(jumpOverDispose);
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
 
             // Store the temporary definition back into the temporary definition collection

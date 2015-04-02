@@ -58,6 +58,11 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 var typedToken = tokens[i] as TypedToken;
                 if (typedToken == null)
                     continue;
+                if(typedToken.RawType != null)
+                {
+                    tokens[i] = new Token(typedToken.Type, typedToken.RawType, typedToken.Instruction);
+                    continue;
+                }
 
                 var typeDef = typedToken.TypeDef;
 

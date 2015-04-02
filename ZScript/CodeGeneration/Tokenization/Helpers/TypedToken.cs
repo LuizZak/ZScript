@@ -44,6 +44,11 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         private readonly TypeDef _typeDef;
 
         /// <summary>
+        /// The type associated with this typed token
+        /// </summary>
+        private readonly Type _type;
+
+        /// <summary>
         /// Gets the TypeContext associated with thi type
         /// </summary>
         public ZScriptParser.TypeContext TypeContext
@@ -57,6 +62,14 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         public TypeDef TypeDef
         {
             get { return _typeDef; }
+        }
+
+        /// <summary>
+        /// Gets type associated with this typed token
+        /// </summary>
+        public Type RawType
+        {
+            get { return _type; }
         }
 
         /// <summary>
@@ -84,6 +97,18 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         }
 
         /// <summary>
+        /// Initializes a new instance of the TypedToken class
+        /// </summary>
+        /// <param name="tokenType">The type for this token</param>
+        /// <param name="instruction">The instruction to associate with the token</param>
+        /// <param name="type">The type to associate with this typed token</param>
+        public TypedToken(TokenType tokenType, VmInstruction instruction, Type type)
+            : base(tokenType, null, instruction)
+        {
+            _type = type;
+        }
+
+        /// <summary>
         /// Returns a string representation of this typed token
         /// </summary>
         /// <returns>A string representation of this typed token</returns>
@@ -93,7 +118,11 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
             builder.Append("{ TypedToken ");
 
-            if (_typeContext != null)
+            if (_type != null)
+            {
+                builder.Append("rawType: " + _type);
+            }
+            else if (_typeContext != null)
             {
                 builder.Append("type: " + _typeContext);
             }
@@ -113,7 +142,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && Equals(_typeContext, other._typeContext) && Equals(_typeDef, other._typeDef);
+            return base.Equals(other) && Equals(_typeContext, other._typeContext) && Equals(_typeDef, other._typeDef) && _type == other._type;
         }
 
         public override bool Equals(object obj)
@@ -131,6 +160,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 int hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ (_typeContext != null ? _typeContext.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_typeDef != null ? _typeDef.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_type != null ? _type.GetHashCode() : 0);
                 return hashCode;
             }
         }
