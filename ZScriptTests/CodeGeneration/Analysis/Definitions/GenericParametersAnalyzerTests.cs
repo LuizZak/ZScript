@@ -29,6 +29,7 @@ using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
+using ZScriptTests.Utils;
 
 namespace ZScriptTests.CodeGeneration.Analysis.Definitions
 {
@@ -118,7 +119,9 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
         [TestMethod]
         public void TestInvalidTypeNameInConstriant()
         {
-            var constraints = new[] { new GenericTypeConstraint("N", "U", null) };
+            var parser = TestUtils.CreateParser("N : U");
+
+            var constraints = new[] { new GenericTypeConstraint("N", "U", parser.genericConstraint()) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T") }, constraints);
             var container = new MessageContainer();
             var typeProvider = new TypeProvider();
@@ -141,7 +144,9 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
         [TestMethod]
         public void TestUnknownBaseTypeConstraint()
         {
-            var constraints = new[] { new GenericTypeConstraint("T", "U", null) };
+            var parser = TestUtils.CreateParser("T : U");
+
+            var constraints = new[] { new GenericTypeConstraint("T", "U", parser.genericConstraint()) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T") }, constraints);
             var container = new MessageContainer();
             var typeProvider = new TypeProvider();
@@ -187,7 +192,9 @@ namespace ZScriptTests.CodeGeneration.Analysis.Definitions
         [TestMethod]
         public void TestDuplicatedGenericConstraint()
         {
-            var constraints = new[] { new GenericTypeConstraint("T", "U", null), new GenericTypeConstraint("T", "V", null) };
+            var parser = TestUtils.CreateParser("T : U T : V");
+
+            var constraints = new[] { new GenericTypeConstraint("T", "U", parser.genericConstraint()), new GenericTypeConstraint("T", "V", parser.genericConstraint()) };
             var signature = new GenericSignatureInformation(new[] { new GenericTypeDefinition("T"), new GenericTypeDefinition("U") }, constraints);
             var container = new MessageContainer();
             var typeProvider = new TypeProvider();
