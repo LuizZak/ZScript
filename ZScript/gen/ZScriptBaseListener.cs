@@ -729,6 +729,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitValueHolderDecl([NotNull] ZScriptParser.ValueHolderDeclContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.valueHolderDefine"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterValueHolderDefine([NotNull] ZScriptParser.ValueHolderDefineContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.valueHolderDefine"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitValueHolderDefine([NotNull] ZScriptParser.ValueHolderDefineContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.valueHolderName"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

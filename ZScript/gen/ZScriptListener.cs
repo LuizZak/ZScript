@@ -609,6 +609,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitValueHolderDecl([NotNull] ZScriptParser.ValueHolderDeclContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.valueHolderDefine"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterValueHolderDefine([NotNull] ZScriptParser.ValueHolderDefineContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.valueHolderDefine"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitValueHolderDefine([NotNull] ZScriptParser.ValueHolderDefineContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.valueHolderName"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

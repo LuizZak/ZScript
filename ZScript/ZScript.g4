@@ -120,8 +120,8 @@ continueStatement : 'continue' ';';
 ////
 valueDeclareStatement : valueHolderDecl ';';
 
-valueHolderDecl : (var='var' | let='let') valueHolderName (':' type)? ('=' expression)?;
-
+valueHolderDecl : valueHolderDefine ('=' expression)?;
+valueHolderDefine : (var='var' | let='let') valueHolderName (':' type)?;
 valueHolderName : memberName;
 
 // Types

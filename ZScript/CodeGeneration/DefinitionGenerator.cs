@@ -300,7 +300,7 @@ namespace ZScript.CodeGeneration
         public static TypeFieldDefinition GenerateClassField(ZScriptParser.ClassFieldContext context)
         {
             // TODO: Oh god what is this
-            var def = new TypeFieldDefinition(context.valueDeclareStatement().valueHolderDecl().valueHolderName().memberName().IDENT().GetText());
+            var def = new TypeFieldDefinition(context.valueDeclareStatement().valueHolderDecl().valueHolderDefine().valueHolderName().memberName().IDENT().GetText());
 
             FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
 
@@ -328,19 +328,19 @@ namespace ZScript.CodeGeneration
         /// <param name="context">The value declaration context that the definition will be filled with</param>
         public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDeclContext context)
         {
-            def.Name = context.valueHolderName().memberName().IDENT().GetText();
+            def.Name = context.valueHolderDefine().valueHolderName().memberName().IDENT().GetText();
             def.Context = context;
             def.HasValue = context.expression() != null;
-            def.HasType = context.type() != null;
+            def.HasType = context.valueHolderDefine().type() != null;
             def.ValueExpression = new Expression(context.expression());
-            def.IsConstant = context.let != null;
-            def.IdentifierContext = context.valueHolderName().memberName();
+            def.IsConstant = context.valueHolderDefine().let != null;
+            def.IdentifierContext = context.valueHolderDefine().valueHolderName().memberName();
 
             context.Definition = def;
 
             if (def.HasType)
             {
-                def.TypeContext = context.type();
+                def.TypeContext = context.valueHolderDefine().type();
             }
         }
     }

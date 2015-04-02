@@ -51,7 +51,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public IntermediaryTokenList TokenizeValueHolderDeclaration(ZScriptParser.ValueHolderDeclContext context)
         {
             var expression = context.expression();
-            var name = context.valueHolderName().memberName().IDENT().GetText();
+            var name = context.valueHolderDefine().valueHolderName().memberName().IDENT().GetText();
 
             if (expression != null)
             {

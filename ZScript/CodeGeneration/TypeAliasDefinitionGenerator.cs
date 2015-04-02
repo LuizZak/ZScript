@@ -57,7 +57,7 @@ namespace ZScript.CodeGeneration
         public static TypeFieldDefinition GenerateTypeField(ZScriptParser.TypeAliasVariableContext context)
         {
             var declare = context.valueDeclareStatement();
-            var name = declare.valueHolderDecl().valueHolderName().memberName().GetText();
+            var name = declare.valueHolderDecl().valueHolderDefine().valueHolderName().memberName().GetText();
 
             var definition = new TypeFieldDefinition(name);
 

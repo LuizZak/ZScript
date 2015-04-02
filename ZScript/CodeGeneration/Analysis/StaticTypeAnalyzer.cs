@@ -994,7 +994,7 @@ namespace ZScript.CodeGeneration.Analysis
                     return;
                 }
 
-                var varName = _switchContext.valueHolderDecl() == null ? null : _switchContext.valueHolderDecl().valueHolderName().GetText();
+                var varName = _switchContext.valueHolderDecl() == null ? null : _switchContext.valueHolderDecl().valueHolderDefine().valueHolderName().GetText();
 
                 foreach (var caseContext in _processedCases)
                 {
