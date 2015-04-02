@@ -370,6 +370,24 @@ namespace ZScript.CodeGeneration.Analysis
                         quitBranch = true;
                         break;
                     }
+
+                    // Branching for each loop
+                    var forEachStatement = stmt.forEachStatement();
+                    if (forEachStatement != null)
+                    {
+                        breakTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget);
+                        continueTarget = new ControlFlowPointer(stmts, i + 1, backTarget: flow.BackTarget);
+
+                        // Push the next statement after the loop, along with a break statement
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
+
+                        // For each statement
+                        returnFlow = new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, returnFlow);
+                        statementStack.Push(new ControlFlowPointer(new[] { forEachStatement.statement() }, 0, breakTarget, continueTarget, returnFlow));
+
+                        quitBranch = true;
+                        break;
+                    }
                 }
 
                 if (quitBranch)
@@ -441,6 +459,26 @@ namespace ZScript.CodeGeneration.Analysis
         {
             _breakDepth--;
             _continueDepth--;
+        }
+
+        /// <summary>
+        /// Enters the given for each statement, increasing the break and continue depth along the way
+        /// </summary>
+        /// <param name="context">The for each statement context to enter</param>
+        public override void EnterForEachStatement(ZScriptParser.ForEachStatementContext context)
+        {
+            _continueDepth++;
+            _breakDepth++;
+        }
+
+        /// <summary>
+        /// Exits the given for each statement, decreasing the break and continue depth along the way
+        /// </summary>
+        /// <param name="context">The for each statement context to exit</param>
+        public override void ExitForEachStatement(ZScriptParser.ForEachStatementContext context)
+        {
+            _continueDepth--;
+            _breakDepth--;
         }
 
         /// <summary>

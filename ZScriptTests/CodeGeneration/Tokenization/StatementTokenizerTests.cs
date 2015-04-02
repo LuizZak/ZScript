@@ -859,6 +859,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #region FOR EACH statement generation and execution
 
+        #region Execution tests
+
         [TestMethod]
         public void TestForEachExecution()
         {
@@ -882,7 +884,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         [TestMethod]
         public void TestInlinedForEachExecution()
         {
-            const string input = "@__trace(v...) var b:any = 0; func f() { for(var b in [0, 1]){ __trace(b); } }";
+            const string input = "@__trace(v...) func f() { for(var b in [0, 1]){ __trace(b); } }";
 
             var generator = TestUtils.CreateGenerator(input);
 
@@ -898,6 +900,49 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             Assert.AreEqual(0L, owner.TraceObjects[0]);
             Assert.AreEqual(1L, owner.TraceObjects[1]);
         }
+
+        [TestMethod]
+        public void TestForEachBreakExecution()
+        {
+            const string input = "@__trace(v...) func f() { for(var b in [0, 1]){ break; __trace(b); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(0, owner.TraceObjects.Count);
+        }
+
+        [TestMethod]
+        public void TestForEachContinueExecution()
+        {
+            const string input = "@__trace(v...) func f() { for(var b in [0, 1, 2]){ if(b == 1) { continue; } __trace(b); } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+            Assert.IsFalse(generator.HasSyntaxErrors);
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(0L, owner.TraceObjects[0]);
+            Assert.AreEqual(2L, owner.TraceObjects[1]);
+        }
+
+        #endregion
+
+        #region Tokenization tests
 
         [TestMethod]
         public void TestForEachGeneration()
@@ -991,6 +1036,192 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             // Assert the tokens where generated correctly
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
+
+        [TestMethod]
+        public void TestForEachBreakGeneration()
+        {
+            const string message = "The tokens generated for the foreach statement where not generated as expected";
+
+            const string input = "for(var item in list) { break; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.forEachStatement();
+            var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
+
+            /*
+                // Loop head
+                1: Evaluate <list>
+                2: Store <list>.GetEnumerator() in temp loop variable $TEMP
+                
+                // Loop iterating
+                3: [Jump 6]
+                4: Assign <item> as $TEMP.Current
+                
+                5: { Loop body }
+                
+                // Loop verifying
+                6: Call $TEMP.MoveNext()
+                7: [JumpIfTrue 4]
+                8: Call $TEMP.Dispose()
+            */
+
+            // Create the expected list
+            var loopVerify = new JumpTargetToken();
+            var loopBody = new JumpTargetToken();
+            var loopEnd = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // Loop head
+                // 1: Evaluate <list>
+                TokenFactory.CreateVariableToken("list", true),
+                // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
+                TokenFactory.CreateMemberNameToken("GetEnumerator"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateVariableToken("$TEMP0", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+
+                // Loop iterating
+                // 3: [Jump 6]
+                new JumpToken(loopVerify),
+                loopBody,
+                // 4: Assign <item> as $TEMP.Current
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateMemberNameToken("Current"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateVariableToken("item", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+
+                // 5: { Loop body }
+                new JumpToken(loopEnd),
+                
+                // Loop verifying
+                loopVerify,
+                // 6: Call $TEMP.MoveNext()
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateMemberNameToken("MoveNext"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                // 7: [JumpIfTrue 5]
+                new JumpToken(loopBody, true),
+                loopEnd,
+                // 8: Call $TEMP.Dispose()
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateMemberNameToken("Dispose"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        [TestMethod]
+        public void TestForEachContinueGeneration()
+        {
+            const string message = "The tokens generated for the foreach statement where not generated as expected";
+
+            const string input = "for(var item in list) { continue; }";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.forEachStatement();
+            var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
+
+            /*
+                // Loop head
+                1: Evaluate <list>
+                2: Store <list>.GetEnumerator() in temp loop variable $TEMP
+                
+                // Loop iterating
+                3: [Jump 6]
+                4: Assign <item> as $TEMP.Current
+                
+                5: { Loop body }
+                
+                // Loop verifying
+                6: Call $TEMP.MoveNext()
+                7: [JumpIfTrue 4]
+                8: Call $TEMP.Dispose()
+            */
+
+            // Create the expected list
+            var loopVerify = new JumpTargetToken();
+            var loopBody = new JumpTargetToken();
+            var loopEnd = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // Loop head
+                // 1: Evaluate <list>
+                TokenFactory.CreateVariableToken("list", true),
+                // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
+                TokenFactory.CreateMemberNameToken("GetEnumerator"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateVariableToken("$TEMP0", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+
+                // Loop iterating
+                // 3: [Jump 6]
+                new JumpToken(loopVerify),
+                loopBody,
+                // 4: Assign <item> as $TEMP.Current
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateMemberNameToken("Current"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateVariableToken("item", false),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+
+                // 5: { Loop body }
+                new JumpToken(loopVerify),
+                
+                // Loop verifying
+                loopVerify,
+                // 6: Call $TEMP.MoveNext()
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateMemberNameToken("MoveNext"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                // 7: [JumpIfTrue 5]
+                new JumpToken(loopBody, true),
+                loopEnd,
+                // 8: Call $TEMP.Dispose()
+                TokenFactory.CreateVariableToken("$TEMP0", true),
+                TokenFactory.CreateMemberNameToken("Dispose"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
 
         #endregion
 

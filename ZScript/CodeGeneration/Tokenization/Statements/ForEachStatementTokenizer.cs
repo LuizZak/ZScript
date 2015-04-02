@@ -72,6 +72,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             _conditionTarget = new JumpTargetToken();
             _bodyTarget = new JumpTargetToken();
 
+            _context.PushBreakTarget(_forBlockEndTarget);
+            _context.PushContinueTarget(_conditionTarget);
+
             // Get the temporary variable for the loop
             var tempDef = _context.TemporaryDefinitionCreator.GetDefinition();
 
@@ -129,6 +132,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             // Store the temporary definition back into the temporary definition collection
             _context.TemporaryDefinitionCreator.ReleaseDefinition(tempDef);
+
+            _context.PopContinueTarget();
+            _context.PopBreakTarget();
 
             return tokens;
         }
