@@ -72,6 +72,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             // Get some cached member infos for the iterators
             var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
 
@@ -106,11 +107,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // 1: Evaluate <list>
             tokens.AddRange(_context.TokenizeExpression(context.forEachHeader().expression()));
             // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
-            // TODO: Remove the hardcoding of the function call and elevate it to a syntax/token factory
-            tokens.Add(TokenFactory.CreateMemberNameToken("GetEnumerator"));
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetCallable));
-            tokens.Add(TokenFactory.CreateBoxedValueToken(0));
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Call));
+            tokens.AddRange(TokenFactory.CreateFunctionCall(getEnumMethod));
             tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, false));
             tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 

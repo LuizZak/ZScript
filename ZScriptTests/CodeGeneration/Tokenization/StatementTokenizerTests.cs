@@ -959,6 +959,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
             var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
 
@@ -990,10 +991,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 1: Evaluate <list>
                 TokenFactory.CreateVariableToken("list", true),
                 // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
-                TokenFactory.CreateMemberNameToken("GetEnumerator"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, getEnumMethod),
                 TokenFactory.CreateVariableToken("$TEMP0", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
@@ -1056,6 +1055,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
             var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
 
@@ -1087,10 +1087,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 1: Evaluate <list>
                 TokenFactory.CreateVariableToken("list", true),
                 // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
-                TokenFactory.CreateMemberNameToken("GetEnumerator"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, getEnumMethod),
                 TokenFactory.CreateVariableToken("$TEMP0", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
@@ -1152,6 +1150,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
             var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
 
@@ -1183,10 +1182,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 1: Evaluate <list>
                 TokenFactory.CreateVariableToken("list", true),
                 // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
-                TokenFactory.CreateMemberNameToken("GetEnumerator"),
-                TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
                 TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call, getEnumMethod),
                 TokenFactory.CreateVariableToken("$TEMP0", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
 
