@@ -797,6 +797,18 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 RegisterInvalidFunctionCall(leftValue, context);
             }
+            else
+            {
+                var exp = context.funcCallArguments().expressionList();
+                if (exp != null)
+                {
+                    // Analyze function arguments manually
+                    foreach (var funcCallArgument in exp.expression())
+                    {
+                        ResolveExpression(funcCallArgument);
+                    }
+                }
+            }
 
             // Update constant flag
             if (leftValueContext != null)
@@ -908,6 +920,10 @@ namespace ZScript.CodeGeneration.Analysis
             else if (!leftValue.IsAny)
             {
                 RegisterInvalidSubscript(leftValue, context);
+            }
+            else
+            {
+                ResolveExpression(context.expression());
             }
 
             // Update constant flag
