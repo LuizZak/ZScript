@@ -85,12 +85,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ForEachStatementContext context)
         {
             // Get some cached member infos for the iterators
-            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
             var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
-
-            var jumpOverDispose = new JumpTargetToken();
 
             _forBlockEndTarget = new JumpTargetToken();
             _conditionTarget = new JumpTargetToken();
