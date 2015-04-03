@@ -23,8 +23,8 @@
 */
 
 // Global scope variables
-var level : GameLevel = null;
-var player : Player = null;
+var level : GameLevel? = null;
+var player : Player? = null;
 
 var gameFPS : int = 0;
 
@@ -88,8 +88,8 @@ var timer : int = 0;
 // Reflection related functions
 @getType(typeName : string) : System.Type
 @typeOf(o : any) : System.Type
-@callMethod(o : any, method : any, args : [any] = null) : any
-@obj(name : string, args : [any] = null) : objectDef
+@callMethod(o : any, method : any, args : [any]? = null) : any
+@obj(name : string, args : [any]? = null) : objectDef
 @setField(o : any, field : string, value : any) : any
 @setProp(o : any, prop : string, value : any) : any
 @getField(o : any, field : string) : any
@@ -102,8 +102,8 @@ var timer : int = 0;
 // Misc low level functions
 @funcExists(f : string, localsOnly : bool = false) : bool
 @__hashtable() : Hashtable
-@__timeout(funcName : string, timeout : int, args : [any], expires : bool = false) : TriggerWatch
-@__objecttimeout(inst : object, f : string, timeout : int, args : [any] = null, expires : bool = false) : TriggerWatch
+@__timeout(funcName : string, timeout : float, args : [any]?, expires : bool = false) : TriggerWatch
+@__objecttimeout(inst : object, f : string, timeout : float, args : [any]? = null, expires : bool = false) : TriggerWatch
 
 ///////////////////////////////////////////////
 // 
@@ -132,17 +132,17 @@ func __init(levelRef : GameLevel)
     }
     
     level = levelRef;
-    player = level.player;
+    player = level?.player;
     
-    device = level.MainEngine.Device;
+    device = level?.MainEngine.Device;
     
-    gameFPS = (int)(1000.0 / (float)level.MainEngine.Game.TargetElapsedTime.TotalMilliseconds);
+    gameFPS = (int)(1000.0 / (float)level?.MainEngine.Game.TargetElapsedTime.TotalMilliseconds);
     
-    screenWidth  = level.MainEngine.Width;
-    screenHeight = level.MainEngine.Height;
+    screenWidth  = level?.MainEngine.Width;
+    screenHeight = level?.MainEngine.Height;
     
-    windowWidth  = level.MainEngine.Device.Viewport.Width;
-    windowHeight = level.MainEngine.Device.Viewport.Height;
+    windowWidth  = level?.MainEngine.Device.Viewport.Width;
+    windowHeight = level?.MainEngine.Device.Viewport.Height;
     
     // Get the font objects
     font_default          = getStatic('Zombie_House.Statics', 'DEFAULT_FONT');
@@ -191,13 +191,13 @@ func __end()
 }
 
 // Sets a timeout before firing the given function with the given parameters
-func setTimeout(f : string, time : int, params:[any] = null, expires:bool = true) : TriggerWatch
+func setTimeout(f : string, time : int, params:[any]? = null, expires:bool = true) : TriggerWatch
 {
     return __timeout(f, time, params, expires);
 }
 
 // Sets a timeout before firing the given object function with the given parameters
-func setObjectTimeout(_obj : object, funcName : string, time : int, params=null, expires=true) : TriggerWatch
+func setObjectTimeout(_obj : object, funcName : string, time : int, params:[any]?=null, expires=true) : TriggerWatch
 {
     return __objecttimeout(_obj, funcName, time, params, expires);
 }
@@ -391,7 +391,7 @@ class ConstantBehavior
 // Enemy related functions
 
 // Spawns the given enemy object with the given parameters
-func spawnEnemy(enemyObj, params=null) : any
+func spawnEnemy(enemyObj, params:object? = null) : any
 {
     var zombieType = 0;
     
@@ -411,17 +411,17 @@ func spawnEnemy(enemyObj, params=null) : any
         break;
     }
     
-    let zx = params.x;
-    let zy = params.y;
-    var zd = params.d;
+    let zx = params?.x;
+    let zy = params?.y;
+    var zd = params?.d;
     
     if(zd == null)
         zd = 1;
     
-    var zombie = level.spawnEnemy(zombieType, zx, zy, zd, -1);
+    var zombie = level?.spawnEnemy(zombieType, zx!, zy!, zd!, -1);
     
-    if(params.hp != null)
-        zombie.TotalHP = zombie.HP = params.hp;
+    if(params?.hp != null)
+        zombie.TotalHP = zombie.HP = params?.hp;
     else if(enemyObj.hp != null)
         zombie.TotalHP = zombie.HP = enemyObj.hp;
     
@@ -440,7 +440,7 @@ func healEnemy(enemy, healAmm, healSource = -2)
     enemy.Heal(healAmm, healSource);
 }
 // Kills the given enemy, optionally specifying a kill source
-func killEnemy(enemy = null, killSource = -2)
+func killEnemy(enemy:Enemy, killSource = -2)
 {
     enemy.Die(killSource);
 }
@@ -450,7 +450,7 @@ let ENEMY_WEAKZOMBIE = 'WeakZombie';
 let ENEMY_TOUGHZOMBIE = 'ToughZombie';
 
 // Loads a level
-@loadLevel(levelName, levelFile=null)
+@loadLevel(levelName, levelFile:string?=null)
 // Quits the game
 @quitGame()
 
@@ -615,7 +615,7 @@ func color(r : int = 0, g : int = 0, b : int = 0, a : int = 0) : Color
 // Adds a new draggable to the game level
 func addDraggable(x : int, y : int, drag, mid = -1) : any
 {
-    level.addDraggable(x, y, drag, mid);
+    level?.addDraggable(x, y, drag, mid);
     
     return drag;
 }
@@ -635,7 +635,7 @@ typeAlias RainEffect <- WeatherEffect : "Zombie_House.Entities.Particles.RainEff
 }
 
 // Sets the weather of the level
-func setWeather(weatherType : string, weatherParams = null) : WeatherEffect
+func setWeather(weatherType : string, weatherParams:[any]? = null) : WeatherEffect
 {
     // Create the new weather
     var newWeather : Zombie_House.Entities.Particles.WeatherEffect = null;
@@ -910,15 +910,15 @@ class RunBehavior : ConstantBehavior
     
     func step()
     {
-        if(!(bool)player.codeControlled)
+        if(!(bool)player!.codeControlled)
         {
-            if(player.GetIntState() == HumanState_Standing && allowInput && (getKeyInterval(Key_NumPad5) > -1))
+            if(player!.GetIntState() == HumanState_Standing && allowInput && (getKeyInterval(Key_NumPad5) > -1))
             {
-                player.speedMod += (1.0 - (float)player.speedMod) / easingIn;
+                player!.speedMod += (1.0 - (float)player!.speedMod) / easingIn;
             }
             else
             {
-                player.speedMod += (0.65 - (float)player.speedMod) / easingOut;
+                player!.speedMod += (0.65 - (float)player!.speedMod) / easingOut;
             }
         }
     }
@@ -926,8 +926,8 @@ class RunBehavior : ConstantBehavior
 
 class PlayerLightBehavior : ConstantBehavior
 {
-    var playerLight = null;
-    var playerLight2 = null;
+    var playerLight:Light2D? = null;
+    var playerLight2:Light2D? = null;
     var turnTimer : float = 0;
     var side : int = 1;
     var lightsOn : bool = true;
@@ -938,35 +938,35 @@ class PlayerLightBehavior : ConstantBehavior
         
         var lightColor : Color = color(255, 255, 255, 255);
         
-        playerLight = addLight(player.X, player.Y, 180, lightColor, 0.6, 0, PI / 3);
-        playerLight2 = addLight(player.X, player.Y, 90, lightColor, 0.6);
+        playerLight = addLight(player!.X, player!.Y, 180, lightColor, 0.6, 0, PI / 3);
+        playerLight2 = addLight(player!.X, player!.Y, 90, lightColor, 0.6);
     }
     
     func step()
     {
         if(playerLight != null)
         {
-            if(player.ScaleX != side)
+            if(player!.ScaleX != side)
             {
                 turnTimer = 9;
-                side = player.ScaleX;
+                side = player!.ScaleX;
             }
             
-            playerLight.X = player.X;
-            playerLight.Y = player.Y;
+            playerLight!.X = player!.X;
+            playerLight!.Y = player!.Y;
             
-            if(player.crouching)
-                playerLight.Y = (float)player.Y + 5;
+            if(player!.crouching)
+                playerLight!.Y = (float)player!.Y + 5;
             
             // Perform a Raycast so we don't accidentally cross walls with the light while moving it over
-            var v = level.RaycastPoint(vec(playerLight.X, playerLight.Y), vec(playerLight.X - ((turnTimer - 4.5) / 4) * player.ScaleX * 45, playerLight.Y), true);
+            var v = level!.RaycastPoint(vec(playerLight!.X, playerLight!.Y), vec((float)playerLight!.X - ((turnTimer - 4.5) / 4) * (float)player!.ScaleX * 45, playerLight!.Y), true);
             
-            playerLight2.X = v.X;
-            playerLight2.Y = playerLight.Y;
+            playerLight2!.X = v.X;
+            playerLight2!.Y = playerLight!.Y;
             
-            playerLight.Angle = 0;
-            if(player.ScaleX == -1)
-                playerLight.Angle = -PI;
+            playerLight!.Angle = 0;
+            if(player!.ScaleX == -1)
+                playerLight!.Angle = -PI;
             
             if(hasInventoryItem(player, itemid_flashlight))
             {
@@ -984,13 +984,13 @@ class PlayerLightBehavior : ConstantBehavior
             
             if(turnTimer > 0)
             {
-                playerLight.IsOn = false;
-                playerLight2.IsOn = lightsOn;
+                playerLight!.IsOn = false;
+                playerLight2!.IsOn = lightsOn;
             }
             else
             {
-                playerLight.IsOn = lightsOn;
-                playerLight2.IsOn = false;
+                playerLight!.IsOn = lightsOn;
+                playerLight2!.IsOn = false;
             }
         }
     }
@@ -1003,8 +1003,8 @@ let baseZombie = { type:ENEMY_BUILDINGZOMBIE, hp:baseHealth };
 var elevatorDisplayLights : [any] = [ ];
 var elevatorButtonLights : [any] = [ ];
 
-var runBeh : RunBehavior = null;
-var playerLightBeh : PlayerLightBehavior = null;
+var runBeh : RunBehavior? = null;
+var playerLightBeh : PlayerLightBehavior? = null;
 
 func init
 {
@@ -1017,14 +1017,14 @@ func init
     
     setElevatorFloor(1);
     
-    level.TeleportPlayerToElevator(12);
-    level.ChangeFloor(12);
+    level!.TeleportPlayerToElevator(12);
+    level!.ChangeFloor(12);
     
     //player.InventoryAvailable = false;
     //player.CanAttack = false;
     //player.HUDRef.SetHudStyle(1);
     
-    level.ReverseLightingDrawOrder = true;
+    level!.ReverseLightingDrawOrder = true;
     
     setElevatorFloor(1);
     
@@ -1046,9 +1046,9 @@ func init
     //addInventoryItem(player, itemid_shotgun_shells, 31);
     //player.FacingDirection = -1;
 }
-func zdead(z:Enemy=null)
+func zdead(z:Enemy?=null)
 {
-    if((float)z.TotalHP <= 1)
+    if((float)z!.TotalHP <= 1)
         return;
     
     // zdead = spawnEnemy(baseZombie, { x: z.X, y : z.Y, hp: z.TotalHP / 2 });
@@ -1057,7 +1057,7 @@ func step(time : float) : void
 {
     if(isKeyBeingPressed(Key_H))
     {
-        player.ApplyEffect(new Zombie_House.Entities.Enemies.ZombieBiteSlowEffect(0.5));
+        player!.ApplyEffect(new Zombie_House.Entities.Enemies.ZombieBiteSlowEffect(0.5));
     }
 }
 func end()
@@ -1077,7 +1077,7 @@ func setupLights()
 // Sets the elevator floor
 func setElevatorFloor(_floor:int)
 {
-    level.ChangeElevatorFloor(_floor);
+    level!.ChangeElevatorFloor(_floor);
     
     for(var i = 0; i < (int)elevatorDisplayLights.Count; i++)
     {
@@ -1087,7 +1087,7 @@ func setElevatorFloor(_floor:int)
 // Gets the current elevator floor
 func getElevatorFloor()
 {
-    level.CurrentElevatorFloor;
+    level!.CurrentElevatorFloor;
     
     setElevatorFloor(0);
 }
@@ -1126,17 +1126,17 @@ sequence start
         async = false;
         pauseFade();
 
-        player.InventoryAvailable = false;
-        player.CanAttack = false;
-        player.HUDRef.SetHudStyle(1);
+        player!.InventoryAvailable = false;
+        player!.CanAttack = false;
+        player!.HUDRef.SetHudStyle(1);
         
-        level.ReverseLightingDrawOrder = true;
+        level!.ReverseLightingDrawOrder = true;
         
         freezePlayer();
         hideHud();
         
         // Disable all the enemies temporarely while the script runs
-        var enArray = level.Enemies;
+        var enArray = ([Enemy])level!.Enemies;
         var enLength = enArray.Count;
         for(var i = 0; i < enLength; i++)
         {
@@ -1160,7 +1160,7 @@ sequence start
     +293
     {
         stopMovingPlayer(player, 1);
-        player.animCodeControlled = true;
+        player!.animCodeControlled = true;
         changeAnim(player, getAnim("PlayerTickSwitch"));
     }
     +10
@@ -1175,7 +1175,7 @@ sequence start
         elevatorDoor.X = 264;
         elevatorDoor.Y = 273;
         
-        level.InteractiblesHolder.addChild(elevatorDoor, -1);
+        level!.InteractiblesHolder.addChild(elevatorDoor, -1);
     }
     +2
     {
@@ -1193,7 +1193,7 @@ sequence start
             
             if(times % 8 == 0)
             {
-                level.CameraShake = 1;
+                level!.CameraShake = 1;
                 explosions++;
                 
                 setAnimFrame(elevatorDoor, getAnimFrame(elevatorDoor) + 1);
@@ -1201,7 +1201,7 @@ sequence start
                 if(explosions == 4)
                 {
                     playSound("BigExplosion");
-                    level.CameraShake = 2;
+                    level!.CameraShake = 2;
                     
                     var emit = addEmitter(elevatorDoor.x, elevatorDoor.y, elevatorDoor.width, elevatorDoor.height);
                     emit.tint = color(0, 0, 0, 255);
@@ -1235,7 +1235,7 @@ sequence start
         }
         else
         {
-            player.animCodeControlled = false;
+            player!.animCodeControlled = false;
         }
     }
     +100
@@ -1255,7 +1255,7 @@ sequence start
         
         setAnimFrame(elevatorDoor2, getAnimFrameCount(elevatorDoor2) - 1);
         
-        level.Root.addChild(elevatorDoor2, -1);
+        level!.Root.addChild(elevatorDoor2, -1);
     }
     +7
     {
@@ -1266,12 +1266,12 @@ sequence start
         }
     }
     {
-        level.InteractiblesHolder.removeChild(elevatorDoor, false);
-        level.Root.removeChild(elevatorDoor2, false);
+        level!.InteractiblesHolder.removeChild(elevatorDoor, false);
+        level!.Root.removeChild(elevatorDoor2, false);
         elevatorDoor.Free(false);
         elevatorDoor2.Free(false);
         
-        player.visible = false;
+        player!.visible = false;
     }
     {
         fadeScreen(70, 180);
@@ -1279,9 +1279,9 @@ sequence start
     }
     +70
     {
-        level.TeleportPlayerToElevator(12);
-        level.ChangeFloor(12);
-        player.visible = true;
+        level!.TeleportPlayerToElevator(12);
+        level!.ChangeFloor(12);
+        player!.visible = true;
         
         setWeather(weather_rain, [vec(1, 3), vec(0, 0.1), toUint(0x53FFFFFF), 0]);
         startSequence("makeRainStrong");
@@ -1292,7 +1292,7 @@ sequence start
     }
     +10
     {
-        player.codeControlled = false;
+        player!.codeControlled = false;
         unfreezePlayer();
         showHud();
     }
@@ -1341,15 +1341,15 @@ sequence makeRainStrong
 [
     1-5000
     {
-        var weather = level.CurrentWeather; weather.Strength = weather.Strength + 0.0002;
+        var weather = level!.CurrentWeather; weather.Strength = weather.Strength + 0.0002;
     }
 ]
 
 // Sequence that displays the place where the story is being taken
 sequence placingSequence
 [
-    var hour;
-    var rest;
+    var hour:string = "";
+    var rest:string = "";
     var timeMsg;
 
     0
@@ -1405,89 +1405,89 @@ sequence creditsSequence
 
 // Starts moving the given player, optionally specifying the moving and facing direction and the moving speed
 // This function automatically sets the Player.codeControlled field to true
-func startMovingPlayer(_player : Player = null, movingDirection : int = -2, facingDirection : int = -2, speed : float = -1) : void
+func startMovingPlayer(_player : Player? = null, movingDirection : int = -2, facingDirection : int = -2, speed : float = -1) : void
 {
     if(_player == null)
         _player = player;
     
     if(movingDirection == -2)
-        movingDirection = _player.MovingDirection;
+        movingDirection = _player!.MovingDirection;
     
     // By default, face the player on the same direction it is moving
     if(facingDirection == -2)
         facingDirection = movingDirection;
     
-    _player.moving = true;
-    _player.MovingDirection = movingDirection;
-    _player.FacingDirection = facingDirection;
+    _player!.moving = true;
+    _player!.MovingDirection = movingDirection;
+    _player!.FacingDirection = facingDirection;
     
     if(speed != -1)
-        _player.speedMod = speed;
+        _player!.speedMod = speed;
     
-    _player.codeControlled = true;
+    _player!.codeControlled = true;
 }
 
 // Stops moving the given player, optionally making it face the given direction and specifying the speed modifier
-func stopMovingPlayer(_player : Player = null, facingDirection : int = -2, speed : int = -1) : void
+func stopMovingPlayer(_player : Player? = null, facingDirection : int = -2, speed : int = -1) : void
 {
     if(_player == null)
         _player = player;
 
-    _player.moving = false;
+    _player!.moving = false;
 
     if(facingDirection != -2)
-        _player.FacingDirection = facingDirection;
+        _player!.FacingDirection = facingDirection;
 
     if(speed != -1)
-        _player.speedMod = speed;
+        _player!.speedMod = speed;
 }
 // Makes the given player entity face the given direction, optionally changing the moving direction as well
-func facePlayer(_player : Player = null, facingDirection : int = 1, movingDirection : int = -2) : void
+func facePlayer(_player : Player? = null, facingDirection : int = 1, movingDirection : int = -2) : void
 {
     if(_player == null)
         _player = player;
 
     if(movingDirection != -2)
-        _player.MovingDirection = movingDirection;
+        _player!.MovingDirection = movingDirection;
 
-    _player.FacingDirection = facingDirection;
+    _player!.FacingDirection = facingDirection;
 }
 
 // Returns whether the given player can attack currently
-func canPlayerAttack(_player : Player = null) : bool
+func canPlayerAttack(_player : Player? = null) : bool
 {
     if(_player == null)
         _player = player;
     
-    return !(bool)_player.GetWeapon(-1).IsEmpty();
+    return !(bool)_player!.GetWeapon(-1).IsEmpty();
 }
 
 // Makes the given player entity attack with the current wapon, with an optional parameter that can be used to force the attack even when the player is not resting
-func makePlayerAttack(_player : Player = null, force : bool = false) : void
+func makePlayerAttack(_player : Player? = null, force : bool = false) : void
 {
     if(_player == null)
         _player = player;
 
-    if(force || player.GetIntState() == 0)
-        player.FireWeapon();
+    if(force || player!.GetIntState() == 0)
+        player!.FireWeapon();
 }
 // Makes the given player entity reload the current wapon, with an optional parameter that can be used to force the reload operation even when the player is not resting
-func makePlayerReload(_player : Player = null, force : bool = false) : void
+func makePlayerReload(_player : Player? = null, force : bool = false) : void
 {
     if(_player == null)
         _player = player;
 
-    if(force || player.GetIntState() == 0)
-        player.ReloadWeapon();
+    if(force || player!.GetIntState() == 0)
+        player!.ReloadWeapon();
 }
 
 // Changes the animation of the player to be the given one
-func changeAnim(_player : Player = null, newAnim : AnimationDescriptor = null, force : bool = false) : void
+func changeAnim(_player : Player? = null, newAnim : AnimationDescriptor = null, force : bool = false) : void
 {
     if(_player == null)
         _player = player;
 
-    player.ChangeAnim(_player.Body, newAnim, force);
+    player!.ChangeAnim(_player.Body, newAnim, force);
 }
 
 // Freezes the given player instance, not allowing the player to interact with it, optionally specifying if any current interactions should be canceled
@@ -1519,16 +1519,16 @@ func healPlayer(_player : Player, healAmm : float, healSource : int =-2) : void
     _player.Heal(healAmm, healSource);
 }
 // Kills the given player, optionally specifying a kill source
-func killPlayer(_player : Player = null, killSource : int = -2) : void
+func killPlayer(_player : Player? = null, killSource : int = -2) : void
 {
     if(_player == null)
         _player = player;
 
-    _player.Die(killSource);
+    _player!.Die(killSource);
 }
 
 // Adds an inventory item to the given player's inventory
-func addInventoryItem(_player : Player = null, itemID : int = 0, count : int = 1, hash : object = null, slot : int = 0) : void
+func addInventoryItem(_player : Player? = null, itemID : int = 0, count : int = 1, hash : object = null, slot : int = 0) : void
 {
     if(_player == null)
         _player = player;
@@ -1544,59 +1544,59 @@ func addInventoryItem(_player : Player = null, itemID : int = 0, count : int = 1
         hash = hash.ToHashtable();
     }
 
-    _player.CurrentInventory.AddItem(itemID, count, hash, slot);
+    _player!.CurrentInventory.AddItem(itemID, count, hash, slot);
 }
 
 // Removes an inventory item from the given player's inventory
-func removeInventoryItem(_player : Player = null, itemID : int = 0, count : int = 1, slot : int = 0) : void
+func removeInventoryItem(_player : Player? = null, itemID : int = 0, count : int = 1, slot : int = 0) : void
 {
     if(_player == null)
         _player = player;
     
-    _player.CurrentInventory.RemoveItem(itemID, count, slot);
+    _player!.CurrentInventory.RemoveItem(itemID, count, slot);
 }
 
 // Returns the count of the specified item on the given player's inventory
-func inventoryItemCount(_player : Player = null, itemID : int = 0) : int
+func inventoryItemCount(_player : Player? = null, itemID : int = 0) : int
 {
     if(_player == null)
         _player = player;
     
-    return _player.CurrentInventory.GetItemNum(itemID);
+    return _player!.CurrentInventory.GetItemNum(itemID);
 }
 
-func hasInventoryItem(_player : Player = null, itemID : int = 0) : bool
+func hasInventoryItem(_player : Player? = null, itemID : int = 0) : bool
 {
-    return inventoryItemCount(_player, itemID) > 0;
+    return inventoryItemCount(_player!, itemID) > 0;
 }
 
 // Hides the HUD of the given player ID. Leaving empty of passing a null player ID makes the function automatically assume the current main player character
-func hideHud(_player : Player = null) : void
+func hideHud(_player : Player? = null) : void
 {
     if(_player == null)
         _player = player;
 
-    player.HUDRef.Hide();
+    _player!.HUDRef.Hide();
 }
 // Shows the HUD of the given player ID. Leaving empty of passing a null player ID makes the function automatically assume the current main player character
-func showHud(_player : Player = null) : void
+func showHud(_player : Player? = null) : void
 {
     if(_player == null)
         _player = player;
 
-    player.HUDRef.Show();
+    _player!.HUDRef.Show();
 }
 
 func setCinematicMode(mode : bool = true) : void
 {
     if(mode)
     {
-        player.codeControlled = true;
+        player!.codeControlled = true;
         hideHud();
     }
     else
     {
-        player.codeControlled = false;
+        player!.codeControlled = false;
         showHud();
     }
 }
