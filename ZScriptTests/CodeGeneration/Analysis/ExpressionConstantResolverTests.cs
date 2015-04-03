@@ -680,5 +680,36 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidConstantOperation), "Failed to raise expected errors");
         }
+
+        /// <summary>
+        /// Tests raising errors when invalid string escape sequences are met
+        /// </summary>
+        [TestMethod]
+        public void TestInvalidEscapeSequence()
+        {
+            const string input = "'ab\\dnc'";
+
+            var parser = TestUtils.CreateParser(input);
+
+            // Create the analyzer for expanding the types of the expression so the constant expander knows what to do with them
+            var typeProvider = new TypeProvider();
+            var container = new MessageContainer();
+            var generationContext = new RuntimeGenerationContext(null, container, typeProvider);
+            var typeResolver = new ExpressionTypeResolver(generationContext);
+            var constantResolver = new ExpressionConstantResolver(generationContext, new TypeOperationProvider());
+
+            // Generate the expression
+            var expression = parser.expression();
+
+            // Analyze the types
+            typeResolver.ResolveExpression(expression);
+
+            // Resolve the constants now
+            constantResolver.ExpandConstants(expression);
+
+            container.PrintMessages();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidEscapeSequence));
+        }
     }
 }

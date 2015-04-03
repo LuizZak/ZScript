@@ -113,22 +113,29 @@ namespace ZScript.CodeGeneration.Analysis
         {
             if (context.constantAtom() != null && context.objectAccess() == null)
             {
-                // Get the value of the constant atom
-                var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
-
-                // Verify if any implicit casts are in place
-                if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && TypeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
+                try
                 {
-                    // TODO: Deal with native types that are not present
-                    var nativeType = TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
+                    // Get the value of the constant atom
+                    var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
 
-                    if(nativeType != null)
-                        value = TypeProvider.CastObject(value, nativeType);
+                    // Verify if any implicit casts are in place
+                    if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && TypeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
+                    {
+                        // TODO: Deal with native types that are not present
+                        var nativeType = TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
+
+                        if (nativeType != null)
+                            value = TypeProvider.CastObject(value, nativeType);
+                    }
+
+                    context.IsConstant = true;
+                    context.IsConstantPrimitive = IsValuePrimitive(value);
+                    context.ConstantValue = value;
                 }
-
-                context.IsConstant = true;
-                context.IsConstantPrimitive = IsValuePrimitive(value);
-                context.ConstantValue = value;
+                catch (Exception)
+                {
+                    _context.MessageContainer.RegisterError(context, "Invalid escape sequence in string", ErrorCode.InvalidEscapeSequence);
+                }
             }
         }
 

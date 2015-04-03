@@ -152,6 +152,9 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>Trying to unwrap a non-optional value</summary>
         TryingToUnwrapNonOptional,
 
+        /// <summary>A string contains an invalid escape sequence</summary>
+        InvalidEscapeSequence,
+
         #endregion
 
         #region Statement analysis errors

@@ -103,14 +103,14 @@ namespace ZScript.Builders
                 typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType(definition.Name + ClassNameSuffix + _classSuffix++);
             }
 
-            if(definition.BaseClass == null)
+            // Base type
+            var parentType = typeof(ZClassInstance);
+            if(definition.BaseClass != null)
             {
-                typeBuilder.SetParent(typeof(ZClassInstance));
+                parentType = _mappedTypes[definition.BaseClass];
             }
-            else
-            {
-                typeBuilder.SetParent(_mappedTypes[definition.BaseClass]);
-            }
+
+            typeBuilder.SetParent(parentType);
 
             DefineConstructor(definition, typeBuilder);
 

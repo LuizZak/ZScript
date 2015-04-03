@@ -38,6 +38,7 @@ namespace ZScript.Parsing
         /// Parses a given constant atom, returning an object representing the constant
         /// </summary>
         /// <param name="context">The context containing the constant to parse</param>
+        /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An object that represents the constant atom parsed</returns>
         public static object ParseCompileConstantAtom(ZScriptParser.CompileConstantContext context)
         {
@@ -64,6 +65,7 @@ namespace ZScript.Parsing
         /// Parses a given constant atom, returning an object representing the constant
         /// </summary>
         /// <param name="context">The context containing the constant to parse</param>
+        /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An object that represents the constant atom parsed</returns>
         public static object ParseConstantAtom(ZScriptParser.ConstantAtomContext context)
         {
@@ -93,6 +95,7 @@ namespace ZScript.Parsing
         /// expanding any escape character and removing the enclosing quotes on the process
         /// </summary>
         /// <param name="context">The context containing the string to parse</param>
+        /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An object that represents the string atom parsed</returns>
         public static string ParseStringAtom(ZScriptParser.StringLiteralContext context)
         {
@@ -113,6 +116,7 @@ namespace ZScript.Parsing
         /// Escapes a given string using the language's escape rules for double quoted strings, returning the escaped string
         /// </summary>
         /// <param name="str">The string to escape</param>
+        /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An escaped version of the string</returns>
         private static string EscapeDoubleQuoted(string str)
         {
@@ -164,6 +168,7 @@ namespace ZScript.Parsing
         /// Escapes a given string using the language's escape rules for single quoted strings, returning the escaped string
         /// </summary>
         /// <param name="str">The string to escape</param>
+        /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An escaped version of the string</returns>
         private static string EscapeSingleQuoted(string str)
         {
