@@ -958,7 +958,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var stmt = parser.forEachStatement();
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
-            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
             var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
@@ -984,7 +983,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var loopVerify = new JumpTargetToken();
             var loopBody = new JumpTargetToken();
             var loopEnd = new JumpTargetToken();
-            var skipDispose = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // Loop head
@@ -1022,12 +1020,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
-                new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call, disposeMethod),
-                skipDispose,
+                TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
@@ -1054,7 +1047,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var stmt = parser.forEachStatement();
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
-            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
             var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
@@ -1080,7 +1072,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var loopVerify = new JumpTargetToken();
             var loopBody = new JumpTargetToken();
             var loopEnd = new JumpTargetToken();
-            var skipDispose = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // Loop head
@@ -1117,12 +1108,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
-                new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call, disposeMethod),
-                skipDispose,
+                TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 
@@ -1149,7 +1135,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var stmt = parser.forEachStatement();
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
-            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
             var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
             var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
             var currentProp = typeof(IEnumerator).GetProperty("Current");
@@ -1175,7 +1160,6 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var loopVerify = new JumpTargetToken();
             var loopBody = new JumpTargetToken();
             var loopEnd = new JumpTargetToken();
-            var skipDispose = new JumpTargetToken();
             var expectedTokens = new List<Token>
             {
                 // Loop head
@@ -1212,12 +1196,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 loopEnd,
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
-                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)),
-                new JumpToken(skipDispose, true, false),
-                TokenFactory.CreateBoxedValueToken(0),
-                TokenFactory.CreateInstructionToken(VmInstruction.Call, disposeMethod),
-                skipDispose,
+                TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
                 TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
             };
 

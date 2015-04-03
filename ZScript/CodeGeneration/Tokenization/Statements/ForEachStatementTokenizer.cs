@@ -149,15 +149,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             // 8: Call $TEMP.Dispose()
             targetList.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
-            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
-            targetList.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
-
-            // Verify whether the object is an IDisposable instance
-            targetList.Add(new JumpToken(jumpOverDispose, true, false));
-            //tokens.AddRange(TokenFactory.CreateMemberAccess("Dispose", MemberAccessType.MethodAccess, true));
-            targetList.AddRange(TokenFactory.CreateFunctionCall(disposeMethod));
-            targetList.Add(jumpOverDispose);
-
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.TryDispose));
             targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
 
             // Store the temporary definition back into the temporary definition collection

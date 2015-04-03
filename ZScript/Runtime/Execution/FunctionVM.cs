@@ -440,7 +440,7 @@ namespace ZScript.Runtime.Execution
                 case VmInstruction.Swap:
                     var value1 = _stack.Pop();
                     var value2 = _stack.Pop();
-
+                    
                     _stack.Push(value1);
                     _stack.Push(value2);
                     break;
@@ -448,6 +448,11 @@ namespace ZScript.Runtime.Execution
                 // Duplicate Stack
                 case VmInstruction.Duplicate:
                     _stack.Push(_stack.Peek());
+                    break;
+
+                // Try dispose
+                case VmInstruction.TryDispose:
+                    PerformTryDispose();
                     break;
 
                 // Function call
@@ -901,6 +906,18 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a dispose on the value on top of the stack, if it's an IDisposable object
+        /// </summary>
+        void PerformTryDispose()
+        {
+            var obj = PopValueImplicit() as IDisposable;
+            if (obj != null)
+            {
+                obj.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Extracts the type contained within a given token.
         /// The type is extacted if the token contains a valid TokenObject derived from Type or an integer that points to a type
         /// from the type stack contained within the VM context.
@@ -1348,6 +1365,8 @@ namespace ZScript.Runtime.Execution
         Duplicate,
         /// <summary>Clears the current stack of values of the virtual machine</summary>
         ClearStack,
+        /// <summary>Pops the top-most value on the stack and tries disposing it if it implements the IDisposable interface</summary>
+        TryDispose,
 
         /// <summary>Creates an array using the values on the stack and pushes the result back into the stack</summary>
         CreateArray,

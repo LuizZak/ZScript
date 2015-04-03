@@ -63,6 +63,35 @@ namespace ZScriptTests.Performance
         }
 
         [TestMethod]
+        public void TestNestedForEachLoopPerformance()
+        {
+            // The threshold for the test in milliseconds, based on previous runs.
+            // This value is obviously dependent on the system, and I use it mostly to test in my local machine
+            const long threshold = 200;
+
+            const string input = "func funca { var list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]; for(var a in list) { for(var b in list) { for(var c in list) { } } } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            runtime.CallFunction("funca");
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            //Assert.IsTrue(sw.ElapsedMilliseconds < threshold, "The performance test failed to meet the threshold of " + threshold + "ms.");
+        }
+
+        [TestMethod]
         public void TestAssignPerformance()
         {
             // The threshold for the test in milliseconds, based on previous runs.

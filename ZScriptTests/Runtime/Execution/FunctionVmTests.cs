@@ -23,6 +23,7 @@ using System;
 
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rhino.Mocks;
 using ZScript.CodeGeneration.Tokenization;
 
 using ZScript.Elements;
@@ -589,6 +590,34 @@ namespace ZScriptTests.Runtime.Execution
 
             Assert.IsFalse(memory.HasVariable("a"));
             Assert.AreEqual(5, memory.GetVariable("b"), "The memory should contain the variables that were set by the instructions");
+        }
+
+        [TestMethod]
+        public void TestTryDispose()
+        {
+            var disposable = MockRepository.Mock<IDisposable>();
+            disposable.Expect(x => x.Dispose());
+
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(disposable),
+                TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
+                TokenFactory.CreateBoxedValueToken(new object()),
+                TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
+                TokenFactory.CreateBoxedValueToken(null),
+                TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            disposable.VerifyAllExpectations();
         }
 
         #endregion
