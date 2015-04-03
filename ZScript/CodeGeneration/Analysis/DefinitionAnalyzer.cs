@@ -373,7 +373,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Search through the current definition scope
-            var definitions = _currentScope.GetDefinitionsByName(definitionName).ToList();
+            var definitions = _currentScope.GetDefinitionsByName(definitionName);
 
             if (!definitions.Any())
             {

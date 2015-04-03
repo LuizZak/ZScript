@@ -303,7 +303,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definitions to get</param>
         /// <returns>An enumerable containing all of the definitions with a given name reachable by this code scope</returns>
-        public IEnumerable<Definition> GetDefinitionsByName(string definitionName)
+        public IList<Definition> GetDefinitionsByName(string definitionName)
         {
             var scope = this;
             var definitions = new List<Definition>();
