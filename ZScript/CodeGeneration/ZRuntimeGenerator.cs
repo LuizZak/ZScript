@@ -459,7 +459,7 @@ namespace ZScript.CodeGeneration
                     var tokens = new TokenList();
                     if (fieldDef.HasValue)
                     {
-                        tokens = stmtTokenizer.TokenizeExpression(fieldDef.ValueExpression.ExpressionContext).ToTokenList();
+                        tokens = new IntermediaryTokenList(stmtTokenizer.TokenizeExpression(fieldDef.ValueExpression.ExpressionContext)).ToTokenList();
                     }
 
                     var field = new ZClassField(fieldDef.Name, tokens)

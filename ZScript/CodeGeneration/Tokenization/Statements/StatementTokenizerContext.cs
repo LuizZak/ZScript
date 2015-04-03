@@ -32,7 +32,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
     /// <summary>
     /// Tokenizer context, used to help direct tokenization calls to different specialized tokenizers
     /// </summary>
-    public class StatementTokenizerContext
+    public class StatementTokenizerContext : IParserContextTokenizer<ZScriptParser.StatementContext>
     {
         /// <summary>
         /// The inner temporary variable creator for this statement tokenizer context
@@ -116,19 +116,15 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <summary>
         /// Tokenizes a given block statement
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="context">The context containing the block statement to tokenize</param>
-        public IntermediaryTokenList TokenizeBlockStatement(ZScriptParser.BlockStatementContext context)
+        public void TokenizeBlockStatement(IList<Token> targetList, ZScriptParser.BlockStatementContext context)
         {
             var statements = context.statement();
-
-            IntermediaryTokenList statementTokens = new IntermediaryTokenList();
-
             foreach (var statement in statements)
             {
-                statementTokens.AddRange(TokenizeStatement(statement));
+                TokenizeStatement(targetList, statement);
             }
-
-            return new IntermediaryTokenList(statementTokens);
         }
 
         /// <summary>
@@ -138,67 +134,73 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <exception cref="ArgumentException">The statement context contains a statement not recognized by this statement tokenizer</exception>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.StatementContext statement)
         {
-            IntermediaryTokenList statementTokens = null;
+            var statementTokens = new IntermediaryTokenList();
 
+            TokenizeStatement(statementTokens, statement);
+
+            return statementTokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given statement into a list of tokens
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="statement">The statement to tokenize</param>
+        /// <exception cref="ArgumentException">The statement context contains a statement not recognized by this statement tokenizer</exception>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.StatementContext statement)
+        {
             if (statement.expression() != null || statement.assignmentExpression() != null)
             {
-                statementTokens = TokenizeExpressionStatement(statement);
-                statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+                TokenizeExpressionStatement(targetList, statement);
+                targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
             }
             else if (statement.ifStatement() != null)
             {
-                statementTokens = TokenizeIfStatement(statement.ifStatement());
+                TokenizeIfStatement(targetList, statement.ifStatement());
             }
             else if (statement.forStatement() != null)
             {
-                statementTokens = TokenizeForStatement(statement.forStatement());
+                TokenizeForStatement(targetList, statement.forStatement());
             }
             else if (statement.forEachStatement() != null)
             {
-                statementTokens = TokenizeForEachStatement(statement.forEachStatement());
+                TokenizeForEachStatement(targetList, statement.forEachStatement());
             }
             else if (statement.whileStatement() != null)
             {
-                statementTokens = TokenizeWhileStatement(statement.whileStatement());
+                TokenizeWhileStatement(targetList, statement.whileStatement());
             }
             else if (statement.switchStatement() != null)
             {
-                statementTokens = TokenizeSwitchStatement(statement.switchStatement());
+                TokenizeSwitchStatement(targetList, statement.switchStatement());
             }
             else if (statement.blockStatement() != null)
             {
-                statementTokens = TokenizeBlockStatement(statement.blockStatement());
+                TokenizeBlockStatement(targetList, statement.blockStatement());
             }
             else if (statement.breakStatement() != null)
             {
-                statementTokens = TokenizeBreakStatement(statement.breakStatement());
+                TokenizeBreakStatement(targetList, statement.breakStatement());
             }
             else if (statement.continueStatement() != null)
             {
-                statementTokens = TokenizeContinueStatement(statement.continueStatement());
+                TokenizeContinueStatement(targetList, statement.continueStatement());
             }
             else if (statement.valueDeclareStatement() != null)
             {
-                statementTokens = TokenizeValueDeclareStatement(statement.valueDeclareStatement());
+                TokenizeValueDeclareStatement(targetList, statement.valueDeclareStatement());
 
-                if(statementTokens.Count > 0)
-                    statementTokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+                if (targetList.Count > 0)
+                    targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
             }
             else if (statement.returnStatement() != null)
             {
-                statementTokens = TokenizeReturnStatement(statement.returnStatement());
+                TokenizeReturnStatement(targetList, statement.returnStatement());
             }
-            else if (statement.GetText() == ";")
+            else if (statement.GetText() != ";")
             {
-                statementTokens = new IntermediaryTokenList();
+                throw new ArgumentException("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
             }
-
-            if(statementTokens != null)
-            {
-                return statementTokens;
-            }
-
-            throw new ArgumentException("Unkown statement that cannot be tokenized: " + statement.GetType().Name);
         }
 
         #region Statements
@@ -210,41 +212,64 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens that corresponds to the if statement</returns>
         public IntermediaryTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext statement)
         {
+            var tokens = new IntermediaryTokenList();
+            TokenizeIfStatement(tokens, statement);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given IF statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="statement">The statement to tokenize</param>
+        public void TokenizeIfStatement(IList<Token> targetList, ZScriptParser.IfStatementContext statement)
+        {
             var tokenizer = new IfStatementTokenizer(this);
-            return tokenizer.TokenizeStatement(statement);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
         /// Tokenizes a given FOR statement on this statement tokenizer context
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="statement">The statement to tokenize</param>
-        /// <returns>A list of tokens that corresponds to the for statement</returns>
-        public IntermediaryTokenList TokenizeForStatement(ZScriptParser.ForStatementContext statement)
+        public void TokenizeForStatement(IList<Token> targetList, ZScriptParser.ForStatementContext statement)
         {
             var tokenizer = new ForStatementTokenizer(this);
-            return tokenizer.TokenizeStatement(statement);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
         /// Tokenizes a given FOR EACH statement on this statement tokenizer context
         /// </summary>
         /// <param name="statement">The statement to tokenize</param>
-        /// <returns>A list of tokens that corresponds to the for each statement</returns>
         public IntermediaryTokenList TokenizeForEachStatement(ZScriptParser.ForEachStatementContext statement)
         {
+            var tokens = new IntermediaryTokenList();
+            TokenizeForEachStatement(tokens, statement);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given FOR EACH statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="statement">The statement to tokenize</param>
+        public void TokenizeForEachStatement(IList<Token> targetList, ZScriptParser.ForEachStatementContext statement)
+        {
             var tokenizer = new ForEachStatementTokenizer(this);
-            return tokenizer.TokenizeStatement(statement);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
         /// Tokenizes a given WHILE statement on this statement tokenizer context
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="statement">The statement to tokenize</param>
-        /// <returns>A list of tokens that corresponds to the while statement</returns>
-        public IntermediaryTokenList TokenizeWhileStatement(ZScriptParser.WhileStatementContext statement)
+        public void TokenizeWhileStatement(IList<Token> targetList, ZScriptParser.WhileStatementContext statement)
         {
             var tokenizer = new WhileStatementTokenizer(this);
-            return tokenizer.TokenizeStatement(statement);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
@@ -254,32 +279,42 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens that corresponds to the switch statement</returns>
         public IntermediaryTokenList TokenizeSwitchStatement(ZScriptParser.SwitchStatementContext statement)
         {
+            var tokens = new IntermediaryTokenList();
+            TokenizeSwitchStatement(tokens, statement);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given SWITCH statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="statement">The statement to tokenize</param>
+        public void TokenizeSwitchStatement(IList<Token> targetList, ZScriptParser.SwitchStatementContext statement)
+        {
             var tokenizer = new SwitchStatementTokenizer(this);
-            return tokenizer.TokenizeStatement(statement);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
         /// Tokenizes a given BREAK statement on this statement tokenizer context
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="statement">The statement to tokenize</param>
-        /// <returns>A list of tokens that corresponds to the for statement</returns>
-        public IntermediaryTokenList TokenizeBreakStatement(ZScriptParser.BreakStatementContext statement)
+        public void TokenizeBreakStatement(IList<Token> targetList, ZScriptParser.BreakStatementContext statement)
         {
-            BreakStatementTokenizer tokenizer = new BreakStatementTokenizer(this);
-
-            return tokenizer.TokenizeStatement(statement);
+            var tokenizer = new BreakStatementTokenizer(this);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
         /// Tokenizes a given CONTINUE statement on this statement tokenizer context
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="statement">The statement to tokenize</param>
-        /// <returns>A list of tokens that corresponds to the for statement</returns>
-        public IntermediaryTokenList TokenizeContinueStatement(ZScriptParser.ContinueStatementContext statement)
+        public void TokenizeContinueStatement(IList<Token> targetList, ZScriptParser.ContinueStatementContext statement)
         {
-            ContinueStatementTokenizer tokenizer = new ContinueStatementTokenizer(this);
-
-            return tokenizer.TokenizeStatement(statement);
+            var tokenizer = new ContinueStatementTokenizer(this);
+            tokenizer.TokenizeStatement(targetList, statement);
         }
 
         /// <summary>
@@ -289,8 +324,20 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A tokenized version of the given statement</returns>
         public IntermediaryTokenList TokenizeReturnStatement(ZScriptParser.ReturnStatementContext returnStatement)
         {
-            ReturnStatementTokenizer tokenizer = new ReturnStatementTokenizer(this);
-            return tokenizer.TokenizeStatement(returnStatement);
+            var tokens = new IntermediaryTokenList();
+            TokenizeReturnStatement(tokens, returnStatement);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given return statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="returnStatement">The statement to tokenize</param>
+        public void TokenizeReturnStatement(IList<Token> targetList, ZScriptParser.ReturnStatementContext returnStatement)
+        {
+            var tokenizer = new ReturnStatementTokenizer(this);
+            tokenizer.TokenizeStatement(targetList, returnStatement);
         }
 
         #endregion
@@ -298,16 +345,23 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <summary>
         /// Tokenizes a given expression statement on this statement tokenizer context
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="statement">The statement containing the expression to tokenize</param>
-        /// <returns>A list of tokens corresponding to the expression statement that was tokenized</returns>
-        public IntermediaryTokenList TokenizeExpressionStatement(ZScriptParser.StatementContext statement)
+        public void TokenizeExpressionStatement(IList<Token> targetList, ZScriptParser.StatementContext statement)
         {
-            //new InfixExpressionPrinter().PrintStatement(statement);
-            //new PostfixExpressionPrinter().PrintStatement(statement);
-
             var postfixTokenizer = new PostfixExpressionTokenizer(this);
+            postfixTokenizer.TokenizeStatement(targetList, statement);
+        }
 
-            return postfixTokenizer.TokenizeStatement(statement);
+        /// <summary>
+        /// Tokenizes a given expression on this statement tokenizer context
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="expression">The expression to tokenize</param>
+        public void TokenizeExpression(IList<Token> targetList, ZScriptParser.ExpressionContext expression)
+        {
+            var postfixTokenizer = new PostfixExpressionTokenizer(this);
+            postfixTokenizer.TokenizeExpression(targetList, expression);
         }
 
         /// <summary>
@@ -317,21 +371,20 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens corresponding to the expression that was tokenized</returns>
         public IntermediaryTokenList TokenizeExpression(ZScriptParser.ExpressionContext expression)
         {
-            var postfixTokenizer = new PostfixExpressionTokenizer(this);
-
-            return postfixTokenizer.TokenizeExpression(expression);
+            var tokens = new IntermediaryTokenList();
+            TokenizeExpression(tokens, expression);
+            return tokens;
         }
 
         /// <summary>
         /// Tokenizes a given assignment expression on this statement tokenizer context
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="expression">The assignment expression to tokenize</param>
-        /// <returns>A list of tokens corresponding to the assignment expression that was tokenized</returns>
-        public IntermediaryTokenList TokenizeAssignmentExpression(ZScriptParser.AssignmentExpressionContext expression)
+        public void TokenizeAssignmentExpression(IList<Token> targetList, ZScriptParser.AssignmentExpressionContext expression)
         {
             var postfixTokenizer = new PostfixExpressionTokenizer(this);
-
-            return postfixTokenizer.TokenizeAssignmentExpression(expression);
+            postfixTokenizer.TokenizeAssignmentExpression(targetList, expression);
         }
 
         /// <summary>
@@ -341,18 +394,30 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens tokenized from the given context</returns>
         public IntermediaryTokenList TokenizeValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
         {
-            return TokenizeValueDeclaration(context.valueHolderDecl());
+            var tokens = new IntermediaryTokenList();
+            TokenizeValueDeclaration(tokens, context.valueHolderDecl());
+            return tokens;
         }
 
         /// <summary>
         /// Tokenizes a given variable declaration
         /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
         /// <param name="context">The context to tokenize</param>
-        /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediaryTokenList TokenizeValueDeclaration(ZScriptParser.ValueHolderDeclContext context)
+        public void TokenizeValueDeclareStatement(IList<Token> targetList, ZScriptParser.ValueDeclareStatementContext context)
+        {
+            TokenizeValueDeclaration(targetList, context.valueHolderDecl());
+        }
+
+        /// <summary>
+        /// Tokenizes a given variable declaration
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="context">The context to tokenize</param>
+        public void TokenizeValueDeclaration(IList<Token> targetList, ZScriptParser.ValueHolderDeclContext context)
         {
             var tokenizer = new VariableDeclarationStatementTokenizer(this);
-            return tokenizer.TokenizeValueHolderDeclaration(context);
+            tokenizer.TokenizeStatement(targetList, context);
         }
 
         /// <summary>

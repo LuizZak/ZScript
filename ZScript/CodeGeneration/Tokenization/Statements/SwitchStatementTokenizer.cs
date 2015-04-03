@@ -23,13 +23,14 @@ using System.Collections.Generic;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Helper class used to aid in the tokenization process of an SWITCH statement
     /// </summary>
-    public class SwitchStatementTokenizer
+    public class SwitchStatementTokenizer : IParserContextTokenizer<ZScriptParser.SwitchStatementContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a nested switch statement appears inside one of the cases
@@ -51,10 +52,22 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
-        /// Tokenizes a given IF statement into a list of tokens
+        /// Tokenizes a given SWITCH statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.SwitchStatementContext context)
+        {
+            var tokens = new IntermediaryTokenList();
+            TokenizeStatement(tokens, context);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given SWITCH statement into a list of tokens
+        /// </summary>
+        /// <param name="targetList">The target list to tokenize to</param>
+        /// <param name="context">The context containinng</param>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.SwitchStatementContext context)
         {
             // Create the end switch block target
             _switchBlockEndTarget = new JumpTargetToken();
@@ -71,8 +84,6 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 cases.Add(TokenizeCaseStatement(c));
             }
 
-            var tokens = new IntermediaryTokenList();
-
             // Constant switch evaluation
             if (context.IsConstant)
             {
@@ -83,79 +94,77 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                     {
                         foreach (var stmt in context.switchBlock().defaultBlock().statement())
                         {
-                            tokens.AddRange(_context.TokenizeStatement(stmt));
+                            _context.TokenizeStatement(targetList, stmt);
                         }
                     }
                 }
                 else
                 {
-                    tokens.AddRange(cases[context.ConstantCaseIndex].CaseStatementTokens);
+                    targetList.AddRange(cases[context.ConstantCaseIndex].CaseStatementTokens);
                 }
 
                 // Stick the switch block end target at the end of the list so break statements don't result in invalid jumps
-                tokens.Add(_switchBlockEndTarget);
+                targetList.Add(_switchBlockEndTarget);
 
-                return tokens;
+                return;
             }
 
             // Add the switch expression
-            if(context.expression() != null)
+            if (context.expression() != null)
             {
-                tokens.AddRange(_context.TokenizeExpression(context.expression()));
+                _context.TokenizeExpression(targetList, context.expression());
             }
             else
             {
-                tokens.AddRange(_context.TokenizeValueDeclaration(context.valueHolderDecl()));
+                _context.TokenizeValueDeclaration(targetList, context.valueHolderDecl());
             }
 
             // Add the cases' comparisions
             foreach (var caseStatement in cases)
             {
                 // Add a duplicate instruction so we can reuse the top-most value of the stack over many consecutive case comparisions
-                tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+                targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
 
                 // Add the case expression now
-                tokens.AddRange(caseStatement.ExpressionTokens);
+                targetList.AddRange(caseStatement.ExpressionTokens);
                 // Add the comparision operator
-                tokens.Add(TokenFactory.CreateOperatorToken(caseStatement.ComparisionOperator));
+                targetList.Add(TokenFactory.CreateOperatorToken(caseStatement.ComparisionOperator));
 
                 // Add the jump token
-                tokens.Add(new JumpToken(caseStatement.JumpTarget, true));
+                targetList.Add(new JumpToken(caseStatement.JumpTarget, true));
             }
 
             // Add a jump that points to after the switch statement
-            tokens.Add(new JumpToken(defaultBlockTarget));
+            targetList.Add(new JumpToken(defaultBlockTarget));
 
             // Add the cases' statements now
             foreach (var caseStatement in cases)
             {
-                tokens.Add(caseStatement.JumpTarget);
-                tokens.AddRange(caseStatement.CaseStatementTokens);
+                targetList.Add(caseStatement.JumpTarget);
+                targetList.AddRange(caseStatement.CaseStatementTokens);
             }
 
             // Add the default block target
-            tokens.Add(defaultBlockTarget);
+            targetList.Add(defaultBlockTarget);
 
             // Add the default block now
             if (context.switchBlock().defaultBlock() != null)
             {
                 foreach (var stmt in context.switchBlock().defaultBlock().statement())
                 {
-                    tokens.AddRange(_context.TokenizeStatement(stmt));
+                    _context.TokenizeStatement(targetList, stmt);
                 }
             }
 
             // Stick the switch block end target at the end of the list
-            tokens.Add(_switchBlockEndTarget);
+            targetList.Add(_switchBlockEndTarget);
 
             // Add a stack balancing instruction
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
-
-            return tokens;
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
         }
 
         /// <summary>
-        /// Tokenizes a given ELSE statement into a list of tokens
+        /// Tokenizes a given CASE statement into a switch case statement container
         /// </summary>
         /// <param name="context">The context containing the ELSE statement to tokenize</param>
         private SwitchCaseStatement TokenizeCaseStatement(ZScriptParser.CaseBlockContext context)
@@ -167,7 +176,10 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 stmtTokens.AddRange(_context.TokenizeStatement(statement));
             }
 
-            return new SwitchCaseStatement(VmInstruction.Equals, _context.TokenizeExpression(context.expression()), stmtTokens);
+            var expTokens = new IntermediaryTokenList();
+            _context.TokenizeExpression(expTokens, context.expression());
+
+            return new SwitchCaseStatement(VmInstruction.Equals, expTokens, stmtTokens);
         }
 
         /// <summary>
@@ -178,12 +190,12 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             /// <summary>
             /// Gets the list of tokens that represent the case entry expression
             /// </summary>
-            public IntermediaryTokenList ExpressionTokens { get; private set; }
+            public IEnumerable<Token> ExpressionTokens { get; private set; }
 
             /// <summary>
             /// Gets the list of tokens that represent the statements inside the case block
             /// </summary>
-            public IntermediaryTokenList CaseStatementTokens { get; private set; }
+            public IEnumerable<Token> CaseStatementTokens { get; private set; }
 
             /// <summary>
             /// Gets the comparision operator to apply to the switch expression result and this case's expression result
@@ -201,7 +213,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             /// <param name="comparisionOperator">The comparision operator to apply to the switch expression result and this case's expression result</param>
             /// <param name="expressionTokens">A aist of tokens that represent the case entry expression</param>
             /// <param name="caseStatementTokens">A list of tokens that represent the statements inside the case block</param>
-            public SwitchCaseStatement(VmInstruction comparisionOperator, IntermediaryTokenList expressionTokens, IntermediaryTokenList caseStatementTokens)
+            public SwitchCaseStatement(VmInstruction comparisionOperator, IEnumerable<Token> expressionTokens, IEnumerable<Token> caseStatementTokens)
             {
                 ExpressionTokens = expressionTokens;
                 CaseStatementTokens = caseStatementTokens;

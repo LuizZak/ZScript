@@ -19,14 +19,16 @@
 */
 #endregion
 
+using System.Collections.Generic;
 using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing break statements
     /// </summary>
-    public class BreakStatementTokenizer
+    public class BreakStatementTokenizer : IParserContextTokenizer<ZScriptParser.BreakStatementContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a different statement appears
@@ -50,13 +52,22 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.BreakStatementContext context)
         {
             var tokenList = new IntermediaryTokenList();
+            TokenizeStatement(tokenList, context);
+            return tokenList;
+        }
 
+        /// <summary>
+        /// Tokenizes a given Break statement into a list of tokens
+        /// </summary>
+        /// <param name="targetList">The list of tokens to tokenize to</param>
+        /// <param name="context">The context to tokenize</param>
+        /// <returns>A list of tokens tokenized from the given context</returns>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.BreakStatementContext context)
+        {
             if (_context.CurrentBreakTarget != null)
             {
-                tokenList.Add(new JumpToken(_context.CurrentBreakTarget));
+                targetList.Add(new JumpToken(_context.CurrentBreakTarget));
             }
-
-            return tokenList;
         }
     }
 }

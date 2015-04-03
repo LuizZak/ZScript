@@ -75,5 +75,16 @@ namespace ZScript.Utils
 
             return -1;
         }
+
+        /// <summary>
+        /// Adds a range of items to an IList object
+        /// </summary>
+        public static void AddRange<T>(this IList<T> list, IEnumerable<T> collection)
+        {
+            foreach (var value in collection)
+            {
+                list.Add(value);
+            }
+        }
     }
 }

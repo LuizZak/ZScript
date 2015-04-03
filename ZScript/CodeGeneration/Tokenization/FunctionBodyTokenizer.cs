@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 
 using ZScript.CodeGeneration.Tokenization.Helpers;
@@ -62,7 +63,8 @@ namespace ZScript.CodeGeneration.Tokenization
             var state = context.blockStatement();
 
             var stc = new StatementTokenizerContext(_generationContext);
-            var tokens = stc.TokenizeBlockStatement(state);
+            var tokens = new IntermediaryTokenList();
+            stc.TokenizeBlockStatement(tokens, state);
 
             if (DebugTokens)
             {

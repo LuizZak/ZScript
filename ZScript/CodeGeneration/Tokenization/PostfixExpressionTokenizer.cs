@@ -42,7 +42,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <summary>
         /// The list of tokens that were generated in this statement run
         /// </summary>
-        private IntermediaryTokenList _tokens = new IntermediaryTokenList();
+        private IList<Token> _tokens = new IntermediaryTokenList();
 
         /// <summary>
         /// Stack of short circuit targets, used during processing of short-circuits in the VisitExpressionOperator method
@@ -88,18 +88,29 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <returns>A TokenList object generated from the given statament</returns>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.StatementContext context)
         {
-            _tokens = new IntermediaryTokenList();
+            _tokens = new List<Token>();
+            TokenizeStatement(_tokens, context);
+            return new IntermediaryTokenList(_tokens);
+        }
+
+        /// <summary>
+        /// Tokenizes a given statament into a list of tokens
+        /// </summary>
+        /// <param name="tokens">The list to tokenize to</param>
+        /// <param name="context">The statement to tokenize</param>
+        /// <returns>A TokenList object generated from the given statament</returns>
+        public void TokenizeStatement(IList<Token> tokens, ZScriptParser.StatementContext context)
+        {
+            _tokens = tokens;
 
             if (context.expression() != null)
             {
-                TokenizeExpression(context.expression());
+                TokenizeExpression(_tokens, context.expression());
             }
             else if (context.assignmentExpression() != null)
             {
-                TokenizeAssignmentExpression(context.assignmentExpression());
+                TokenizeAssignmentExpression(_tokens, context.assignmentExpression());
             }
-
-            return _tokens;
         }
 
         /// <summary>
@@ -109,11 +120,21 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <returns>The list of tokens containing the expression that was tokenized</returns>
         public IntermediaryTokenList TokenizeExpression(ZScriptParser.ExpressionContext context)
         {
-            _tokens = new IntermediaryTokenList();
+            _tokens = new List<Token>();
+            TokenizeExpression(_tokens, context);
+            return new IntermediaryTokenList(_tokens);
+        }
 
+        /// <summary>
+        /// Tokenizes a given expression context into a list of tokens
+        /// </summary>
+        /// <param name="tokens">The list to tokenize to</param>
+        /// <param name="context">The context containing the expression to tokenize</param>
+        /// <returns>The list of tokens containing the expression that was tokenized</returns>
+        public void TokenizeExpression(IList<Token> tokens, ZScriptParser.ExpressionContext context)
+        {
+            _tokens = tokens;
             VisitExpression(context);
-
-            return _tokens;
         }
 
         /// <summary>
@@ -125,9 +146,21 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             _tokens = new IntermediaryTokenList();
 
-            VisitAssignmentExpression(context);
+            TokenizeAssignmentExpression(_tokens, context);
 
-            return _tokens;
+            return new IntermediaryTokenList(_tokens);
+        }
+
+        /// <summary>
+        /// Tokenizes a given assignment expression context into a list of tokens
+        /// </summary>
+        /// <param name="tokens">The list to tokenize to</param>
+        /// <param name="context">The context containing the assignment expression to tokenize</param>
+        /// <returns>The list of tokens containing the assignment expression that was tokenized</returns>
+        public void TokenizeAssignmentExpression(IList<Token> tokens, ZScriptParser.AssignmentExpressionContext context)
+        {
+            _tokens = tokens;
+            VisitAssignmentExpression(context);
         }
 
         /// <summary>

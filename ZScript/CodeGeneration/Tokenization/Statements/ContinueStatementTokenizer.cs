@@ -19,14 +19,16 @@
 */
 #endregion
 
+using System.Collections.Generic;
 using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing Continue statements
     /// </summary>
-    public class ContinueStatementTokenizer
+    public class ContinueStatementTokenizer : IParserContextTokenizer<ZScriptParser.ContinueStatementContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a different statement appears
@@ -50,13 +52,22 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.ContinueStatementContext context)
         {
             var tokenList = new IntermediaryTokenList();
+            TokenizeStatement(tokenList, context);
+            return tokenList;
+        }
 
+        /// <summary>
+        /// Tokenizes a given Continue statement into a list of tokens
+        /// </summary>
+        /// <param name="targetList">The target list to add the tokens to</param>
+        /// <param name="context">The context to tokenize</param>
+        /// <returns>A list of tokens tokenized from the given context</returns>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ContinueStatementContext context)
+        {
             if (_context.CurrentContinueTarget != null)
             {
-                tokenList.Add(new JumpToken(_context.CurrentContinueTarget));
+                targetList.Add(new JumpToken(_context.CurrentContinueTarget));
             }
-
-            return tokenList;
         }
     }
 }

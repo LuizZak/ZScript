@@ -21,16 +21,19 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
+
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing FOR EACH statements
     /// </summary>
-    public class ForEachStatementTokenizer
+    public class ForEachStatementTokenizer : IParserContextTokenizer<ZScriptParser.ForEachStatementContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a different statement appears
@@ -53,7 +56,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         private JumpTargetToken _bodyTarget;
 
         /// <summary>
-        /// Initializes a new instance of the ForStatementTokenizer class
+        /// Initializes a new instance of the ForEachStatementTokenizer class
         /// </summary>
         /// <param name="context">The context used during tokenization</param>
         public ForEachStatementTokenizer(StatementTokenizerContext context)
@@ -62,14 +65,25 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         }
 
         /// <summary>
-        /// Tokenizes a given For loop statement into a list of tokens
+        /// Tokenizes a given For Each loop statement into a list of tokens
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.ForEachStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
+            TokenizeStatement(tokens, context);
+            return tokens;
+        }
 
+        /// <summary>
+        /// Tokenizes a given For Each loop statement into a list of tokens
+        /// </summary>
+        /// <param name="targetList">The target list to add the tokens to</param>
+        /// <param name="context">The context to tokenize</param>
+        /// <returns>A list of tokens tokenized from the given context</returns>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ForEachStatementContext context)
+        {
             // Get some cached member infos for the iterators
             var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
             var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
@@ -105,54 +119,52 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 8: Call $TEMP.Dispose()
             */
             // 1: Evaluate <list>
-            tokens.AddRange(_context.TokenizeExpression(context.forEachHeader().expression()));
+            _context.TokenizeExpression(targetList, context.forEachHeader().expression());
             // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
-            tokens.AddRange(TokenFactory.CreateFunctionCall(getEnumMethod));
-            tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, false));
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
+            targetList.AddRange(TokenFactory.CreateFunctionCall(getEnumMethod));
+            targetList.Add(TokenFactory.CreateVariableToken(tempDef.Name, false));
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
 
             // Loop iterating
             // 3: [Jump 6]
-            tokens.Add(new JumpToken(_conditionTarget));
+            targetList.Add(new JumpToken(_conditionTarget));
 
             // Body target
-            tokens.Add(_bodyTarget);
+            targetList.Add(_bodyTarget);
             // 4: Assign <item> as $TEMP.Current
             var value = TokenFactory.CreateMemberAccess(tempDef.Name, currentProp, true);
-            tokens.AddRange(TokenFactory.CreateVariableAssignment(context.forEachHeader().valueHolderDefine().valueHolderName().memberName().IDENT().GetText(), value));
+            targetList.AddRange(TokenFactory.CreateVariableAssignment(context.forEachHeader().valueHolderDefine().valueHolderName().memberName().IDENT().GetText(), value));
 
             // 5: { Loop body }
-            tokens.AddRange(_context.TokenizeStatement(context.statement()));
+            _context.TokenizeStatement(targetList, context.statement());
 
             // Condition jump target
-            tokens.Add(_conditionTarget);
+            targetList.Add(_conditionTarget);
             // 6: Call $TEMP.MoveNext()
-            tokens.AddRange(TokenFactory.CreateMethodCall(tempDef.Name, moveNextMethod));
+            targetList.AddRange(TokenFactory.CreateMethodCall(tempDef.Name, moveNextMethod));
             // 7: [JumpIfTrue 4]
-            tokens.Add(new JumpToken(_bodyTarget, true));
+            targetList.Add(new JumpToken(_bodyTarget, true));
             // For Block end
-            tokens.Add(_forBlockEndTarget);
+            targetList.Add(_forBlockEndTarget);
 
             // 8: Call $TEMP.Dispose()
-            tokens.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
-            tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
+            targetList.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+            targetList.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, typeof(IDisposable)));
 
             // Verify whether the object is an IDisposable instance
-            tokens.Add(new JumpToken(jumpOverDispose, true, false));
+            targetList.Add(new JumpToken(jumpOverDispose, true, false));
             //tokens.AddRange(TokenFactory.CreateMemberAccess("Dispose", MemberAccessType.MethodAccess, true));
-            tokens.AddRange(TokenFactory.CreateFunctionCall(disposeMethod));
-            tokens.Add(jumpOverDispose);
+            targetList.AddRange(TokenFactory.CreateFunctionCall(disposeMethod));
+            targetList.Add(jumpOverDispose);
 
-            tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
 
             // Store the temporary definition back into the temporary definition collection
             _context.TemporaryDefinitionCreator.ReleaseDefinition(tempDef);
 
             _context.PopContinueTarget();
             _context.PopBreakTarget();
-
-            return tokens;
         }
     }
 }

@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration;
@@ -52,13 +52,16 @@ namespace ZScriptTests.Utils
         /// <param name="message">The message to display in case the tokens mismatch</param>
         /// <returns>true if the token lists are equivalent, false otherwise</returns>
         /// <exception cref="Exception">The token lists did not match</exception>
-        public static void AssertTokenListEquals(IList<Token> expected, IList<Token> actual, string message)
+        public static void AssertTokenListEquals(IEnumerable<Token> expected, IEnumerable<Token> actual, string message)
         {
+            var expList = expected.ToList();
+            var actualList = actual.ToList();
+
             // Compare the tokens one by one
-            for (int i = 0; i < Math.Min(expected.Count, actual.Count); i++)
+            for (int i = 0; i < Math.Min(expList.Count, actualList.Count); i++)
             {
-                Token t1 = expected[i];
-                Token t2 = actual[i];
+                Token t1 = expList[i];
+                Token t2 = actualList[i];
 
                 // Unequality of types
                 if (t1.GetType() != t2.GetType())
@@ -71,7 +74,7 @@ namespace ZScriptTests.Utils
                     if (jt1.ConditionToJump != jt2.ConditionToJump ||
                         jt1.Conditional != jt2.Conditional ||
                         jt1.ConsumesStack != jt2.ConsumesStack ||
-                        expected.IndexOfReference(jt1.TargetToken) != actual.IndexOfReference(jt2.TargetToken))
+                        expList.IndexOfReference(jt1.TargetToken) != actualList.IndexOfReference(jt2.TargetToken))
                     {
                         throw new Exception(message + "; Jump tokens at index " + i + " do not have the same configuration: expected " + t1 + " actual: " + t2);
                     }
@@ -81,7 +84,7 @@ namespace ZScriptTests.Utils
                 var tt2 = t2 as TypedToken;
                 if (tt1 != null && tt2 != null)
                 {
-                    if(!tt1.Equals(tt2))
+                    if (!tt1.Equals(tt2))
                         throw new Exception(message + "; Tokens at index " + i + " have different values: expected " + t1 + " actual: " + t2 + " (watch out for int->long conversions in numeric atoms!)");
                 }
 
@@ -89,7 +92,7 @@ namespace ZScriptTests.Utils
                     throw new Exception(message + "; Tokens at index " + i + " have different values: expected " + t1 + " actual: " + t2 + " (watch out for int->long conversions in numeric atoms!)");
             }
 
-            if (expected.Count != actual.Count)
+            if (expList.Count != actualList.Count)
                 throw new Exception(message + "; Token lists have different token counts");
         }
 

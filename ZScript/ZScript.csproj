@@ -77,6 +77,7 @@
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedTokenExpander.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenList.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\ForEachStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenization\Statements\IParserContextTokenizer.cs" />
     <Compile Include="Elements\Optional.cs" />
     <Compile Include="Elements\ZClass.cs" />
     <Compile Include="Elements\ZConstructor.cs" />
@@ -120,7 +121,7 @@
     <Compile Include="CodeGeneration\Tokenization\Statements\BreakStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\ContinueStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\ForStatementTokenizer.cs" />
-    <Compile Include="CodeGeneration\Tokenization\Statements\IfStatementTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenization\Statements\IFStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpToken.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTokenOptimizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTargetToken.cs" />

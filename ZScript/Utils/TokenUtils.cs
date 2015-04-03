@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
@@ -36,11 +36,12 @@ namespace ZScript.Utils
         /// Prints a given list of tokens into the console
         /// </summary>
         /// <param name="tokenList">The list of tokens to print</param>
-        public static void PrintTokens(IList<Token> tokenList)
+        public static void PrintTokens(IEnumerable<Token> tokenList)
         {
             int add = 0;
 
-            foreach (var token in tokenList)
+            var list = tokenList as IList<Token> ?? tokenList.ToList();
+            foreach (var token in list)
             {
                 Console.Write("{0:0000000}", add++);
                 Console.Write(": ");
@@ -49,7 +50,7 @@ namespace ZScript.Utils
                 if (jumpToken != null)
                 {
                     Console.Write("[");
-                    Console.Write(OffsetForJump(tokenList, jumpToken));
+                    Console.Write(OffsetForJump(list, jumpToken));
                     Console.Write(" JUMP");
                     if (jumpToken.Conditional)
                     {
@@ -143,9 +144,20 @@ namespace ZScript.Utils
         /// <param name="tokenList">The list of tokens to analyze</param>
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
-        public static int OffsetForJump(IList<Token> tokenList, JumpToken jumpToken)
+        public static int OffsetForJump(IEnumerable<Token> tokenList, JumpToken jumpToken)
         {
-            return tokenList.IndexOfReference(jumpToken.TargetToken);
+            int i = 0;
+            foreach (var token in tokenList)
+            {
+                if (ReferenceEquals(token, jumpToken.TargetToken))
+                {
+                    return i;
+                }
+
+                i++;
+            }
+
+            return -1;
         }
     }
 }

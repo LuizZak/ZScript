@@ -18,14 +18,17 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System.Collections.Generic;
 using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Class capable of tokenizing While statements
     /// </summary>
-    public class WhileStatementTokenizer
+    public class WhileStatementTokenizer : IParserContextTokenizer<ZScriptParser.WhileStatementContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a different statement appears
@@ -58,6 +61,19 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens tokenized from the given context</returns>
         public IntermediaryTokenList TokenizeStatement(ZScriptParser.WhileStatementContext context)
         {
+            var tokens = new IntermediaryTokenList();
+            TokenizeStatement(tokens, context);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given While loop statement into a list of tokens
+        /// </summary>
+        /// <param name="targetList">The target list to tokenize to</param>
+        /// <param name="context">The context to tokenize</param>
+        /// <returns>A list of tokens tokenized from the given context</returns>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.WhileStatementContext context)
+        {
             // WHILE loop tokenization:
             // 1 - Condition expression
             // 2 - Conditional jump to End
@@ -72,32 +88,28 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             _context.PushContinueTarget(_conditionTarget);
             _context.PushBreakTarget(_blockEnd);
 
-            IntermediaryTokenList tokens = new IntermediaryTokenList();
-
             var cond = context.expression();
 
             // 1 - Condition expression
-            tokens.Add(_conditionTarget);
+            targetList.Add(_conditionTarget);
 
-            tokens.AddRange(_context.TokenizeExpression(cond));
+            _context.TokenizeExpression(targetList, cond);
 
             // 2 - Conditional jump to End
-            tokens.Add(new JumpToken(_blockEnd, true, false));
+            targetList.Add(new JumpToken(_blockEnd, true, false));
 
             // 3 - Body loop
-            tokens.AddRange(_context.TokenizeStatement(context.statement()));
+            _context.TokenizeStatement(targetList, context.statement());
 
             // 4 - Unconditional jump to Condition
-            tokens.Add(new JumpToken(_conditionTarget));
+            targetList.Add(new JumpToken(_conditionTarget));
 
             // 5 - End
-            tokens.Add(_blockEnd);
+            targetList.Add(_blockEnd);
 
             // Pop the targets
             _context.PopContinueTarget();
             _context.PopBreakTarget();
-
-            return tokens;
         }
     }
 }

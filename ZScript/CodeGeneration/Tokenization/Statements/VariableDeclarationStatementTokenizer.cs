@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System.Collections.Generic;
 using ZScript.Elements;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Runtime.Execution;
@@ -27,7 +29,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
     /// <summary>
     /// Class capable of tokenizing VAR and LET statements
     /// </summary>
-    public class VariableDeclarationStatementTokenizer
+    public class VariableDeclarationStatementTokenizer : IParserContextTokenizer<ZScriptParser.ValueHolderDeclContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a different statement appears
@@ -48,26 +50,35 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public IntermediaryTokenList TokenizeValueHolderDeclaration(ZScriptParser.ValueHolderDeclContext context)
+        public IntermediaryTokenList TokenizeStatement(ZScriptParser.ValueHolderDeclContext context)
+        {
+            var tokens = new IntermediaryTokenList();
+            TokenizeStatement(tokens, context);
+            return tokens;
+        }
+
+        /// <summary>
+        /// Tokenizes a given value declaration into a list of tokens
+        /// </summary>
+        /// <param name="targetList">The target list to add the tokens to</param>
+        /// <param name="context">The context to tokenize</param>
+        /// <returns>A list of tokens that were tokenized from the given context</returns>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ValueHolderDeclContext context)
         {
             var expression = context.expression();
             var name = context.valueHolderDefine().valueHolderName().memberName().IDENT().GetText();
 
-            if (expression != null)
+            if (expression == null) return;
+
+            if (context.Definition != null && context.Definition.IsConstant && expression.IsConstant && expression.IsConstantPrimitive)
             {
-                if (context.Definition != null && context.Definition.IsConstant && expression.IsConstant && expression.IsConstantPrimitive)
-                {
-                    return new IntermediaryTokenList();
-                }
-
-                IntermediaryTokenList tokens = _context.TokenizeExpression(expression);
-                tokens.Add(new VariableToken(name, false) { GlobalDefinition = false });
-                tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
-
-                return tokens;
+                return;
             }
 
-            return new IntermediaryTokenList();
+            _context.TokenizeExpression(targetList, expression);
+
+            targetList.Add(new VariableToken(name, false) {GlobalDefinition = false});
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
         }
     }
 }

@@ -19,14 +19,16 @@
 */
 #endregion
 
+using System.Collections.Generic;
 using ZScript.CodeGeneration.Tokenization.Helpers;
+using ZScript.Elements;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements
 {
     /// <summary>
     /// Helper class used to aid in the tokenization process of an IF statement
     /// </summary>
-    public class IfStatementTokenizer
+    public class IfStatementTokenizer : IParserContextTokenizer<ZScriptParser.IfStatementContext>
     {
         /// <summary>
         /// The context used to tokenize the statements, in case a different statement appears
@@ -50,8 +52,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         {
             var tokens = new IntermediaryTokenList();
 
-            // Read first if block of the chain
-            tokens.AddRange(TokenizeIfStatement(context));
+            TokenizeStatement(tokens, context);
 
             return tokens;
         }
@@ -59,25 +60,34 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <summary>
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
-        /// <param name="context">The context containing the IF statement to tokenize</param>
-        private IntermediaryTokenList TokenizeIfStatement(ZScriptParser.IfStatementContext context)
+        /// <param name="targetList">The target list to tokenize to</param>
+        /// <param name="context">The context containinng</param>
+        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.IfStatementContext context)
         {
-            IntermediaryTokenList retTokens = new IntermediaryTokenList();
+            // Read first if block of the chain
+            TokenizeIfStatement(targetList, context);
+        }
 
+        /// <summary>
+        /// Tokenizes a given IF statement into a list of tokens
+        /// </summary>
+        /// <param name="retTokens">The target list to add the tokens to</param>
+        /// <param name="context">The context containing the IF statement to tokenize</param>
+        private void TokenizeIfStatement(IList<Token> retTokens, ZScriptParser.IfStatementContext context)
+        {
             // Constant if statements are evaluated differently
             if (context.IsConstant)
             {
                 // If the constant is true, tokenize the statement, if not, tokenize the else statement, if present
                 if (context.ConstantValue)
                 {
-                    retTokens = _context.TokenizeStatement(context.statement());
+                    _context.TokenizeStatement(retTokens, context.statement());
                 }
                 else if(context.elseStatement() != null)
                 {
-                    retTokens = _context.TokenizeStatement(context.elseStatement().statement());
+                    _context.TokenizeStatement(retTokens, context.elseStatement().statement());
                 }
-
-                return retTokens;
+                return;
             }
 
             // Create the 'else' target
@@ -85,13 +95,13 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             var endJump = new JumpTargetToken();
 
             // 1. Read expression
-            retTokens = _context.TokenizeExpression(context.expression());
+            _context.TokenizeExpression(retTokens, context.expression());
 
             // 1. Add conditional jump for the else target (changed to an end jump, if no else is present)
             retTokens.Add(new JumpToken(context.elseStatement() == null ? endJump : elseJump, true, false));
 
             // 2. Add the true statement
-            retTokens.AddRange(_context.TokenizeStatement(context.statement()));
+            _context.TokenizeStatement(retTokens, context.statement());
 
             if (context.elseStatement() != null)
             {
@@ -108,14 +118,12 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
                 // 5. Add the else statement
                 if (context.elseStatement() != null)
                 {
-                    retTokens.AddRange(_context.TokenizeStatement(context.elseStatement().statement()));
+                    _context.TokenizeStatement(retTokens, context.elseStatement().statement());
                 }
             }
 
             // 6. Pin the end jump target
             retTokens.Add(endJump);
-
-            return retTokens;
         }
     }
 }
