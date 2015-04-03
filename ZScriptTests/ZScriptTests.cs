@@ -76,12 +76,19 @@ namespace ZScriptTests
             long parseT = sw.ElapsedMilliseconds;
 
             // Generate the runtime now
-            var owner = new TestRuntimeOwner();
-            generator.GenerateRuntime(owner);
+            try
+            {
+                var owner = new TestRuntimeOwner();
+                generator.GenerateRuntime(owner);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
             Assert.IsFalse(generator.HasSyntaxErrors);
 
-            sw.Start();
+            sw.Stop();
 
             Console.WriteLine("Generation time: " + (sw.ElapsedMilliseconds - parseT));
             Console.WriteLine("Total time:      " + sw.ElapsedMilliseconds);
