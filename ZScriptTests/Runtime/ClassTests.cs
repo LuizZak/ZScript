@@ -149,6 +149,24 @@ namespace ZScriptTests.Runtime
             Assert.IsFalse(collector.HasErrors);
         }
 
+        /// <summary>
+        /// Tests referencing a field that was inherited from another class
+        /// </summary>
+        [TestMethod]
+        public void TestInheritedFieldAccess()
+        {
+            const string input = "class C1 { var field:int = 0; } class C2 : C1 { func f() { field = 1; } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var collector = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            collector.PrintMessages();
+
+            // Get the class created
+            Assert.IsFalse(collector.HasErrors);
+        }
+
         #region Constructor handling
 
         /// <summary>

@@ -214,7 +214,7 @@ namespace ZScript.CodeGeneration.Analysis
                 if(def != null)
                     return def;
 
-                foreach (var child in scope.ChildrenScopes)
+                foreach (var child in scope._childrenScopes)
                 {
                     scopeQueue.Push(child);
                 }
@@ -235,7 +235,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             while (scope != null)
             {
-                definitions.AddRange(scope.Definitions.OfType<TDefinition>());
+                definitions.AddRange(scope._definitions.OfType<TDefinition>());
 
                 scope = scope.ParentScope;
             }
@@ -261,7 +261,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 definitions.AddRange(scope._definitions);
 
-                foreach (var child in scope.ChildrenScopes)
+                foreach (var child in scope._childrenScopes)
                 {
                     scopeQueue.Push(child);
                 }
@@ -289,7 +289,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 definitions.AddRange(scope._definitions.OfType<TDefinition>());
 
-                foreach (var child in scope.ChildrenScopes)
+                foreach (var child in scope._childrenScopes)
                 {
                     scopeQueue.Push(child);
                 }
@@ -310,7 +310,12 @@ namespace ZScript.CodeGeneration.Analysis
 
             while (scope != null)
             {
-                definitions.AddRange(scope.Definitions.Where(d => d.Name == definitionName));
+                //definitions.AddRange(scope.Definitions.Where(d => d.Name == definitionName));
+                foreach (var definition in scope._definitions)
+                {
+                    if(definition.Name == definitionName)
+                        definitions.Add(definition);
+                }
 
                 scope = scope.ParentScope;
             }
@@ -324,9 +329,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>An enumerable containing the scopes collected</returns>
         public IEnumerable<CodeScope> GetAllScopesRecursive()
         {
-            List<CodeScope> scopes = new List<CodeScope>();
+            var scopes = new List<CodeScope>();
 
-            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
+            var scopeQueue = new Stack<CodeScope>();
 
             scopeQueue.Push(this);
 
@@ -335,7 +340,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var scope = scopeQueue.Pop();
                 scopes.Add(scope);
 
-                foreach (var child in scope.ChildrenScopes)
+                foreach (var child in scope._childrenScopes)
                 {
                     scopeQueue.Push(child);
                 }
@@ -383,9 +388,9 @@ namespace ZScript.CodeGeneration.Analysis
             if (context is ZScriptParser.ProgramContext && ParentScope == null)
                 return this;
 
-            var scopes = GetAllScopesRecursive().ToArray();
+            var scopes = GetAllScopesRecursive();
 
-            RuleContext p = context;
+            var p = context;
             while (p != null)
             {
                 // If the context is a program context, return the base global scope
@@ -403,7 +408,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 p = p.Parent;
             }
-
+            
             return null;
         }
 

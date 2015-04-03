@@ -134,20 +134,20 @@ namespace StandaloneTests
 
             ZScriptTests.ZScriptTests zScriptTests = new ZScriptTests.ZScriptTests();
 
-            zScriptTests.TestIterativeFibonacci();
+            /*zScriptTests.TestIterativeFibonacci();
             Console.ReadKey();
 
             zScriptTests.TestRecursiveFibonacci();
-            Console.ReadKey();
+            Console.ReadKey();*/
 
             zScriptTests.TestLargeCodeParsingSpeed();
             Console.ReadKey();
 
             PerformanceTests tests = new PerformanceTests();
 
-            tests.TestObjectFunctionCallPerformance();
+            /*tests.TestObjectFunctionCallPerformance();
 
-            Console.ReadKey();
+            Console.ReadKey();*/
 
             return;
 

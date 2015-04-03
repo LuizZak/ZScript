@@ -131,6 +131,8 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             EnterContextScope(context);
+
+            PushDefinitionScope();
         }
 
         public override void ExitClassDefinition(ZScriptParser.ClassDefinitionContext context)
@@ -139,6 +141,8 @@ namespace ZScript.CodeGeneration.Analysis
             _classStack.Pop();
 
             ExitContextScope();
+
+            PopDefinitionScope();
         }
 
         public override void EnterClassBody(ZScriptParser.ClassBodyContext context)
@@ -264,15 +268,13 @@ namespace ZScript.CodeGeneration.Analysis
             // First entrance
             if (context.memberName() != null)
             {
-                var name = context.memberName().IDENT().GetText();
-
-                RegisterDefinitionUsage(name, context.memberName());
+                var memberName = context.memberName().IDENT().GetText();
+                RegisterDefinitionUsage(memberName, context.memberName());
             }
             if (context.leftValue() != null && context.leftValue().memberName() != null)
             {
-                var name = context.leftValue().memberName().IDENT().GetText();
-
-                RegisterDefinitionUsage(name, context.leftValue().memberName());
+                var memberName = context.leftValue().memberName().IDENT().GetText();
+                RegisterDefinitionUsage(memberName, context.leftValue().memberName());
             }
         }
 
@@ -281,9 +283,8 @@ namespace ZScript.CodeGeneration.Analysis
             // First entrance
             if (context.leftValue().memberName() != null)
             {
-                var name = context.leftValue().memberName().IDENT().GetText();
-
-                RegisterDefinitionUsage(name, context.leftValue().memberName());
+                var memberName = context.leftValue().memberName().IDENT().GetText();
+                RegisterDefinitionUsage(memberName, context.leftValue().memberName());
             }
         }
 
@@ -364,15 +365,17 @@ namespace ZScript.CodeGeneration.Analysis
         {
             foreach (var locals in _localsStack)
             {
-                var def = locals.FirstOrDefault(d => d.Name == definitionName);
-                if (def != null)
-                    return def;
+                foreach (var local in locals)
+                {
+                    if (local.Name == definitionName)
+                        return local;
+                }
             }
 
             // Search through the current definition scope
-            var definition = _currentScope.GetDefinitionsByName(definitionName).ToList();
+            var definitions = _currentScope.GetDefinitionsByName(definitionName).ToList();
 
-            if (!definition.Any())
+            if (!definitions.Any())
             {
                 if (_classStack.Count <= 0)
                     return null;
@@ -395,11 +398,12 @@ namespace ZScript.CodeGeneration.Analysis
                 return null;
             }
 
-            // Local variables can only be searched through the stack - ignore them here
-            definition.Reverse();
+            if (definitions.Count == 0)
+                return null;
 
-            foreach (var def in definition)
+            for (int i = definitions.Count - 1; i >= 0; i--)
             {
+                var def = definitions[i];
                 if (!(def is LocalVariableDefinition))
                     return def;
             }
@@ -416,10 +420,10 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var definition = GetDefinitionByName(definitionName);
 
-            if (definition == null)
-                RegisterMemberNotFound(context);
+            context.HasDefinition = definition != null;
+            context.Definition = definition;
 
-            _currentScope.AddDefinitionUsage(new DefinitionUsage(definition, context));
+            RegisterDefinitionUsage(definition, context);
         }
 
         /// <summary>
@@ -429,6 +433,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context in which the definition was used</param>
         void RegisterDefinitionUsage(Definition def, ParserRuleContext context)
         {
+            if (def == null)
+                RegisterMemberNotFound(context);
+
             _currentScope.AddDefinitionUsage(new DefinitionUsage(def, context));
         }
 
@@ -454,6 +461,39 @@ namespace ZScript.CodeGeneration.Analysis
             error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, ErrorCode.UndeclaredDefinition);
             error.Message += " '" + member.IDENT().GetText() + "'";
             error.Context = member;
+
+            Container.RegisterError(error);
+        }
+
+        /// <summary>
+        /// Registers a new variable not found error
+        /// </summary>
+        /// <param name="context">The context containing the name of the member that was not found</param>
+        void RegisterMemberNotFound(ParserRuleContext context)
+        {
+            var member = context as ZScriptParser.MemberNameContext;
+            if (member != null)
+            {
+                RegisterMemberNotFound(member);
+                return;
+            }
+
+            CodeError error;
+
+            if (context == null)
+            {
+                error = new CodeError(0, 0, ErrorCode.UndeclaredDefinition);
+                error.Message += " UNKNOWN";
+                error.Context = CurrentScope().Context;
+
+                Container.RegisterError(error);
+
+                return;
+            }
+
+            error = new CodeError(context.Start.Line, context.Start.Column, ErrorCode.UndeclaredDefinition);
+            error.Message += " '" + context.GetText() + "'";
+            error.Context = context;
 
             Container.RegisterError(error);
         }

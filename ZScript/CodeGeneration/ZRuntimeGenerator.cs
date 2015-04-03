@@ -730,6 +730,43 @@ namespace ZScript.CodeGeneration
             // 
             public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
             {
+                if (context.HasDefinition)
+                {
+                    var def = context.Definition;
+
+                    if (def is LocalVariableDefinition)
+                    {
+                        goto local;
+                    }
+
+                    var holderDefinition = def as ValueHolderDefinition;
+                    if (holderDefinition != null)
+                    {
+                        context.IsConstant = holderDefinition.IsConstant;
+
+                        return holderDefinition.Type ?? TypeDef.AnyType;
+                    }
+
+                    var funcDef = def as FunctionDefinition;
+                    if (funcDef != null)
+                    {
+                        // Functions cannot be reassigned
+                        context.IsConstant = true;
+
+                        return funcDef.CallableTypeDef;
+                    }
+
+                    var objDef = def as ClassDefinition;
+                    if (objDef != null)
+                    {
+                        // Class definitions cannot be reassigned
+                        context.IsConstant = true;
+
+                        return objDef.PublicConstructor.CallableTypeDef;
+                    }
+                }
+
+            local:
                 foreach (var locals in _localsStack)
                 {
                     var def = locals.FirstOrDefault(d => d.Name == definitionName);
@@ -743,73 +780,7 @@ namespace ZScript.CodeGeneration
                     }
                 }
 
-                // Search for the inner-most scope that contains the context, and search the definition from there
-                var scopeForDefinition = _context.BaseScope.GetScopeContainingContext(context);
-
-                if (scopeForDefinition != null)
-                {
-                    var definitions = scopeForDefinition.GetDefinitionsByName(definitionName).ToList();
-
-                    foreach (var def in definitions)
-                    {
-                        // Bind the definition to the member name
-                        context.Definition = def;
-                        context.HasDefinition = (def != null);
-
-                        // Local variables cannot be fetched through this mean
-                        if (def is LocalVariableDefinition)
-                        {
-                            continue;
-                        }
-
-                        var holderDefinition = def as ValueHolderDefinition;
-                        if (holderDefinition != null)
-                        {
-                            context.IsConstant = holderDefinition.IsConstant;
-
-                            return holderDefinition.Type ?? TypeDef.AnyType;
-                        }
-
-                        var funcDef = def as FunctionDefinition;
-                        if (funcDef != null)
-                        {
-                            // Functions cannot be reassigned
-                            context.IsConstant = true;
-
-                            return funcDef.CallableTypeDef;
-                        }
-
-                        var objDef = def as ClassDefinition;
-                        if (objDef != null)
-                        {
-                            // Class definitions cannot be reassigned
-                            context.IsConstant = true;
-
-                            return objDef.PublicConstructor.CallableTypeDef;
-                        }
-                    }
-                }
-
-                // Search in class inheritance chain
-                var classDef = GetClassContainingContext(context);
-
-                if (classDef != null)
-                {
-                    while (classDef != null)
-                    {
-                        var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
-
-                        if (field != null)
-                        {
-                            return field.Type;
-                        }
-
-                        classDef = classDef.BaseClass;
-                    }
-                }
-
                 _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
-
                 return _context.TypeProvider.AnyType();
             }
 
@@ -896,31 +867,6 @@ namespace ZScript.CodeGeneration
                 }
 
                 return false;
-            }
-
-            /// <summary>
-            /// Gets the inner-most class definition described by the given context.
-            /// Returns null, when not in a class definition context
-            /// </summary>
-            /// <returns>The inner-most class definition for a given context</returns>
-            private ClassDefinition GetClassContainingContext(RuleContext context)
-            {
-                // Traverse backwards
-                while (context != null)
-                {
-                    var classContext = context as ZScriptParser.ClassDefinitionContext;
-                    if (classContext != null)
-                    {
-                        // Get the class definition for the context
-                        return
-                            _context.BaseScope.GetScopeContainingContext(classContext)
-                                .GetDefinitionByName<ClassDefinition>(classContext.className().IDENT().GetText());
-                    }
-
-                    context = context.Parent;
-                }
-
-                return null;
             }
         }
 

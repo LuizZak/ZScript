@@ -104,14 +104,13 @@ namespace ZScript.Runtime.Typing.Elements
             IntegerType = new NativeTypeDef(typeof(long), "int");
             FloatType = new NativeTypeDef(typeof(double), "float");
             NullType = new TypeDef("null");
-
+            
             GenerateBaseTypes(out BaseObjectType, out StringType, out BooleanType);
 
             AnyType.baseType = BaseObjectType;
             VoidType.baseType = BaseObjectType;
             IntegerType.baseType = BaseObjectType;
             FloatType.baseType = BaseObjectType;
-            NullType.baseType = BaseObjectType;
         }
 
         /// <summary>
@@ -311,7 +310,7 @@ namespace ZScript.Runtime.Typing.Elements
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return isVoid.Equals(other.isVoid) && isAny.Equals(other.isAny) && string.Equals(name, other.name) && isNative.Equals(other.isNative);
+            return string.Equals(name, other.name) && isVoid.Equals(other.isVoid) && isAny.Equals(other.isAny) && isNative.Equals(other.isNative);
         }
 
         /// <summary>
