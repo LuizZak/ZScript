@@ -1948,18 +1948,14 @@ namespace ZScriptTests.Runtime.Execution
                 0000000: 0
                 0000001: i
                 0000002: Set
-                0000003: 7
-                0000004: Jump
-                0000005: i
-                0000006: IncrementPostfix
-                0000007: i
-                0000008: 100000
-                0000009: Less
-                0000010: 14
-                0000011: JumpIfFalse
-                0000012: 5
-                0000013: Jump
-                0000014: Interrupt
+                0000005: Jump 6
+                0000006: i
+                0000007: IncrementPostfix
+                0000008: i
+                0000009: 100000
+                0000010: Less
+                0000012: JumpIfTrue 4
+                0000015: Interrupt
             */
 
             // Create the set of tokens
@@ -2005,20 +2001,19 @@ namespace ZScriptTests.Runtime.Execution
             /*
                 0000000: 0
                 0000001: i
-                0000002: Set
-                0000003: 7
-                0000004: Jump
-                0000005: i
-                0000006: IncrementPostfix
-                0000007: i
-                0000008: GAA
-                0000009: 100000
-                0000010: Less
-                0000011: 15
-                0000012: JumpIfFalse
-                0000013: 5
-                0000014: Jump
-                0000015: Interrupt
+                0000002: SetAtAddress
+                0000003: Jump 6
+                0000004: 0
+                0000005: IncrementPostfix
+                0000006: 0
+                0000007: GetAtAddress
+                0000008: 100000
+                0000009: Less
+                0000010: 15
+                0000011: JumpIfFalse
+                0000012: 5
+                0000013: Jump
+                0000014: Interrupt
             */
 
             // Create the set of tokens

@@ -157,7 +157,7 @@
     <Compile Include="Parsing\ANTLR\ZScriptListener.cs" />
     <Compile Include="Parsing\ANTLR\ZScriptParser.cs" />
     <Compile Include="Runtime\Execution\FunctionVM.cs" />
-    <Compile Include="Runtime\Execution\VirtualMemory\IntegerMemory.cs" />
+    <Compile Include="Runtime\Execution\VirtualMemory\LocalMemory.cs" />
     <Compile Include="Runtime\Execution\Wrappers\IMemberWrapper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripter.cs" />
     <Compile Include="Runtime\Execution\Wrappers\ISubscripterWrapper.cs" />

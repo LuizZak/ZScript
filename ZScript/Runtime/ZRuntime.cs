@@ -89,7 +89,7 @@ namespace ZScript.Runtime
         /// <summary>
         /// The global memory for the runtime
         /// </summary>
-        private readonly IntegerMemory _globalAddressedMemory;
+        private readonly LocalMemory _globalAddressedMemory;
 
         /// <summary>
         /// Gets the current global memory for the runtime
@@ -124,7 +124,7 @@ namespace ZScript.Runtime
 
             _owner = owner;
             _globalMemory = new Memory();
-            _globalAddressedMemory = new IntegerMemory();
+            _globalAddressedMemory = new LocalMemory(0);
             _typeProvider = new TypeProvider();
 
             _closuresStart = definition.ZFunctionDefinitions.Length + definition.ZExportFunctionDefinitions.Length;

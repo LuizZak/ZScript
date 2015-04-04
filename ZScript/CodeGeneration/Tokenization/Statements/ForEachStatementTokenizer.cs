@@ -117,9 +117,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // 1: Evaluate <list>
             _context.TokenizeExpression(targetList, context.forEachHeader().expression());
             // 2: Store <list>.GetEnumerator() in temp loop variable $TEMP
-            targetList.AddRange(TokenFactory.CreateFunctionCall(getEnumMethod));
-            targetList.Add(TokenFactory.CreateVariableToken(tempDef.Name, false));
-            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
+            targetList.AddRange(TokenFactory.CreateVariableAssignment(tempDef.Name, TokenFactory.CreateFunctionCall(getEnumMethod)));
 
             // Loop iterating
             // 3: [Jump 6]
@@ -129,7 +127,8 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             targetList.Add(_bodyTarget);
             // 4: Assign <item> as $TEMP.Current
             var value = TokenFactory.CreateMemberAccess(tempDef.Name, currentProp, true);
-            targetList.AddRange(TokenFactory.CreateVariableAssignment(context.forEachHeader().valueHolderDefine().valueHolderName().memberName().IDENT().GetText(), value));
+            var loopVarName = context.forEachHeader().valueHolderDefine().valueHolderName().memberName().IDENT().GetText();
+            targetList.AddRange(TokenFactory.CreateVariableAssignment(loopVarName, value));
 
             // 5: { Loop body }
             _context.TokenizeStatement(targetList, context.statement());

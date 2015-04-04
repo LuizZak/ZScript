@@ -18,23 +18,26 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections.Generic;
 
 namespace ZScript.Runtime.Execution.VirtualMemory
 {
-    public class IntegerMemory : IMemory<int>
+    /// <summary>
+    /// Encapsulates a local memory of a function
+    /// </summary>
+    public class LocalMemory : IMemory<int>
     {
         /// <summary>
         /// The memory dictionary
         /// </summary>
-        private readonly Dictionary<int, object> _memory;
+        private readonly object[] _memory;
 
         /// <summary>
         /// Initializes a new instance of the Memory class
         /// </summary>
-        public IntegerMemory()
+        /// <param name="count">The count of local variables to store in this locals memory object</param>
+        public LocalMemory(int count)
         {
-            _memory = new Dictionary<int, object>();
+            _memory = new object[count];
         }
 
         /// <summary>
@@ -44,7 +47,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <returns>Whether the variable exists or not</returns>
         public bool HasVariable(int address)
         {
-            return _memory.ContainsKey(address);
+            return address >= 0 && address < _memory.Length;
         }
 
         /// <summary>
@@ -61,12 +64,19 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// Tries to get a variable on this Memory object, returing a boolean value
         /// that specifies whether the fetch was successful or not
         /// </summary>
-        /// <param name="identifier">The identifier of the variable to try to get</param>
+        /// <param name="address">The identifier of the variable to try to get</param>
         /// <param name="value">The value that was fetched. Will be null, if the fetch fails</param>
         /// <returns>Whether the fetch was successful</returns>
-        public bool TryGetVariable(int identifier, out object value)
+        public bool TryGetVariable(int address, out object value)
         {
-            return _memory.TryGetValue(identifier, out value);
+            if (!HasVariable(address))
+            {
+                value = null;
+                return false;
+            }
+
+            value = GetVariable(address);
+            return true;
         }
 
         /// <summary>
@@ -85,7 +95,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <param name="address">The address to clear</param>
         public void ClearVariable(int address)
         {
-            _memory.Remove(address);
+            _memory[address] = null;
         }
 
         /// <summary>
@@ -93,7 +103,10 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// </summary>
         public void Clear()
         {
-            _memory.Clear();
+            for (int i = 0; i < _memory.Length; i++)
+            {
+                _memory[i] = null;
+            }
         }
 
         /// <summary>
@@ -102,38 +115,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <returns>The count of items inside this Memory object</returns>
         public int GetCount()
         {
-            return _memory.Count;
-        }
-
-        /// <summary>
-        /// Returns the dictionary currently being used as memory
-        /// </summary>
-        /// <returns>The dictionary currently being used as memory</returns>
-        public Dictionary<int, object> GetObjectMemory()
-        {
-            return _memory;
-        }
-
-        /// <summary>
-        /// Merges the given list of memory objects into a single memory block
-        /// </summary>
-        /// <param name="memories">The memory blocks to merge</param>
-        /// <returns>A merged memory block</returns>
-        public static IntegerMemory MergeMemory(params IntegerMemory[] memories)
-        {
-            IntegerMemory retMemory = new IntegerMemory();
-
-            // Merge the memories one by one
-            foreach (IntegerMemory mem in memories)
-            {
-                // Merge using the dictionary keys
-                foreach (int key in mem._memory.Keys)
-                {
-                    retMemory._memory[key] = mem._memory[key];
-                }
-            }
-
-            return retMemory;
+            return _memory.Length;
         }
     }
 }

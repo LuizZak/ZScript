@@ -357,8 +357,9 @@ namespace ZScript.Runtime.Execution
             switch (type)
             {
                 case NumberType.Integer:
-                    _stack.Push((int)value + changeOnStack);
-                    SetValue(variable, (int)value + changeOnMemory);
+                    int valueInt = (int)value;
+                    _stack.Push(valueInt + changeOnStack);
+                    SetValue(variable, valueInt + changeOnMemory);
                     return;
                 case NumberType.Long:
                     long valueLong = (long)value;

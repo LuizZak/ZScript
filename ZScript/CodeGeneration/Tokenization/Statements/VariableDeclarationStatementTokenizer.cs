@@ -77,7 +77,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
 
             _context.TokenizeExpression(targetList, expression);
 
-            targetList.Add(new VariableToken(name, false) {GlobalDefinition = false});
+            targetList.Add(new VariableToken(name, false) {GlobalDefinition = false, PointingDefinition = context.Definition });
             targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
         }
     }

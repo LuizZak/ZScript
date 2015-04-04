@@ -54,7 +54,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
-            var context = new VmContext(memory, new IntegerMemory(), null, owner, null); // ZRuntime can be null, as long as we don't try to call a function
+            var context = new VmContext(memory, new LocalMemory(0), null, owner, null); // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
