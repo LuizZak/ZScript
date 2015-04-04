@@ -528,7 +528,7 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             if (_isRootMember)
             {
-                _tokens.Add(TokenFactory.CreateVariableToken(context.IDENT().GetText(), _isGetAccess));
+                _tokens.Add(TokenFactory.CreateVariableToken(context.IDENT().GetText(), _isGetAccess, context.Definition));
             }
             else
             {

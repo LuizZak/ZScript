@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing.Elements;
@@ -53,10 +54,11 @@ namespace ZScript.Elements
         /// </summary>
         /// <param name="variableName">A string that represents a variable name</param>
         /// <param name="isGet">Whether to create the token with a get access</param>
+        /// <param name="definitoin">An optional definition to assign to the variable token</param>
         /// <returns>A VariableToken with the variable name provided binded in</returns>
-        public static VariableToken CreateVariableToken(string variableName, bool isGet)
+        public static VariableToken CreateVariableToken(string variableName, bool isGet, Definition definitoin = null)
         {
-            return new VariableToken(variableName, isGet);
+            return new VariableToken(variableName, isGet) { PointingDefinition = definitoin };
         }
 
         /// <summary>

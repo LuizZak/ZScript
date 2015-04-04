@@ -66,8 +66,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     continue;
 
                 // Find the definition the token is pointing at
-                var def = _globalScope.GetDefinitionByName(varToken.VariableName);
-
+                var def = varToken.PointingDefinition;
                 if (def is FunctionDefinition)
                 {
                     for (int j = 0; j < _functions.Length; j++)
