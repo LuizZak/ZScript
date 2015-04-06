@@ -20,7 +20,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -962,7 +961,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
             var getEnumMethod = typeof(List<long>).GetMethod("GetEnumerator");
-            var enumeratorType = getEnumMethod.ReturnType;
+            var enumeratorType = typeof(List<long>.Enumerator);
             var moveNextMethod = enumeratorType.GetMethod("MoveNext");
             var currentProp = enumeratorType.GetProperty("Current");
 
@@ -1053,7 +1052,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
             var getEnumMethod = typeof(List<long>).GetMethod("GetEnumerator");
-            var enumeratorType = getEnumMethod.ReturnType;
+            var enumeratorType = typeof(List<long>.Enumerator);
             var moveNextMethod = enumeratorType.GetMethod("MoveNext");
             var currentProp = enumeratorType.GetProperty("Current");
 
@@ -1143,7 +1142,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
             var getEnumMethod = typeof(List<long>).GetMethod("GetEnumerator");
-            var enumeratorType = getEnumMethod.ReturnType;
+            var enumeratorType = typeof(List<long>.Enumerator);
             var moveNextMethod = enumeratorType.GetMethod("MoveNext");
             var currentProp = enumeratorType.GetProperty("Current");
 
