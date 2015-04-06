@@ -611,22 +611,23 @@ namespace ZScript.Runtime.Execution
             // Verify whether the call instruction contains a wrapped method information
             if (token.TokenObject != null)
             {
+                // Direct MethodInfo call
                 var mInfo = token.TokenObject as MethodInfo;
                 if (mInfo != null)
                 {
-                    callable = new ClassMethod(PopValueImplicit(), new[] {mInfo});
+                    var target = PopValueImplicit();
+                    _stack.Push(mInfo.Invoke(target, arguments));
+                    return;
+                }
+
+                var zMethod = token.TokenObject as ZMethod;
+                if (zMethod != null)
+                {
+                    callable = new ZClassMethod((ZClassInstance)PopValueImplicit(), zMethod);
                 }
                 else
                 {
-                    var zMethod = token.TokenObject as ZMethod;
-                    if (zMethod != null)
-                    {
-                        callable = new ZClassMethod((ZClassInstance)PopValueImplicit(), zMethod);
-                    }
-                    else
-                    {
-                        throw new VirtualMachineException("Operand on Call instruction is not a valid method or ZMethod reference");
-                    }
+                    throw new VirtualMachineException("Operand on Call instruction is not a valid method or ZMethod reference");
                 }
             }
             else
