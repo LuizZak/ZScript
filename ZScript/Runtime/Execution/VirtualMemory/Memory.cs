@@ -196,7 +196,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <returns>A new generic VarArgsArrayList created from the given function argument</returns>
         public static IVarArgs VarArgsFromArgument(FunctionArgument argument)
         {
-            return (IVarArgs)Activator.CreateInstance(typeof(VarArgsArrayList<>).MakeGenericType(argument.Type));
+            return (IVarArgs)Activator.CreateInstance(typeof(VarArgsArrayList<>).MakeGenericType(argument.Type.GetGenericArguments()[0]));
         }
 
         /// <summary>

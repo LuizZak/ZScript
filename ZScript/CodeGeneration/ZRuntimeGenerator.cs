@@ -392,7 +392,7 @@ namespace ZScript.CodeGeneration
 
                 funcDef.Tokens = tokens;
 
-                var zFunction = new ZFunction(funcDef.Name, tokens, GenerateFunctionArguments(funcDef.Parameters))
+                var zFunction = new ZFunction(funcDef.Name, tokens, GenerateFunctionArguments(context, funcDef.Parameters))
                 {
                     Signature = funcDef.CallableTypeDef
                 };
@@ -439,7 +439,7 @@ namespace ZScript.CodeGeneration
 
                     methodDef.RecreateCallableDefinition();
 
-                    ZMethod method = new ZMethod(methodDef.Name, tokens, GenerateFunctionArguments(methodDef.Parameters))
+                    ZMethod method = new ZMethod(methodDef.Name, tokens, GenerateFunctionArguments(context, methodDef.Parameters))
                     {
                         Signature = methodDef.CallableTypeDef
                     };
@@ -483,7 +483,7 @@ namespace ZScript.CodeGeneration
                 tokenList = constructor.Tokens;
 
                 // Tokenize constructor
-                var zConstructor = new ZMethod(constructor.Name, tokenList, GenerateFunctionArguments(constructor.Parameters));
+                var zConstructor = new ZMethod(constructor.Name, tokenList, GenerateFunctionArguments(context, constructor.Parameters));
                 transformedMethods[constructor] = zConstructor;
 
                 if (constructor.BaseMethod != null)
@@ -520,7 +520,7 @@ namespace ZScript.CodeGeneration
 
                 funcDef.Tokens = tokens;
 
-                var zFunction = new ZClosureFunction(funcDef.Name, tokens, GenerateFunctionArguments(funcDef.Parameters))
+                var zFunction = new ZClosureFunction(funcDef.Name, tokens, GenerateFunctionArguments(context, funcDef.Parameters))
                 {
                     Signature = funcDef.CallableTypeDef
                 };
@@ -542,7 +542,7 @@ namespace ZScript.CodeGeneration
 
             var funcDefs = scope.Definitions.OfType<ExportFunctionDefinition>();
 
-            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(def.Parameters)));
+            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(context, def.Parameters)));
         }
 
         /// <summary>
@@ -573,13 +573,14 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Generates an array of function arguments from a specified enumerable of function argument definitions
         /// </summary>
+        /// <param name="context">The context for the generation</param>
         /// <param name="arguments">An enumerable of function arguments read from the script</param>
         /// <returns>An array of function arguments generated from the given array of function argument definitions</returns>
-        private static FunctionArgument[] GenerateFunctionArguments(IEnumerable<FunctionArgumentDefinition> arguments)
+        private static FunctionArgument[] GenerateFunctionArguments(RuntimeGenerationContext context, IEnumerable<FunctionArgumentDefinition> arguments)
         {
             return
                 arguments.Select(
-                    arg => new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue, arg.HasValue ? ConstantAtomParser.ParseCompileConstantAtom(arg.DefaultValue) : null))
+                    arg => new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue, arg.HasValue ? ConstantAtomParser.ParseCompileConstantAtom(arg.DefaultValue) : null) { Type = context.TypeProvider.NativeTypeForTypeDef(arg.Type) })
                     .ToArray();
         }
 
