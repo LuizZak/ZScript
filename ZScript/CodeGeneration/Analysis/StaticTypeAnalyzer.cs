@@ -130,12 +130,6 @@ namespace ZScript.CodeGeneration.Analysis
                 ExpandFunctionDefinition(definition);
             }
 
-            // Analyze global variables now
-            foreach (var globalVar in definitions.OfType<GlobalVariableDefinition>())
-            {
-                ExpandGlobalVarable(globalVar);
-            }
-
             // Analyze function arguments, ignoring function arguments defined within closures for now
             foreach (
                 var argumentDefinition in
@@ -149,6 +143,12 @@ namespace ZScript.CodeGeneration.Analysis
             foreach (var definition in definitions.OfType<FunctionDefinition>().Where(d => !(d is ClosureDefinition)))
             {
                 definition.RecreateCallableDefinition();
+            }
+
+            // Analyze global variables now
+            foreach (var globalVar in definitions.OfType<GlobalVariableDefinition>())
+            {
+                ExpandGlobalVarable(globalVar);
             }
             
             // Iterate over value holder definitions, ignoring definitions of function arguments (which where processed earlier)

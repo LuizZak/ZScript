@@ -56,6 +56,11 @@ namespace ZScript.CodeGeneration.Definitions
         public bool HasInferredType { get; set; }
 
         /// <summary>
+        /// Gets or sets the value define context for this value holder definition
+        /// </summary>
+        public ZScriptParser.ValueHolderDefineContext ValueDefineContext { get; set; }
+
+        /// <summary>
         /// Gets or sets the context for the type of this value holder definition
         /// </summary>
         public ZScriptParser.TypeContext TypeContext { get; set; }

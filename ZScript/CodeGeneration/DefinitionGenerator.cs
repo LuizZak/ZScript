@@ -332,7 +332,7 @@ namespace ZScript.CodeGeneration
 
             FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
 
-            def.Context = context;
+            def.Context = context.valueDeclareStatement();
 
             return def;
         }
@@ -350,6 +350,7 @@ namespace ZScript.CodeGeneration
 
             def.HasValue = context.expression() != null;
             def.ValueExpression = new Expression(context.expression());
+            def.ValueDefineContext = context.valueHolderDefine();
 
             context.Definition = def;
 
@@ -373,6 +374,7 @@ namespace ZScript.CodeGeneration
             def.HasType = context.type() != null;
             def.IsConstant = context.let != null;
             def.IdentifierContext = context.valueHolderName().memberName();
+            def.ValueDefineContext = context;
 
             if (def.HasType)
             {
