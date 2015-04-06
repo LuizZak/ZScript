@@ -627,7 +627,15 @@ namespace ZScript.Runtime.Execution
                 }
                 else
                 {
-                    throw new VirtualMachineException("Operand on Call instruction is not a valid method or ZMethod reference");
+                    var zFunc = token.TokenObject as ZFunction;
+                    if (zFunc != null)
+                    {
+                        callable = zFunc;
+                    }
+                    else
+                    {
+                        throw new VirtualMachineException("Operand on Call instruction is not a valid method or ZMethod reference");
+                    }
                 }
             }
             else
