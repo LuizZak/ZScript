@@ -128,7 +128,7 @@ namespace StandaloneTests
 
         static void Main(string[] args)
         {
-            TestThing();
+            //TestThing();
             
             //TestMove();
 

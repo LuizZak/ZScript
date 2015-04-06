@@ -147,6 +147,29 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Scans througy all definitions, returning the first definition that matches a given selector
+        /// </summary>
+        /// <param name="selector">The selector to apply to the definitions</param>
+        /// <returns>The first definition that returns true on the given selector</returns>
+        public Definition GetDefinition(Func<Definition, bool> selector)
+        {
+            var scope = this;
+
+            while (scope != null)
+            {
+                foreach (var definition in scope._definitions)
+                {
+                    if (selector(definition))
+                        return definition;
+                }
+
+                scope = scope.ParentScope;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Searches a definition by name in this, and all parent scopes recursively.
         /// If no definitions with the given name are found, null is returned instead
         /// </summary>
@@ -310,7 +333,6 @@ namespace ZScript.CodeGeneration.Analysis
 
             while (scope != null)
             {
-                //definitions.AddRange(scope.Definitions.Where(d => d.Name == definitionName));
                 foreach (var definition in scope._definitions)
                 {
                     if(definition.Name == definitionName)

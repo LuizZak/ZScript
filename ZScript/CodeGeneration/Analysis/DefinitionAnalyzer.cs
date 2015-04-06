@@ -373,39 +373,27 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             // Search through the current definition scope
-            var definitions = _currentScope.GetDefinitionsByName(definitionName);
+            var definitions = _currentScope.GetDefinition(d => d.Name == definitionName && !(d is LocalVariableDefinition));
 
-            if (!definitions.Any())
+            if (definitions != null)
+                return definitions;
+
+            if (_classStack.Count <= 0)
+                return null;
+
+            // If we are in a class definition, search inheritance chain
+            var classDef = _classStack.Peek();
+
+            while (classDef != null)
             {
-                if (_classStack.Count <= 0)
-                    return null;
+                var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
 
-                // If we are in a class definition, search inheritance chain
-                var classDef = _classStack.Peek();
-
-                while (classDef != null)
+                if (field != null)
                 {
-                    var field = classDef.Fields.FirstOrDefault(f => f.Name == definitionName);
-
-                    if (field != null)
-                    {
-                        return field;
-                    }
-
-                    classDef = classDef.BaseClass;
+                    return field;
                 }
 
-                return null;
-            }
-
-            if (definitions.Count == 0)
-                return null;
-
-            for (int i = definitions.Count - 1; i >= 0; i--)
-            {
-                var def = definitions[i];
-                if (!(def is LocalVariableDefinition))
-                    return def;
+                classDef = classDef.BaseClass;
             }
 
             return null;
