@@ -19,9 +19,10 @@
 */
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Linq;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -83,10 +84,19 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <returns>A list of tokens tokenized from the given context</returns>
         public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ForEachStatementContext context)
         {
-            // Get some cached member infos for the iterators
-            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
-            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-            var currentProp = typeof(IEnumerator).GetProperty("Current");
+            var listType = _context.GenerationContext.TypeProvider.NativeTypeForTypeDef(context.forEachHeader().expression().EvaluatedType);
+            var isEnumerable = listType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+            if (!isEnumerable)
+            {
+                listType = typeof(IEnumerable);
+            }
+
+            var getEnumMethod = listType.GetMethod("GetEnumerator", Type.EmptyTypes);
+            var enumerator = getEnumMethod.ReturnType;
+
+            var moveNextMethod = enumerator.GetMethod("MoveNext");
+            var currentProp = enumerator.GetProperty("Current");
 
             _forBlockEndTarget = new JumpTargetToken();
             _conditionTarget = new JumpTargetToken();

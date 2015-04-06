@@ -31,6 +31,8 @@ using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing;
+using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;
 using ZScriptTests.Utils;
 
@@ -953,14 +955,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "for(var item in list) { b; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider()));
 
             var stmt = parser.forEachStatement();
+            stmt.forEachHeader().expression().EvaluatedType = new ListTypeDef(TypeDef.IntegerType);
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
-            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
-            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-            var currentProp = typeof(IEnumerator).GetProperty("Current");
+            var getEnumMethod = typeof(List<long>).GetMethod("GetEnumerator");
+            var enumeratorType = getEnumMethod.ReturnType;
+            var moveNextMethod = enumeratorType.GetMethod("MoveNext");
+            var currentProp = enumeratorType.GetProperty("Current");
 
             /*
                 // Loop head
@@ -1042,14 +1046,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "for(var item in list) { break; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider()));
 
             var stmt = parser.forEachStatement();
+            stmt.forEachHeader().expression().EvaluatedType = new ListTypeDef(TypeDef.IntegerType);
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
-            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
-            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-            var currentProp = typeof(IEnumerator).GetProperty("Current");
+            var getEnumMethod = typeof(List<long>).GetMethod("GetEnumerator");
+            var enumeratorType = getEnumMethod.ReturnType;
+            var moveNextMethod = enumeratorType.GetMethod("MoveNext");
+            var currentProp = enumeratorType.GetProperty("Current");
 
             /*
                 // Loop head
@@ -1130,14 +1136,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "for(var item in list) { continue; }";
 
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider()));
 
             var stmt = parser.forEachStatement();
+            stmt.forEachHeader().expression().EvaluatedType = new ListTypeDef(TypeDef.IntegerType);
             var generatedTokens = tokenizer.TokenizeForEachStatement(stmt);
 
-            var getEnumMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
-            var moveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-            var currentProp = typeof(IEnumerator).GetProperty("Current");
+            var getEnumMethod = typeof(List<long>).GetMethod("GetEnumerator");
+            var enumeratorType = getEnumMethod.ReturnType;
+            var moveNextMethod = enumeratorType.GetMethod("MoveNext");
+            var currentProp = enumeratorType.GetProperty("Current");
 
             /*
                 // Loop head
