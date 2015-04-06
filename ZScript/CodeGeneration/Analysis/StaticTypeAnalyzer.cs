@@ -130,6 +130,12 @@ namespace ZScript.CodeGeneration.Analysis
                 ExpandFunctionDefinition(definition);
             }
 
+            // Analyze global variables now
+            foreach (var globalVar in definitions.OfType<GlobalVariableDefinition>())
+            {
+                ExpandGlobalVarable(globalVar);
+            }
+
             // Analyze function arguments, ignoring function arguments defined within closures for now
             foreach (
                 var argumentDefinition in
@@ -146,14 +152,15 @@ namespace ZScript.CodeGeneration.Analysis
             }
             
             // Iterate over value holder definitions, ignoring definitions of function arguments (which where processed earlier)
-            // and local variables (which will be processed in the ProcessStatments method)
+            // local variables (which will be processed in the ProcessStatments method), and global variables (which where processed, earlier as well)
             foreach (
                 var valueHolderDefinition in
                     definitions.OfType<ValueHolderDefinition>()
                         .Where(
                             d =>
                                 !(d is LocalVariableDefinition) &&
-                                !(d is FunctionArgumentDefinition)))
+                                !(d is FunctionArgumentDefinition) &&
+                                !(d is GlobalVariableDefinition)))
             {
                 ExpandValueHolderDefinition(valueHolderDefinition);
             }
@@ -177,7 +184,7 @@ namespace ZScript.CodeGeneration.Analysis
             var traverser = new ExpressionStatementsTraverser(_generationContext, this, resolver);
             var definitions = scope.Definitions;
 
-            foreach (var definition in definitions)
+            foreach (var definition in definitions.Where(d => !(d is GlobalVariableDefinition)))
             {
                 // Generic signature context
                 var funcDef = definition as FunctionDefinition;
@@ -248,6 +255,18 @@ namespace ZScript.CodeGeneration.Analysis
                 // Pop the generic signature context
                 _genericTypeSource.PopContext();
             }
+        }
+
+        /// <summary>
+        /// Expands the type of a given global variable
+        /// </summary>
+        /// <param name="definition">The global variable to expand</param>
+        private void ExpandGlobalVarable(GlobalVariableDefinition definition)
+        {
+            var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
+            var traverser = new ExpressionStatementsTraverser(_generationContext, this, resolver);
+
+            traverser.Traverse(definition.Context);
         }
 
         /// <summary>

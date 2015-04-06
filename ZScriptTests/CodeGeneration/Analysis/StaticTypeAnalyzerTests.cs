@@ -759,6 +759,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
+            container.PrintMessages();
+
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
         }
 

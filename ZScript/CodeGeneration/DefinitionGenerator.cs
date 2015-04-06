@@ -332,6 +332,8 @@ namespace ZScript.CodeGeneration
 
             FillValueHolderDef(def, context.valueDeclareStatement().valueHolderDecl());
 
+            def.Context = context;
+
             return def;
         }
 
