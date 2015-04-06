@@ -643,6 +643,56 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Tuple type resolving
+
+        /// <summary>
+        /// Tests resolving the type of tuples with one value
+        /// </summary>
+        [TestMethod]
+        public void TestResolveTupleTypeWithOneType()
+        {
+            // Set up the test
+            const string input = "(0); (true); (1.1); (i);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+            var type2 = resolver.ResolveExpression(parser.statement().expression());
+            var type3 = resolver.ResolveExpression(parser.statement().expression());
+            var type4 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.BooleanType(), type2, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.FloatType(), type3, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.IntegerType(), type4, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests resolving the type of tuples with two values
+        /// </summary>
+        [TestMethod]
+        public void TestResolveTupleTypeWithTwoTypes()
+        {
+            // Set up the test
+            const string input = "(0, 1); (true, 0.0);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type1 = resolver.ResolveTupleExpression(parser.statement().expression().tupleExpression());
+            var type2 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.TupleForTypes(provider.IntegerType(), provider.IntegerType()), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.TupleForTypes(provider.BooleanType(), provider.FloatType()), type2, "The resolved type did not match the expected type");
+        }
+
+        #endregion
+
         #region Class Type resolving
 
         /// <summary>
@@ -868,7 +918,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestUnaryExpression()
         {
             // Set up the test
-            const string input = "-i; !b; -f; !(true)";
+            const string input = "-i; !b; -f; !(true);";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();

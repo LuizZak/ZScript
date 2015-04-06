@@ -110,6 +110,7 @@
     <Compile Include="CodeGeneration\Definitions\FunctionDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\GlobalVariableDefinition.cs" />
     <Compile Include="CodeGeneration\Definitions\ClassDefinition.cs" />
+    <Compile Include="Runtime\Typing\Elements\TupleTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\TypeDef.cs" />
     <Compile Include="CodeGeneration\Definitions\ValueHolderDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\DefinitionAnalyzer.cs" />

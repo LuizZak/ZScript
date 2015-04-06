@@ -1734,6 +1734,42 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #endregion
 
+        #region Tuples
+
+        /// <summary>
+        /// Tests tokenization of a tuple with only one value contained within
+        /// </summary>
+        [TestMethod]
+        public void TestTupleWithOneValue()
+        {
+            const string message = "The tokens generated for the tuple expression where not generated as expected";
+
+            const string input = "(0)";
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+            
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
         #region Cast instruction and 'is' operator
 
         /// <summary>

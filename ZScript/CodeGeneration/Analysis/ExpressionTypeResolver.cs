@@ -225,7 +225,10 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 retType = ResolveConstantAtom(context.constantAtom());
             }
-
+            if (context.tupleExpression() != null)
+            {
+                retType = ResolveTupleExpression(context.tupleExpression());
+            }
             // Ternary expression
             if (context.expression().Length == 3)
             {
@@ -514,6 +517,35 @@ namespace ZScript.CodeGeneration.Analysis
             context.expression(2).ExpectedType = commonType;
 
             return commonType;
+        }
+
+        #endregion
+
+        #region Tuples
+
+        /// <summary>
+        /// Resolves the type of a given tuple expression
+        /// </summary>
+        /// <param name="context">The context containing the tuple to resolve</param>
+        /// <returns>The type for the tuple expression</returns>
+        public TypeDef ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
+        {
+            var expressions = context.expression();
+
+            // Single tuple: return inner type
+            if (expressions.Length == 1)
+            {
+                return ResolveExpression(expressions[0]);
+            }
+
+            var innerTypes = new TypeDef[expressions.Length];
+
+            for (int i = 0; i < expressions.Length; i++)
+            {
+                innerTypes[i] = ResolveExpression(expressions[i]);
+            }
+
+            return TypeProvider.TupleForTypes(innerTypes);
         }
 
         #endregion

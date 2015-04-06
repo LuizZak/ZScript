@@ -337,8 +337,16 @@ namespace ZScript.CodeGeneration.Tokenization
                 return;
             }
 
-            // Print the other side of the tree first
-            if (context.expression().Length == 1)
+            if (context.tupleExpression() != null)
+            {
+                VisitTupleExpression(context.tupleExpression());
+
+                if (context.valueAccess() != null)
+                {
+                    VisitValueAccess(context.valueAccess());
+                }
+            }
+            else if (context.expression().Length == 1)
             {
                 // Unwrapping
                 if (context.unwrap != null)
@@ -615,6 +623,23 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitExpression(context.expression(0));
 
             _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Is, context.type()));
+        }
+
+        #endregion
+
+        #region Tuples
+
+        private void VisitTupleExpression(ZScriptParser.TupleExpressionContext context)
+        {
+            var expressions = context.expression();
+
+            if (expressions.Length == 1)
+            {
+                VisitExpression(expressions[0]);
+                return;
+            }
+
+            throw new ArgumentException("Cannot process multi-valued tuples at this time");
         }
 
         #endregion

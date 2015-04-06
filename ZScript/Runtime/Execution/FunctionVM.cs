@@ -471,6 +471,11 @@ namespace ZScript.Runtime.Execution
                     PerformArrayCreation(token);
                     break;
                     
+                // Tuple creation
+                case VmInstruction.CreateTuple:
+                    PerformTupleCreation(token);
+                    break;
+
                 // Dictionary literal creation
                 case VmInstruction.CreateDictionary:
                     PerformDictionaryCreation(token);
@@ -693,6 +698,29 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a tuple creation using the values on the stack, pushing the created tuple back into the top of the stack
+        /// </summary>
+        /// <param name="token">The token for the tuple creation instruction</param>
+        void PerformTupleCreation(Token token)
+        {
+            // Pop the types 
+            var types = (Type[])token.TokenObject;
+
+            // Create the list
+            var array = new List<object>();
+
+            for (int i = types.Length - 1; i >= 0; i--)
+            {
+                var obj = PopValueImplicit();
+                CheckType(obj, types[i]);
+                array.Insert(0, obj);
+            }
+
+            // Push the array back into the stack
+            _stack.Push(array);
+        }
+
+        /// <summary>
         /// Performs a dictionary creation using the values on the stack, pushing the created dictionary back into the top of the stack
         /// </summary>
         /// <param name="token">The token for the dictionary creation</param>
@@ -859,6 +887,18 @@ namespace ZScript.Runtime.Execution
             object value = PeekValueImplicit();
             var type = ExtractType(token);
 
+            CheckType(value, type);
+        }
+
+        /// <summary>
+        /// Performs a type check, raising a VirtualMachine exception when the value provided is not of the given type.
+        /// If the value is null and the type is a value type, or the value is not null and it doesn't matches the type, an exception is raised
+        /// </summary>
+        /// <param name="value">The value to check</param>
+        /// <param name="type">The type to verify against the value</param>
+        /// <exception cref="VirtualMachineException">The value's type does not matches the provided type</exception>
+        private static void CheckType(object value, Type type)
+        {
             // Null value types
             if (value == null && type.IsValueType)
             {
@@ -1380,6 +1420,8 @@ namespace ZScript.Runtime.Execution
 
         /// <summary>Creates an array using the values on the stack and pushes the result back into the stack</summary>
         CreateArray,
+        /// <summary>Creates a tuple using the values on the stack and pushes the result back into the stack</summary>
+        CreateTuple,
         /// <summary>Creates a dictionary using the values on the stack and pushes the result back into the stack</summary>
         CreateDictionary,
 

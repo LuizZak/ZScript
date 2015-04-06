@@ -1029,6 +1029,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLogicalOr([NotNull] ZScriptParser.LogicalOrContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.assignmentExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

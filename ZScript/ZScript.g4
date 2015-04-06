@@ -143,7 +143,7 @@ callableArgType  : type variadic='...'?;
 ////
 //// Expressions
 ////
-expression:  '(' expression ')' valueAccess?
+expression:  tupleExpression valueAccess?
            | '(' assignmentExpression ')'
            |  expression unwrap='!' valueAccess?
            // Primary expressions
@@ -196,7 +196,8 @@ equalityOp : '==' | '!=';
 logicalAnd : '&&';
 logicalOr  : '||';
 
-assignmentExpression: leftValue assignmentOperator (expression | assignmentExpression);
+tupleExpression : '(' expression (',' expression)* ')';
+assignmentExpression : leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments;
 closureExpression : (functionArg | functionArguments) returnType? '=>' functionBody;
 

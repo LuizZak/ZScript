@@ -230,6 +230,16 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
+        /// Returns a TupleTypeDef which contains the given set of inner types in it
+        /// </summary>
+        /// <param name="innerTypes">The inner types for the tuple</param>
+        /// <returns>A new TupleTypeDef with the specified inner types containg within</returns>
+        public TupleTypeDef TupleForTypes(params TypeDef[] innerTypes)
+        {
+            return new TupleTypeDef(innerTypes);
+        }
+
+        /// <summary>
         /// Returns a optional type for the given type def
         /// </summary>
         /// <param name="type">The type to wrap in an optional</param>

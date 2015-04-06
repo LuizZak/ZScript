@@ -103,6 +103,7 @@
     <Compile Include="Runtime\Execution\FunctionVmOptionalTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmSubscriptingTests.cs" />
     <Compile Include="Runtime\Execution\FunctionVmTests.cs" />
+    <Compile Include="Runtime\Execution\FunctionVmTupleTests.cs" />
     <Compile Include="Runtime\Execution\VirtualMemory\MemoryTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\IndexedSubscripterTests.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Members\ClassMemberTests.cs" />
