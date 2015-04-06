@@ -578,10 +578,28 @@ namespace ZScript.CodeGeneration
         /// <returns>An array of function arguments generated from the given array of function argument definitions</returns>
         private static FunctionArgument[] GenerateFunctionArguments(RuntimeGenerationContext context, IEnumerable<FunctionArgumentDefinition> arguments)
         {
-            return
-                arguments.Select(
-                    arg => new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue, arg.HasValue ? ConstantAtomParser.ParseCompileConstantAtom(arg.DefaultValue) : null) { Type = context.TypeProvider.NativeTypeForTypeDef(arg.Type) })
-                    .ToArray();
+            var listArgs = arguments.ToList();
+            var retArgs = new FunctionArgument[listArgs.Count];
+
+            for (int i = 0; i < listArgs.Count; i++)
+            {
+                var arg = listArgs[i];
+
+                var type = context.TypeProvider.NativeTypeForTypeDef(arg.Type);
+
+                if (arg.IsVariadic)
+                {
+                    type = context.TypeProvider.NativeTypeForTypeDef(((IListTypeDef)arg.Type).EnclosingType);
+                }
+
+                retArgs[i] = new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue,
+                    arg.HasValue ? ConstantAtomParser.ParseCompileConstantAtom(arg.DefaultValue) : null)
+                {
+                    Type = type
+                };
+            }
+
+            return retArgs;
         }
 
         /// <summary>
