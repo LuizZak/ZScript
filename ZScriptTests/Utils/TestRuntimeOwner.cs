@@ -50,7 +50,7 @@ namespace ZScriptTests.Utils
             {
                 foreach (var parameter in parameters.Arguments)
                 {
-                    var varArgs = parameter as Memory.VarArgsArrayList;
+                    var varArgs = parameter as Memory.IVarArgs;
                     if (varArgs != null)
                     {
                         foreach (var var in varArgs)
@@ -70,7 +70,7 @@ namespace ZScriptTests.Utils
             {
                 foreach (var parameter in parameters.Arguments)
                 {
-                    var varArgs = parameter as Memory.VarArgsArrayList;
+                    var varArgs = parameter as Memory.IVarArgs;
                     if (varArgs != null)
                     {
                         foreach (var var in varArgs)

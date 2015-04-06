@@ -186,15 +186,15 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestVariadicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } });
 
             var mem = Memory.CreateMemoryFromArgs(func, 1L, 2L);
 
             Assert.AreEqual(1, mem.GetCount());
             Assert.IsTrue(mem.HasVariable("arg1"));
-            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(Memory.VarArgsArrayList));
+            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(Memory.VarArgsArrayList<long>));
 
-            var variadic = (Memory.VarArgsArrayList)mem.GetVariable("arg1");
+            var variadic = (Memory.VarArgsArrayList<long>)mem.GetVariable("arg1");
 
             Assert.AreEqual(1L, variadic[0], "Failed to generate expected variadic array");
             Assert.AreEqual(2L, variadic[1], "Failed to generate expected variadic array");
@@ -203,15 +203,15 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestEmptyVariadicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } });
 
             var mem = Memory.CreateMemoryFromArgs(func);
 
             Assert.AreEqual(1, mem.GetCount());
             Assert.IsTrue(mem.HasVariable("arg1"));
-            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(ArrayList));
+            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(IList<long>));
 
-            var variadic = (Memory.VarArgsArrayList)mem.GetVariable("arg1");
+            var variadic = (Memory.VarArgsArrayList<long>)mem.GetVariable("arg1");
 
             Assert.AreEqual(0, variadic.Count);
         }
@@ -219,17 +219,17 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestArrayInVariadicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } });
 
-            var array = new Memory.VarArgsArrayList { 1L, 2L, 3L };
+            var array = new Memory.VarArgsArrayList<long> { 1L, 2L, 3L };
 
             var mem = Memory.CreateMemoryFromArgs(func, array);
 
             Assert.AreEqual(1, mem.GetCount());
             Assert.IsTrue(mem.HasVariable("arg1"));
-            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(ArrayList));
+            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(IList<long>));
 
-            var variadic = (Memory.VarArgsArrayList)mem.GetVariable("arg1");
+            var variadic = (Memory.VarArgsArrayList<long>)mem.GetVariable("arg1");
 
             Assert.AreEqual(1L, variadic[0], "Failed to generate expected variadic array");
             Assert.AreEqual(2L, variadic[1], "Failed to generate expected variadic array");

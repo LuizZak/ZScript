@@ -19,9 +19,11 @@
 */
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using ZScript.Elements;
+using ZScript.Elements.ValueHolding;
 using ZScript.Runtime.Typing;
 
 namespace ZScript.Runtime.Execution.VirtualMemory
@@ -133,6 +135,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
             Memory mem = new Memory();
             int i;
             bool arrayRest = false;
+            FunctionArgument varArg = null;
 
             // Set the default values now
             foreach (var arg in def.Arguments)
@@ -144,7 +147,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                 // Variadic
                 if (arg.IsVariadic)
                 {
-                    mem.SetVariable(arg.Name, new VarArgsArrayList());
+                    mem.SetVariable(arg.Name, VarArgsFromArgument(arg));
                 }
             }
 
@@ -154,22 +157,26 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                 if (def.Arguments[i].IsVariadic)
                 {
                     arrayRest = true;
+                    varArg = def.Arguments[i];
                     break;
                 }
 
                 mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(arguments[i]));
             }
 
-            if (arrayRest)
+            if (arrayRest && varArg != null)
             {
-                VarArgsArrayList rest = new VarArgsArrayList();
+                var rest = VarArgsFromArgument(varArg);
                 for (int j = i; j < arguments.Length; j++)
                 {
                     // Concat ArrayList arguments
-                    var varArgs = arguments[j] as VarArgsArrayList;
+                    var varArgs = arguments[j] as IVarArgs;
                     if (varArgs != null)
                     {
-                        rest.InsertRange(rest.Count, varArgs);
+                        foreach (var obj in varArgs)
+                        {
+                            rest.Add(obj);
+                        }
                     }
                     else
                     {
@@ -183,9 +190,27 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         }
 
         /// <summary>
+        /// Creates a new VarArgsArrayList from the given function argument definition
+        /// </summary>
+        /// <param name="argument">The function argument that contains the type of variable arguments list to create</param>
+        /// <returns>A new generic VarArgsArrayList created from the given function argument</returns>
+        public static IVarArgs VarArgsFromArgument(FunctionArgument argument)
+        {
+            return (IVarArgs)Activator.CreateInstance(typeof(VarArgsArrayList<>).MakeGenericType(argument.Type));
+        }
+
+        /// <summary>
         /// Specifies a list of variable arguments
         /// </summary>
-        public class VarArgsArrayList : ArrayList
+        public class VarArgsArrayList<T> : List<T>, IVarArgs
+        {
+            
+        }
+
+        /// <summary>
+        /// Interface that exposes a non-generic version of the VarArgsArrayList class
+        /// </summary>
+        public interface IVarArgs : IList
         {
             
         }
