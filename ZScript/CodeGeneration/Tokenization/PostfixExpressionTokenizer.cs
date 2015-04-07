@@ -631,22 +631,23 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitTupleExpression(ZScriptParser.TupleExpressionContext context)
         {
-            var expressions = context.expression();
+            var entries = context.tupleEntry();
 
             // Simplified tuple (parenthesized expression): Just tokenize the first expression and leave
-            if (expressions.Length == 1)
+            if (entries.Length == 1)
             {
-                VisitExpression(expressions[0]);
+                VisitExpression(entries[0].expression());
                 return;
             }
 
             // Tokenize the expressions
-            var types = new Type[expressions.Length];
-            for (int i = 0; i < expressions.Length; i++)
+            var types = new Type[entries.Length];
+            for (int i = 0; i < entries.Length; i++)
             {
-                var expression = expressions[i];
-                VisitExpression(expression);
-                types[i] = TypeProvider.NativeTypeForTypeDef(expression.EvaluatedType);
+                var entry = entries[i];
+                VisitExpression(entry.expression());
+
+                types[i] = TypeProvider.NativeTypeForTypeDef(entry.expression().EvaluatedType);
             }
 
             // Tuple creation instruction

@@ -1783,8 +1783,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var exp = parser.expression();
 
-            exp.tupleExpression().expression(0).EvaluatedType = provider.IntegerType();
-            exp.tupleExpression().expression(1).EvaluatedType = provider.BooleanType();
+            exp.tupleExpression().tupleEntry(0).expression().EvaluatedType = provider.IntegerType();
+            exp.tupleExpression().tupleEntry(1).expression().EvaluatedType = provider.BooleanType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 

@@ -31,6 +31,11 @@ namespace ZScript.Runtime.Typing.Elements
     public class TupleTypeDef : TypeDef, IEquatable<TupleTypeDef>
     {
         /// <summary>
+        /// Gets 
+        /// </summary>
+        public string[] InnerTypeNames { get; private set; }
+
+        /// <summary>
         /// Gets the inner types for the tuple
         /// </summary>
         public TypeDef[] InnerTypes { get; private set; }
@@ -43,10 +48,12 @@ namespace ZScript.Runtime.Typing.Elements
             : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
         {
             InnerTypes = innerTypes;
+            InnerTypeNames = new string[innerTypes.Length];
 
             for (int i = 0; i < innerTypes.Length; i++)
             {
-                AddField(new TypeFieldDef(i.ToString(), innerTypes[i], false));
+                InnerTypeNames[i] = i.ToString();
+                AddField(new TypeFieldDef(InnerTypeNames[i], innerTypes[i], false));
             }
         }
 
@@ -55,14 +62,16 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="innerTypeNames">An array of names for the inner types</param>
         /// <param name="innerTypes">The inner types for the tuple</param>
-        public TupleTypeDef(IReadOnlyList<string> innerTypeNames, TypeDef[] innerTypes)
+        public TupleTypeDef(string[] innerTypeNames, TypeDef[] innerTypes)
             : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
         {
             InnerTypes = innerTypes;
+            InnerTypeNames = new string[innerTypes.Length];
 
-            for (int i = 0; i < innerTypeNames.Count; i++)
+            for (int i = 0; i < innerTypeNames.Length; i++)
             {
                 string innerName = innerTypeNames[i] ?? i.ToString();
+                InnerTypeNames[i] = innerName;
                 AddField(new TypeFieldDef(innerName, innerTypes[i], false));
             }
         }

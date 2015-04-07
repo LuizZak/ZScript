@@ -230,9 +230,9 @@ namespace ZScript.CodeGeneration.Analysis
                 var expectedAsTuple = context.ExpectedType as TupleTypeDef;
                 if (expectedAsTuple != null && context.valueAccess() == null)
                 {
-                    for (int i = 0; i < Math.Min(expectedAsTuple.InnerTypes.Length, context.tupleExpression().expression().Length); i++)
+                    for (int i = 0; i < Math.Min(expectedAsTuple.InnerTypes.Length, context.tupleExpression().tupleEntry().Length); i++)
                     {
-                        context.tupleExpression().expression(i).ExpectedType = expectedAsTuple.InnerTypes[i];
+                        context.tupleExpression().tupleEntry(i).expression().ExpectedType = expectedAsTuple.InnerTypes[i];
                     }
                 }
 
@@ -539,22 +539,24 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the tuple expression</returns>
         public TypeDef ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
         {
-            var expressions = context.expression();
+            var entries = context.tupleEntry();
 
             // Single tuple: return inner type
-            if (expressions.Length == 1)
+            if (entries.Length == 1)
             {
-                return ResolveExpression(expressions[0]);
+                return ResolveExpression(entries[0].expression());
             }
 
-            var innerTypes = new TypeDef[expressions.Length];
+            var names = new string[entries.Length];
+            var innerTypes = new TypeDef[entries.Length];
 
-            for (int i = 0; i < expressions.Length; i++)
+            for (int i = 0; i < entries.Length; i++)
             {
-                innerTypes[i] = ResolveExpression(expressions[i]);
+                names[i] = entries[i].IDENT() == null ? null : entries[i].IDENT().GetText();
+                innerTypes[i] = ResolveExpression(entries[i].expression());
             }
 
-            return TypeProvider.TupleForTypes(innerTypes);
+            return TypeProvider.TupleForTypes(names, innerTypes);
         }
 
         /// <summary>
@@ -571,7 +573,6 @@ namespace ZScript.CodeGeneration.Analysis
             var tuple = type as TupleTypeDef;
             if (tuple == null)
             {
-                resType = _generationContext.TypeProvider.AnyType();
                 RegisterInvalidTupleAccess(type, context);
                 return;
             }
@@ -579,7 +580,6 @@ namespace ZScript.CodeGeneration.Analysis
             var field = tuple.GetField(context.INT().GetText());
             if (field == null)
             {
-                resType = _generationContext.TypeProvider.AnyType();
                 RegisterUndefinedTupleIndex(type, context, context.INT().GetText());
                 return;
             }
@@ -1556,15 +1556,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The tuple type for the context</returns>
         public TupleTypeDef ResolveTupleType(ZScriptParser.TupleTypeContext context)
         {
-            var types = context.type();
+            var types = context.tupleTypeEntry();
+            var typeNames = new string[types.Length];
             var resolvedTypes = new TypeDef[types.Length];
 
             for (int i = 0; i < types.Length; i++)
             {
-                resolvedTypes[i] = ResolveType(types[i], false);
+                typeNames[i] = types[i].IDENT() == null ? null : types[i].IDENT().GetText();
+                resolvedTypes[i] = ResolveType(types[i].type(), false);
             }
 
-            return TypeProvider.TupleForTypes(resolvedTypes);
+            return TypeProvider.TupleForTypes(typeNames, resolvedTypes);
         }
 
         /// <summary>

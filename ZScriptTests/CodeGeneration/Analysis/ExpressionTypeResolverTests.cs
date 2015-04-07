@@ -706,12 +706,40 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
-            var type1 = resolver.ResolveTupleExpression(parser.statement().expression().tupleExpression());
-            var type2 = resolver.ResolveExpression(parser.statement().expression());
+            var type1 = (TupleTypeDef)resolver.ResolveTupleExpression(parser.statement().expression().tupleExpression());
+            var type2 = (TupleTypeDef)resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
             Assert.AreEqual(provider.TupleForTypes(provider.IntegerType(), provider.IntegerType()), type1, "The resolved type did not match the expected type");
             Assert.AreEqual(provider.TupleForTypes(provider.BooleanType(), provider.FloatType()), type2, "The resolved type did not match the expected type");
+
+            Assert.AreEqual("0", type1.InnerTypeNames[0]);
+            Assert.AreEqual("1", type1.InnerTypeNames[1]);
+
+            Assert.AreEqual("0", type2.InnerTypeNames[0]);
+            Assert.AreEqual("1", type2.InnerTypeNames[1]);
+        }
+
+        /// <summary>
+        /// Tests resolving the type of tuples with identifiers
+        /// </summary>
+        [TestMethod]
+        public void TestResolveTupleTypeWithIdentifiers()
+        {
+            // Set up the test
+            const string input = "(x: float, y: float, float)";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type1 = resolver.ResolveTupleType(parser.tupleType());
+
+            // Compare the result now
+            Assert.AreEqual(provider.TupleForTypes(provider.FloatType(), provider.FloatType(), provider.FloatType()), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual("x", type1.InnerTypeNames[0]);
+            Assert.AreEqual("y", type1.InnerTypeNames[1]);
+            Assert.AreEqual("2", type1.InnerTypeNames[2]);
         }
 
         /// <summary>
@@ -732,7 +760,46 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(exp);
 
             // Compare the result now
-            Assert.AreEqual(provider.FloatType(), exp.tupleExpression().expression(1).ExpectedType, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.FloatType(), exp.tupleExpression().tupleEntry(1).expression().ExpectedType, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests creating tuples with labeled entries
+        /// </summary>
+        [TestMethod]
+        public void TestCreateLabeledTuple()
+        {
+            // Set up the test
+            const string input = "(x: 0, y: false);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var type1 = (TupleTypeDef)resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual("x", type1.InnerTypeNames[0], "The resolved type did not match the expected type");
+            Assert.AreEqual("y", type1.InnerTypeNames[1], "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests accessing a tuple's entry by name
+        /// </summary>
+        [TestMethod]
+        public void TestAccessLabeledTupleEntry()
+        {
+            // Set up the test
+            const string input = "(x: 0, y: false).x;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
         }
 
         /// <summary>

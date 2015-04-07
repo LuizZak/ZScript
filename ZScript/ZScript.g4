@@ -139,7 +139,8 @@ listType         : '[' type ']';
 dictionaryType   : '[' keyType=type ':' valueType=type ']';
 callableTypeList : callableArgType (',' callableArgType)*;
 callableArgType  : type variadic='...'?;
-tupleType        : '(' type (',' type)+ ')';
+tupleType        : '(' tupleTypeEntry (',' tupleTypeEntry)+ ')';
+tupleTypeEntry   : (IDENT ':')? type;
 
 ////
 //// Expressions
@@ -197,7 +198,8 @@ equalityOp : '==' | '!=';
 logicalAnd : '&&';
 logicalOr  : '||';
 
-tupleExpression : '(' expression (',' expression)* ')';
+tupleExpression : '(' tupleEntry (',' tupleEntry)* ')';
+tupleEntry : (IDENT ':')? expression;
 assignmentExpression : leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName funcCallArguments;
 closureExpression : (functionArg | functionArguments) returnType? '=>' functionBody;

@@ -759,6 +759,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTupleType([NotNull] ZScriptParser.TupleTypeContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleTypeEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTupleTypeEntry([NotNull] ZScriptParser.TupleTypeEntryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleTypeEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTupleTypeEntry([NotNull] ZScriptParser.TupleTypeEntryContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -878,6 +888,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTupleEntry([NotNull] ZScriptParser.TupleEntryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTupleEntry([NotNull] ZScriptParser.TupleEntryContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.assignmentExpression"/>.
 	/// </summary>

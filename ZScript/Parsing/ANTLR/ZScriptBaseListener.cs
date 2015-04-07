@@ -909,6 +909,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTupleType([NotNull] ZScriptParser.TupleTypeContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleTypeEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTupleTypeEntry([NotNull] ZScriptParser.TupleTypeEntryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleTypeEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTupleTypeEntry([NotNull] ZScriptParser.TupleTypeEntryContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -1052,6 +1064,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTupleEntry([NotNull] ZScriptParser.TupleEntryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTupleEntry([NotNull] ZScriptParser.TupleEntryContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.assignmentExpression"/>.
 	/// <para>The default implementation does nothing.</para>

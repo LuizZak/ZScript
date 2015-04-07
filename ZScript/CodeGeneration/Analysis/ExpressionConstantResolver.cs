@@ -234,9 +234,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context containing the expression to resolve</param>
         void ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
         {
-            foreach (var expression in context.expression())
+            foreach (var entry in context.tupleEntry())
             {
-                ResolveExpression(expression);
+                ResolveExpression(entry.expression());
             }
         }
 
