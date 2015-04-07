@@ -836,16 +836,18 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 resType = (memberInfo as TypeFieldDef).FieldType;
 
-                // Update constant flag
-                if (leftValueContext != null)
-                    leftValueContext.IsConstant = (memberInfo as TypeFieldDef).Readonly;
-
                 // Mark tuple access
                 var tuple = leftValue as TupleTypeDef;
                 if (tuple != null)
                 {
                     context.IsTupleAccess = true;
                     context.TupleIndex = tuple.IndexOfLabel(memberName);
+                }
+                else
+                {
+                    // Update constant flag
+                    if (leftValueContext != null)
+                        leftValueContext.IsConstant = (memberInfo as TypeFieldDef).Readonly;
                 }
             }
             else if (memberInfo is TypeMethodDef)

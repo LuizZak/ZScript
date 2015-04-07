@@ -200,6 +200,51 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(false, ((List<object>)((List<object>)memory.GetVariable("v"))[1])[1]);
         }
 
+        [TestMethod]
+        public void TestAssignIndexOnConstantTuple()
+        {
+            const string input = "let v = (0, 1); func f() { v.1 = 0; }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            // Assert the correct call was made
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+        }
+
+        [TestMethod]
+        public void TestAssignNestedIndexOnConstantTuple()
+        {
+            const string input = "let v = (0, (1, 1)); func f() { v.1 .0 = 0; }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            // Assert the correct call was made
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+        }
+
+        [TestMethod]
+        public void TestAssignNestedLabelOnConstantTuple()
+        {
+            const string input = "let v = (0, y: (1, 1)); func f() { v.y.0 = 0; }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            // Assert the correct call was made
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+        }
+
         #endregion
     }
 }
