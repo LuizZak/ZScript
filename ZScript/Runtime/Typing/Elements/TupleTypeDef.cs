@@ -107,10 +107,20 @@ namespace ZScript.Runtime.Typing.Elements
 
         #region Equality members
 
+        public override bool Equals(TypeDef other)
+        {
+            var tuple = other as TupleTypeDef;
+            if (tuple == null)
+                return false;
+
+            return Equals(tuple);
+        }
+
         public bool Equals(TupleTypeDef other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
+
             return InnerTypes.SequenceEqual(other.InnerTypes);
         }
 

@@ -306,7 +306,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="other">The TypeDef to test against</param>
         /// <returns>true if this TypeDef equals the other TypeDef, false otherwise</returns>
-        public bool Equals(TypeDef other)
+        public virtual bool Equals(TypeDef other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
