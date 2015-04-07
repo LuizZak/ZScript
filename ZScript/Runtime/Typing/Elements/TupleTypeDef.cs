@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -63,7 +64,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="innerTypeNames">An array of names for the inner types</param>
         /// <param name="innerTypes">The inner types for the tuple</param>
         public TupleTypeDef(string[] innerTypeNames, TypeDef[] innerTypes)
-            : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
+            : base(CreateTupleName(innerTypeNames, innerTypes), false)
         {
             InnerTypes = innerTypes;
             InnerTypeNames = new string[innerTypes.Length];
@@ -76,13 +77,41 @@ namespace ZScript.Runtime.Typing.Elements
             }
         }
 
+        /// <summary>
+        /// Creates and returns a string that represents a tuple with the given set of inner type names and inner types
+        /// </summary>
+        /// <param name="innerTypeNames">An array of names for the inner types</param>
+        /// <param name="innerTypes">The inner types for the tuple</param>
+        /// <returns>A representation of the tuple provided</returns>
+        private static string CreateTupleName(string[] innerTypeNames, TypeDef[] innerTypes)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("(");
+
+            for (int i = 0; i < innerTypeNames.Length; i++)
+            {
+                if (i > 0)
+                    builder.Append(", ");
+                
+                if (innerTypeNames[i] != null)
+                    builder.Append(innerTypeNames[i] + ": ");
+
+                builder.Append(innerTypes[i]);
+            }
+
+            builder.Append(")");
+
+            return builder.ToString();
+        }
+
         #region Equality members
 
         public bool Equals(TupleTypeDef other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && InnerTypes.SequenceEqual(other.InnerTypes);
+            return InnerTypes.SequenceEqual(other.InnerTypes);
         }
 
         public override bool Equals(object obj)
@@ -97,7 +126,17 @@ namespace ZScript.Runtime.Typing.Elements
         {
             unchecked
             {
-                return (base.GetHashCode() * 397) ^ (InnerTypes != null ? InnerTypes.GetHashCode() : 0);
+                int hash = 0;
+
+                if (InnerTypes == null)
+                    return hash;
+
+                foreach (var type in InnerTypes)
+                {
+                    hash ^= (397 * type.GetHashCode());
+                }
+
+                return hash;
             }
         }
 
