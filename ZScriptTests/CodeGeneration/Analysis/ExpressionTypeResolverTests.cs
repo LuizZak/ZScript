@@ -791,16 +791,19 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestAccessLabeledTupleEntry()
         {
             // Set up the test
-            const string input = "(x: 0, y: false).x;";
+            const string input = "(x: 0, y: false).y;";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
 
-            var type1 = resolver.ResolveExpression(parser.statement().expression());
+            var exp = parser.statement().expression();
+            var type1 = resolver.ResolveExpression(exp);
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
+            Assert.IsTrue(exp.valueAccess().fieldAccess().IsTupleAccess);
+            Assert.AreEqual(1, exp.valueAccess().fieldAccess().TupleIndex);
+            Assert.AreEqual(provider.BooleanType(), type1, "The resolved type did not match the expected type");
         }
 
         /// <summary>

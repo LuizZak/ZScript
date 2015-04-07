@@ -78,31 +78,21 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
-        /// Creates and returns a string that represents a tuple with the given set of inner type names and inner types
+        /// Returns the positive index of a given label name on this tuple type def.
+        /// Returns -1 when the index is not found
         /// </summary>
-        /// <param name="innerTypeNames">An array of names for the inner types</param>
-        /// <param name="innerTypes">The inner types for the tuple</param>
-        /// <returns>A representation of the tuple provided</returns>
-        private static string CreateTupleName(string[] innerTypeNames, TypeDef[] innerTypes)
+        /// <param name="labelName">The name of the label to search</param>
+        /// <returns>The index of the label on the InnerTypeNames array, returns -1 if the label does not exists on this tuple</returns>
+        public int IndexOfLabel(string labelName)
         {
-            StringBuilder builder = new StringBuilder();
-
-            builder.Append("(");
-
-            for (int i = 0; i < innerTypeNames.Length; i++)
+            for (int i = 0; i < InnerTypeNames.Length; i++)
             {
-                if (i > 0)
-                    builder.Append(", ");
-                
-                if (innerTypeNames[i] != null)
-                    builder.Append(innerTypeNames[i] + ": ");
-
-                builder.Append(innerTypes[i]);
+                var typeName = InnerTypeNames[i];
+                if (typeName == labelName)
+                    return i;
             }
 
-            builder.Append(")");
-
-            return builder.ToString();
+            return -1;
         }
 
         #region Equality members
@@ -161,5 +151,33 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         #endregion
+
+        /// <summary>
+        /// Creates and returns a string that represents a tuple with the given set of inner type names and inner types
+        /// </summary>
+        /// <param name="innerTypeNames">An array of names for the inner types</param>
+        /// <param name="innerTypes">The inner types for the tuple</param>
+        /// <returns>A representation of the tuple provided</returns>
+        private static string CreateTupleName(string[] innerTypeNames, TypeDef[] innerTypes)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("(");
+
+            for (int i = 0; i < innerTypeNames.Length; i++)
+            {
+                if (i > 0)
+                    builder.Append(", ");
+
+                if (innerTypeNames[i] != null)
+                    builder.Append(innerTypeNames[i] + ": ");
+
+                builder.Append(innerTypes[i]);
+            }
+
+            builder.Append(")");
+
+            return builder.ToString();
+        }
     }
 }

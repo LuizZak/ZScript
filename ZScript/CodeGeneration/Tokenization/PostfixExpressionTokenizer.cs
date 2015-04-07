@@ -322,6 +322,17 @@ namespace ZScript.CodeGeneration.Tokenization
                     VisitLeftValueAccess(context.leftValueAccess());
                 }
             }
+            else if (context.tupleAccess() != null)
+            {
+                _isGetAccess = context.leftValueAccess() != null;
+
+                VisitTupleAccess(context.tupleAccess());
+
+                if (context.leftValueAccess() != null)
+                {
+                    VisitLeftValueAccess(context.leftValueAccess());
+                }
+            }
         }
 
         #endregion
@@ -654,6 +665,20 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, types));
         }
 
+        private void VisitTupleAccess(ZScriptParser.TupleAccessContext context)
+        {
+            var index = int.Parse(context.INT().GetText());
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(index));
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript));
+
+            // Expand the index in case it is a get access
+            if (_isGetAccess)
+            {
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Get));
+            }
+        }
+
         #endregion
 
         #region Ternary, binary, unary
@@ -888,6 +913,10 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
             }
+            else if (context.tupleAccess() != null)
+            {
+                VisitTupleAccess(context.tupleAccess());
+            }
             if (context.valueAccess() != null)
             {
                 VisitValueAccess(context.valueAccess());
@@ -899,6 +928,20 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitFieldAccess(ZScriptParser.FieldAccessContext context, bool functionCall)
         {
+            if (context.IsTupleAccess)
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(context.TupleIndex));
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript));
+
+                // Expand the index in case it is a get access
+                if (_isGetAccess && !functionCall)
+                {
+                    _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Get));
+                }
+
+                return;
+            }
+
             VisitMemberName(context.memberName());
 
             if (functionCall)

@@ -146,6 +146,22 @@ public partial class ZScriptParser
     }
 
     /// <summary>
+    /// Provides extensions to the FieldAccessContext for binding converted tuple indexed accesses
+    /// </summary>
+    partial class FieldAccessContext
+    {
+        /// <summary>
+        /// Gets or sets a value specifying whether this field access is a tuple label access
+        /// </summary>
+        public bool IsTupleAccess { get; set; }
+
+        /// <summary>
+        /// Gets or sets the index of the tuple being accessed, in case IsTupleAccess is true
+        /// </summary>
+        public int TupleIndex { get; set; }
+    }
+
+    /// <summary>
     /// Provides extensions to the LeftValueContext for providing information about the value it is pointing at
     /// </summary>
     partial class LeftValueContext

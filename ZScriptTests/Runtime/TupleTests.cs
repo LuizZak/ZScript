@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,6 +35,8 @@ namespace ZScriptTests.Runtime
     [TestClass]
     public class TupleTests
     {
+        #region Parsing
+
         [TestMethod]
         public void TestParseTupleExpression()
         {
@@ -75,5 +78,128 @@ namespace ZScriptTests.Runtime
 
             Assert.IsFalse(container.HasErrors);
         }
+
+        #endregion
+
+        #region Execution
+
+        [TestMethod]
+        public void TestTupleCreation()
+        {
+            const string input = "var tuple:(int, bool) = (0, true);";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.ExpandGlobalVariables();
+
+            // Assert the correct call was made
+            var list = (List<object>)memory.GetVariable("tuple");
+
+            Assert.AreEqual(0L, list[0]);
+            Assert.AreEqual(true, list[1]);
+        }
+
+        [TestMethod]
+        public void TestIndexedTupleAccess()
+        {
+            const string input = "var v = (0, true).0;";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.ExpandGlobalVariables();
+
+            // Assert the correct call was made
+            Assert.AreEqual(0L, memory.GetVariable("v"));
+        }
+
+        [TestMethod]
+        public void TestLabeledTupleAccess()
+        {
+            const string input = "var v = (0, x: true).x;";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.ExpandGlobalVariables();
+
+            // Assert the correct call was made
+            Assert.AreEqual(true, memory.GetVariable("v"));
+        }
+
+        [TestMethod]
+        public void TestIndexedTupleAssign()
+        {
+            const string input = "var v = (0, x: true); func f() { v.1 = false; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            Assert.AreEqual(false, ((List<object>)memory.GetVariable("v"))[1]);
+        }
+
+        [TestMethod]
+        public void TestLabeledTupleAssign()
+        {
+            const string input = "var v = (0, x: true); func f() { v.x = false; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            Assert.AreEqual(false, ((List<object>)memory.GetVariable("v"))[1]);
+        }
+
+        [TestMethod]
+        public void TestNestedLabeledTupleAssign()
+        {
+            const string input = "var v = (0, (1, x: true)); func f() { v.1.x = false; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            Assert.AreEqual(false, ((List<object>)((List<object>)memory.GetVariable("v"))[1])[1]);
+        }
+
+        #endregion
     }
 }

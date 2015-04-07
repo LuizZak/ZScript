@@ -740,10 +740,13 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref type);
             }
-
-            if (context.arrayAccess() != null)
+            else if (context.arrayAccess() != null)
             {
                 ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref type);
+            }
+            else if (context.tupleAccess() != null)
+            {
+                ResolveTupleAccess(leftValue, leftValueContext, context.tupleAccess(), ref type);
             }
 
             if (context.leftValueAccess() != null)
@@ -836,6 +839,14 @@ namespace ZScript.CodeGeneration.Analysis
                 // Update constant flag
                 if (leftValueContext != null)
                     leftValueContext.IsConstant = (memberInfo as TypeFieldDef).Readonly;
+
+                // Mark tuple access
+                var tuple = leftValue as TupleTypeDef;
+                if (tuple != null)
+                {
+                    context.IsTupleAccess = true;
+                    context.TupleIndex = tuple.IndexOfLabel(memberName);
+                }
             }
             else if (memberInfo is TypeMethodDef)
             {
