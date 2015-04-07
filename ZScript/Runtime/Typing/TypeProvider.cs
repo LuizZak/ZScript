@@ -696,7 +696,7 @@ namespace ZScript.Runtime.Typing
             if (!target.ReturnType.IsVoid)
             {
                 // Optional configuration
-                if (!AreTypesCompatible(target.ReturnType, origin.ReturnType))
+                if (!AreTypesCompatible(origin.ReturnType, target.ReturnType))
                     return false;
             }
 
@@ -707,7 +707,7 @@ namespace ZScript.Runtime.Typing
                 var typeO = origin.ParameterTypes[i];
                 var typeT = target.ParameterTypes[i];
 
-                if (!AreTypesCompatible(typeO, typeT))
+                if (!AreTypesCompatible(typeT, typeO))
                     return false;
             }
 
@@ -720,7 +720,7 @@ namespace ZScript.Runtime.Typing
                 var varT = target.VariadicParameter.RawParameterType;
                 var varO = origin.VariadicParameter.RawParameterType;
 
-                if (!AreTypesCompatible(varO, varT))
+                if (!AreTypesCompatible(varT, varO))
                     return false;
             }
 
@@ -773,8 +773,8 @@ namespace ZScript.Runtime.Typing
             // 
             // 1. Target and origin have the same optionality configuration (same underlying type, same depth)
             // 2. Origin has an optional type which wraps the target type
-            if (optO != null && optO.WrappedType == target)
-                return true;
+            /*if (optO != null && optO.WrappedType == target)
+                return true;*/
             if (optT != null && optT.WrappedType == origin)
                 return true;
 
@@ -784,7 +784,7 @@ namespace ZScript.Runtime.Typing
                 return true;
             }
 
-            if (origin != target && !origin.IsAny)
+            if (origin != target && !target.IsAny)
                 return false;
 
             return true;
