@@ -691,6 +691,27 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.TupleForTypes(provider.BooleanType(), provider.FloatType()), type2, "The resolved type did not match the expected type");
         }
 
+        /// <summary>
+        /// Tests passing of expected types in tuple expressions
+        /// </summary>
+        [TestMethod]
+        public void TestPassExpectedTypeInTuples()
+        {
+            // Set up the test
+            const string input = "(0, 1);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var exp = parser.statement().expression();
+            exp.ExpectedType = provider.TupleForTypes(provider.IntegerType(), provider.FloatType());
+            resolver.ResolveExpression(exp);
+
+            // Compare the result now
+            Assert.AreEqual(provider.FloatType(), exp.tupleExpression().expression(1).ExpectedType, "The resolved type did not match the expected type");
+        }
+
         #endregion
 
         #region Class Type resolving

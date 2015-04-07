@@ -209,10 +209,10 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.dictionaryLiteralInit() != null)
             {
-                var expectedAsList = context.ExpectedType as DictionaryTypeDef;
-                if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
+                var expectedAsDict = context.ExpectedType as DictionaryTypeDef;
+                if (expectedAsDict != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
                 {
-                    context.dictionaryLiteralInit().ExpectedType = expectedAsList;
+                    context.dictionaryLiteralInit().ExpectedType = expectedAsDict;
                 }
 
                 retType = ResolveDictionaryLiteralInit(context.dictionaryLiteralInit());
@@ -227,6 +227,15 @@ namespace ZScript.CodeGeneration.Analysis
             }
             if (context.tupleExpression() != null)
             {
+                var expectedAsTuple = context.ExpectedType as TupleTypeDef;
+                if (expectedAsTuple != null && context.valueAccess() == null)
+                {
+                    for (int i = 0; i < Math.Min(expectedAsTuple.InnerTypes.Length, context.tupleExpression().expression().Length); i++)
+                    {
+                        context.tupleExpression().expression(i).ExpectedType = expectedAsTuple.InnerTypes[i];
+                    }
+                }
+
                 retType = ResolveTupleExpression(context.tupleExpression());
             }
             // Ternary expression
