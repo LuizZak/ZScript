@@ -735,6 +735,70 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.FloatType(), exp.tupleExpression().expression(1).ExpectedType, "The resolved type did not match the expected type");
         }
 
+        /// <summary>
+        /// Tests accessing a tuple's entry by index
+        /// </summary>
+        [TestMethod]
+        public void TestAccessTupleIndex()
+        {
+            // Set up the test
+            const string input = "(0, false).0; (true, 1.0).1;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var type1 = resolver.ResolveExpression(parser.statement().expression());
+            var type2 = resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.FloatType(), type2, "The resolved type did not match the expected type");
+        }
+
+        /// <summary>
+        /// Tests accessing a tuple's entry by index
+        /// </summary>
+        [TestMethod]
+        public void TestAccessInvalidTupleIndex()
+        {
+            // Set up the test
+            const string input = "(0, false).2;";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            resolver.ResolveExpression(parser.statement().expression());
+
+            container.PrintMessages();
+
+            // Compare the result now
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.UnrecognizedMember));
+        }
+
+        /// <summary>
+        /// Tests raising errors when trying to access tuples with invalid value accesses
+        /// </summary>
+        [TestMethod]
+        public void TestInvalidTupleAccessTypeError()
+        {
+            // Set up the test
+            const string input = "(0, false)[0]; (0, false)();";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToSubscriptNonList));
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToCallNonCallable));
+        }
+
         #endregion
 
         #region Class Type resolving

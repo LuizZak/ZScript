@@ -151,6 +151,8 @@ namespace ZScript.CodeGeneration.Messages
         TryingToCallNonCallable,
         /// <summary>Trying to unwrap a non-optional value</summary>
         TryingToUnwrapNonOptional,
+        /// <summary>Trying to access an object that is not a tuple with an indexed access</summary>
+        TryingToIndexNonTuple,
 
         /// <summary>A string contains an invalid escape sequence</summary>
         InvalidEscapeSequence,

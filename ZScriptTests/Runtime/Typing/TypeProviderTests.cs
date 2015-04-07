@@ -72,7 +72,7 @@ namespace ZScriptTests.Runtime.Typing
 
         #endregion
 
-        #region NativeTypeForTypeDf
+        #region NativeTypeForTypeDef
 
         [TestMethod]
         public void TestNativeTypeInteger()

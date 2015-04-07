@@ -43,6 +43,28 @@ namespace ZScript.Runtime.Typing.Elements
             : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
         {
             InnerTypes = innerTypes;
+
+            for (int i = 0; i < innerTypes.Length; i++)
+            {
+                AddField(new TypeFieldDef(i.ToString(), innerTypes[i], false));
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TupleTypeDef class
+        /// </summary>
+        /// <param name="innerTypeNames">An array of names for the inner types</param>
+        /// <param name="innerTypes">The inner types for the tuple</param>
+        public TupleTypeDef(IReadOnlyList<string> innerTypeNames, TypeDef[] innerTypes)
+            : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
+        {
+            InnerTypes = innerTypes;
+
+            for (int i = 0; i < innerTypeNames.Count; i++)
+            {
+                string innerName = innerTypeNames[i] ?? i.ToString();
+                AddField(new TypeFieldDef(innerName, innerTypes[i], false));
+            }
         }
 
         #region Equality members

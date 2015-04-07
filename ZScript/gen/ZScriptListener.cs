@@ -1009,6 +1009,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFieldAccess([NotNull] ZScriptParser.FieldAccessContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTupleAccess([NotNull] ZScriptParser.TupleAccessContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTupleAccess([NotNull] ZScriptParser.TupleAccessContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayAccess"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

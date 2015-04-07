@@ -557,6 +557,36 @@ namespace ZScript.CodeGeneration.Analysis
             return TypeProvider.TupleForTypes(innerTypes);
         }
 
+        /// <summary>
+        /// Resolves the type of a givne tuple access
+        /// </summary>
+        /// <param name="type">The tuple type to analyze</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
+        /// <param name="context">The context containing the tuple access to perform</param>
+        /// <param name="resType">The type that was resolved for the tuple access</param>
+        /// <returns>The type for the tuple entry being accessed</returns>
+        public void ResolveTupleAccess(TypeDef type, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.TupleAccessContext context, ref TypeDef resType)
+        {
+            // Can only access tuples by field
+            var tuple = type as TupleTypeDef;
+            if (tuple == null)
+            {
+                resType = _generationContext.TypeProvider.AnyType();
+                RegisterInvalidTupleAccess(type, context);
+                return;
+            }
+
+            var field = tuple.GetField(context.INT().GetText());
+            if (field == null)
+            {
+                resType = _generationContext.TypeProvider.AnyType();
+                RegisterUndefinedTupleIndex(type, context, context.INT().GetText());
+                return;
+            }
+
+            resType = field.FieldType;
+        }
+
         #endregion
 
         #region Optional
@@ -766,6 +796,11 @@ namespace ZScript.CodeGeneration.Analysis
                 ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref type);
             }
 
+            if (context.tupleAccess() != null)
+            {
+                ResolveTupleAccess(leftValue, leftValueContext, context.tupleAccess(), ref type);
+            }
+
             if (context.valueAccess() != null)
             {
                 return ResolveValueAccess(type, leftValueContext, context.valueAccess());
@@ -811,9 +846,8 @@ namespace ZScript.CodeGeneration.Analysis
                     leftValueContext.IsConstant = true;
             }
 
-            // TODO: Decide what to do on failure. Raise error? Warning? Do nothing?
             if(memberInfo == null)
-                _generationContext.MessageContainer.RegisterError(context, "Undefined member name '" + memberName + "' on type " + leftValue, ErrorCode.UnrecognizedMember);
+                RegisterUndefinedMember(leftValue, context, memberName);
         }
 
         /// <summary>
@@ -1570,6 +1604,28 @@ namespace ZScript.CodeGeneration.Analysis
         #region Message registering
 
         /// <summary>
+        /// Registers an undefined member error
+        /// </summary>
+        /// <param name="type">The type trying to be accessed</param>
+        /// <param name="context">The context of the access</param>
+        /// <param name="memberName">The name of the member trying to be accessed</param>
+        private void RegisterUndefinedMember(TypeDef type, ParserRuleContext context, string memberName)
+        {
+            _generationContext.MessageContainer.RegisterError(context, "Undefined member name '" + memberName + "' on type " + type, ErrorCode.UnrecognizedMember);
+        }
+
+        /// <summary>
+        /// Registers an undefined tuple index error
+        /// </summary>
+        /// <param name="type">The tuple trying to be accessed</param>
+        /// <param name="context">The context of the access</param>
+        /// <param name="indexString">The index of the value trying to be accessed</param>
+        private void RegisterUndefinedTupleIndex(TypeDef type, ParserRuleContext context, string indexString)
+        {
+            _generationContext.MessageContainer.RegisterError(context, "Undefined tuple index '" + indexString + "' on type " + type, ErrorCode.UnrecognizedMember);
+        }
+
+        /// <summary>
         /// Registers a message about calling a non-callable type
         /// </summary>
         /// <param name="type">The type of the object trying to be called</param>
@@ -1589,6 +1645,17 @@ namespace ZScript.CodeGeneration.Analysis
         {
             string message = "Trying to access non-subscriptable '" + type + "' type like a list.";
             MessageContainer.RegisterError(context, message, ErrorCode.TryingToSubscriptNonList);
+        }
+
+        /// <summary>
+        /// Registers a message about accessing an index on a non-tuple type
+        /// </summary>
+        /// <param name="type">The type of the object trying to be indexed</param>
+        /// <param name="context">The context in which the subscription happened</param>
+        private void RegisterInvalidTupleAccess(TypeDef type, ParserRuleContext context)
+        {
+            string message = "Trying to access non-indexable '" + type + "' type like a tuple.";
+            MessageContainer.RegisterError(context, message, ErrorCode.TryingToIndexNonTuple);
         }
 
         /// <summary>

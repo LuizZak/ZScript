@@ -212,13 +212,14 @@ funcCallArguments : '(' expressionList? ')';
 expressionList : expression (',' expression)*;
 
 leftValue : (memberName | 'this') leftValueAccess?;
-leftValueAccess : unwrap='!'? ((functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?));
+leftValueAccess : unwrap='!'? ((functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?) | (tupleAccess leftValueAccess?));
 functionCall : funcCallArguments;
 fieldAccess  : '.' memberName;
-arrayAccess : '[' expression ']';
+tupleAccess  : '.' INT;
+arrayAccess  : '[' expression ']';
 
 objectAccess : (fieldAccess | arrayAccess) valueAccess?;
-valueAccess : nullable=T_NULL_CONDITIONAL* (functionCall | fieldAccess | arrayAccess) valueAccess?;
+valueAccess : nullable=T_NULL_CONDITIONAL* (tupleAccess | functionCall | fieldAccess | arrayAccess) valueAccess?;
 
 memberName : IDENT;
 

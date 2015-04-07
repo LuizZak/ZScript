@@ -1209,6 +1209,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFieldAccess([NotNull] ZScriptParser.FieldAccessContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleAccess"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTupleAccess([NotNull] ZScriptParser.TupleAccessContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleAccess"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTupleAccess([NotNull] ZScriptParser.TupleAccessContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayAccess"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
