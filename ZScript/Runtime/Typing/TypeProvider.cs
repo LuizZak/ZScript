@@ -560,12 +560,12 @@ namespace ZScript.Runtime.Typing
             var optionalTarget = target as OptionalTypeDef;
             if (optionalTarget != null)
             {
-                if (AreTypesCompatible(origin, target))
-                    return true;
-
                 if (CanImplicitCast(origin, optionalTarget.WrappedType))
                     return true;
             }
+
+            if (AreTypesCompatible(origin, target))
+                return true;
 
             // TODO: Improve native type checking to be able to handle primitive value types
             NativeTypeDef nativeOrigin = origin as NativeTypeDef;
@@ -774,6 +774,8 @@ namespace ZScript.Runtime.Typing
             // 1. Target and origin have the same optionality configuration (same underlying type, same depth)
             // 2. Origin has an optional type which wraps the target type
             if (optO != null && optO.WrappedType == target)
+                return true;
+            if (optT != null && optT.WrappedType == origin)
                 return true;
 
             // Inheritance
