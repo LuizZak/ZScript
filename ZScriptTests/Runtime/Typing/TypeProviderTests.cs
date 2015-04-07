@@ -233,8 +233,8 @@ namespace ZScriptTests.Runtime.Typing
             var tup1 = provider.NativeTypeForTypeDef(provider.TupleForTypes(provider.IntegerType(), provider.IntegerType()));
             var tup2 = provider.NativeTypeForTypeDef(provider.TupleForTypes(provider.FloatType(), provider.BooleanType()));
             
-            Assert.AreEqual(typeof(List<object>), tup1);
-            Assert.AreEqual(typeof(List<object>), tup2);
+            Assert.AreEqual(null, tup1);
+            Assert.AreEqual(null, tup2);
         }
 
         #endregion

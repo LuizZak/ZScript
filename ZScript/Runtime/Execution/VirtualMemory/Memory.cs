@@ -161,7 +161,12 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                     break;
                 }
 
-                mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(arguments[i]));
+                var value = arguments[i];
+
+                if (value is ITuple)
+                    value = Activator.CreateInstance(value.GetType(), value);
+
+                mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(value));
             }
 
             if (arrayRest && varArg != null)
@@ -175,12 +180,20 @@ namespace ZScript.Runtime.Execution.VirtualMemory
                     {
                         foreach (var obj in varArgs)
                         {
-                            rest.Add(obj);
+                            var value = obj;
+                            if (value is ITuple)
+                                value = Activator.CreateInstance(value.GetType(), value);
+
+                            rest.Add(value);
                         }
                     }
                     else
                     {
-                        rest.Add(arguments[j]);
+                        var value = arguments[j];
+                        if (value is ITuple)
+                            value = Activator.CreateInstance(value.GetType(), value);
+
+                        rest.Add(value);
                     }
                 }
                 mem.SetVariable(def.Arguments[i].Name, rest);

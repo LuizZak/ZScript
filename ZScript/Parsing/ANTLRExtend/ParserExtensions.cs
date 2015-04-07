@@ -270,6 +270,17 @@ public partial class ZScriptParser
         public DictionaryTypeDef ExpectedType { get; set; }
     }
 
+    /// <summary>
+    /// Provides extensions to the TupleExpressionContext for providing tuple typing to tuple expressions
+    /// </summary>
+    partial class TupleExpressionContext
+    {
+        /// <summary>
+        /// Gets or sets the tuple type for this tuple expression context
+        /// </summary>
+        public TupleTypeDef TupleType { get; set; }
+    }
+
     #endregion
 
     #region Statements

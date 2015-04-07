@@ -707,12 +707,21 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var provider = new TypeProvider();
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
 
-            var type1 = (TupleTypeDef)resolver.ResolveTupleExpression(parser.statement().expression().tupleExpression());
-            var type2 = (TupleTypeDef)resolver.ResolveExpression(parser.statement().expression());
+            var tupleExpression = parser.statement().expression().tupleExpression();
+            var expression = parser.statement().expression();
+
+            var type1 = (TupleTypeDef)resolver.ResolveTupleExpression(tupleExpression);
+            var type2 = (TupleTypeDef)resolver.ResolveExpression(expression);
 
             // Compare the result now
-            Assert.AreEqual(provider.TupleForTypes(provider.IntegerType(), provider.IntegerType()), type1, "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.TupleForTypes(provider.BooleanType(), provider.FloatType()), type2, "The resolved type did not match the expected type");
+            var tupleType1 = provider.TupleForTypes(provider.IntegerType(), provider.IntegerType());
+            var tupleType2 = provider.TupleForTypes(provider.BooleanType(), provider.FloatType());
+
+            Assert.AreEqual(tupleType1, tupleExpression.TupleType);
+            Assert.AreEqual(tupleType2, expression.tupleExpression().TupleType);
+
+            Assert.AreEqual(tupleType1, type1, "The resolved type did not match the expected type");
+            Assert.AreEqual(tupleType2, type2, "The resolved type did not match the expected type");
 
             Assert.AreEqual("0", type1.InnerTypeNames[0]);
             Assert.AreEqual("1", type1.InnerTypeNames[1]);

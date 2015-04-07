@@ -704,20 +704,18 @@ namespace ZScript.Runtime.Execution
         void PerformTupleCreation(Token token)
         {
             // Pop the types 
-            var types = (Type[])token.TokenObject;
+            var tupleType = (Type)token.TokenObject;
 
             // Create the list
-            var array = new List<object>();
+            var array = new object[tupleType.GetFields().Length];
 
-            for (int i = types.Length - 1; i >= 0; i--)
+            for (int i = array.Length - 1; i >= 0; i--)
             {
-                var obj = PopValueImplicit();
-                CheckType(obj, types[i]);
-                array.Insert(0, obj);
+                array[i] = PopValueImplicit();
             }
 
             // Push the array back into the stack
-            _stack.Push(array);
+            _stack.Push(Activator.CreateInstance(tupleType, array));
         }
 
         /// <summary>
@@ -1149,22 +1147,31 @@ namespace ZScript.Runtime.Execution
         /// <exception cref="VirtualMachineException">The value container cannot have its value get</exception>
         object GetValue(object valueContainer)
         {
+            object value;
+
             var token = valueContainer as Token;
             if (token != null)
             {
-                return _context.Memory.GetVariable((string)token.TokenObject);
+                value = _context.Memory.GetVariable((string)token.TokenObject);
             }
-            if (valueContainer is int)
+            else if (valueContainer is int)
             {
-                return _context.AddressedMemory.GetVariable((int)valueContainer);
+                value = _context.AddressedMemory.GetVariable((int)valueContainer);
             }
-            var valueHolder = valueContainer as IValueHolder;
-            if (valueHolder != null)
+            else
             {
-                return valueHolder.GetValue();
+                var valueHolder = valueContainer as IValueHolder;
+                if (valueHolder != null)
+                {
+                    value = valueHolder.GetValue();
+                }
+                else
+                {
+                    throw new VirtualMachineException("Unexpected variable '" + valueContainer + "' that cannot have its value get");
+                }
             }
 
-            throw new VirtualMachineException("Unexpected variable '" + valueContainer + "' that cannot have its value get");
+            return value;
         }
 
         /// <summary>
@@ -1176,6 +1183,9 @@ namespace ZScript.Runtime.Execution
         /// <exception cref="VirtualMachineException">The value container cannot have its value set</exception>
         void SetValue(object valueContainer, object value)
         {
+            if (value is ITuple)
+                value = Activator.CreateInstance(value.GetType(), value);
+
             var token = valueContainer as Token;
             if (token != null)
             {

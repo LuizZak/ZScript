@@ -63,6 +63,15 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets an assembly friendly display name for this type definition
+        /// </summary>
+        /// <returns>A string that can be used as an assembly-friendly name for this type definition</returns>
+        public override string AssemblyFriendlyName()
+        {
+            return "list_" + EnclosingType.AssemblyFriendlyName();
+        }
+
+        /// <summary>
         /// Gets a string representation of this ListTypeDef
         /// </summary>
         /// <returns>A string representation of this ListTypeDef</returns>

@@ -95,6 +95,15 @@ namespace ZScript.Runtime.Typing.Elements
             return -1;
         }
 
+        /// <summary>
+        /// Gets an assembly friendly display name for this type definition
+        /// </summary>
+        /// <returns>A string that can be used as an assembly-friendly name for this type definition</returns>
+        public override string AssemblyFriendlyName()
+        {
+            return "tuple_" + string.Join("_", InnerTypes.Select(i => i.AssemblyFriendlyName()));
+        }
+
         #region Equality members
 
         public override bool Equals(TypeDef other)

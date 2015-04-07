@@ -652,25 +652,21 @@ namespace ZScript.CodeGeneration.Tokenization
             }
 
             // Tokenize the expressions
-            var types = new Type[entries.Length];
-            for (int i = 0; i < entries.Length; i++)
+            foreach (var entry in entries)
             {
-                var entry = entries[i];
                 VisitExpression(entry.expression());
-
-                types[i] = TypeProvider.NativeTypeForTypeDef(entry.expression().EvaluatedType);
             }
 
             // Tuple creation instruction
-            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, types));
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.TupleType));
         }
 
         private void VisitTupleAccess(ZScriptParser.TupleAccessContext context)
         {
             var index = int.Parse(context.INT().GetText());
 
-            _tokens.Add(TokenFactory.CreateBoxedValueToken(index));
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript));
+            _tokens.Add(TokenFactory.CreateMemberNameToken("Field" + index));
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetMember));
 
             // Expand the index in case it is a get access
             if (_isGetAccess)
@@ -930,8 +926,8 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             if (context.IsTupleAccess)
             {
-                _tokens.Add(TokenFactory.CreateBoxedValueToken(context.TupleIndex));
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript));
+                _tokens.Add(TokenFactory.CreateMemberNameToken("Field" + context.TupleIndex));
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetMember));
 
                 // Expand the index in case it is a get access
                 if (_isGetAccess && !functionCall)

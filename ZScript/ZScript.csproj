@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\ClassTypeBuilder.cs" />
+    <Compile Include="Builders\TupleTypeBuilder.cs" />
     <Compile Include="Builders\TypeBuildingContext.cs" />
     <Compile Include="CodeGeneration\Analysis\ClassDefinitionExpander.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeScope.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Runtime\Execution\Wrappers\Callables\ZClassMethod.cs" />
     <Compile Include="Runtime\Execution\Wrappers\ICallableWrapper.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Members\ZClassMember.cs" />
+    <Compile Include="Runtime\ITuple.cs" />
     <Compile Include="Runtime\Typing\Elements\AnyTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\CallableTypeDef.cs" />
     <Compile Include="Runtime\Typing\Elements\DictionaryTypeDef.cs" />

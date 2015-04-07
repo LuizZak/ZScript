@@ -60,6 +60,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Builders\ClassTypeBuilderTests.cs" />
+    <Compile Include="Builders\TupleTypeBuilderTests.cs" />
     <Compile Include="Builders\TypeBuildingContextTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ControlFlowAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\CodeScopeTests.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="CodeGeneration\Tokenization\Helpers\JumpTokenOptimizerTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedTokenExpanderTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenListTests.cs" />
+    <Compile Include="CodeGeneration\Tokenization\PostfixExpressionTokenizer+TupleTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\PostfixExpressionTokenizerTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\StatementTokenizerTests.cs" />
     <Compile Include="Elements\OptionalTests.cs" />

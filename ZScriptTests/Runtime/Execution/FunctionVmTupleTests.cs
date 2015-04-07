@@ -19,10 +19,13 @@
 */
 #endregion
 
-using System.Collections.Generic;
+using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.Elements;
+using ZScript.Runtime;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
 
@@ -46,7 +49,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
                 new Token(TokenType.Value, 10L),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, new[] { typeof(object), typeof(string), typeof(long) })
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple1))
             };
 
             var tokenList = new TokenList(t);
@@ -58,20 +61,20 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(List<object>));
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(AnonTuple1));
 
-            var array = (List<object>)functionVm.Stack.Pop();
+            var tuple = (AnonTuple1)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10, array[0]);
-            Assert.AreEqual("abc", array[1]);
-            Assert.AreEqual(10L, array[2]);
+            Assert.AreEqual(10, tuple.Field0);
+            Assert.AreEqual("abc", tuple.Field1);
+            Assert.AreEqual(10L, tuple.Field2);
         }
 
         /// <summary>
         /// Tests exception raising when trying to create a tuple with mismatched types
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(VirtualMachineException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestCreateTupleTypeException()
         {
             // Create the set of tokens
@@ -79,7 +82,7 @@ namespace ZScriptTests.Runtime.Execution
             {
                 new Token(TokenType.Value, "abc"),
                 new Token(TokenType.Value, 10L),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, new[] { typeof(long), typeof(string) })
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple1))
             };
 
             var tokenList = new TokenList(t);
@@ -104,7 +107,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
                 new Token(TokenType.Value, 10L),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, new[] { typeof(string), typeof(long) })
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple2))
             };
 
             var tokenList = new TokenList(t);
@@ -116,14 +119,46 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(List<object>));
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(AnonTuple2));
 
-            var array = (List<object>)functionVm.Stack.Pop();
+            var array = (AnonTuple2)functionVm.Stack.Pop();
 
-            Assert.AreEqual("abc", array[0]);
-            Assert.AreEqual(10L, array[1]);
+            Assert.AreEqual("abc", array.Field0);
+            Assert.AreEqual(10L, array.Field1);
 
             Assert.AreEqual(10, functionVm.Stack.Pop());
+        }
+
+        /// <summary>
+        /// Anonymous tuple declaration used for inner tests
+        /// </summary>
+        protected struct AnonTuple1 : ITuple
+        {
+            public object Field0;
+            public string Field1;
+            public long Field2;
+
+            public AnonTuple1(object field0, string field1, long field2)
+            {
+                Field0 = field0;
+                Field1 = field1;
+                Field2 = field2;
+            }
+        }
+
+        /// <summary>
+        /// Anonymous tuple declaration used for inner tests
+        /// </summary>
+        protected struct AnonTuple2 : ITuple
+        {
+            public string Field0;
+            public long Field1;
+
+            public AnonTuple2(string field0, long field1)
+            {
+                Field0 = field0;
+                Field1 = field1;
+            }
         }
     }
 }

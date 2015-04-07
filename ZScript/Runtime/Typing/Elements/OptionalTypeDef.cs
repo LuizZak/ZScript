@@ -82,6 +82,15 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets an assembly friendly display name for this type definition
+        /// </summary>
+        /// <returns>A string that can be used as an assembly-friendly name for this type definition</returns>
+        public override string AssemblyFriendlyName()
+        {
+            return "optional_" + WrappedType.AssemblyFriendlyName();
+        }
+
+        /// <summary>
         /// Gets a string representation of this OptionalTypeDef
         /// </summary>
         /// <returns>A string representation of this OptionalTypeDef</returns>

@@ -130,6 +130,15 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets an assembly friendly display name for this type definition
+        /// </summary>
+        /// <returns>A string that can be used as an assembly-friendly name for this type definition</returns>
+        public virtual string AssemblyFriendlyName()
+        {
+            return name;
+        }
+
+        /// <summary>
         /// Gets a string representation of this TypeDef
         /// </summary>
         /// <returns>A string representation of this TypeDef</returns>

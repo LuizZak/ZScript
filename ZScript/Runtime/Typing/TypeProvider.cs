@@ -948,13 +948,6 @@ namespace ZScript.Runtime.Typing
                     return typeof(Optional<>).MakeGenericType(nativeWrapped);
                 }
 
-                // Tuple
-                // TODO: Implement proper tuple reporting here
-                if (typeDef is TupleTypeDef)
-                {
-                    return typeof(List<object>);
-                }
-
                 // No equivalents
                 return null;
             }

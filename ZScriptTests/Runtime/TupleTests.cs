@@ -86,7 +86,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestTupleCreation()
         {
-            const string input = "var tuple:(int, bool) = (0, true);";
+            const string input = "var tuple:(int, bool) = (1, true);";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -99,10 +99,9 @@ namespace ZScriptTests.Runtime
             runtime.ExpandGlobalVariables();
 
             // Assert the correct call was made
-            var list = (List<object>)memory.GetVariable("tuple");
-
-            Assert.AreEqual(0L, list[0]);
-            Assert.AreEqual(true, list[1]);
+            var tuple = memory.GetVariable("tuple");
+            Assert.AreEqual(1L, tuple.GetType().GetField("Field0").GetValue(tuple));
+            Assert.AreEqual(true, tuple.GetType().GetField("Field1").GetValue(tuple));
         }
 
         [TestMethod]
@@ -159,7 +158,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f");
 
             // Assert the correct call was made
-            Assert.AreEqual(false, ((List<object>)memory.GetVariable("v"))[1]);
+            var tuple = memory.GetVariable("v");
+            Assert.AreEqual(false, tuple.GetType().GetField("Field1").GetValue(tuple));
         }
 
         [TestMethod]
@@ -178,7 +178,8 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f");
 
             // Assert the correct call was made
-            Assert.AreEqual(false, ((List<object>)memory.GetVariable("v"))[1]);
+            var tuple = memory.GetVariable("v");
+            Assert.AreEqual(false, tuple.GetType().GetField("Field1").GetValue(tuple));
         }
 
         [TestMethod]
@@ -197,7 +198,9 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("f");
 
             // Assert the correct call was made
-            Assert.AreEqual(false, ((List<object>)((List<object>)memory.GetVariable("v"))[1])[1]);
+            var tuple = memory.GetVariable("v");
+            var innerTuple = tuple.GetType().GetField("Field1").GetValue(tuple);
+            Assert.AreEqual(false, innerTuple.GetType().GetField("Field1").GetValue(innerTuple));
         }
 
         [TestMethod]
@@ -243,6 +246,46 @@ namespace ZScriptTests.Runtime
 
             // Assert the correct call was made
             Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant));
+        }
+
+        [TestMethod]
+        public void TestTuplePassByValue()
+        {
+            const string input = "var v = (0, true); func f() { var b = v; b.0 = 1; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            var tuple = memory.GetVariable("v");
+            Assert.AreEqual(0L, tuple.GetType().GetField("Field0").GetValue(tuple));
+        }
+
+        [TestMethod]
+        public void TestTuplePassByValueArgument()
+        {
+            const string input = "var v = (0, true); func f() { f1(v); } func f1(b:(int, bool)) { b.0 = 1; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            var tuple = memory.GetVariable("v");
+            Assert.AreEqual(0L, tuple.GetType().GetField("Field0").GetValue(tuple));
         }
 
         #endregion

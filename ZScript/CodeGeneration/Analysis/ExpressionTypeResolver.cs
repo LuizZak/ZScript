@@ -556,7 +556,7 @@ namespace ZScript.CodeGeneration.Analysis
                 innerTypes[i] = ResolveExpression(entries[i].expression());
             }
 
-            return TypeProvider.TupleForTypes(names, innerTypes);
+            return context.TupleType = TypeProvider.TupleForTypes(names, innerTypes);
         }
 
         /// <summary>

@@ -88,7 +88,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// The native type builder used during generation time
         /// </summary>
-        private readonly ClassNativeTypeBuilder _nativeTypeBuilder;
+        private readonly NativeTypeBuilder _nativeTypeBuilder;
 
         /// <summary>
         /// Gets a value specifying whether there were any syntax errors on the script generation process
@@ -143,7 +143,7 @@ namespace ZScript.CodeGeneration
             _typeProvider = new TypeProvider();
             _messageContainer = new MessageContainer();
             _syntaxErrorListener = new ZScriptSyntaxErrorListener(_messageContainer);
-            _nativeTypeBuilder = new ClassNativeTypeBuilder("ZScript_Assembly");
+            _nativeTypeBuilder = new NativeTypeBuilder("ZScript_Assembly");
 
             _sourceProvider = new SourceProvider();
         }
@@ -267,7 +267,7 @@ namespace ZScript.CodeGeneration
             ClassDefinitionExpander classExpander = new ClassDefinitionExpander(context);
             classExpander.Expand();
 
-            _nativeTypeBuilder.CreateTypes(context);
+            _nativeTypeBuilder.ClearCache();
 
             // Walk the source trees, now that the definitions were collected
             ParseTreeWalker walker = new ParseTreeWalker();
@@ -319,6 +319,8 @@ namespace ZScript.CodeGeneration
 
             // Create the class type converter
             var context = CreateContext(scope);
+
+            _nativeTypeBuilder.CreateTypes(context);
             
             var runtimeDefinition = new ZRuntimeDefinition();
 
@@ -890,30 +892,46 @@ namespace ZScript.CodeGeneration
         }
 
         /// <summary>
-        /// Class used to generate native types from class definitions and feed them to type providers during compilation
+        /// Class used to generate native types from class definitions and tuple types and feed them to type providers during compilation
         /// </summary>
-        private class ClassNativeTypeBuilder : INativeTypeSource
+        private class NativeTypeBuilder : INativeTypeSource
         {
             /// <summary>
-            /// The class type builder this class source will use to build the classes
+            /// The generation context for this native type builder
+            /// </summary>
+            private RuntimeGenerationContext _generationContext;
+
+            /// <summary>
+            /// The type building context for the native type builder
+            /// </summary>
+            private readonly TypeBuildingContext _typeBuildingContext;
+
+            /// <summary>
+            /// The class type builder this native source will use to build the classes
             /// </summary>
             private readonly ClassTypeBuilder _classTypeBuilder;
 
             /// <summary>
+            /// The tuple type builder this native source will use to build the tuples
+            /// </summary>
+            private readonly TupleTypeBuilder _tupleTypeBuilder;
+
+            /// <summary>
             /// A dictionary mapping class type defs to their respective native types
             /// </summary>
-            private readonly Dictionary<ClassTypeDef, Type> _mappedTypes;
+            private readonly Dictionary<ClassTypeDef, Type> _mappedClassTypes;
 
             /// <summary>
             /// Initializes a new instance of the ClassNativeTypeSource class
             /// </summary>
             /// <param name="assemblyName">The name for the assembly to generate and create the class types on</param>
-            public ClassNativeTypeBuilder(string assemblyName)
+            public NativeTypeBuilder(string assemblyName)
             {
-                var typeBuildingContext = TypeBuildingContext.CreateBuilderContext(assemblyName);
-                _classTypeBuilder = new ClassTypeBuilder(typeBuildingContext);
+                _typeBuildingContext = TypeBuildingContext.CreateBuilderContext(assemblyName);
+                _classTypeBuilder = new ClassTypeBuilder(_typeBuildingContext);
+                _tupleTypeBuilder = new TupleTypeBuilder(_typeBuildingContext);
 
-                _mappedTypes = new Dictionary<ClassTypeDef, Type>();
+                _mappedClassTypes = new Dictionary<ClassTypeDef, Type>();
             }
 
             /// <summary>
@@ -921,6 +939,8 @@ namespace ZScript.CodeGeneration
             /// </summary>
             public void CreateTypes(RuntimeGenerationContext generationContext)
             {
+                _generationContext = generationContext;
+
                 ClearCache();
 
                 var classDefinitions = generationContext.BaseScope.GetDefinitionsByType<ClassDefinition>();
@@ -929,28 +949,31 @@ namespace ZScript.CodeGeneration
                 {
                     var nativeType = _classTypeBuilder.ConstructType(classDefinition);
 
-                    _mappedTypes[classDefinition.ClassTypeDef] = nativeType;
+                    _mappedClassTypes[classDefinition.ClassTypeDef] = nativeType;
                 }
             }
 
             /// <summary>
             /// Clears all the class types registered on this class native type builder
             /// </summary>
-            private void ClearCache()
+            public void ClearCache()
             {
+                _typeBuildingContext.ResetContext();
+
                 _classTypeBuilder.ClearCache();
-                _mappedTypes.Clear();
+                _tupleTypeBuilder.ClearCache();
+                _mappedClassTypes.Clear();
             }
 
             /// <summary>
             /// Returns a native type for the associated class type, or null, if none exists
             /// </summary>
-            /// <param name="classType">The class type to get</param>
+            /// <param name="type">The class type to get</param>
             /// <returns>A native type that was associated with the given calss type at creation time, or null, if none exists</returns>
-            public Type TypeForClassType(ClassTypeDef classType)
+            public Type TypeForClassType(ClassTypeDef type)
             {
                 Type native;
-                return _mappedTypes.TryGetValue(classType, out native) ? native : null;
+                return _mappedClassTypes.TryGetValue(type, out native) ? native : null;
             }
 
             // 
@@ -958,10 +981,13 @@ namespace ZScript.CodeGeneration
             // 
             public Type NativeTypeForTypeDef(TypeDef type, bool anyAsObject = false)
             {
-                if (!(type is ClassTypeDef))
-                    return null;
+                var classDef = type as ClassTypeDef;
+                if (classDef != null) return TypeForClassType(classDef);
 
-                return TypeForClassType((ClassTypeDef)type);
+                var tupleDef = type as TupleTypeDef;
+                if (tupleDef != null) return _tupleTypeBuilder.ConstructType(_generationContext.TypeProvider, tupleDef);
+
+                return null;
             }
         }
     }
