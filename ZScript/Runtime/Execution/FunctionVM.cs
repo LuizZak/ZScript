@@ -690,7 +690,7 @@ namespace ZScript.Runtime.Execution
 
             for (int i = 0; i < argCount; i++)
             {
-                array.Insert(0, PopValueImplicit());
+                array.Insert(0, PopValueImplicit(true));
             }
 
             // Push the array back into the stack
@@ -711,7 +711,7 @@ namespace ZScript.Runtime.Execution
 
             for (int i = array.Length - 1; i >= 0; i--)
             {
-                array[i] = PopValueImplicit();
+                array[i] = PopValueImplicit(true);
             }
 
             // Push the array back into the stack
@@ -738,8 +738,8 @@ namespace ZScript.Runtime.Execution
             // Pop the entries from the stack
             for (int i = 0; i < argCount; i++)
             {
-                var value = PopValueImplicit();
-                var key = PopValueImplicit();
+                var value = PopValueImplicit(true);
+                var key = PopValueImplicit(true);
 
                 dict.Add(key, value);
             }
@@ -761,7 +761,7 @@ namespace ZScript.Runtime.Execution
 
             for (int i = 0; i < argCount; i++)
             {
-                obj[(string)_stack.Pop()] = PopValueImplicit();
+                obj[(string)_stack.Pop()] = PopValueImplicit(true);
             }
 
             // Push the array back into the stack
@@ -781,7 +781,7 @@ namespace ZScript.Runtime.Execution
 
             for (int i = 0; i < argCount; i++)
             {
-                arguments.Add(PopValueImplicit());
+                arguments.Add(PopValueImplicit(true));
             }
 
             // Pop the type to create
@@ -798,7 +798,7 @@ namespace ZScript.Runtime.Execution
         /// <exception cref="InvalidOperationException">The value on top of the stack cannot be subscripted</exception>
         void PerformGetSubscripter()
         {
-            object index = PopValueImplicit();
+            object index = PopValueImplicit(true);
             object target = PopValueImplicit();
 
             _stack.Push(IndexedSubscripter.CreateSubscripter(target, index));
@@ -869,7 +869,7 @@ namespace ZScript.Runtime.Execution
         /// <param name="token">The cast operation token that contains the type to cast to as argument</param>
         void PerformCastOperation(Token token)
         {
-            object value = PopValueImplicit();
+            object value = PopValueImplicit(true);
             object castedObject = _context.TypeProvider.CastObject(value, ExtractType(token));
 
             _stack.Push(castedObject);
@@ -1022,10 +1022,16 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Pops a value from the stack, and if it is a token, implicitly fetch the value from the memory
         /// </summary>
+        /// <param name="copyTuples">Whether to perform the copy of tuples if the return value is a tuple type</param>
         /// <returns>A value popped from the stack, and fetched from memory, if needed</returns>
-        public object PopValueImplicit()
+        public object PopValueImplicit(bool copyTuples = false)
         {
-            return ExpandValue(_stack.Pop());
+            var value = ExpandValue(_stack.Pop());
+
+            if (copyTuples && value is ITuple)
+                value = Activator.CreateInstance(value.GetType(), value);
+
+            return value;
         }
 
         /// <summary>

@@ -288,6 +288,26 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(0L, tuple.GetType().GetField("Field0").GetValue(tuple));
         }
 
+        [TestMethod]
+        public void TestTuplePassByValueArrayEntry()
+        {
+            const string input = "var v = (0, true); func f() { var arr = [v]; arr[0].0 = 1; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            var tuple = memory.GetVariable("v");
+            Assert.AreEqual(0L, tuple.GetType().GetField("Field0").GetValue(tuple));
+        }
+
         #endregion
     }
 }
