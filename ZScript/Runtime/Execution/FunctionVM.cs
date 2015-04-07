@@ -538,7 +538,7 @@ namespace ZScript.Runtime.Execution
         {
             // Pop the variable and value to set
             var variable = _stack.Pop();
-            object value = PopValueImplicit();
+            object value = PopValueImplicit(true);
             SetValue(variable, value);
 
             _stack.Push(value);
@@ -561,7 +561,7 @@ namespace ZScript.Runtime.Execution
         {
             // Pop the variable and value to set
             var variable = _stack.Pop();
-            object value = PopValueImplicit();
+            object value = PopValueImplicit(true);
 
             _context.AddressedMemory.SetVariable((int)variable, value);
             _stack.Push(value);
@@ -582,7 +582,7 @@ namespace ZScript.Runtime.Execution
 
             for (int i = 0; i < argCount; i++)
             {
-                arguments[argCount - i - 1] = PopValueImplicit();
+                arguments[argCount - i - 1] = PopValueImplicit(true);
             }
 
             object callable = PopCallable();
@@ -606,9 +606,9 @@ namespace ZScript.Runtime.Execution
             // Pop the arguments from the stackh
             var arguments = new object[argCount];
 
-            for (int i = 0; i < argCount; i++)
+            for (int i = argCount - 1; i >= 0; i--)
             {
-                arguments[argCount - i - 1] = PopValueImplicit();
+                arguments[i] = PopValueImplicit(true);
             }
 
             object callable;
@@ -1189,9 +1189,6 @@ namespace ZScript.Runtime.Execution
         /// <exception cref="VirtualMachineException">The value container cannot have its value set</exception>
         void SetValue(object valueContainer, object value)
         {
-            if (value is ITuple)
-                value = Activator.CreateInstance(value.GetType(), value);
-
             var token = valueContainer as Token;
             if (token != null)
             {

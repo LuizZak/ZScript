@@ -55,7 +55,7 @@ namespace ZScriptTests.Builders
             var tupleType = tupleBuilder.ConstructType(provider, tuple1);
 
             Assert.AreEqual(tuple1.AssemblyFriendlyName() + TupleTypeBuilder.TupleNameSuffix, tupleType.Name);
-            Assert.IsTrue(tupleType.IsValueType);
+            Assert.IsFalse(tupleType.IsValueType);
             Assert.IsTrue(tupleType.GetInterfaces().Any(t => t == typeof(ITuple)));
         }
 
