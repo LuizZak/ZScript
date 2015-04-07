@@ -128,6 +128,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests tuple type resolving
+        /// </summary>
+        [TestMethod]
+        public void TestTupleType()
+        {
+            // Set up the test
+            const string input = "(int, int) (bool, int) (float, int, (float, float))";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type1 = resolver.ResolveTupleType(parser.tupleType());
+            var type2 = resolver.ResolveTupleType(parser.tupleType());
+            var type3 = resolver.ResolveType(parser.type(), false);
+
+            // Compare the result now
+            Assert.AreEqual(provider.TupleForTypes(provider.IntegerType(), provider.IntegerType()), type1);
+            Assert.AreEqual(provider.TupleForTypes(provider.BooleanType(), provider.IntegerType()), type2);
+            Assert.AreEqual(provider.TupleForTypes(provider.FloatType(), provider.IntegerType(), provider.TupleForTypes(provider.FloatType(), provider.FloatType())), type3);
+        }
+
+        /// <summary>
         /// Tests subscripting a list-type object
         /// </summary>
         [TestMethod]

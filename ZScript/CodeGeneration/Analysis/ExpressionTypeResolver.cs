@@ -1462,6 +1462,10 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 type = ResolveDictionaryType(context.dictionaryType());
             }
+            else if (context.tupleType() != null)
+            {
+                type = ResolveTupleType(context.tupleType());
+            }
             else if (context.optional != null)
             {
                 type = TypeProvider.OptionalTypeForType(ResolveType(context.type(), false));
@@ -1509,6 +1513,24 @@ namespace ZScript.CodeGeneration.Analysis
             var valueType = ResolveType(context.valueType, false);
 
             return TypeProvider.DictionaryForTypes(keyType, valueType);
+        }
+
+        /// <summary>
+        /// Returns a TupleTypeDef describing the tuple tyoe for a given context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The tuple type for the context</returns>
+        public TupleTypeDef ResolveTupleType(ZScriptParser.TupleTypeContext context)
+        {
+            var types = context.type();
+            var resolvedTypes = new TypeDef[types.Length];
+
+            for (int i = 0; i < types.Length; i++)
+            {
+                resolvedTypes[i] = ResolveType(types[i], false);
+            }
+
+            return TypeProvider.TupleForTypes(resolvedTypes);
         }
 
         /// <summary>

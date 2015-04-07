@@ -129,7 +129,7 @@ valueHolderDefine : (var='var' | let='let') valueHolderName (':' type)?;
 valueHolderName : memberName;
 
 // Types
-type : type optional=T_NULL_CONDITIONAL | objectType | typeName | callableType | listType | dictionaryType;
+type : type optional=T_NULL_CONDITIONAL | objectType | typeName | callableType | listType | dictionaryType | tupleType;
 objectType       : 'object';
 typeName         : primitiveType | complexTypeName;
 complexTypeName  : IDENT ('.' IDENT)* genericParameters?;
@@ -139,6 +139,7 @@ listType         : '[' type ']';
 dictionaryType   : '[' keyType=type ':' valueType=type ']';
 callableTypeList : callableArgType (',' callableArgType)*;
 callableArgType  : type variadic='...'?;
+tupleType        : '(' type (',' type)+ ')';
 
 ////
 //// Expressions

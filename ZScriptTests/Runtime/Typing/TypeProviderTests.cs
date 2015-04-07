@@ -225,6 +225,18 @@ namespace ZScriptTests.Runtime.Typing
             Assert.AreEqual(typeof(Optional<string>), nativeOptString);
         }
 
+        [TestMethod]
+        public void TestNativeTupleType()
+        {
+            var provider = new TypeProvider();
+
+            var tup1 = provider.NativeTypeForTypeDef(provider.TupleForTypes(provider.IntegerType(), provider.IntegerType()));
+            var tup2 = provider.NativeTypeForTypeDef(provider.TupleForTypes(provider.FloatType(), provider.BooleanType()));
+            
+            Assert.AreEqual(typeof(List<object>), tup1);
+            Assert.AreEqual(typeof(List<object>), tup2);
+        }
+
         #endregion
 
         #region FindCommonType

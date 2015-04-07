@@ -61,5 +61,19 @@ namespace ZScriptTests.Runtime
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteType));
         }
+
+        [TestMethod]
+        public void TestTupleTyping()
+        {
+            const string input = "var tuple:(int, bool) = (0, true);";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(container.HasErrors);
+        }
     }
 }
