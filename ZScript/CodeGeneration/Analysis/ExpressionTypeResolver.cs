@@ -577,14 +577,14 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
-            var field = tuple.GetField(context.INT().GetText());
+            var field = tuple.InnerTypes.ElementAtOrDefault(int.Parse(context.INT().GetText()));
             if (field == null)
             {
                 RegisterUndefinedTupleIndex(type, context, context.INT().GetText());
                 return;
             }
 
-            resType = field.FieldType;
+            resType = field;
         }
 
         #endregion

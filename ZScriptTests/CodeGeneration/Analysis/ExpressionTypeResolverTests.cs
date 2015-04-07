@@ -23,6 +23,7 @@ using System;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Messages;
@@ -809,7 +810,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestAccessTupleIndex()
         {
             // Set up the test
-            const string input = "(0, false).0; (true, 1.0).1;";
+            const string input = "(0, false).0; (true, 1.0).1; (x: 0, 1).0;";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
@@ -817,10 +818,12 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             var type1 = resolver.ResolveExpression(parser.statement().expression());
             var type2 = resolver.ResolveExpression(parser.statement().expression());
+            var type3 = resolver.ResolveExpression(parser.statement().expression());
 
             // Compare the result now
             Assert.AreEqual(provider.IntegerType(), type1, "The resolved type did not match the expected type");
             Assert.AreEqual(provider.FloatType(), type2, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.IntegerType(), type3, "The resolved type did not match the expected type");
         }
 
         /// <summary>
