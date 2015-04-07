@@ -587,11 +587,11 @@ namespace ZScript.CodeGeneration
             {
                 var arg = listArgs[i];
 
-                var type = context.TypeProvider.NativeTypeForTypeDef(arg.Type);
+                var type = context.TypeProvider.NativeTypeForTypeDef(arg.Type, true);
 
                 if (arg.IsVariadic)
                 {
-                    type = context.TypeProvider.NativeTypeForTypeDef(((IListTypeDef)arg.Type).EnclosingType);
+                    type = context.TypeProvider.NativeTypeForTypeDef(((IListTypeDef)arg.Type).EnclosingType, true);
                 }
 
                 retArgs[i] = new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue,
