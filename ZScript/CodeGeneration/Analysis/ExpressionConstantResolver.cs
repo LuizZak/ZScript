@@ -176,6 +176,10 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     ResolveMemberNameExpression(context);
                 }
+                if (context.tupleExpression() != null)
+                {
+                    ResolveTupleExpression(context.tupleExpression());
+                }
             }
 
             // Verify if any implicit casts are in place
@@ -221,6 +225,18 @@ namespace ZScript.CodeGeneration.Analysis
                 context.ConstantValue = value;
                 context.IsConstant = true;
                 context.IsConstantPrimitive = IsValuePrimitive(value);
+            }
+        }
+
+        /// <summary>
+        /// Resolves the tuple expression contained within a given expression context
+        /// </summary>
+        /// <param name="context">The context containing the expression to resolve</param>
+        void ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
+        {
+            foreach (var expression in context.expression())
+            {
+                ResolveExpression(expression);
             }
         }
 

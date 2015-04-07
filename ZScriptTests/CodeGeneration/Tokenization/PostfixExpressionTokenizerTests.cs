@@ -1768,6 +1768,44 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
+        /// <summary>
+        /// Tests tokenization of a tuple with two values contained within
+        /// </summary>
+        [TestMethod]
+        public void TestTupleWithTwoValues()
+        {
+            const string message = "The tokens generated for the tuple expression where not generated as expected";
+
+            const string input = "(0, true)";
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: provider)));
+
+            var exp = parser.expression();
+
+            exp.tupleExpression().expression(0).EvaluatedType = provider.IntegerType();
+            exp.tupleExpression().expression(1).EvaluatedType = provider.BooleanType();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, new [] { typeof(long), typeof(bool) })
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
         #endregion
 
         #region Cast instruction and 'is' operator

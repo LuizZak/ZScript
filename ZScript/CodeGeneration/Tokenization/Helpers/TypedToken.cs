@@ -19,6 +19,8 @@
 */
 #endregion
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using ZScript.Elements;
@@ -49,6 +51,11 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         private readonly Type _type;
 
         /// <summary>
+        /// The types associated with this typed token
+        /// </summary>
+        private readonly Type[] _types;
+
+        /// <summary>
         /// Gets the TypeContext associated with thi type
         /// </summary>
         public ZScriptParser.TypeContext TypeContext
@@ -70,6 +77,14 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         public Type RawType
         {
             get { return _type; }
+        }
+
+        /// <summary>
+        /// Gets the raw types associated with this typed token
+        /// </summary>
+        public Type[] RawTypes
+        {
+            get { return _types; }
         }
 
         /// <summary>
@@ -109,6 +124,18 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         }
 
         /// <summary>
+        /// Initializes a new instance of the TypedToken class
+        /// </summary>
+        /// <param name="tokenType">The type for this token</param>
+        /// <param name="instruction">The instruction to associate with the token</param>
+        /// <param name="type">The type to associate with this typed token</param>
+        public TypedToken(TokenType tokenType, VmInstruction instruction, Type[] types)
+            : base(tokenType, null, instruction)
+        {
+            _types = types;
+        }
+
+        /// <summary>
         /// Returns a string representation of this typed token
         /// </summary>
         /// <returns>A string representation of this typed token</returns>
@@ -118,7 +145,13 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
             builder.Append("{ TypedToken ");
 
-            if (_type != null)
+            if (_types != null)
+            {
+                builder.Append("types: [");
+                builder.Append(string.Join(", ", (IEnumerable<object>)_types));
+                builder.Append("]");
+            }
+            else if (_type != null)
             {
                 builder.Append("rawType: " + _type);
             }
@@ -142,6 +175,12 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
+
+            if (_types != null && other._types != null && !_types.SequenceEqual(other._types))
+                return false;
+            if ((_types != null) != (other._types != null))
+                return false;
+
             return base.Equals(other) && Equals(_typeContext, other._typeContext) && Equals(_typeDef, other._typeDef) && _type == other._type;
         }
 
@@ -161,6 +200,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                 hashCode = (hashCode * 397) ^ (_typeContext != null ? _typeContext.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_typeDef != null ? _typeDef.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_type != null ? _type.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_types != null ? _types.GetHashCode() : 0);
                 return hashCode;
             }
         }

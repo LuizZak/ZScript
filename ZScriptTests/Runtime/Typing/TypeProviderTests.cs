@@ -409,6 +409,52 @@ namespace ZScriptTests.Runtime.Typing
 
         #endregion
 
+        #region Type compatibility
+
+        /// <summary>
+        /// Tests type compatibility reporting for tuples
+        /// </summary>
+        [TestMethod]
+        public void TestExactTupleCompatibility()
+        {
+            var provider = new TypeProvider();
+
+            var tuple1 = provider.TupleForTypes(provider.IntegerType(), provider.FloatType());
+            var tuple2 = provider.TupleForTypes(provider.IntegerType(), provider.FloatType());
+            var tuple3 = provider.TupleForTypes(provider.IntegerType(), provider.BooleanType());
+
+            Assert.IsTrue(provider.AreTypesCompatible(tuple1, tuple1));
+            Assert.IsTrue(provider.AreTypesCompatible(tuple2, tuple2));
+            Assert.IsTrue(provider.AreTypesCompatible(tuple3, tuple3));
+
+            Assert.IsTrue(provider.AreTypesCompatible(tuple1, tuple2));
+            // Rotated arguments
+            Assert.IsTrue(provider.AreTypesCompatible(tuple2, tuple1));
+
+            Assert.IsFalse(provider.AreTypesCompatible(tuple1, tuple3));
+            Assert.IsFalse(provider.AreTypesCompatible(tuple2, tuple3));
+
+            // Rotated arguments
+            Assert.IsFalse(provider.AreTypesCompatible(tuple3, tuple1));
+            Assert.IsFalse(provider.AreTypesCompatible(tuple3, tuple2));
+        }
+
+        /// <summary>
+        /// Tests type compatibility reporting for tuples with optional checking
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalTupleCompatibility()
+        {
+            var provider = new TypeProvider();
+
+            var tuple1 = provider.TupleForTypes(provider.IntegerType(), provider.NullType());
+            var tuple2 = provider.TupleForTypes(provider.IntegerType(), provider.OptionalTypeForType(provider.FloatType()));
+
+            Assert.IsTrue(provider.AreTypesCompatible(tuple1, tuple2));
+        }
+
+        #endregion
+
         #region Implicit cast
 
         /// <summary>

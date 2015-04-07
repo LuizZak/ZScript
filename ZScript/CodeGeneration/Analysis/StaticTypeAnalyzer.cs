@@ -378,6 +378,13 @@ namespace ZScript.CodeGeneration.Analysis
                 Container.RegisterError(definition.Context, message, ErrorCode.IncompleteType);
             }
 
+            var tupleTypeDef = varType as TupleTypeDef;
+            if (tupleTypeDef != null && tupleTypeDef.InnerTypes.Any(t => t == TypeProvider.NullType()))
+            {
+                var message = "Cannot infer type of null-valued tuple element in value holder " + definition.Name;
+                Container.RegisterError(definition.Context, message, ErrorCode.IncompleteType);
+            }
+
             if (varType != null && !TypeProvider.CanImplicitCast(valueType, varType))
             {
                 var message = "Cannot assign value of type " + valueType + " to variable of type " + varType;

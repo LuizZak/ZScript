@@ -465,7 +465,7 @@ namespace ZScript.Runtime.Typing
             if (origin.IsVoid || target.IsVoid)
                 return false;
 
-            // Casts to and from any is possible
+            // Casts to and from any are always possible
             if (origin.IsAny || target.IsAny)
                 return true;
 
@@ -525,15 +525,11 @@ namespace ZScript.Runtime.Typing
             if (origin == target)
                 return true;
 
-            // Assigning from null is allowed only on optionals
-            if (origin == NullType() && target is OptionalTypeDef)
-                return true;
-
             // int -> float
             if (origin == IntegerType() && target == FloatType())
                 return true;
 
-            // Casts to and from any is possible
+            // Casts to and from any are always possible
             if (origin.IsAny || target.IsAny)
                 return true;
 
@@ -732,6 +728,27 @@ namespace ZScript.Runtime.Typing
             // Types match
             if (origin == target)
                 return true;
+            
+            // Assigning from null is allowed only on optionals
+            if (origin == NullType() && target is OptionalTypeDef)
+                return true;
+
+            // Tuples
+            var tupO = origin as TupleTypeDef;
+            var tupT = target as TupleTypeDef;
+            if (tupO != null && tupT != null)
+            {
+                if (tupT.InnerTypes.Length != tupO.InnerTypes.Length)
+                    return false;
+
+                for (int i = 0; i < tupT.InnerTypes.Length; i++)
+                {
+                    if (!AreTypesCompatible(tupO.InnerTypes[i], tupT.InnerTypes[i]))
+                        return false;
+                }
+
+                return true;
+            }
 
             // Optionallity
             var optO = origin as OptionalTypeDef;

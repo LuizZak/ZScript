@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ZScript.Runtime.Typing.Elements
@@ -39,7 +40,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="innerTypes">The inner types for the tuple</param>
         public TupleTypeDef(params TypeDef[] innerTypes)
-            : base("tuple<" + innerTypes.Aggregate(innerTypes[0].ToString(), (s, def) => "," + def.ToString()) + ">", false)
+            : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
         {
             InnerTypes = innerTypes;
         }

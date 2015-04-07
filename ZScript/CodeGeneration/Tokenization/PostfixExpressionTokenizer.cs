@@ -633,13 +633,24 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             var expressions = context.expression();
 
+            // Simplified tuple (parenthesized expression): Just tokenize the first expression and leave
             if (expressions.Length == 1)
             {
                 VisitExpression(expressions[0]);
                 return;
             }
 
-            throw new ArgumentException("Cannot process multi-valued tuples at this time");
+            // Tokenize the expressions
+            var types = new Type[expressions.Length];
+            for (int i = 0; i < expressions.Length; i++)
+            {
+                var expression = expressions[i];
+                VisitExpression(expression);
+                types[i] = TypeProvider.NativeTypeForTypeDef(expression.EvaluatedType);
+            }
+
+            // Tuple creation instruction
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, types));
         }
 
         #endregion

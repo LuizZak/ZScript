@@ -518,6 +518,22 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.ModifyingConstant), "Failed to raise expected errors");
         }
 
+        /// <summary>
+        /// Tests raising errors when trying to infer types of tuples containing null literals
+        /// </summary>
+        [TestMethod]
+        public void TestInferTupleWithNullLiteralsError()
+        {
+            // Set up the test
+            const string input = "var b = (0, null);";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteType));
+        }
+
         #endregion
 
         #region If statement analysis

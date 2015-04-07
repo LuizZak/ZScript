@@ -107,7 +107,7 @@ namespace ZScript.Elements
         }
 
         /// <summary>
-        /// Creates a new token with a given type definition as the content.
+        /// Creates a new token with a given type as the content.
         /// </summary>
         /// <param name="tokenType">The type to associate with the token</param>
         /// <param name="instruction">The instruction to associate with the token</param>
@@ -116,6 +116,18 @@ namespace ZScript.Elements
         public static TypedToken CreateTypeToken(TokenType tokenType, VmInstruction instruction, Type type)
         {
             return new TypedToken(tokenType, instruction, type);
+        }
+
+        /// <summary>
+        /// Creates a new token with a set of types as the content.
+        /// </summary>
+        /// <param name="tokenType">The type to associate with the token</param>
+        /// <param name="instruction">The instruction to associate with the token</param>
+        /// <param name="types">An array of type definitions to associate with the token</param>
+        /// <returns>A Token with the type definition provided binded in</returns>
+        public static TypedToken CreateTypeToken(TokenType tokenType, VmInstruction instruction, Type[] types)
+        {
+            return new TypedToken(tokenType, instruction, types);
         }
 
         /// <summary>
