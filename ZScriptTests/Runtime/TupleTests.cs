@@ -51,6 +51,20 @@ namespace ZScriptTests.Runtime
         }
 
         [TestMethod]
+        public void TestParseTupleLiteralInit()
+        {
+            const string input = "var tuple = (float, bool)(0, true);";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(container.HasErrors);
+        }
+
+        [TestMethod]
         public void TestIncompleteTupleTypeError()
         {
             const string input = "var tuple = (0, null);";
@@ -100,6 +114,27 @@ namespace ZScriptTests.Runtime
             // Assert the correct call was made
             var tuple = memory.GetVariable("tuple");
             Assert.AreEqual(1L, tuple.GetType().GetField("Field0").GetValue(tuple));
+            Assert.AreEqual(true, tuple.GetType().GetField("Field1").GetValue(tuple));
+        }
+
+        [TestMethod]
+        public void TestTupleLiteralInitialization()
+        {
+            const string input = "var tuple = (float, bool)(1, true);";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.ExpandGlobalVariables();
+
+            // Assert the correct call was made
+            var tuple = memory.GetVariable("tuple");
+            Assert.AreEqual(1.0, tuple.GetType().GetField("Field0").GetValue(tuple));
             Assert.AreEqual(true, tuple.GetType().GetField("Field1").GetValue(tuple));
         }
 

@@ -145,7 +145,7 @@ tupleTypeEntry   : (IDENT ':')? type;
 ////
 //// Expressions
 ////
-expression:  tupleExpression valueAccess?
+expression:  tupleExpression objectAccess?
            | '(' assignmentExpression ')'
            |  expression unwrap='!' valueAccess?
            // Primary expressions
@@ -157,6 +157,7 @@ expression:  tupleExpression valueAccess?
            |  closureExpression valueAccess?
            // Literals
            |  memberName valueAccess?
+           |  tupleLiteralInit valueAccess?
            |  objectLiteral objectAccess?
            |  arrayLiteral objectAccess?
            |  dictionaryLiteral objectAccess?
@@ -220,7 +221,7 @@ fieldAccess  : '.' memberName;
 tupleAccess  : '.' INT;
 arrayAccess  : '[' expression ']';
 
-objectAccess : (fieldAccess | arrayAccess) valueAccess?;
+objectAccess : (tupleAccess | fieldAccess | arrayAccess) valueAccess?;
 valueAccess : nullable=T_NULL_CONDITIONAL* (tupleAccess | functionCall | fieldAccess | arrayAccess) valueAccess?;
 
 memberName : IDENT;
@@ -234,6 +235,7 @@ stringLiteral : StringLiteral;
 dictionaryEntryList: ':' | (dictionaryEntry (',' dictionaryEntry)*);
 dictionaryEntry : expression ':' expression;
 
+tupleLiteralInit : tupleType functionCall;
 arrayLiteralInit : '[' type ']' functionCall;
 dictionaryLiteralInit : '[' type ':' type ']' functionCall;
 

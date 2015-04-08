@@ -1139,6 +1139,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDictionaryEntry([NotNull] ZScriptParser.DictionaryEntryContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleLiteralInit"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTupleLiteralInit([NotNull] ZScriptParser.TupleLiteralInitContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleLiteralInit"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTupleLiteralInit([NotNull] ZScriptParser.TupleLiteralInitContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayLiteralInit"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

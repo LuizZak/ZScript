@@ -753,6 +753,76 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests resolving of a tuple literal initialization expression
+        /// </summary>
+        [TestMethod]
+        public void TestResolveTupleLiteralInitialization()
+        {
+            // Set up the test
+            const string input = "(x: float, y: float, float)(0, 0, 0) (x: float, y: float, float)(0, 0, 0)";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider));
+
+            var type1 = resolver.ResolveTupleLiteralInit(parser.tupleLiteralInit());
+            var type2 = (TupleTypeDef)resolver.ResolveExpression(parser.expression());
+
+            // Compare the result now
+            Assert.AreEqual(provider.TupleForTypes(provider.FloatType(), provider.FloatType(), provider.FloatType()), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual("x", type1.InnerTypeNames[0]);
+            Assert.AreEqual("y", type1.InnerTypeNames[1]);
+            Assert.AreEqual("2", type1.InnerTypeNames[2]);
+
+            Assert.AreEqual(provider.TupleForTypes(provider.FloatType(), provider.FloatType(), provider.FloatType()), type1, "The resolved type did not match the expected type");
+            Assert.AreEqual("x", type2.InnerTypeNames[0]);
+            Assert.AreEqual("y", type2.InnerTypeNames[1]);
+            Assert.AreEqual("2", type2.InnerTypeNames[2]);
+        }
+
+        /// <summary>
+        /// Tests raising errors when incorrect argument counts are passed to tuple initializers
+        /// </summary>
+        [TestMethod]
+        public void TestResolveIncorrectArgumentCountInTupleLiteralInitialization()
+        {
+            // Set up the test
+            const string input = "(float, float, float)(0, 0); (float, float)(0, 0, 0);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments));
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooManyArguments));
+        }
+
+        /// <summary>
+        /// Tests raising errors when incorrect argument types are passed to tuple initializers
+        /// </summary>
+        [TestMethod]
+        public void TestResolveIncorrectTypesInTupleLiteralInitialization()
+        {
+            // Set up the test
+            const string input = "(int, bool)(0.0, 0);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            resolver.ResolveExpression(parser.statement().expression());
+
+            // Compare the result now
+            Assert.AreEqual(2, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast));
+        }
+
+        /// <summary>
         /// Tests passing of expected types in tuple expressions
         /// </summary>
         [TestMethod]
@@ -810,8 +880,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type1 = resolver.ResolveExpression(exp);
 
             // Compare the result now
-            Assert.IsTrue(exp.valueAccess().fieldAccess().IsTupleAccess);
-            Assert.AreEqual(1, exp.valueAccess().fieldAccess().TupleIndex);
+            Assert.IsTrue(exp.objectAccess().fieldAccess().IsTupleAccess);
+            Assert.AreEqual(1, exp.objectAccess().fieldAccess().TupleIndex);
             Assert.AreEqual(provider.BooleanType(), type1, "The resolved type did not match the expected type");
         }
 
@@ -867,7 +937,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestInvalidTupleAccessTypeError()
         {
             // Set up the test
-            const string input = "(0, false)[0]; (0, false)();";
+            const string input = "(0, false)[0];";
 
             var parser = TestUtils.CreateParser(input);
             var provider = new TypeProvider();
@@ -875,10 +945,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
 
             resolver.ResolveExpression(parser.statement().expression());
-            resolver.ResolveExpression(parser.statement().expression());
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToSubscriptNonList));
-            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToCallNonCallable));
         }
 
         #endregion

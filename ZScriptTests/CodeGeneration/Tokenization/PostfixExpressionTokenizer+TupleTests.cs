@@ -102,6 +102,53 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         }
 
         /// <summary>
+        /// Tests tokenization of a tuple creation literal
+        /// </summary>
+        [TestMethod]
+        public void TestCreateTupleLiteral()
+        {
+            const string message = "The tokens generated for the tuple expression where not generated as expected";
+
+            // Input
+            const string input = "(int, bool)(0, true)";
+
+
+            // Boilerplate
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: provider)));
+
+            var tupleType = provider.TupleForTypes(provider.IntegerType(), provider.BooleanType());
+
+            var exp = parser.expression();
+
+            exp.tupleLiteralInit().tupleType().TupleType = tupleType;
+            exp.tupleLiteralInit().functionCall().funcCallArguments().expressionList().expression(0).EvaluatedType = tupleType.InnerTypes[0];
+            exp.tupleLiteralInit().functionCall().funcCallArguments().expressionList().expression(1).EvaluatedType = tupleType.InnerTypes[1];
+
+
+            // Test action
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateBoxedValueToken(true),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, tupleType)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
         /// Tests tokenization of a tuple access by index
         /// </summary>
         [TestMethod]
@@ -167,8 +214,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             exp.tupleExpression().tupleEntry(0).expression().EvaluatedType = provider.IntegerType();
             exp.tupleExpression().tupleEntry(1).expression().EvaluatedType = provider.BooleanType();
 
-            exp.valueAccess().fieldAccess().IsTupleAccess = true;
-            exp.valueAccess().fieldAccess().TupleIndex = 1;
+            exp.objectAccess().fieldAccess().IsTupleAccess = true;
+            exp.objectAccess().fieldAccess().TupleIndex = 1;
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 

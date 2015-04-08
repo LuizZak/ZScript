@@ -1365,6 +1365,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDictionaryEntry([NotNull] ZScriptParser.DictionaryEntryContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.tupleLiteralInit"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTupleLiteralInit([NotNull] ZScriptParser.TupleLiteralInitContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.tupleLiteralInit"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTupleLiteralInit([NotNull] ZScriptParser.TupleLiteralInitContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayLiteralInit"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

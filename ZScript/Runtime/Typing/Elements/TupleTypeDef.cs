@@ -32,7 +32,13 @@ namespace ZScript.Runtime.Typing.Elements
     public class TupleTypeDef : TypeDef, IEquatable<TupleTypeDef>
     {
         /// <summary>
-        /// Gets 
+        /// The signature for this tuple type def
+        /// </summary>
+        private ICallableTypeDef _initializerSignature;
+
+        /// <summary>
+        /// Gets the inner type labels for this tuple type definition.
+        /// An entry being null means there is no label defined in the corresponding InnerType entry
         /// </summary>
         public string[] InnerTypeNames { get; private set; }
 
@@ -102,6 +108,28 @@ namespace ZScript.Runtime.Typing.Elements
         public override string AssemblyFriendlyName()
         {
             return "tuple_" + string.Join("_", InnerTypes.Select(i => i.AssemblyFriendlyName()));
+        }
+
+        /// <summary>
+        /// Gets the initializer signature for this TupleTypeDef, which describes the signature for the initializer call of literal tuples of this type
+        /// </summary>
+        /// <returns>The signature for this tuple type definition</returns>
+        public ICallableTypeDef GetInitializerSignature()
+        {
+            if (_initializerSignature == null)
+            {
+                var returnType = this;
+                var parameters = new CallableTypeDef.CallableParameterInfo[InnerTypes.Length];
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    parameters[i] = new CallableTypeDef.CallableParameterInfo(InnerTypes[i], true, false, false);
+                }
+
+                _initializerSignature = new CallableTypeDef(parameters, returnType, true);
+            }
+
+            return _initializerSignature;
         }
 
         #region Equality members

@@ -233,7 +233,7 @@ namespace ZScript.CodeGeneration.Analysis
             else if (context.tupleExpression() != null)
             {
                 var expectedAsTuple = context.ExpectedType as TupleTypeDef;
-                if (expectedAsTuple != null && context.valueAccess() == null)
+                if (expectedAsTuple != null && context.objectAccess() == null)
                 {
                     for (int i = 0; i < Math.Min(expectedAsTuple.InnerTypes.Length, context.tupleExpression().tupleEntry().Length); i++)
                     {
@@ -242,6 +242,10 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 retType = ResolveTupleExpression(context.tupleExpression());
+            }
+            else if (context.tupleLiteralInit() != null)
+            {
+                retType = ResolveTupleLiteralInit(context.tupleLiteralInit());
             }
             // Type casting/checking
             else if (context.type() != null)
@@ -782,18 +786,15 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref type);
             }
-
-            if (context.functionCall() != null)
+            else if (context.functionCall() != null)
             {
                 ResolveFunctionCall(leftValue, leftValueContext, context.functionCall(), ref type);
             }
-
-            if (context.fieldAccess() != null)
+            else if (context.fieldAccess() != null)
             {
                 ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref type);
             }
-
-            if (context.tupleAccess() != null)
+            else if (context.tupleAccess() != null)
             {
                 ResolveTupleAccess(leftValue, leftValueContext, context.tupleAccess(), ref type);
             }
@@ -804,6 +805,38 @@ namespace ZScript.CodeGeneration.Analysis
             }
 
             return context.nullable != null ? TypeProvider.OptionalTypeForType(type) : type;
+        }
+
+        /// <summary>
+        /// Resolves a value access, using a given left value as a starting point for the evaluation
+        /// </summary>
+        /// <param name="leftValue">The left value to access the value from</param>
+        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
+        /// <param name="context">The context that contains the value access</param>
+        /// <returns>A type resolved from the value access</returns>
+        public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ObjectAccessContext context)
+        {
+            TypeDef resType = TypeProvider.AnyType();
+
+            if (context.arrayAccess() != null)
+            {
+                ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref resType);
+            }
+            else if (context.fieldAccess() != null)
+            {
+                ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref resType);
+            }
+            else if (context.tupleAccess() != null)
+            {
+                ResolveTupleAccess(leftValue, leftValueContext, context.tupleAccess(), ref resType);
+            }
+
+            if (context.valueAccess() != null)
+            {
+                return ResolveValueAccess(resType, leftValueContext, context.valueAccess());
+            }
+
+            return resType;
         }
 
         /// <summary>
@@ -1011,35 +1044,6 @@ namespace ZScript.CodeGeneration.Analysis
             // Update constant flag
             if (leftValueContext != null)
                 leftValueContext.IsConstant = false;
-        }
-
-        /// <summary>
-        /// Resolves a value access, using a given left value as a starting point for the evaluation
-        /// </summary>
-        /// <param name="leftValue">The left value to access the value from</param>
-        /// <param name="leftValueContext">The base context for the left value being analyzed</param>
-        /// <param name="context">The context that contains the value access</param>
-        /// <returns>A type resolved from the value access</returns>
-        public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ObjectAccessContext context)
-        {
-            TypeDef resType = TypeProvider.AnyType();
-
-            if (context.arrayAccess() != null)
-            {
-                ResolveSubscript(leftValue, leftValueContext, context.arrayAccess(), ref resType);
-            }
-            
-            if (context.fieldAccess() != null)
-            {
-                ResolveFieldAccess(leftValue, leftValueContext, context.fieldAccess(), ref resType);
-            }
-
-            if (context.valueAccess() != null)
-            {
-                return ResolveValueAccess(resType, leftValueContext, context.valueAccess());
-            }
-
-            return resType;
         }
 
         #endregion
@@ -1288,6 +1292,9 @@ namespace ZScript.CodeGeneration.Analysis
 
             context.EvaluatedValueType = type;
 
+            TypeDef outType = TypeProvider.AnyType();
+            ResolveFunctionCall(TypeProvider.AnyType(), null, context.functionCall(), ref outType);
+
             return TypeProvider.ListForType(type);
         }
 
@@ -1389,7 +1396,24 @@ namespace ZScript.CodeGeneration.Analysis
             context.EvaluatedKeyType = keyType;
             context.EvaluatedValueType = valueType;
 
+            TypeDef outType = TypeProvider.AnyType();
+            ResolveFunctionCall(TypeProvider.AnyType(), null, context.functionCall(), ref outType);
+
             return TypeProvider.DictionaryForTypes(keyType, valueType);
+        }
+
+        /// <summary>
+        /// Returns a TupleTypeDef describing the tuple literal initializer for a given context
+        /// </summary>
+        /// <param name="context">The context to resolve</param>
+        /// <returns>The tuple type for the context</returns>
+        public TupleTypeDef ResolveTupleLiteralInit(ZScriptParser.TupleLiteralInitContext context)
+        {
+            var tupleType = ResolveTupleType(context.tupleType());
+
+            ResolveFunctionCallArguments(tupleType.GetInitializerSignature(), context.functionCall().funcCallArguments());
+
+            return tupleType;
         }
 
         #endregion
@@ -1557,7 +1581,7 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Returns a TupleTypeDef describing the tuple tyoe for a given context
+        /// Returns a TupleTypeDef describing the tuple type for a given context
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The tuple type for the context</returns>
@@ -1573,7 +1597,7 @@ namespace ZScript.CodeGeneration.Analysis
                 resolvedTypes[i] = ResolveType(types[i].type(), false);
             }
 
-            return TypeProvider.TupleForTypes(typeNames, resolvedTypes);
+            return context.TupleType = TypeProvider.TupleForTypes(typeNames, resolvedTypes);
         }
 
         /// <summary>

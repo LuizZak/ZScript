@@ -352,9 +352,9 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 VisitTupleExpression(context.tupleExpression());
 
-                if (context.valueAccess() != null)
+                if (context.objectAccess() != null)
                 {
-                    VisitValueAccess(context.valueAccess());
+                    VisitObjectAccess(context.objectAccess());
                 }
             }
             else if (context.expression().Length == 1)
@@ -502,6 +502,15 @@ namespace ZScript.CodeGeneration.Tokenization
                 if (context.objectAccess() != null)
                 {
                     VisitObjectAccess(context.objectAccess());
+                }
+            }
+            else if (context.tupleLiteralInit() != null)
+            {
+                VisitTupleLiteralInit(context.tupleLiteralInit());
+
+                if (context.valueAccess() != null)
+                {
+                    VisitValueAccess(context.valueAccess());
                 }
             }
             else if (context.newExpression() != null)
@@ -876,6 +885,11 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 VisitFieldAccess(context.fieldAccess(), IsFunctionCallAccess(context));
             }
+            else if (context.tupleAccess() != null)
+            {
+                VisitTupleAccess(context.tupleAccess());
+            }
+
             if (context.valueAccess() != null)
             {
                 VisitValueAccess(context.valueAccess());
@@ -1112,6 +1126,31 @@ namespace ZScript.CodeGeneration.Tokenization
             {
                 _tokens.Add(TokenFactory.CreateStringToken(ConstantAtomParser.ParseStringAtom(context.stringLiteral())));
             }
+        }
+
+        private void VisitTupleLiteralInit(ZScriptParser.TupleLiteralInitContext context)
+        {
+            // No entries to process
+            if (context.functionCall().funcCallArguments().expressionList() == null)
+                return;
+
+            var expressions = context.functionCall().funcCallArguments().expressionList().expression();
+
+            // Simplified tuple (parenthesized expression): Just tokenize the first expression and leave
+            if (expressions.Length == 1)
+            {
+                VisitExpression(expressions[0]);
+                return;
+            }
+
+            // Tokenize the expressions
+            foreach (var exp in expressions)
+            {
+                VisitExpression(exp);
+            }
+
+            // Tuple creation instruction
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.tupleType().TupleType));
         }
 
         #endregion
