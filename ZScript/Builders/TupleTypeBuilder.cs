@@ -42,6 +42,11 @@ namespace ZScript.Builders
         public const string TupleNameSuffix = "_t";
 
         /// <summary>
+        /// A counter used to generate the names of the tuples in the type system
+        /// </summary>
+        private int _count;
+
+        /// <summary>
         /// The type building context for the tuple type builder
         /// </summary>
         private readonly TypeBuildingContext _typeBuildingContext;
@@ -68,6 +73,7 @@ namespace ZScript.Builders
         public void ClearCache()
         {
             _mappedTypes.Clear();
+            _count = 0;
         }
 
         /// <summary>
@@ -84,7 +90,7 @@ namespace ZScript.Builders
 
             const TypeAttributes attr = TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable;
 
-            var typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType(tuple.AssemblyFriendlyName() + TupleNameSuffix, attr);
+            var typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType("$TUPLE" + (_count++) + TupleNameSuffix, attr);
 
             typeBuilder.AddInterfaceImplementation(typeof(ITuple));
 

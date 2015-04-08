@@ -1026,12 +1026,7 @@ namespace ZScript.Runtime.Execution
         /// <returns>A value popped from the stack, and fetched from memory, if needed</returns>
         public object PopValueImplicit(bool copyTuples = false)
         {
-            var value = ExpandValue(_stack.Pop());
-
-            if (copyTuples && value is ITuple)
-                value = Activator.CreateInstance(value.GetType(), value);
-
-            return value;
+            return ExpandValue(_stack.Pop(), copyTuples);
         }
 
         /// <summary>
@@ -1116,7 +1111,7 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="obj">The object to expand</param>
         /// <returns>The value the object represents</returns>
-        private object ExpandValue(object obj)
+        private object ExpandValue(object obj, bool copyTuples = false)
         {
             var t = obj as Token;
             if (t != null)
@@ -1134,12 +1129,20 @@ namespace ZScript.Runtime.Execution
                     throw new Exception("Trying to access undefined variable '" + (string)t.TokenObject + "'.");
                 }
 
+                if (copyTuples && value is ITuple)
+                    value = Activator.CreateInstance(value.GetType(), value);
+
                 return value;
             }
             var valueHolder = obj as IValueHolder;
             if (valueHolder != null)
             {
-                return valueHolder.GetValue();
+                var value = valueHolder.GetValue();
+
+                if (copyTuples && value is ITuple)
+                    value = Activator.CreateInstance(value.GetType(), value);
+
+                return value;
             }
 
             return obj;
