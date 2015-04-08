@@ -147,9 +147,9 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Scans througy all definitions, returning the first definition that matches a given selector
+        /// Scans through all definitions, returning the first definition that matches a given selector
         /// </summary>
-        /// <param name="selector">The selector to apply to the definitions</param>
+        /// <param name="selector">The selector to apply to the definitions. The method returns the first definition that made the selector return true</param>
         /// <returns>The first definition that returns true on the given selector</returns>
         public Definition GetDefinition(Func<Definition, bool> selector)
         {

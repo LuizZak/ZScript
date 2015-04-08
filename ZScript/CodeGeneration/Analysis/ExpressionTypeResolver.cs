@@ -162,12 +162,21 @@ namespace ZScript.CodeGeneration.Analysis
             TypeDef retType = null;
 
             // Assignment expressions
-            if (context.assignmentExpression() != null)
+            if (context.constantAtom() != null)
+            {
+                retType = ResolveConstantAtom(context.constantAtom());
+            }
+            else if (context.assignmentExpression() != null)
             {
                 retType = ResolveAssignmentExpression(context.assignmentExpression());
             }
+            // Member name
+            else if (context.memberName() != null)
+            {
+                retType = ResolveMemberName(context.memberName());
+            }
             // Literals
-            if (context.closureExpression() != null)
+            else if (context.closureExpression() != null)
             {
                 // Notify of closure inferring
                 if (context.ExpectedType != null && ClosureExpectedTypeNotifier != null)
@@ -177,7 +186,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveClosureExpression(context.closureExpression());
             }
-            if (context.arrayLiteral() != null)
+            else if (context.arrayLiteral() != null)
             {
                 var expectedAsList = context.ExpectedType as ListTypeDef;
                 if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
@@ -187,7 +196,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveArrayLiteral(context.arrayLiteral());
             }
-            if (context.arrayLiteralInit() != null)
+            else if (context.arrayLiteralInit() != null)
             {
                 var expectedAsList = context.ExpectedType as ListTypeDef;
                 if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
@@ -197,7 +206,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveArrayLiteralInit(context.arrayLiteralInit());
             }
-            if (context.dictionaryLiteral() != null)
+            else if (context.dictionaryLiteral() != null)
             {
                 var expectedAsList = context.ExpectedType as DictionaryTypeDef;
                 if (expectedAsList != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
@@ -207,7 +216,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveDictionaryLiteral(context.dictionaryLiteral());
             }
-            if (context.dictionaryLiteralInit() != null)
+            else if (context.dictionaryLiteralInit() != null)
             {
                 var expectedAsDict = context.ExpectedType as DictionaryTypeDef;
                 if (expectedAsDict != null && (context.objectAccess() == null || context.objectAccess().arrayAccess() == null))
@@ -217,15 +226,11 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveDictionaryLiteralInit(context.dictionaryLiteralInit());
             }
-            if (context.objectLiteral() != null)
+            else if (context.objectLiteral() != null)
             {
                 retType = ResolveObjectLiteral(context.objectLiteral());
             }
-            if (context.constantAtom() != null)
-            {
-                retType = ResolveConstantAtom(context.constantAtom());
-            }
-            if (context.tupleExpression() != null)
+            else if (context.tupleExpression() != null)
             {
                 var expectedAsTuple = context.ExpectedType as TupleTypeDef;
                 if (expectedAsTuple != null && context.valueAccess() == null)
@@ -238,18 +243,34 @@ namespace ZScript.CodeGeneration.Analysis
 
                 retType = ResolveTupleExpression(context.tupleExpression());
             }
+            // Type casting/checking
+            else if (context.type() != null)
+            {
+                retType = ResolveExpression(context.expression(0));
+
+                // Type check
+                if (context.T_IS() != null)
+                {
+                    retType = ResolveTypeCheck(retType, context, context.type());
+                }
+                // Type casting
+                else
+                {
+                    retType = ResolveTypeCasting(retType, context, context.type());
+                }
+            }
             // Ternary expression
-            if (context.expression().Length == 3)
+            else if (context.expression().Length == 3)
             {
                 retType = ResolveTernaryExpression(context);
             }
             // Binary expression
-            if (context.expression().Length == 2)
+            else if (context.expression().Length == 2)
             {
                 retType = ResolveBinaryExpression(context);
             }
             // Parenthesized expression
-            if (context.expression().Length == 1)
+            else if (context.expression().Length == 1)
             {
                 // Optional unwrapping
                 if (context.unwrap != null)
@@ -267,67 +288,40 @@ namespace ZScript.CodeGeneration.Analysis
                     retType = ResolveExpression(context.expression(0));
                 }
             }
-
-            // Member name
-            if (context.memberName() != null)
-            {
-                retType = ResolveMemberName(context.memberName());
-            }
-
             // 'this' priamry expression
-            if (context.T_THIS() != null)
+            else if (context.T_THIS() != null)
             {
                 retType = ResolveThisType(context);
             }
             // 'base' priamry expression
-            if (context.T_BASE() != null)
+            else if (context.T_BASE() != null)
             {
                 retType = ResolveBaseType(context);
             }
-
             // New type
-            if (context.newExpression() != null)
+            else if (context.newExpression() != null)
             {
                 retType = ResolveNewExpression(context.newExpression());
             }
-
-            // Type casting/checking
-            if (context.type() != null)
+            // Prefix operator
+            else if (context.prefixOperator() != null)
             {
-                // Type check
-                if (context.T_IS() != null)
-                {
-                    retType = ResolveTypeCheck(retType, context, context.type());
-                }
-                // Type casting
-                else
-                {
-                    retType = ResolveTypeCasting(retType, context, context.type());
-                }
+                retType = ResolvePrefixExpression(context);
+            }
+            // Postfix operator
+            else if (context.postfixOperator() != null)
+            {
+                retType = ResolvePostfixExpression(context);
             }
 
-            // If the closure is being called, return the return type of the closure instead
+            // Value/object access
             if (context.valueAccess() != null)
             {
                 retType = ResolveValueAccess(retType, null, context.valueAccess());
             }
-
-            // If the closure is being called, return the return type of the closure instead
-            if (context.objectAccess() != null)
+            else if (context.objectAccess() != null)
             {
                 retType = ResolveObjectAccess(retType, null, context.objectAccess());
-            }
-
-            // Prefix operator
-            if (context.prefixOperator() != null)
-            {
-                retType = ResolvePrefixExpression(context);
-            }
-
-            // Postfix operator
-            if (context.postfixOperator() != null)
-            {
-                retType = ResolvePostfixExpression(context);
             }
 
             if(retType == null)
