@@ -119,12 +119,7 @@ namespace ZScript.Runtime.Typing.Elements
             if (_initializerSignature == null)
             {
                 var returnType = this;
-                var parameters = new CallableTypeDef.CallableParameterInfo[InnerTypes.Length];
-
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    parameters[i] = new CallableTypeDef.CallableParameterInfo(InnerTypes[i], true, false, false);
-                }
+                var parameters = InnerTypes.Select(t => new CallableTypeDef.CallableParameterInfo(t, true, false, false)).ToArray();
 
                 _initializerSignature = new CallableTypeDef(parameters, returnType, true);
             }
