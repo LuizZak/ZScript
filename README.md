@@ -1,6 +1,7 @@
 ![](http://i.imgur.com/YR3ejlH.png)  
 An (once) game scripting programming language implemented in C#.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/19mw81qroui8q8xp?svg=true)](https://ci.appveyor.com/project/LuizZak/zscript)
 
 ## Some considerations, beforehand
 
