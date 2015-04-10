@@ -67,6 +67,7 @@
     <Compile Include="CodeGeneration\Analysis\DefinitionsAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\Definitions\GenericParametersAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+OptionalTests.cs" />
+    <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+TupleTests.cs" />
     <Compile Include="CodeGeneration\Analysis\FunctionParametersAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\StaticTypeAnalyzerTests.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolverTests.cs" />

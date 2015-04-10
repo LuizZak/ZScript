@@ -235,10 +235,7 @@ namespace ZScript.CodeGeneration.Analysis
                 var expectedAsTuple = context.ExpectedType as TupleTypeDef;
                 if (expectedAsTuple != null && context.objectAccess() == null)
                 {
-                    for (int i = 0; i < Math.Min(expectedAsTuple.InnerTypes.Length, context.tupleExpression().tupleEntry().Length); i++)
-                    {
-                        context.tupleExpression().tupleEntry(i).expression().ExpectedType = expectedAsTuple.InnerTypes[i];
-                    }
+                    context.tupleExpression().ExpectedType = expectedAsTuple;
                 }
 
                 retType = ResolveTupleExpression(context.tupleExpression());
@@ -285,11 +282,6 @@ namespace ZScript.CodeGeneration.Analysis
                 else if (context.unaryOperator() != null)
                 {
                     retType = ResolveUnaryExpression(context);
-                }
-                // Parenthesized expression/type check/type cast
-                else
-                {
-                    retType = ResolveExpression(context.expression(0));
                 }
             }
             // 'this' priamry expression
@@ -537,8 +529,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the tuple expression</returns>
         public TypeDef ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
         {
+            var expectedTuple = context.ExpectedType;
             var entries = context.tupleEntry();
-
+            
             // Single tuple: return inner type
             if (entries.Length == 1)
             {
@@ -548,13 +541,45 @@ namespace ZScript.CodeGeneration.Analysis
             var names = new string[entries.Length];
             var innerTypes = new TypeDef[entries.Length];
 
+            // Infer types
+            if (expectedTuple == null)
+            {
+                for (int i = 0; i < entries.Length; i++)
+                {
+                    names[i] = entries[i].IDENT() == null ? null : entries[i].IDENT().GetText();
+                    innerTypes[i] = ResolveExpression(entries[i].expression());
+                }
+
+                return context.TupleType = TypeProvider.TupleForTypes(names, innerTypes);
+            }
+
+            innerTypes = expectedTuple.InnerTypes;
+
+            var canConvert = true;
             for (int i = 0; i < entries.Length; i++)
             {
                 names[i] = entries[i].IDENT() == null ? null : entries[i].IDENT().GetText();
-                innerTypes[i] = ResolveExpression(entries[i].expression());
+                entries[i].expression().ExpectedType = expectedTuple.InnerTypes[i];
+
+                var type = ResolveExpression(entries[i].expression());
+
+                if (!TypeProvider.CanImplicitCast(type, expectedTuple.InnerTypes[i]))
+                {
+                    canConvert = false;
+                }
             }
 
-            return context.TupleType = TypeProvider.TupleForTypes(names, innerTypes);
+            var returnTuple = TypeProvider.TupleForTypes(names, innerTypes);
+
+            if (!canConvert)
+            {
+                var message = "Cannot implicitly convert source tuple type " + returnTuple + " to target type " + expectedTuple;
+                MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+
+                returnTuple = TypeProvider.TupleForTypes(innerTypes.Select(i => TypeProvider.AnyType()).ToArray());
+            }
+
+            return context.TupleType = returnTuple;
         }
 
         /// <summary>

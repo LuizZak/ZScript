@@ -279,6 +279,12 @@ public partial class ZScriptParser
         /// Gets or sets the tuple type for this tuple expression context
         /// </summary>
         public TupleTypeDef TupleType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type that was set as expected by a parent expression when this expression was evaluated.
+        /// Usually, this value is set by expression trees that require type checking - like argument function call, assignment expressions, etc.
+        /// </summary>
+        public TupleTypeDef ExpectedType { get; set; }
     }
 
     /// <summary>

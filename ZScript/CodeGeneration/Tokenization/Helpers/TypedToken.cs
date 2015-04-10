@@ -128,7 +128,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokenType">The type for this token</param>
         /// <param name="instruction">The instruction to associate with the token</param>
-        /// <param name="type">The type to associate with this typed token</param>
+        /// <param name="types">The type to associate with this typed token</param>
         public TypedToken(TokenType tokenType, VmInstruction instruction, Type[] types)
             : base(tokenType, null, instruction)
         {
