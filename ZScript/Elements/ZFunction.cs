@@ -18,6 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
+using System.Text;
 using ZScript.Elements.ValueHolding;
 using ZScript.Runtime.Typing.Elements;
 
@@ -34,11 +37,48 @@ namespace ZScript.Elements
         /// <param name="name">The name for this function definition</param>
         /// <param name="tokens">A list of tokens containing the instructions this function will perform</param>
         /// <param name="arguments">An array of the arguments for this function</param>
-        public ZFunction(string name, TokenList tokens, FunctionArgument[] arguments)
+        /// <param name="returnType">The return type for the ZFunction</param>
+        public ZFunction(string name, TokenList tokens, FunctionArgument[] arguments, Type returnType)
         {
             Name = name;
             Tokens = tokens;
             _arguments = arguments;
+            _returnType = returnType;
+        }
+
+        /// <summary>
+        /// Returns a string representation of this ZFunction
+        /// </summary>
+        /// <returns>A string representation of this ZFunction</returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            // Name
+            builder.Append(Name);
+            
+            // TODO: Add generic signature handling
+
+            // Parameters
+            builder.Append("(");
+            foreach (var argument in Arguments)
+            {
+                builder.Append(argument.Name);
+                builder.Append(": ");
+                builder.Append(argument.Type);
+                if (argument.HasValue)
+                {
+                    builder.Append(" = ");
+                    builder.Append(argument.DefaultValue);
+                }
+            }
+            builder.Append(")");
+
+            // Return type
+            builder.Append(" : ");
+            builder.Append(ReturnType);
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -67,8 +107,18 @@ namespace ZScript.Elements
         private readonly FunctionArgument[] _arguments;
 
         /// <summary>
+        /// The return type for this function
+        /// </summary>
+        private readonly Type _returnType;
+
+        /// <summary>
         /// Gets an array of the arguments for this function
         /// </summary>
         public FunctionArgument[] Arguments { get { return _arguments; } }
+
+        /// <summary>
+        /// Gets the return type for this ZFunction
+        /// </summary>
+        public Type ReturnType { get { return _returnType; } }
     }
 }

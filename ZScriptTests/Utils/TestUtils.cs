@@ -155,9 +155,9 @@ namespace ZScriptTests.Utils
 
             // 'func1' method
             var funcTokens = new IntermediaryTokenList { TokenFactory.CreateBoxedValueToken(10L), TokenFactory.CreateInstructionToken(VmInstruction.Ret) };
-            var func1 = new ZMethod("func1", funcTokens.ToTokenList(), new FunctionArgument[0]);
+            var func1 = new ZMethod("func1", funcTokens.ToTokenList(), new FunctionArgument[0], typeof(void));
 
-            var cls = new ZClass(name, new[] { func1 }, new[] { field1 }, new ZMethod(name, new TokenList(), new FunctionArgument[0]), typeof(ZClassInstance), false);
+            var cls = new ZClass(name, new[] { func1 }, new[] { field1 }, new ZMethod(name, new TokenList(), new FunctionArgument[0], typeof(ZClassInstance)), typeof(ZClassInstance), false);
 
             var inst = new ZClassInstance(cls);
 

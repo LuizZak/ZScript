@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using ZScript.Elements.ValueHolding;
 
 namespace ZScript.Elements
@@ -32,7 +34,8 @@ namespace ZScript.Elements
         /// </summary>
         /// <param name="name">The name for the export function</param>
         /// <param name="arguments">The arguments for the export function</param>
-        public ZExportFunction(string name, FunctionArgument[] arguments) : base(name, null, arguments)
+        /// <param name="returnType">The return type for the ZExportFunction</param>
+        public ZExportFunction(string name, FunctionArgument[] arguments, Type returnType) : base(name, null, arguments, returnType)
         {
 
         }

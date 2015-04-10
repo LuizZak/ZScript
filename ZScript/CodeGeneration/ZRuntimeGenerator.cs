@@ -394,7 +394,7 @@ namespace ZScript.CodeGeneration
 
                 funcDef.Tokens = tokens;
 
-                var zFunction = new ZFunction(funcDef.Name, tokens, GenerateFunctionArguments(context, funcDef.Parameters))
+                var zFunction = new ZFunction(funcDef.Name, tokens, GenerateFunctionArguments(context, funcDef.Parameters), context.TypeProvider.NativeTypeForTypeDef(funcDef.ReturnType))
                 {
                     Signature = funcDef.CallableTypeDef
                 };
@@ -441,7 +441,7 @@ namespace ZScript.CodeGeneration
 
                     methodDef.RecreateCallableDefinition();
 
-                    ZMethod method = new ZMethod(methodDef.Name, tokens, GenerateFunctionArguments(context, methodDef.Parameters))
+                    ZMethod method = new ZMethod(methodDef.Name, tokens, GenerateFunctionArguments(context, methodDef.Parameters), context.TypeProvider.NativeTypeForTypeDef(methodDef.ReturnType))
                     {
                         Signature = methodDef.CallableTypeDef
                     };
@@ -485,7 +485,7 @@ namespace ZScript.CodeGeneration
                 tokenList = constructor.Tokens;
 
                 // Tokenize constructor
-                var zConstructor = new ZMethod(constructor.Name, tokenList, GenerateFunctionArguments(context, constructor.Parameters));
+                var zConstructor = new ZMethod(constructor.Name, tokenList, GenerateFunctionArguments(context, constructor.Parameters), context.TypeProvider.NativeTypeForTypeDef(classDef.ClassTypeDef));
                 transformedMethods[constructor] = zConstructor;
 
                 if (constructor.BaseMethod != null)
@@ -522,7 +522,7 @@ namespace ZScript.CodeGeneration
 
                 funcDef.Tokens = tokens;
 
-                var zFunction = new ZClosureFunction(funcDef.Name, tokens, GenerateFunctionArguments(context, funcDef.Parameters))
+                var zFunction = new ZClosureFunction(funcDef.Name, tokens, GenerateFunctionArguments(context, funcDef.Parameters), context.TypeProvider.NativeTypeForTypeDef(funcDef.ReturnType))
                 {
                     Signature = funcDef.CallableTypeDef
                 };
@@ -544,7 +544,7 @@ namespace ZScript.CodeGeneration
 
             var funcDefs = scope.Definitions.OfType<ExportFunctionDefinition>();
 
-            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(context, def.Parameters)));
+            return funcDefs.Select(def => new ZExportFunction(def.Name, GenerateFunctionArguments(context, def.Parameters), context.TypeProvider.NativeTypeForTypeDef(def.ReturnType)));
         }
 
         /// <summary>

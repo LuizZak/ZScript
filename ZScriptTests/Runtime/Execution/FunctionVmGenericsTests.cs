@@ -207,7 +207,7 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateInstructionToken(VmInstruction.Ret),
             };
 
-            var function = new ZFunction("func1", tFunc.ToTokenList(), new FunctionArgument[0]);
+            var function = new ZFunction("func1", tFunc.ToTokenList(), new FunctionArgument[0], typeof(List<long>));
             var runtimeDef = new ZRuntimeDefinition(); runtimeDef.AddFunctionDef(function);
             var runtime = new ZRuntime(runtimeDef, null);
 
@@ -258,8 +258,8 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateInstructionToken(VmInstruction.Ret),
             };
 
-            var func1 = new ZFunction("func1", tFunc1.ToTokenList(), new FunctionArgument[0]);
-            var func2 = new ZFunction("func2", tFunc2.ToTokenList(), new FunctionArgument[0]);
+            var func1 = new ZFunction("func1", tFunc1.ToTokenList(), new FunctionArgument[0], typeof(List<long>));
+            var func2 = new ZFunction("func2", tFunc2.ToTokenList(), new FunctionArgument[0], typeof(List<long>));
             var runtimeDef = new ZRuntimeDefinition(); runtimeDef.AddFunctionDefs(new []{ func1, func2 });
             var runtime = new ZRuntime(runtimeDef, null);
 

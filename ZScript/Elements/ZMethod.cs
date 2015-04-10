@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using ZScript.Elements.ValueHolding;
 using ZScript.Runtime.Execution.VirtualMemory;
 
@@ -44,8 +46,9 @@ namespace ZScript.Elements
         /// <param name="name">The name for the method</param>
         /// <param name="tokens">The tokens for the method</param>
         /// <param name="arguments">The arguments for the method call</param>
-        public ZMethod(string name, TokenList tokens, FunctionArgument[] arguments)
-            : base(name, tokens, arguments)
+        /// <param name="returnType">The return type for the method</param>
+        public ZMethod(string name, TokenList tokens, FunctionArgument[] arguments, Type returnType)
+            : base(name, tokens, arguments, returnType)
         {
 
         }

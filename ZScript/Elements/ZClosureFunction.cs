@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using ZScript.Elements.ValueHolding;
 using ZScript.Runtime;
 using ZScript.Runtime.Execution;
@@ -59,8 +61,9 @@ namespace ZScript.Elements
         /// <param name="name">The name for the closure</param>
         /// <param name="tokens">The list of tokens representing the closure's body</param>
         /// <param name="arguments">The list of arguments for the closure</param>
-        public ZClosureFunction(string name, TokenList tokens, FunctionArgument[] arguments)
-            : base(name, tokens, arguments)
+        /// <param name="returnType">The return type for the closure</param>
+        public ZClosureFunction(string name, TokenList tokens, FunctionArgument[] arguments, Type returnType)
+            : base(name, tokens, arguments, returnType)
         {
             IsClosure = true;
         }

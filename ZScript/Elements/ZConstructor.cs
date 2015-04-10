@@ -54,7 +54,7 @@ namespace ZScript.Elements
         /// <param name="classInstance">The class instance to create a constructor of</param>
         /// <param name="requiresBaseCall">Whether the constructor requires a base call, or the user already performed the call</param>
         public ZConstructor(ZClassInstance classInstance, bool requiresBaseCall)
-            : base(classInstance.Class.ClassName, classInstance.Class.Constructor.Tokens, classInstance.Class.Constructor.Arguments)
+            : base(classInstance.Class.ClassName, classInstance.Class.Constructor.Tokens, classInstance.Class.Constructor.Arguments, classInstance.Class.Constructor.ReturnType)
         {
             _classInstance = classInstance;
             RequiresBaseCall = requiresBaseCall;

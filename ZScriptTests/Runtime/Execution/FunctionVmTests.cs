@@ -2090,7 +2090,7 @@ namespace ZScriptTests.Runtime.Execution
         public void TestIsCallable()
         {
             // Test valid inputs
-            Assert.IsTrue(FunctionVM.IsCallable(new ZFunction(null, null, null)));
+            Assert.IsTrue(FunctionVM.IsCallable(new ZFunction(null, null, null, null)));
             Assert.IsTrue(FunctionVM.IsCallable(new ZClassMethod(null, null)));
             Assert.IsTrue(FunctionVM.IsCallable(new ClassMethod(null, null)));
 

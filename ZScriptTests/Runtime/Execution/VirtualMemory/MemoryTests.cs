@@ -164,7 +164,7 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestBasicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new FunctionArgument[0]);
+            var func = new ZFunction("Abc", new TokenList(), new FunctionArgument[0], typeof(void));
 
             var mem = Memory.CreateMemoryFromArgs(func);
 
@@ -174,7 +174,7 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestParameteredMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new [] { new FunctionArgument("arg1") });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1") }, typeof(void));
 
             var mem = Memory.CreateMemoryFromArgs(func, 1L);
 
@@ -186,7 +186,7 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestVariadicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } }, typeof(void));
 
             var mem = Memory.CreateMemoryFromArgs(func, 1L, 2L);
 
@@ -203,7 +203,7 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestEmptyVariadicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } }, typeof(void));
 
             var mem = Memory.CreateMemoryFromArgs(func);
 
@@ -219,7 +219,7 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         [TestMethod]
         public void TestArrayInVariadicMemoryFromFunctionArgs()
         {
-            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } });
+            var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } }, typeof(void));
 
             var array = new Memory.VarArgsArrayList<long> { 1L, 2L, 3L };
 
