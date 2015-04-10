@@ -102,7 +102,7 @@ namespace ZScript.Parsing
             double outDouble;
             if (valueString.IndexOf('.') > 0 || valueString.IndexOf("e") > 0)
             {
-                if (double.TryParse(valueString, NumberStyles.Number, Nfi, out outDouble))
+                if (double.TryParse(valueString, NumberStyles.Number | NumberStyles.AllowExponent, Nfi, out outDouble))
                 {
                     return outDouble;
                 }
