@@ -123,9 +123,16 @@ namespace ZScript.Runtime.Typing
         public object CastObject(object value, Type newType)
         {
             if (newType == null) throw new ArgumentNullException("newType");
+
             // Resolve nulls
             if (value == null)
             {
+                // Optional type
+                if (newType.GetInterface("IOptional") != null)
+                {
+                    return Activator.CreateInstance(newType);
+                }
+
                 if (newType.IsValueType)
                 {
                     if (DefaultValueForNullValueType)
@@ -135,6 +142,17 @@ namespace ZScript.Runtime.Typing
                 }
 
                 return null;
+            }
+
+            // Verify same types, which may occur when casting 'any'-typed values that are already of the expected type
+            if (value.GetType() == newType)
+                return value;
+
+            // Optional type
+            if (newType.GetInterface("IOptional") != null)
+            {
+                var innerType = newType.GetGenericArguments()[0];
+                return Activator.CreateInstance(newType, CastObject(value, innerType));
             }
 
             // No casting necessary
@@ -257,21 +275,21 @@ namespace ZScript.Runtime.Typing
         /// <returns>The optional type for the given type definition</returns>
         public OptionalTypeDef OptionalTypeForType(TypeDef type)
         {
-            return InternalOptionalTypeForType(type, 0);
+            return OptionalTypeForType(type, 0);
         }
 
         /// <summary>
-        /// Returns a optional type for the given type def
+        /// Returns a optional type for the given type def chained at a specified depth
         /// </summary>
         /// <param name="type">The type to wrap in an optional</param>
         /// <param name="depth">The depth of the optional to create</param>
         /// <returns>The optional type for the given type definition</returns>
-        private OptionalTypeDef InternalOptionalTypeForType(TypeDef type, int depth)
+        public OptionalTypeDef OptionalTypeForType(TypeDef type, int depth)
         {
             if (depth <= 0)
                 return new OptionalTypeDef(type);
 
-            return new OptionalTypeDef(InternalOptionalTypeForType(type, depth - 1));
+            return new OptionalTypeDef(OptionalTypeForType(type, depth - 1));
         }
 
         /// <summary>
@@ -323,7 +341,7 @@ namespace ZScript.Runtime.Typing
             {
                 if (opt1.BaseWrappedType == type2)
                 {
-                    return InternalOptionalTypeForType(type2, opt1.OptionalDepth);
+                    return OptionalTypeForType(type2, opt1.OptionalDepth);
                 }
             }
             // Type 1 is optional / Type 2 is non-optional
@@ -331,7 +349,7 @@ namespace ZScript.Runtime.Typing
             {
                 if (opt2.BaseWrappedType == type1)
                 {
-                    return InternalOptionalTypeForType(type1, opt2.OptionalDepth);
+                    return OptionalTypeForType(type1, opt2.OptionalDepth);
                 }
             }
             // Type 1 and type2 are optional
@@ -339,7 +357,7 @@ namespace ZScript.Runtime.Typing
             {
                 if (opt1.BaseWrappedType == opt2.BaseWrappedType)
                 {
-                    return InternalOptionalTypeForType(opt1.BaseWrappedType, Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
+                    return OptionalTypeForType(opt1.BaseWrappedType, Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
                 }
 
                 //return InternalOptionalTypeForType(AnyType(), Math.Max(opt1.OptionalDepth, opt2.OptionalDepth));
@@ -942,7 +960,7 @@ namespace ZScript.Runtime.Typing
                 var optDef = typeDef as OptionalTypeDef;
                 if (optDef != null)
                 {
-                    var nativeWrapped = _typeProvider.NativeTypeForTypeDef(optDef.BaseWrappedType, true);
+                    var nativeWrapped = _typeProvider.NativeTypeForTypeDef(optDef.WrappedType, true);
 
                     // Create the option instance
                     return typeof(Optional<>).MakeGenericType(nativeWrapped);

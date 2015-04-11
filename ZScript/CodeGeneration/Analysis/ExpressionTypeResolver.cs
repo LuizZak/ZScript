@@ -332,9 +332,10 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.ExpectedType != null)
             {
-                var def = context.ExpectedType as OptionalTypeDef;
+                //var def = context.ExpectedType as OptionalTypeDef;
 
-                context.ImplicitCastType = def != null ? def.BaseWrappedType : context.ExpectedType;
+                context.ImplicitCastType = context.ExpectedType;
+                //context.ImplicitCastType = def != null ? def.BaseWrappedType : context.ExpectedType;
             }
 
             context.HasTypeBeenEvaluated = true;
@@ -656,28 +657,43 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 return type2;
             }
+
+            string message = "Cannot apply null-coalesce operator between values of type " + type1 + " and " + type2;
+
             var opt1 = type1 as OptionalTypeDef;
             if (opt1 == null)
             {
                 RegisterNonOptionalNullCoalesceLeftSide(context);
                 return type1;
             }
-
-            var commonType = TypeProvider.FindCommonType(opt1.WrappedType, type2);
-
-            if (commonType == TypeProvider.AnyType())
+            var opt2 = type2 as OptionalTypeDef;
+            if (opt2 != null)
             {
-                string message = "Cannot apply null-coalesce operator between values of type " + type1 + " and " + type2;
-                MessageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
-
-                return TypeProvider.AnyType();
+                if (opt1.BaseWrappedType != opt2.BaseWrappedType)
+                {
+                    MessageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
+                    return TypeProvider.AnyType();
+                }
+            }
+            else
+            {
+                if (opt1.BaseWrappedType != type2)
+                {
+                    MessageContainer.RegisterError(context, message, ErrorCode.InvalidTypesOnOperation);
+                    return TypeProvider.AnyType();
+                }
             }
 
-            // Adjust expected types
-            context.expression(0).ExpectedType = commonType;
-            context.expression(1).ExpectedType = commonType;
+            var leftType = opt1.WrappedType;
+            var result = TypeProvider.FindCommonType(leftType, type2);
 
-            return commonType;
+            // Adjust expected types
+            context.expression(0).ExpectedType = result;
+            context.expression(1).ExpectedType = result;
+
+            context.expression(1).ImplicitCastType = result;
+
+            return result;
         }
 
         #endregion
@@ -795,7 +811,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var type = TypeProvider.AnyType();
             // Unwrap optional
-            if (context.nullable != null)
+            for (int i = 0; i < context.T_NULL_CONDITIONAL().Length; i++)
             {
                 if (leftValue is OptionalTypeDef)
                 {
@@ -804,6 +820,7 @@ namespace ZScript.CodeGeneration.Analysis
                 else
                 {
                     RegisterNonOptionalUnwrapping(leftValue, context);
+                    return TypeProvider.AnyType();
                 }
             }
 
@@ -1271,6 +1288,11 @@ namespace ZScript.CodeGeneration.Analysis
                     listItemsType = TypeProvider.FindCommonType(itemType, listItemsType);
                 }
 
+                foreach(var exp in items.expression())
+                {
+                    exp.ExpectedType = exp.ImplicitCastType = listItemsType;
+                }
+
                 context.EvaluatedValueType = listItemsType;
 
                 return TypeProvider.ListForType(listItemsType);
@@ -1280,7 +1302,7 @@ namespace ZScript.CodeGeneration.Analysis
             bool canImplicit = true;
             foreach (var exp in items.expression())
             {
-                exp.ExpectedType = expectedValueType;
+                exp.ExpectedType = exp.ImplicitCastType = expectedValueType;
 
                 var itemType = ResolveExpression(exp);
 
@@ -1368,6 +1390,13 @@ namespace ZScript.CodeGeneration.Analysis
                     dictValueType = TypeProvider.FindCommonType(valueType, dictValueType);
                 }
 
+                // Update implicit casting now
+                foreach (var exp in entries)
+                {
+                    exp.expression(0).ExpectedType = exp.expression(0).ImplicitCastType = dictKeyType;
+                    exp.expression(1).ExpectedType = exp.expression(1).ImplicitCastType = dictValueType;
+                }
+
                 context.EvaluatedKeyType = dictKeyType;
                 context.EvaluatedValueType = dictValueType;
 
@@ -1378,8 +1407,8 @@ namespace ZScript.CodeGeneration.Analysis
             bool canImplicit = true;
             foreach (var exp in entries)
             {
-                exp.expression(0).ExpectedType = expectedKeyType;
-                exp.expression(1).ExpectedType = expectedValueType;
+                exp.expression(0).ExpectedType = exp.expression(0).ImplicitCastType = expectedKeyType;
+                exp.expression(1).ExpectedType = exp.expression(1).ImplicitCastType = expectedValueType;
 
                 var keyType = ResolveExpression(exp.expression(0));
                 var valueType = ResolveExpression(exp.expression(1));
@@ -1733,8 +1762,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context in which the unwrapping happened</param>
         private void RegisterNonOptionalNullCoalesceLeftSide(ParserRuleContext context)
         {
-            const string message = "Left side of null-coalesce is non-optional and never returns null";
-            MessageContainer.RegisterWarning(context, message, WarningCode.NonOptionalNullCoalesceLeftSize);
+            const string message = "Left side of null-coalesce must be an optional type";
+            MessageContainer.RegisterError(context, message, ErrorCode.NonOptionalNullCoalesceLeftSize);
         }
 
         #endregion

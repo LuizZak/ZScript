@@ -128,6 +128,7 @@
     <Compile Include="Runtime\Typing\Operators\LongOperatorTests.cs" />
     <Compile Include="Runtime\Typing\OptionalTypeTests.cs" />
     <Compile Include="Runtime\Typing\TupleTypeTests.cs" />
+    <Compile Include="Runtime\Typing\TypeOperationProviderTests.cs" />
     <Compile Include="Runtime\Typing\TypeProviderTests.cs" />
     <Compile Include="Runtime\ZRuntimeTests.cs" />
     <Compile Include="Utils\TestRuntimeOwner.cs" />

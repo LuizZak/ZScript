@@ -137,7 +137,6 @@ namespace ZScriptTests.Runtime.Typing
             var provider = new TypeProvider();
 
             var optInt = provider.OptionalTypeForType(provider.IntegerType());
-            var optAny = provider.OptionalTypeForType(provider.AnyType());
             var optFloat = provider.OptionalTypeForType(provider.FloatType());
 
             // Null values

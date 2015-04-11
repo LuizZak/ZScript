@@ -19,6 +19,7 @@
 */
 #endregion
 using System;
+using ZScript.Elements;
 using ZScript.Runtime.Typing.Operators;
 
 namespace ZScript.Runtime.Typing
@@ -431,6 +432,22 @@ namespace ZScript.Runtime.Typing
             // Null check
             if (v1 == null && v2 == null)
                 return true;
+
+            var optionalV1 = v1 as IOptional;
+            if (optionalV1 != null)
+            {
+                if (!optionalV1.HasBaseInnerValue)
+                    return v2 == null;
+                return Equals(optionalV1.BaseInnerValue, v2);
+            }
+
+            var optionalV2 = v2 as IOptional;
+            if (optionalV2 != null)
+            {
+                if (!optionalV2.HasBaseInnerValue)
+                    return v1 == null;
+                return Equals(optionalV2.BaseInnerValue, v1);
+            }
 
             return v1 != null && v1.Equals(v2);
         }

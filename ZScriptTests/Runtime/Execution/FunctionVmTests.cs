@@ -1996,6 +1996,64 @@ namespace ZScriptTests.Runtime.Execution
         /// Tests addressing of memory via manual indexing
         /// </summary>
         [TestMethod]
+        public void TestNamedVariableFetchingWithAdd()
+        {
+            /*
+                0000000: 0
+                0000001: i
+                0000002: Set
+                0000005: Jump 6
+                0000006: i
+                0000007: IncrementPostfix
+                0000008: i
+                0000009: 100000
+                0000010: Less
+                0000012: JumpIfTrue 4
+                0000015: Interrupt
+            */
+
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 6),
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Set),
+                TokenFactory.CreateBoxedValueToken(100000),
+                TokenFactory.CreateOperatorToken(VmInstruction.Less),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 4),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            functionVm.Execute();
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            //Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        /// <summary>
+        /// Tests addressing of memory via manual indexing
+        /// </summary>
+        [TestMethod]
         public void TestManualAddressing()
         {
             /*
@@ -2027,6 +2085,65 @@ namespace ZScriptTests.Runtime.Execution
                 TokenFactory.CreateOperatorToken(VmInstruction.IncrementPostfix),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetAtAddress),
+                TokenFactory.CreateBoxedValueToken(100000),
+                TokenFactory.CreateOperatorToken(VmInstruction.Less),
+                TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 4),
+                TokenFactory.CreateInstructionToken(VmInstruction.Interrupt),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, new LocalAddressed(12), null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            // Test the script time
+            var sw = Stopwatch.StartNew();
+
+            functionVm.Execute();
+
+            sw.Stop();
+
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            //Assert.AreEqual(100, memory.GetVariable("a"), "The memory should contain the variable that was set by the instructions");
+        }
+
+        /// <summary>
+        /// Tests addressing of memory via manual indexing
+        /// </summary>
+        [TestMethod]
+        public void TestManualAddressingWithAdd()
+        {
+            /*
+                0000000: 0
+                0000001: i
+                0000002: Set
+                0000005: Jump 6
+                0000006: i
+                0000007: IncrementPostfix
+                0000008: i
+                0000009: 100000
+                0000010: Less
+                0000012: JumpIfTrue 4
+                0000015: Interrupt
+            */
+
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.SetAtAddress),
+                TokenFactory.CreateInstructionToken(VmInstruction.Jump, 6),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetAtAddress),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateOperatorToken(VmInstruction.Add),
+                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.SetAtAddress),
                 TokenFactory.CreateBoxedValueToken(100000),
                 TokenFactory.CreateOperatorToken(VmInstruction.Less),
                 TokenFactory.CreateInstructionToken(VmInstruction.JumpIfTrue, 4),

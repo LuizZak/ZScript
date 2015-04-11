@@ -188,7 +188,11 @@ namespace ZScript.CodeGeneration.Analysis
                 var nativeType = TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
 
                 if (TypeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType) && nativeType != null)
+                {
                     context.ConstantValue = TypeProvider.CastObject(context.ConstantValue, TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType));
+                    if (context.ConstantValue is IOptional)
+                        context.IsConstantPrimitive = true;
+                }
             }
         }
 

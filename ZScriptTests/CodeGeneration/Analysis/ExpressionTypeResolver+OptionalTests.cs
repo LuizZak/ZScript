@@ -64,7 +64,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests optional implicit castin omission
+        /// Tests optional implicit casting omission
         /// </summary>
         [TestMethod]
         public void TestOptionalImplicitCasting()
@@ -84,7 +84,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(expression);
 
             // Compare the result now
-            Assert.AreEqual(provider.IntegerType(), expression.ImplicitCastType, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), expression.ImplicitCastType, "Failed to evaluate the result of expression correctly");
 
             container.PrintMessages();
         }
@@ -383,10 +383,10 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Tests warning raising when using non-optional types on the left side of null-coalesce operators
+        /// Tests error raising when using non-optional types on the left side of null-coalesce operators
         /// </summary>
         [TestMethod]
-        public void TestWarningNullCoalesceOnNonOptional()
+        public void TestErrorNullCoalesceOnNonOptional()
         {
             // Set up the test
             const string input = "i ?: i";
@@ -404,7 +404,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             container.PrintMessages();
 
-            Assert.AreEqual(1, container.Warnings.Count(w => w.WarningCode == WarningCode.NonOptionalNullCoalesceLeftSize), "Failed to raise expected warnings");
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.NonOptionalNullCoalesceLeftSize));
         }
     }
 }

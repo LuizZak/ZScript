@@ -511,6 +511,11 @@ namespace ZScript.Runtime.Execution
                     PerformUnwrap();
                     break;
 
+                // Wrap
+                case VmInstruction.Wrap:
+                    PerformWrap(token);
+                    break;
+
                 // Safe unwrap
                 case VmInstruction.SafeUnwrap:
                     PerformSafeUnwrap();
@@ -939,6 +944,23 @@ namespace ZScript.Runtime.Execution
         }
 
         /// <summary>
+        /// Performs a wrap on the optional value contained on top of the stack.
+        /// The contained wrapped is pushed on top of the stack
+        /// </summary>
+        /// <param name="token">The token containing the instruction to wrap</param>
+        void PerformWrap(Token token)
+        {
+            var value = PopValueImplicit();
+            if(value == null)
+            {
+                _stack.Push(Activator.CreateInstance((Type)token.TokenObject));
+                return;
+            }
+
+            _stack.Push(Activator.CreateInstance((Type)token.TokenObject, value));
+        }
+
+        /// <summary>
         /// Performs a safe unwrap on the optional value contained on top of the stack.
         /// The contained value is pushed on the stack followed by a boolean value stating whether the unwrapping was successful.
         /// Raises an exception, if the value on top of the stack is not an optional value
@@ -1110,6 +1132,7 @@ namespace ZScript.Runtime.Execution
         /// Expands a given value, returning an object that the value represents
         /// </summary>
         /// <param name="obj">The object to expand</param>
+        /// <param name="copyTuples">Whether to clone tuples when the provided value is an ITuple type</param>
         /// <returns>The value the object represents</returns>
         private object ExpandValue(object obj, bool copyTuples = false)
         {
@@ -1367,10 +1390,12 @@ namespace ZScript.Runtime.Execution
         CheckType,
         /// <summary>Performs a null check with the value on top of the stack, raising a runtime exception if the value is null</summary>
         CheckNull,
-        /// <summary>Performs an unwrap operation on the optional contained on the top of the stack, pushing the wrapped value back on top of the stack</summary>
+        /// <summary>Performs an unwrap operation on the optional contained on the top of the stack, pushing the unwrapped value back on top of the stack</summary>
         Unwrap,
+        /// <summary>Performs a wrap operation on the value contained on the top of the stack, pushing the wrapped value back on top of the stack</summary>
+        Wrap,
         /// <summary>
-        /// Performs a safe unwrap operation on the optional contained on the top of the stack, pushing the wrapped value,
+        /// Performs a safe unwrap operation on the optional contained on the top of the stack, pushing the unwrapped value,
         /// if it existed, and a boolean value stating whether the optional contained a value.
         /// </summary>
         SafeUnwrap,

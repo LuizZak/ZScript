@@ -621,7 +621,7 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitExpression(context.expression(0));
 
             // Add null-check token
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckNull));
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Unwrap));
 
             if (context.valueAccess() != null)
             {
@@ -796,7 +796,13 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitNullCoalescingExpression(ZScriptParser.ExpressionContext context)
         {
-            // Null coalescing expression: a ?? b
+            // Null coalescing expression: a ?: b
+
+            // 0: a
+            // 1: SafeUnwrap
+            // 2: JumpIfTrue 4
+            // 3: b
+            // 4: ...
 
             // Constant propagation
             if (context.expression(0).IsConstant)
@@ -817,19 +823,16 @@ namespace ZScript.CodeGeneration.Tokenization
 
             // Prepare jumps
             var target = new JumpTargetToken();
-            var jumpT = new JumpToken(target, true, true, true, true);
+            var jumpT = new JumpToken(target, true);
 
             // 'a'
             VisitExpression(context.expression(0));
 
-            // Duplicate
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+            // Safe unwrap
+            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrap));
 
-            // Add null verify jump
+            // Jump to after null verify
             _tokens.Add(jumpT);
-
-            // Pop 'a'
-            _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Pop));
 
             // 'b'
             VisitExpression(context.expression(1));
@@ -900,15 +903,14 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             _isRootMember = false;
             // Verify null conditionality
-            JumpTargetToken endTarget = null;
+            var endTarget = new JumpTargetToken();;
 
-            if (context.nullable != null)
+            for (int i = 0; i < context.T_NULL_CONDITIONAL().Length; i++)
             {
-                endTarget = new JumpTargetToken();
-                // Add the duplicate token
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Duplicate));
+                // Add the safe unwrap
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrap));
                 // Add the null-check jump
-                _tokens.Add(new JumpToken(endTarget, true, false, true, true));
+                _tokens.Add(new JumpToken(endTarget, true, false));
             }
 
             if (context.functionCall() != null)

@@ -40,11 +40,23 @@ namespace ZScriptTests.Elements
             Optional<long> valuedOpt = 0;
             Optional<long> emptyOpt = Optional<long>.Empty;
 
-            Assert.IsTrue(valuedOpt.HasValue);
             Assert.IsTrue(valuedOpt.HasInnerValue);
-
-            Assert.IsFalse(emptyOpt.HasValue);
             Assert.IsFalse(emptyOpt.HasInnerValue);
+        }
+
+        /// <summary>
+        /// Tests the creation of a few optional objects
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalEquality()
+        {
+            Optional<long> optLong = 0;
+            Optional<Optional<long>> optOptLong1 = new Optional<Optional<long>>(0L);
+            Optional<Optional<long>> optOptLong2 = new Optional<Optional<long>>();
+
+            Assert.AreEqual(optLong, optOptLong1);
+            Assert.AreNotEqual(optLong, optOptLong2);
+            Assert.AreNotEqual(optOptLong1, optOptLong2);
         }
 
         /// <summary>
@@ -54,9 +66,29 @@ namespace ZScriptTests.Elements
         public void TestOptionalValue()
         {
             Optional<long> valuedOpt = 1L;
+            Optional<long> emptyOpt = Optional<long>.Empty;
 
             Assert.AreEqual(1L, valuedOpt.Value);
             Assert.AreEqual(1L, valuedOpt.InnerValue);
+
+            Assert.IsTrue(valuedOpt.Equals(1L));
+            Assert.IsFalse(emptyOpt.Equals(1L));
+        }
+
+        /// <summary>
+        /// Tests the manipulation of chained optional objects
+        /// </summary>
+        [TestMethod]
+        public void TestChainedOptionalManipulatin()
+        {
+            Optional<Optional<long>> optOptLong1 = new Optional<Optional<long>>(0L);
+            Optional<Optional<long>> optOptLong2 = new Optional<Optional<long>>(new Optional<long>());
+
+            Assert.IsTrue(optOptLong1.HasInnerValue);
+            Assert.IsTrue(optOptLong1.HasBaseInnerValue);
+
+            Assert.IsTrue(optOptLong2.HasInnerValue);
+            Assert.IsFalse(optOptLong2.HasBaseInnerValue);
         }
 
         /// <summary>
@@ -95,6 +127,18 @@ namespace ZScriptTests.Elements
 
             long value = (long)valuedOpt;
             Assert.AreEqual(1L, value);
+        }
+
+        /// <summary>
+        /// Tests exception raising when fetching the value of a optional chain with the last inner optional having no value
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void TestEmptyChainedOptionalValue()
+        {
+            Optional<Optional<long>> emptyOpt = new Optional<Optional<long>>(new Optional<long>());
+
+            Assert.AreEqual(0, emptyOpt.BaseInnerValue);
         }
     }
 }

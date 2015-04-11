@@ -37,6 +37,43 @@ namespace ZScriptTests.Runtime.Execution
     public class FunctionVmOptionalTests
     {
         /// <summary>
+        /// Tests wrapping of values into optionals using the Wrap instruction
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalWrap()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken(10L),
+                TokenFactory.CreateInstructionToken(VmInstruction.Wrap, typeof(Optional<long>)),
+                TokenFactory.CreateBoxedValueToken((Optional<long>)10L),
+                TokenFactory.CreateInstructionToken(VmInstruction.Wrap, typeof(Optional<Optional<long>>)),
+                TokenFactory.CreateBoxedValueToken(null),
+                TokenFactory.CreateInstructionToken(VmInstruction.Wrap, typeof(Optional<bool>)),
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            var wrappedBool = (Optional<bool>)functionVm.Stack.Pop();
+            Assert.IsFalse(wrappedBool.HasInnerValue);
+
+            var wrappedWrappedLong = (Optional<Optional<long>>)functionVm.Stack.Pop();
+            Assert.IsTrue(wrappedWrappedLong.HasInnerValue);
+            Assert.AreEqual(new Optional<Optional<long>>(10L), wrappedWrappedLong);
+
+            var wrappedLong = (Optional<long>)functionVm.Stack.Pop();
+            Assert.IsTrue(wrappedLong.HasInnerValue);
+            Assert.AreEqual(new Optional<long>(10L), wrappedLong);
+        }
+
+        /// <summary>
         /// Tests unwrapping of optional values using the Unwrap instruction
         /// </summary>
         [TestMethod]

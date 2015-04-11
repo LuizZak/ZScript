@@ -356,12 +356,14 @@ namespace ZScript.CodeGeneration.Analysis
 
                 if (expT is OptionalTypeDef)
                 {
-                    expT = ((OptionalTypeDef)expT).BaseWrappedType;
+                    //expT = ((OptionalTypeDef)expT).BaseWrappedType;
                 }
 
                 definition.ValueExpression.ExpressionContext.ExpectedType = expT;
                 definition.ValueExpression.ExpressionContext.HasTypeBeenEvaluated = false;
                 valueType = _typeResolver.ResolveExpression(definition.ValueExpression.ExpressionContext);
+                var constantResolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
+                constantResolver.ExpandConstants(definition.ValueExpression.ExpressionContext);
             }
 
             if (!definition.HasType)
