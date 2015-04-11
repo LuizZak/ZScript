@@ -268,6 +268,7 @@ namespace ZScript.CodeGeneration
             classExpander.Expand();
 
             _nativeTypeBuilder.ClearCache();
+            _nativeTypeBuilder.GenerationContext = context;
 
             // Walk the source trees, now that the definitions were collected
             ParseTreeWalker walker = new ParseTreeWalker();
@@ -897,11 +898,6 @@ namespace ZScript.CodeGeneration
         private class NativeTypeBuilder : INativeTypeSource
         {
             /// <summary>
-            /// The generation context for this native type builder
-            /// </summary>
-            private RuntimeGenerationContext _generationContext;
-
-            /// <summary>
             /// The type building context for the native type builder
             /// </summary>
             private readonly TypeBuildingContext _typeBuildingContext;
@@ -935,11 +931,16 @@ namespace ZScript.CodeGeneration
             }
 
             /// <summary>
+            /// Gets or sets the generation context for this native type builder
+            /// </summary>
+            public RuntimeGenerationContext GenerationContext { get; set; }
+
+            /// <summary>
             /// Creates the types on the runtime generation context provided on this class native type source
             /// </summary>
             public void CreateTypes(RuntimeGenerationContext generationContext)
             {
-                _generationContext = generationContext;
+                GenerationContext = generationContext;
 
                 ClearCache();
 
@@ -985,7 +986,7 @@ namespace ZScript.CodeGeneration
                 if (classDef != null) return TypeForClassType(classDef);
 
                 var tupleDef = type as TupleTypeDef;
-                if (tupleDef != null) return _tupleTypeBuilder.ConstructType(_generationContext.TypeProvider, tupleDef);
+                if (tupleDef != null) return _tupleTypeBuilder.ConstructType(GenerationContext.TypeProvider, tupleDef);
 
                 return null;
             }
