@@ -76,7 +76,7 @@ namespace ZScriptTests.Utils
                         jt1.ConsumesStack != jt2.ConsumesStack ||
                         expList.IndexOfReference(jt1.TargetToken) != actualList.IndexOfReference(jt2.TargetToken))
                     {
-                        throw new Exception(message + "; Jump tokens at index " + i + " do not have the same configuration: expected " + t1 + " actual: " + t2);
+                        throw new Exception(message + "; Jump tokens at index " + i + " do not have the same configuration. Expected:\n" + t1 + "\nActual:\n" + t2);
                     }
                 }
 
@@ -85,11 +85,11 @@ namespace ZScriptTests.Utils
                 if (tt1 != null && tt2 != null)
                 {
                     if (!tt1.Equals(tt2))
-                        throw new Exception(message + "; Tokens at index " + i + " have different values: expected " + t1 + " actual: " + t2 + " (watch out for int->long conversions in numeric atoms!)");
+                        throw new Exception(message + "; Tokens at index " + i + " have different values. Expected:\n" + t1 + "\nActual:\n" + t2 + " (watch out for int->long conversions in numeric atoms!)");
                 }
 
                 if (!t1.Equals(t2))
-                    throw new Exception(message + "; Tokens at index " + i + " have different values: expected " + t1 + " actual: " + t2 + " (watch out for int->long conversions in numeric atoms!)");
+                    throw new Exception(message + "; Tokens at index " + i + " have different values. Expected:\n" + t1 + "\nActual:\n" + t2 + " (watch out for int->long conversions in numeric atoms!)");
             }
 
             if (expList.Count != actualList.Count)

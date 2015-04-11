@@ -518,7 +518,12 @@ namespace ZScript.Runtime.Execution
 
                 // Safe unwrap
                 case VmInstruction.SafeUnwrap:
-                    PerformSafeUnwrap();
+                    PerformSafeUnwrap(false);
+                    break;
+
+                // Safe unwrap nullified
+                case VmInstruction.SafeUnwrapNullified:
+                    PerformSafeUnwrap(true);
                     break;
 
                 default:
@@ -965,12 +970,15 @@ namespace ZScript.Runtime.Execution
         /// The contained value is pushed on the stack followed by a boolean value stating whether the unwrapping was successful.
         /// Raises an exception, if the value on top of the stack is not an optional value
         /// </summary>
-        void PerformSafeUnwrap()
+        /// <param name="pushNull">Whether to push null if no value is contained within the optional</param>
+        void PerformSafeUnwrap(bool pushNull)
         {
             var opt = (IOptional)PopValueImplicit();
 
             if(opt.HasInnerValue)
                 _stack.Push(opt.InnerValue);
+            else if (pushNull)
+                _stack.Push(null);
 
             _stack.Push(opt.HasInnerValue);
         }
@@ -1397,8 +1405,15 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs a safe unwrap operation on the optional contained on the top of the stack, pushing the unwrapped value,
         /// if it existed, and a boolean value stating whether the optional contained a value.
+        /// If the value does not exists, only the boolean flag is pushed
         /// </summary>
         SafeUnwrap,
+        /// <summary>
+        /// Performs a safe unwrap operation on the optional contained on the top of the stack, pushing the unwrapped value,
+        /// if it existed, and a boolean value stating whether the optional contained a value.
+        /// If the value does not exists, a null value is pushed instead
+        /// </summary>
+        SafeUnwrapNullified,
         
         /// <summary>Logical AND (&&) operation</summary>
         LogicalAnd,

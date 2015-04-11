@@ -72,7 +72,7 @@ namespace ZScriptTests.Runtime
             runtime.CallFunction("funca");
 
             // Assert the correct call was made
-            Assert.IsNull(memory.GetVariable("a"), "The member fetch did not occur as expected");
+            Assert.IsFalse(((Optional<object>)memory.GetVariable("a")).HasInnerValue);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestMemberCompoundAssignment()
         {
-            const string input = "var a:any?; func funca(){ a = { x:10 }; a!.x += 10; }";
+            const string input = "var a:any = { x: 10 }; func funca(){ a = { x:10 }; a.x += 10; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

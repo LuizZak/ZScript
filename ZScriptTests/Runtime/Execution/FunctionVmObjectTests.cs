@@ -65,8 +65,8 @@ namespace ZScriptTests.Runtime.Execution
 
             var obj = (ZObject)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10, obj["abc"], "The object was not created successfully");
-            Assert.AreEqual(5, obj["def"], "The object was not created successfully");
+            Assert.AreEqual(new Optional<object>(10), obj["abc"], "The object was not created successfully");
+            Assert.AreEqual(new Optional<object>(5), obj["def"], "The object was not created successfully");
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace ZScriptTests.Runtime.Execution
 
             var obj = (ZObject)functionVm.Stack.Pop();
 
-            Assert.AreEqual(10, obj["abc"], "The object was not created successfully");
-            Assert.AreEqual(12, obj["def"], "The object was not created successfully");
+            Assert.AreEqual(new Optional<object>(10), obj["abc"], "The object was not created successfully");
+            Assert.AreEqual(new Optional<object>(12), obj["def"], "The object was not created successfully");
         }
 
         #endregion
@@ -139,7 +139,7 @@ namespace ZScriptTests.Runtime.Execution
 
             var obj = (ZObjectMember)functionVm.Stack.Pop();
 
-            Assert.AreEqual(5, obj.GetValue(), "The object member wrapper was not created successfully");
+            Assert.AreEqual(new Optional<object>(5), obj.GetValue(), "The object member wrapper was not created successfully");
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace ZScriptTests.Runtime.Execution
 
             functionVm.Execute();
 
-            Assert.AreEqual(5, ((ZObject)context.Memory.GetVariable("a"))["def"], "The Set operation on the ZObjectMember failed");
+            Assert.AreEqual(new Optional<object>(5), ((ZObject)context.Memory.GetVariable("a"))["def"], "The Set operation on the ZObjectMember failed");
         }
 
         #endregion

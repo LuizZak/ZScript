@@ -291,7 +291,7 @@ namespace ZScript.CodeGeneration.Tokenization
             if (context.unwrap != null)
             {
                 // Add null-check token
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CheckNull));
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Unwrap));
             }
 
             if (context.functionCall() != null)
@@ -901,6 +901,8 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitValueAccess(ZScriptParser.ValueAccessContext context)
         {
+            bool hasUnwrap = context.T_NULL_CONDITIONAL().Length > 0;
+
             _isRootMember = false;
             // Verify null conditionality
             var endTarget = new JumpTargetToken();;
@@ -908,7 +910,7 @@ namespace ZScript.CodeGeneration.Tokenization
             for (int i = 0; i < context.T_NULL_CONDITIONAL().Length; i++)
             {
                 // Add the safe unwrap
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrap));
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified));
                 // Add the null-check jump
                 _tokens.Add(new JumpToken(endTarget, true, false));
             }
@@ -934,8 +936,10 @@ namespace ZScript.CodeGeneration.Tokenization
                 VisitValueAccess(context.valueAccess());
             }
 
-            if(endTarget != null)
+            if (hasUnwrap)
+            {
                 _tokens.Add(endTarget);
+            }
         }
 
         private void VisitFieldAccess(ZScriptParser.FieldAccessContext context, bool functionCall)

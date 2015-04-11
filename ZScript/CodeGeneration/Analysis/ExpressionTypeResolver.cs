@@ -891,9 +891,14 @@ namespace ZScript.CodeGeneration.Analysis
         private void ResolveFieldAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.FieldAccessContext context, ref TypeDef resType)
         {
             // Object and 'any' types always resolve to 'any'
-            if (leftValue == _generationContext.TypeProvider.ObjectType() || leftValue == _generationContext.TypeProvider.AnyType())
+            if (leftValue == TypeProvider.ObjectType())
             {
-                resType = _generationContext.TypeProvider.AnyType();
+                resType = TypeProvider.OptionalTypeForType(TypeProvider.AnyType());
+                return;
+            }
+            if (leftValue == TypeProvider.AnyType())
+            {
+                resType = TypeProvider.AnyType();
                 return;
             }
 
@@ -1246,6 +1251,16 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public ObjectTypeDef ResolveObjectLiteral(ZScriptParser.ObjectLiteralContext context)
         {
+            var entry = context.objectEntryList();
+
+            if (entry != null)
+            {
+                foreach (var def in entry.objectEntryDefinition())
+                {
+                    ResolveExpression(def.expression());
+                }
+            }
+
             return TypeProvider.ObjectType();
         }
 

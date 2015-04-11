@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using System.Reflection;
+using System.Runtime.Serialization;
 using ZScript.Elements;
 using ZScript.Runtime.Typing.Elements;
 
@@ -128,15 +129,15 @@ namespace ZScript.Runtime.Typing
             if (value == null)
             {
                 // Optional type
-                if (newType.GetInterface("IOptional") != null)
+                if (typeof(IOptional).IsAssignableFrom(newType))
                 {
-                    return Activator.CreateInstance(newType);
+                    return FormatterServices.GetUninitializedObject(newType);
                 }
 
                 if (newType.IsValueType)
                 {
                     if (DefaultValueForNullValueType)
-                        return Activator.CreateInstance(newType);
+                        return Activator.CreateInstance(newType, false);
 
                     throw new Exception("Cannot convert 'null' to value type " + newType);
                 }
@@ -149,10 +150,11 @@ namespace ZScript.Runtime.Typing
                 return value;
 
             // Optional type
-            if (newType.GetInterface("IOptional") != null)
+            if (typeof(IOptional).IsAssignableFrom(newType))
             {
                 var innerType = newType.GetGenericArguments()[0];
-                return Activator.CreateInstance(newType, CastObject(value, innerType));
+                var constructor = newType.GetConstructors()[0];
+                return constructor.Invoke(new[] { CastObject(value, innerType) });
             }
 
             // No casting necessary

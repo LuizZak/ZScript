@@ -129,6 +129,35 @@ namespace ZScriptTests.Runtime.Execution
         }
 
         /// <summary>
+        /// Tests SafeUnwrapNullified instructions on optional values
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalSafeUnwrapNullified()
+        {
+            // Create the set of tokens
+            IntermediaryTokenList t = new IntermediaryTokenList
+            {
+                TokenFactory.CreateBoxedValueToken((Optional<long>)10L),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
+                TokenFactory.CreateBoxedValueToken(Optional<long>.Empty),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified)
+            };
+
+            var tokenList = new TokenList(t);
+            var memory = new Memory();
+            var context = new VmContext(memory, null); // ZRuntime can be null, as long as we don't try to call a function
+
+            var functionVm = new FunctionVM(tokenList, context);
+
+            functionVm.Execute();
+
+            Assert.AreEqual(false, functionVm.Stack.Pop());
+            Assert.AreEqual(null, functionVm.Stack.Pop());
+            Assert.AreEqual(true, functionVm.Stack.Pop());
+            Assert.AreEqual(10L, functionVm.Stack.Pop());
+        }
+
+        /// <summary>
         /// Tests exception raising when trying to unwrap empty optional values
         /// </summary>
         [TestMethod]

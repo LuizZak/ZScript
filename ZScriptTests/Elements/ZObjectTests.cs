@@ -54,9 +54,9 @@ namespace ZScriptTests.Elements
             obj["a"] = 10;
             obj["b"] = "bcd";
 
-            Assert.AreEqual(10, obj["a"]);
-            Assert.AreEqual("bcd", obj["b"]);
-            Assert.AreEqual(null, obj["c"]);
+            Assert.AreEqual(new Optional<object>(10), obj["a"]);
+            Assert.AreEqual(new Optional<object>("bcd"), obj["b"]);
+            Assert.AreEqual(Optional<object>.Empty, obj["c"]);
         }
 
         /// <summary>

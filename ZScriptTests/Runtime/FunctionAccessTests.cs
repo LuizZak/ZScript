@@ -59,7 +59,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestChainedFunctionCall()
         {
-            const string input = "var a:any?; func funca(){ a = 1234.ToString().IndexOf('4'); }";
+            const string input = "var a:any = 0; func funca(){ a = 1234.ToString().IndexOf('4'); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

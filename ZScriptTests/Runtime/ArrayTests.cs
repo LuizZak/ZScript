@@ -52,7 +52,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestArrayLiteral()
         {
-            const string input = "var a:[int]?; func funca(){ a = [0, 1, 2]; }";
+            const string input = "var a:[int] = []; func funca(){ a = [0, 1, 2]; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -79,7 +79,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestArrayLiteralInit()
         {
-            const string input = "var a:[int]?; func funca(){ a = [int](); }";
+            const string input = "var a:[int] = []; func funca(){ a = [int](); }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();
@@ -101,7 +101,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestNestedArrayLiteral()
         {
-            const string input = "var a:[any]?; func funca(){ a = [[0], 1, 2]; }";
+            const string input = "var a:[any] = []; func funca(){ a = [[0], 1, 2]; }";
 
             // Setup owner call
             var owner = new TestRuntimeOwner();

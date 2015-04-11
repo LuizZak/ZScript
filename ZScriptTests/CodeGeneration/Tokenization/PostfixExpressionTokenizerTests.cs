@@ -473,7 +473,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateVariableToken("a", false),
-                TokenFactory.CreateInstructionToken(VmInstruction.CheckNull),
+                TokenFactory.CreateInstructionToken(VmInstruction.Unwrap),
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
@@ -2265,12 +2265,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar = new JumpTargetToken();
-            var jmpT = new JumpToken(jTar, true, false, true, true);
+            var jmpT = new JumpToken(jTar, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT,
                 TokenFactory.CreateMemberNameToken("Length"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
@@ -2306,20 +2306,20 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar1 = new JumpTargetToken();
-            var jmpT1 = new JumpToken(jTar1, true, false, true, true);
+            var jmpT1 = new JumpToken(jTar1, true, false);
 
             var jTar2 = new JumpTargetToken();
-            var jmpT2 = new JumpToken(jTar2, true, false, true, true);
+            var jmpT2 = new JumpToken(jTar2, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT1,
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT2,
                 TokenFactory.CreateMemberNameToken("c"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
@@ -2356,12 +2356,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar = new JumpTargetToken();
-            var jmpT = new JumpToken(jTar, true, false, true, true);
+            var jmpT = new JumpToken(jTar, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT,
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
@@ -2396,14 +2396,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar = new JumpTargetToken();
-            var jmpT = new JumpToken(jTar, true, false, true, true);
+            var jmpT = new JumpToken(jTar, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT,
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
@@ -2439,21 +2439,21 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar1 = new JumpTargetToken();
-            var jmpT1 = new JumpToken(jTar1, true, false, true, true);
+            var jmpT1 = new JumpToken(jTar1, true, false);
 
             var jTar2 = new JumpTargetToken();
-            var jmpT2 = new JumpToken(jTar2, true, false, true, true);
+            var jmpT2 = new JumpToken(jTar2, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT1,
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetCallable),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT2,
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
@@ -2489,12 +2489,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar = new JumpTargetToken();
-            var jmpT = new JumpToken(jTar, true, false, true, true);
+            var jmpT = new JumpToken(jTar, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT,
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
@@ -2530,7 +2530,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar = new JumpTargetToken();
-            var jmpT = new JumpToken(jTar, true, false, true, true);
+            var jmpT = new JumpToken(jTar, true, false);
 
             var expectedTokens = new List<Token>
             {
@@ -2538,7 +2538,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT,
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
@@ -2574,15 +2574,15 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             // Create the expected list
             var jTar1 = new JumpTargetToken();
-            var jmpT1 = new JumpToken(jTar1, true, false, true, true);
+            var jmpT1 = new JumpToken(jTar1, true, false);
 
             var jTar2 = new JumpTargetToken();
-            var jmpT2 = new JumpToken(jTar2, true, false, true, true);
+            var jmpT2 = new JumpToken(jTar2, true, false);
 
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT1,
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
@@ -2590,7 +2590,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateMemberNameToken("b"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
                 jmpT2,
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
@@ -2637,11 +2637,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 'a'
                 TokenFactory.CreateVariableToken("a", true),
                 // Duplicate for jump check
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrap),
                 // Verify nullability and jump if necessary
-                new JumpToken(jTar, true, true, true, true),
+                new JumpToken(jTar, true),
                 // Pop the duplicated 'a' off the stack
-                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 TokenFactory.CreateVariableToken("b", true),
                 jTar
             };
@@ -2683,20 +2682,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 'a'
                 TokenFactory.CreateVariableToken("a", true),
                 // Duplicate for jump check
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrap),
                 // Verify nullability and jump if necessary
-                new JumpToken(jTar1, true, true, true, true),
-                // Pop the duplicated 'a' off the stack
-                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
+                new JumpToken(jTar1, true),
 
                 // b ?? ...
                 TokenFactory.CreateVariableToken("b", true),
                 // Duplicate for jump check
-                TokenFactory.CreateInstructionToken(VmInstruction.Duplicate),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrap),
                 // Verify nullability and jump if necessary
-                new JumpToken(jTar2, true, true, true, true),
-                // Pop the duplicated 'b' off the stack
-                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
+                new JumpToken(jTar2, true),
 
                 // ... c
                 TokenFactory.CreateVariableToken("c", true),
@@ -2813,7 +2808,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 // 'a'
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.CheckNull),
+                TokenFactory.CreateInstructionToken(VmInstruction.Unwrap),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -2847,7 +2842,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 // 'a'
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.CheckNull),
+                TokenFactory.CreateInstructionToken(VmInstruction.Unwrap),
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call)
             };

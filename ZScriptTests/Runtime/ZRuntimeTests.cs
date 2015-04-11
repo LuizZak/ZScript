@@ -247,7 +247,7 @@ namespace ZScriptTests.Runtime
             runtime.ExpandGlobalVariables();
 
             Assert.AreEqual(0L, memory.GetVariable("a"), "The global variables where not parsed as expected");
-            Assert.AreEqual(null, memory.GetVariable("b"), "The global variables where not parsed as expected");
+            Assert.AreEqual(Optional<object>.Empty, memory.GetVariable("b"), "The global variables where not parsed as expected");
         }
     }
 }

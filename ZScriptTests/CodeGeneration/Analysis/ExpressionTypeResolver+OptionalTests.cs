@@ -266,7 +266,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var type = resolver.ResolveExpression(parser.expression());
 
             // Compare the result now
-            Assert.AreEqual(provider.OptionalTypeForType(new NativeTypeDef(typeof(int))), type, "Failed to evaluate the result of expression correctly");
+            Assert.AreEqual(provider.AnyType(), type, "Failed to evaluate the result of expression correctly");
 
             container.PrintMessages();
 

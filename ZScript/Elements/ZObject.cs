@@ -41,10 +41,13 @@ namespace ZScript.Elements
             {
                 CheckType(indexer);
 
-                if (!ContainsKey((string)indexer))
-                    return null;
+                object ret;
+                if (TryGetValue((string)indexer, out ret))
+                {
+                    return new Optional<object>(ret);
+                }
 
-                return base[(string)indexer];
+                return Optional<object>.Empty;
             }
             set
             {
