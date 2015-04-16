@@ -123,8 +123,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var exp = parser.expression();
 
             exp.tupleLiteralInit().tupleType().TupleType = tupleType;
-            exp.tupleLiteralInit().functionCall().funcCallArguments().expressionList().expression(0).EvaluatedType = tupleType.InnerTypes[0];
-            exp.tupleLiteralInit().functionCall().funcCallArguments().expressionList().expression(1).EvaluatedType = tupleType.InnerTypes[1];
+            exp.tupleLiteralInit().functionCall().tupleExpression().tupleEntry(0).expression().EvaluatedType = tupleType.InnerTypes[0];
+            exp.tupleLiteralInit().functionCall().tupleExpression().tupleEntry(1).expression().EvaluatedType = tupleType.InnerTypes[1];
 
 
             // Test action

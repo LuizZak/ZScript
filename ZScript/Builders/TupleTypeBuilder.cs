@@ -26,7 +26,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 
 using ZScript.Runtime;
-using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Builders
@@ -54,7 +53,7 @@ namespace ZScript.Builders
         /// <summary>
         /// The set of mapped types for this tuple type builder
         /// </summary>
-        private readonly Dictionary<TupleTypeDef, Type> _mappedTypes;
+        private readonly Dictionary<int, Type> _mappedTypes;
 
         /// <summary>
         /// Initializes a new instance of the TupleTypeBuilder class with a type building context
@@ -64,7 +63,7 @@ namespace ZScript.Builders
         {
             _typeBuildingContext = typeBuildingContext;
 
-            _mappedTypes = new Dictionary<TupleTypeDef, Type>();
+            _mappedTypes = new Dictionary<int, Type>();
         }
 
         /// <summary>
@@ -79,18 +78,20 @@ namespace ZScript.Builders
         /// <summary>
         /// Constructs and returns a type for a given class definition
         /// </summary>
-        /// <param name="typeProvider">The type provider to get the type of the tuple fields to populate</param>
         /// <param name="tuple">The class definition to construct</param>
-        public Type ConstructType(TypeProvider typeProvider, TupleTypeDef tuple)
+        public Type ConstructType(TupleTypeDef tuple)
         {
-            if (_mappedTypes.ContainsKey(tuple))
+            var key = tuple.InnerTypes.Length;
+            Type outTuple;
+            if (_mappedTypes.TryGetValue(key, out outTuple))
             {
-                return _mappedTypes[tuple];
+                return outTuple;
             }
 
             const TypeAttributes attr = TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable;
 
             var typeBuilder = _typeBuildingContext.ModuleBuilder.DefineType("$TUPLE" + (_count++) + TupleNameSuffix, attr);
+            var genericTypes = typeBuilder.DefineGenericParameters(tuple.InnerTypes.Select((it, i) => "T" + (i + 1)).ToArray());
 
             typeBuilder.AddInterfaceImplementation(typeof(ITuple));
 
@@ -98,17 +99,14 @@ namespace ZScript.Builders
             var fields = new FieldBuilder[tuple.InnerTypes.Length];
             for (int i = 0; i < tuple.InnerTypes.Length; i++)
             {
-                var innerType = tuple.InnerTypes[i];
-                var fieldType = typeProvider.NativeTypeForTypeDef(innerType);
-
-                fields[i] = typeBuilder.DefineField("Field" + i, fieldType, FieldAttributes.Public);
+                fields[i] = typeBuilder.DefineField("Field" + i, genericTypes[i], FieldAttributes.Public);
             }
 
-            CreateConstructors(typeProvider, tuple, typeBuilder, fields);
+            CreateConstructors(tuple, typeBuilder, fields);
 
             var tupleType = typeBuilder.CreateType();
 
-            _mappedTypes[tuple] = tupleType;
+            _mappedTypes[key] = tupleType;
 
             return tupleType;
         }
@@ -116,21 +114,21 @@ namespace ZScript.Builders
         /// <summary>
         /// Creates the tuple constructors on a given type builder
         /// </summary>
-        /// <param name="typeProvider">The type provider to get the type of the tuple fields to populate</param>
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
-        private void CreateConstructors(TypeProvider typeProvider, TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        /// <param name="fields">The fields in the tuple type</param>
+        private void CreateConstructors(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
         {
-            CreateFieldConstructor(typeProvider, tuple, builder, fields);
+            CreateFieldConstructor(tuple, builder, fields);
             CreateCopyConstructor(tuple, builder, fields);
         }
 
         /// <summary>
         /// Creates the tuple copy constructor on a given type builder
         /// </summary>
-        /// <param name="typeProvider">The type provider to get the type of the tuple fields to populate</param>
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
+        /// <param name="fields">The fields in the tuple type</param>
         private void CreateCopyConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
         {
             var baseConst = typeof(object).GetConstructor(Type.EmptyTypes);
@@ -156,16 +154,14 @@ namespace ZScript.Builders
         /// <summary>
         /// Creates the tuple field constructor on a given type builder
         /// </summary>
-        /// <param name="typeProvider">The type provider to get the type of the tuple fields to populate</param>
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
-        private void CreateFieldConstructor(TypeProvider typeProvider, TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        /// <param name="fields">The fields in the tuple type</param>
+        private void CreateFieldConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
         {
-            var arguments = tuple.InnerTypes.Select(t => typeProvider.NativeTypeForTypeDef(t)).ToArray();
-
             var baseConst = typeof(object).GetConstructor(Type.EmptyTypes);
 
-            var constructor = builder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, arguments);
+            var constructor = builder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, fields.Select(t => t.FieldType).ToArray());
             var ilGenerator = constructor.GetILGenerator();
 
             ilGenerator.Emit(OpCodes.Ldarg_0);

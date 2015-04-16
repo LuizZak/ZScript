@@ -48,6 +48,11 @@ namespace ZScript.Runtime.Typing.Elements
         public TypeDef[] InnerTypes { get; private set; }
 
         /// <summary>
+        /// Gets or sets the variadic state of the last entry of the tuple.
+        /// </summary>
+        public bool IsLastVariadic { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the TupleTypeDef class
         /// </summary>
         /// <param name="innerTypes">The inner types for the tuple</param>

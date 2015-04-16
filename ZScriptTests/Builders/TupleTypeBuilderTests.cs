@@ -52,7 +52,7 @@ namespace ZScriptTests.Builders
             var tupleBuilder = new TupleTypeBuilder(buildingContext);
             
             // Create the class type
-            var tupleType = tupleBuilder.ConstructType(provider, tuple1);
+            var tupleType = tupleBuilder.ConstructType(tuple1);
 
             Assert.IsFalse(tupleType.IsValueType);
             Assert.IsTrue(tupleType.GetInterfaces().Any(t => t == typeof(ITuple)));
@@ -74,7 +74,7 @@ namespace ZScriptTests.Builders
             var tupleBuilder = new TupleTypeBuilder(buildingContext);
 
             // Create the class type
-            var tupleType = tupleBuilder.ConstructType(provider, tuple1);
+            var tupleType = tupleBuilder.ConstructType(tuple1).MakeGenericType(typeof(long), typeof(double));
 
             var field1 = tupleType.GetField("Field0");
             var field2 = tupleType.GetField("Field1");
@@ -102,8 +102,8 @@ namespace ZScriptTests.Builders
             var tupleBuilder = new TupleTypeBuilder(buildingContext);
 
             // Create the class type
-            var tupleType = tupleBuilder.ConstructType(provider, tuple1);
-
+            var tupleType = tupleBuilder.ConstructType(tuple1).MakeGenericType(typeof(long), typeof(double));
+            
             var constructor = tupleType.GetConstructor(new[] { typeof(long), typeof(double) });
 
             Assert.IsNotNull(constructor);
@@ -130,13 +130,11 @@ namespace ZScriptTests.Builders
             var tupleBuilder = new TupleTypeBuilder(buildingContext);
 
             // Create the class type
-            var tupleType = tupleBuilder.ConstructType(provider, tuple1);
+            var tupleType = tupleBuilder.ConstructType(tuple1);
 
             var constructor = tupleType.GetConstructor(new[] { tupleType });
 
             Assert.IsNotNull(constructor);
-
-            var parameters = constructor.GetParameters();
         }
 
         /// <summary>
@@ -155,7 +153,7 @@ namespace ZScriptTests.Builders
             var tupleBuilder = new TupleTypeBuilder(buildingContext);
 
             // Create the class type
-            var tupleType = tupleBuilder.ConstructType(provider, tuple1);
+            var tupleType = tupleBuilder.ConstructType(tuple1).MakeGenericType(typeof(long), typeof(double));
 
             var tuple = (ITuple)Activator.CreateInstance(tupleType, 5L, 10.0);
 
@@ -179,8 +177,8 @@ namespace ZScriptTests.Builders
             var tupleBuilder = new TupleTypeBuilder(buildingContext);
 
             // Create the class type
-            var tupleType = tupleBuilder.ConstructType(provider, tupleTypeDef);
-
+            var tupleType = tupleBuilder.ConstructType(tupleTypeDef).MakeGenericType(typeof(long), typeof(double));
+            var c = tupleType.GetConstructors();
             var tuple1 = (ITuple)Activator.CreateInstance(tupleType, 5L, 10.0);
             var tuple2 = (ITuple)Activator.CreateInstance(tupleType, tuple1);
 
@@ -189,6 +187,37 @@ namespace ZScriptTests.Builders
 
             Assert.AreEqual(5L, tupleType.GetField("Field0").GetValue(tuple2));
             Assert.AreEqual(10.0, tupleType.GetField("Field1").GetValue(tuple2));
+        }
+
+        /// <summary>
+        /// Tests that a create tuple has a nested tuple within
+        /// </summary>
+        [TestMethod]
+        public void TestCreateNestedTuple()
+        {
+            var provider = new TypeProvider();
+
+            var tuple1 = provider.TupleForTypes(provider.IntegerType(), provider.TupleForTypes(provider.IntegerType(), provider.FloatType()));
+
+            // Boilerplate
+            var buildingContext = TypeBuildingContext.CreateBuilderContext("TestAssembly");
+
+            var tupleBuilder = new TupleTypeBuilder(buildingContext);
+
+            // Create the class type
+            var tupleType = tupleBuilder.ConstructType(tuple1);
+
+            var nestedTuple = tupleType.MakeGenericType(typeof(long), typeof(double));
+            tupleType = tupleType.MakeGenericType(typeof(long), nestedTuple);
+
+            var field1 = tupleType.GetField("Field0");
+            var field2 = tupleType.GetField("Field1");
+
+            Assert.IsNotNull(field1);
+            Assert.IsNotNull(field2);
+
+            Assert.AreEqual(typeof(long), field1.FieldType);
+            Assert.AreEqual(nestedTuple, field2.FieldType);
         }
     }
 }

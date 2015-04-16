@@ -605,7 +605,9 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitTypeName(context.typeName());
 
             // Add the function call
-            VisitFunctionCallArguments(context.funcCallArguments());
+            VisitTupleEntries(context.tupleExpression());
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(context.tupleExpression().tupleEntry().Length));
 
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.New));
         }
@@ -651,13 +653,21 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitTupleExpression(ZScriptParser.TupleExpressionContext context)
         {
+            if (!VisitTupleEntries(context)) return;
+
+            // Tuple creation instruction
+            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.TupleType));
+        }
+
+        private bool VisitTupleEntries(ZScriptParser.TupleExpressionContext context)
+        {
             var entries = context.tupleEntry();
 
             // Simplified tuple (parenthesized expression): Just tokenize the first expression and leave
             if (entries.Length == 1)
             {
                 VisitExpression(entries[0].expression());
-                return;
+                return false;
             }
 
             // Tokenize the expressions
@@ -666,8 +676,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 VisitExpression(entry.expression());
             }
 
-            // Tuple creation instruction
-            _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.TupleType));
+            return true;
         }
 
         private void VisitTupleAccess(ZScriptParser.TupleAccessContext context)
@@ -987,14 +996,11 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitFunctionCall(ZScriptParser.FunctionCallContext context)
         {
-            VisitFunctionCallArguments(context.funcCallArguments());
+            VisitTupleEntries(context.tupleExpression());
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(context.tupleExpression().tupleEntry().Length));
 
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Call));
-        }
-
-        private void VisitFunctionCallArguments(ZScriptParser.FuncCallArgumentsContext args)
-        {
-            VisitExpressionList(args.expressionList());
         }
 
         #endregion
@@ -1136,24 +1142,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitTupleLiteralInit(ZScriptParser.TupleLiteralInitContext context)
         {
-            // No entries to process
-            if (context.functionCall().funcCallArguments().expressionList() == null)
-                return;
-
-            var expressions = context.functionCall().funcCallArguments().expressionList().expression();
-
-            // Simplified tuple (parenthesized expression): Just tokenize the first expression and leave
-            if (expressions.Length == 1)
-            {
-                VisitExpression(expressions[0]);
-                return;
-            }
-
-            // Tokenize the expressions
-            foreach (var exp in expressions)
-            {
-                VisitExpression(exp);
-            }
+            if (!VisitTupleEntries(context.functionCall().tupleExpression())) return;
 
             // Tuple creation instruction
             _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.tupleType().TupleType));

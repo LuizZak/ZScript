@@ -21,6 +21,7 @@
 using System;
 
 using ZScript.Elements;
+using ZScript.Runtime;
 
 namespace ZScript.CodeGeneration.Tokenization.Helpers
 {
@@ -51,6 +52,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <exception cref="Exception">A type context could not be converted to an appropriate type</exception>
         public void ExpandInList(TokenList tokenList)
         {
+            // TODO: Deal with generic types during type expanding
             var tokens = tokenList.Tokens;
 
             for (int i = 0; i < tokens.Length; i++)
@@ -77,9 +79,15 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     typeDef = _context.ContextTypeProvider.TypeForContext(typedToken.TypeContext);
                 }
 
-                Type type = _context.TypeProvider.NativeTypeForTypeDef(typeDef, true);
+                var type = _context.TypeProvider.NativeTypeForTypeDef(typeDef, true);
                 if (type == null)
                     throw new Exception("Could not expand type token " + typedToken);
+
+                // Tuple expanding
+                if (typeof(ITuple).IsAssignableFrom(type))
+                {
+                    
+                }
 
                 // Replace the token
                 tokens[i] = new Token(typedToken.Type, type, typedToken.Instruction);

@@ -79,7 +79,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         [TestMethod]
         public void TestCastedFloatResolving()
         {
-            const string input = "10.0";
+            const string input = "10";
 
             var parser = TestUtils.CreateParser(input);
 
@@ -96,14 +96,14 @@ namespace ZScriptTests.CodeGeneration.Analysis
             typeResolver.ResolveExpression(expression);
 
             // Implicitly set it as a integer, and have it converted
-            expression.ImplicitCastType = typeProvider.IntegerType();
+            expression.ImplicitCastType = typeProvider.FloatType();
 
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
             Assert.IsTrue(expression.IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
             Assert.IsTrue(expression.IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(10L, expression.ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.AreEqual(10.0, expression.ConstantValue, "The expander failed to expand the constants correctly");
         }
 
         /// <summary>
@@ -279,18 +279,19 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Generate the expression
             var expression = parser.expression();
 
-            var expressionList = expression.valueAccess().functionCall().funcCallArguments().expressionList();
+            var entryList = expression.valueAccess().functionCall().tupleExpression().tupleEntry();
 
             // Analyze the types
-            expressionList.expression(0).expression(0).EvaluatedType = typeProvider.IntegerType();
-            expressionList.expression(0).expression(1).EvaluatedType = typeProvider.IntegerType();
+            entryList[0].expression().EvaluatedType = typeProvider.IntegerType();
+            entryList[0].expression().expression(0).EvaluatedType = typeProvider.IntegerType();
+            entryList[0].expression().expression(1).EvaluatedType = typeProvider.IntegerType();
 
             // Resolve the constants now
             constantResolver.ExpandConstants(expression);
 
-            Assert.IsTrue(expressionList.expression(0).IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
-            Assert.IsTrue(expressionList.expression(0).IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
-            Assert.AreEqual(21L, expressionList.expression(0).ConstantValue, "The expander failed to expand the constants correctly");
+            Assert.IsTrue(entryList[0].expression().IsConstant, "The expander failed to modify the 'IsConstant' flag on the expression context");
+            Assert.IsTrue(entryList[0].expression().IsConstantPrimitive, "The expander failed to modify the 'IsConstantPrimitive' flag on the expression context");
+            Assert.AreEqual(21L, entryList[0].expression().ConstantValue, "The expander failed to expand the constants correctly");
         }
 
         /// <summary>

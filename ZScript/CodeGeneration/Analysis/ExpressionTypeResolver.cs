@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration.Definitions;
@@ -353,6 +353,8 @@ namespace ZScript.CodeGeneration.Analysis
             var typeName = context.typeName().GetText();
             var type =  TypeProvider.TypeNamed(typeName);
 
+            ResolveTupleExpression(context.tupleExpression(), false);
+
             if (type == null)
             {
                 var message = "Unknown type name '" + typeName + "'";
@@ -527,16 +529,23 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the type of a given tuple expression
         /// </summary>
         /// <param name="context">The context containing the tuple to resolve</param>
+        /// <param name="collapseSimpleExpression">
+        /// Whether to collapse single-entry tuples and return the type of the inner expression. If this value is true, passing a tuple with 0 entries
+        /// returns a Void type, and passing a tuple with 1 type returns a TypeDef for the contained expression.
+        /// </param>
         /// <returns>The type for the tuple expression</returns>
-        public TypeDef ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
+        public TypeDef ResolveTupleExpression(ZScriptParser.TupleExpressionContext context, bool collapseSimpleExpression = true)
         {
             var expectedTuple = context.ExpectedType;
             var entries = context.tupleEntry();
             
             // Single tuple: return inner type
-            if (entries.Length == 1)
+            if (collapseSimpleExpression)
             {
-                return ResolveExpression(entries[0].expression());
+                if (entries.Length == 0)
+                    return TypeProvider.VoidType();
+                if (entries.Length == 1)
+                    return ResolveExpression(entries[0].expression());
             }
 
             var names = new string[entries.Length];
@@ -951,7 +960,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (callableType != null)
             {
                 // Analyze type of the parameters
-                ResolveFunctionCallArguments(callableType, context.funcCallArguments());
+                ResolveFunctionCallArguments(callableType, context.tupleExpression());
 
                 resType = callableType.ReturnType;
             }
@@ -961,15 +970,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else
             {
-                var exp = context.funcCallArguments().expressionList();
-                if (exp != null)
-                {
-                    // Analyze function arguments manually
-                    foreach (var funcCallArgument in exp.expression())
-                    {
-                        ResolveExpression(funcCallArgument);
-                    }
-                }
+                ResolveTupleExpression(context.tupleExpression());
             }
 
             // Update constant flag
@@ -983,69 +984,66 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="callableType">A callable type used to verify the argument types correctly</param>
         /// <param name="context">The context containing the function call arguments</param>
         /// <returns>An array of types related to the function call</returns>
-        public TypeDef[] ResolveFunctionCallArguments(ICallableTypeDef callableType, ZScriptParser.FuncCallArgumentsContext context)
+        public TypeDef[] ResolveFunctionCallArguments(ICallableTypeDef callableType, ZScriptParser.TupleExpressionContext context)
         {
             // Collect the list of arguments
             var argTypes = new List<TypeDef>();
+            context.ExpectedType = callableType.ParameterTuple;
+            //var type = (TupleTypeDef)ResolveTupleExpression(context, false);
 
-            if (context.expressionList() != null)
+            int argCount = context.tupleEntry().Length;//type.InnerTypes.Length;
+
+            // Whether the count of arguments is mismatched of the expected argument count
+            bool mismatchedCount = false;
+
+            // Verify argument count
+            if (argCount < callableType.RequiredArgumentsCount)
             {
-                int argCount = context.expressionList().expression().Length;
+                var message = "Trying to pass " + argCount + " arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
+                MessageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
+                mismatchedCount = true;
+            }
+            if (argCount > callableType.MaximumArgumentsCount)
+            {
+                var message = "Trying to pass " + argCount + " arguments to callable that accepts at most " + callableType.MaximumArgumentsCount;
+                MessageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
+                mismatchedCount = true;
+            }
 
-                // Whether the count of arguments is mismatched of the expected argument count
-                bool mismatchedCount = false;
+            if (callableType.ParameterInfos.Length > 0)
+            {
+                int ci = 0;
+                var curArgInfo = callableType.ParameterInfos[ci];
+                foreach (var entry in context.tupleEntry())
+                {
+                    var exp = entry.expression();
 
-                // Verify argument count
-                if (argCount < callableType.RequiredArgumentsCount)
-                {
-                    var message = "Trying to pass " + argCount + " arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
-                    MessageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
-                    mismatchedCount = true;
-                }
-                if (argCount > callableType.MaximumArgumentsCount)
-                {
-                    var message = "Trying to pass " + argCount + " arguments to callable that accepts at most " + callableType.MaximumArgumentsCount;
-                    MessageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
-                    mismatchedCount = true;
-                }
+                    // Set expected type
+                    if (!mismatchedCount)
+                        exp.ExpectedType = curArgInfo.RawParameterType;
 
-                if (callableType.ParameterInfos.Length > 0)
-                {
-                    int ci = 0;
-                    var curArgInfo = callableType.ParameterInfos[ci];
-                    foreach (var exp in context.expressionList().expression())
+                    var argType = ResolveExpression(exp);
+                    argTypes.Add(argType);
+
+                    if (mismatchedCount)
+                        continue;
+
+                    // Match the argument types
+                    if (!TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
                     {
-                        // Set expected type
-                        if (!mismatchedCount)
-                            exp.ExpectedType = curArgInfo.RawParameterType;
+                        var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
+                        MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    }
 
-                        var argType = ResolveExpression(exp);
-                        argTypes.Add(argType);
-
-                        if (mismatchedCount)
-                            continue;
-
-                        // Match the argument types
-                        if (!TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
-                        {
-                            var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
-                            MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
-                        }
-
-                        // Jump to the next callable argument information
-                        if (!curArgInfo.IsVariadic && ci < callableType.ParameterInfos.Length - 1)
-                        {
-                            curArgInfo = callableType.ParameterInfos[++ci];
-                        }
+                    // Jump to the next callable argument information
+                    if (!curArgInfo.IsVariadic && ci < callableType.ParameterInfos.Length - 1)
+                    {
+                        curArgInfo = callableType.ParameterInfos[++ci];
                     }
                 }
             }
-            else if (callableType.RequiredArgumentsCount > 0)
-            {
-                var message = "Trying to pass 0 arguments to callable that requires at least " + callableType.RequiredArgumentsCount;
-                MessageContainer.RegisterError(context, message, ErrorCode.TooFewArguments);
-            }
 
+            //return type.InnerTypes;
             return argTypes.ToArray();
         }
 
@@ -1480,7 +1478,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             var tupleType = ResolveTupleType(context.tupleType());
 
-            ResolveFunctionCallArguments(tupleType.GetInitializerSignature(), context.functionCall().funcCallArguments());
+            ResolveFunctionCallArguments(tupleType.GetInitializerSignature(), context.functionCall().tupleExpression());
 
             return tupleType;
         }

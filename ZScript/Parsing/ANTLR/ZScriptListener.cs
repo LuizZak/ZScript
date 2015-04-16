@@ -969,26 +969,6 @@ public interface IZScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitAssignmentOperator([NotNull] ZScriptParser.AssignmentOperatorContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.funcCallArguments"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterFuncCallArguments([NotNull] ZScriptParser.FuncCallArgumentsContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.funcCallArguments"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitFuncCallArguments([NotNull] ZScriptParser.FuncCallArgumentsContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterExpressionList([NotNull] ZScriptParser.ExpressionListContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitExpressionList([NotNull] ZScriptParser.ExpressionListContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.leftValue"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -1078,6 +1058,16 @@ public interface IZScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitMemberName([NotNull] ZScriptParser.MemberNameContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExpressionList([NotNull] ZScriptParser.ExpressionListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExpressionList([NotNull] ZScriptParser.ExpressionListContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayLiteral"/>.
 	/// </summary>

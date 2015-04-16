@@ -64,6 +64,11 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets a tuple that represents the function parameters for this callable type definition
+        /// </summary>
+        public TupleTypeDef ParameterTuple { get; private set; }
+
+        /// <summary>
         /// Gets the information for the parameters of this callable type definition
         /// </summary>
         public CallableParameterInfo[] ParameterInfos
@@ -139,6 +144,8 @@ namespace ZScript.Runtime.Typing.Elements
             _hasVariadic = _parameterInfos.Any(i => i.IsVariadic);
 
             _returnType = returnType;
+
+            ParameterTuple = new TupleTypeDef(_parameterTypes) { IsLastVariadic = _hasVariadic };
             HasReturnType = hasReturnType;
 
             // Count the numer of parameters required

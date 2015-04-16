@@ -408,6 +408,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
 
+            container.PrintMessages();
+
             Assert.AreEqual(0, container.CodeErrors.Length, "Errors where raised when not expected");
         }
 

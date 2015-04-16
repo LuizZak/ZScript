@@ -933,7 +933,7 @@ namespace ZScript.CodeGeneration
             /// <summary>
             /// Gets or sets the generation context for this native type builder
             /// </summary>
-            public RuntimeGenerationContext GenerationContext { get; set; }
+            public RuntimeGenerationContext GenerationContext { private get; set; }
 
             /// <summary>
             /// Creates the types on the runtime generation context provided on this class native type source
@@ -986,7 +986,11 @@ namespace ZScript.CodeGeneration
                 if (classDef != null) return TypeForClassType(classDef);
 
                 var tupleDef = type as TupleTypeDef;
-                if (tupleDef != null) return _tupleTypeBuilder.ConstructType(GenerationContext.TypeProvider, tupleDef);
+                if (tupleDef != null)
+                {
+                    var tuple = _tupleTypeBuilder.ConstructType(tupleDef);
+                    return tuple.MakeGenericType(tupleDef.InnerTypes.Select(t => GenerationContext.TypeProvider.NativeTypeForTypeDef(t, true)).ToArray());
+                }
 
                 return null;
             }

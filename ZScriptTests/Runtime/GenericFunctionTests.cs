@@ -55,7 +55,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestGenericTypeReferencing()
         {
-            const string input = "func funca<T>(){ var a:T? = null; }";
+            const string input = "func funca<T>(){ var b:any = null; var a:T? = b; }";
 
             // Setup owner call
             var generator = TestUtils.CreateGenerator(input);
@@ -74,7 +74,7 @@ namespace ZScriptTests.Runtime
         [TestMethod]
         public void TestGenericReturnType()
         {
-            const string input = "func funca<T>() : T? { var a:T? = null; return a; }";
+            const string input = "func funca<T>() : T? { var b:any = null; var a:T? = b; return a; }";
 
             // Setup owner call
             var generator = TestUtils.CreateGenerator(input);

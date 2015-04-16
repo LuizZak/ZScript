@@ -1161,30 +1161,6 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAssignmentOperator([NotNull] ZScriptParser.AssignmentOperatorContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.funcCallArguments"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterFuncCallArguments([NotNull] ZScriptParser.FuncCallArgumentsContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.funcCallArguments"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitFuncCallArguments([NotNull] ZScriptParser.FuncCallArgumentsContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterExpressionList([NotNull] ZScriptParser.ExpressionListContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitExpressionList([NotNull] ZScriptParser.ExpressionListContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.leftValue"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -1292,6 +1268,18 @@ public partial class ZScriptBaseListener : IZScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMemberName([NotNull] ZScriptParser.MemberNameContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExpressionList([NotNull] ZScriptParser.ExpressionListContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ZScriptParser.expressionList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExpressionList([NotNull] ZScriptParser.ExpressionListContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ZScriptParser.arrayLiteral"/>.
 	/// <para>The default implementation does nothing.</para>

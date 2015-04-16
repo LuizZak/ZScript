@@ -119,7 +119,7 @@ namespace ZScript.CodeGeneration.Analysis
                     var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
 
                     // Verify if any implicit casts are in place
-                    if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && TypeProvider.CanImplicitCast(context.ImplicitCastType, context.EvaluatedType))
+                    if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && TypeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType))
                     {
                         // TODO: Deal with native types that are not present
                         var nativeType = TypeProvider.NativeTypeForTypeDef(context.ImplicitCastType);
@@ -423,11 +423,11 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.valueAccess() != null)
             {
-                if(context.valueAccess().functionCall() != null && context.valueAccess().functionCall().funcCallArguments().expressionList() != null)
+                if(context.valueAccess().functionCall() != null)
                 {
-                    foreach (var exp in context.valueAccess().functionCall().funcCallArguments().expressionList().expression())
+                    foreach (var exp in context.valueAccess().functionCall().tupleExpression().tupleEntry())
                     {
-                        ResolveExpression(exp);
+                        ResolveExpression(exp.expression());
                     }
                 }
                 else if (context.valueAccess().arrayAccess() != null)

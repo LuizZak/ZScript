@@ -49,21 +49,20 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
                 new Token(TokenType.Value, 10L),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple1))
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple1<int,string,long>))
             };
 
             var tokenList = new TokenList(t);
             var memory = new Memory();
             var context = new VmContext(memory, null);
-                // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
 
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(AnonTuple1));
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(AnonTuple1<int, string, long>));
 
-            var tuple = (AnonTuple1)functionVm.Stack.Pop();
+            var tuple = (AnonTuple1<int, string, long>)functionVm.Stack.Pop();
 
             Assert.AreEqual(10, tuple.Field0);
             Assert.AreEqual("abc", tuple.Field1);
@@ -82,7 +81,7 @@ namespace ZScriptTests.Runtime.Execution
             {
                 new Token(TokenType.Value, "abc"),
                 new Token(TokenType.Value, 10L),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple1))
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple1<,,>))
             };
 
             var tokenList = new TokenList(t);
@@ -107,7 +106,7 @@ namespace ZScriptTests.Runtime.Execution
                 new Token(TokenType.Value, 10),
                 new Token(TokenType.Value, "abc"),
                 new Token(TokenType.Value, 10L),
-                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple2))
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateTuple, typeof(AnonTuple2<string,long>))
             };
 
             var tokenList = new TokenList(t);
@@ -116,12 +115,12 @@ namespace ZScriptTests.Runtime.Execution
             // ZRuntime can be null, as long as we don't try to call a function
 
             var functionVm = new FunctionVM(tokenList, context);
-
+            
             functionVm.Execute();
 
-            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(AnonTuple2));
+            Assert.IsInstanceOfType(functionVm.Stack.Peek(), typeof(AnonTuple2<string, long>));
 
-            var array = (AnonTuple2)functionVm.Stack.Pop();
+            var array = (AnonTuple2<string, long>)functionVm.Stack.Pop();
 
             Assert.AreEqual("abc", array.Field0);
             Assert.AreEqual(10L, array.Field1);
@@ -132,13 +131,13 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Anonymous tuple declaration used for inner tests
         /// </summary>
-        protected struct AnonTuple1 : ITuple
+        protected struct AnonTuple1<T1, T2, T3> : ITuple
         {
-            public object Field0;
-            public string Field1;
-            public long Field2;
+            public T1 Field0;
+            public T2 Field1;
+            public T3 Field2;
 
-            public AnonTuple1(object field0, string field1, long field2)
+            public AnonTuple1(T1 field0, T2 field1, T3 field2)
             {
                 Field0 = field0;
                 Field1 = field1;
@@ -149,12 +148,12 @@ namespace ZScriptTests.Runtime.Execution
         /// <summary>
         /// Anonymous tuple declaration used for inner tests
         /// </summary>
-        protected struct AnonTuple2 : ITuple
+        protected struct AnonTuple2<T1, T2> : ITuple
         {
-            public string Field0;
-            public long Field1;
+            public T1 Field0;
+            public T2 Field1;
 
-            public AnonTuple2(string field0, long field1)
+            public AnonTuple2(T1 field0, T2 field1)
             {
                 Field0 = field0;
                 Field1 = field1;

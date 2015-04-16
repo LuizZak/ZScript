@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 namespace ZScript.Runtime.Typing.Elements
 {
     /// <summary>
@@ -29,6 +30,11 @@ namespace ZScript.Runtime.Typing.Elements
         /// Gets the types for the parameters of this callable type definition
         /// </summary>
         TypeDef[] ParameterTypes { get; }
+
+        /// <summary>
+        /// Gets a tuple that represents the function parameters
+        /// </summary>
+        TupleTypeDef ParameterTuple { get; }
 
         /// <summary>
         /// Gets the information for the parameters of this callable type definition

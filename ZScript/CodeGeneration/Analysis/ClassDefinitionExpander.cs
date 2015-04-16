@@ -273,9 +273,9 @@ namespace ZScript.CodeGeneration.Analysis
             if (stmt == null)
                 return -1;
 
-            var expList = stmt.expression().valueAccess().functionCall().funcCallArguments().expressionList();
+            var expList = stmt.expression().valueAccess().functionCall().tupleExpression().tupleEntry();
 
-            return expList == null ? 0 : expList.expression().Length;
+            return expList == null ? 0 : expList.Length;
         }
 
         /// <summary>

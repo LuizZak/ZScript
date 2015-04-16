@@ -199,10 +199,10 @@ equalityOp : '==' | '!=';
 logicalAnd : '&&';
 logicalOr  : '||';
 
-tupleExpression : '(' tupleEntry (',' tupleEntry)* ')';
+tupleExpression : '(' (tupleEntry (',' tupleEntry)*)? ')';
 tupleEntry : (IDENT ':')? expression;
 assignmentExpression : leftValue assignmentOperator (expression | assignmentExpression);
-newExpression : 'new' typeName funcCallArguments;
+newExpression : 'new' typeName tupleExpression;
 closureExpression : (functionArg | functionArguments) returnType? '=>' functionBody;
 
 prefixOperator : '++' | '--';
@@ -211,12 +211,9 @@ postfixOperator : '++' | '--';
 unaryOperator : '-' | '!';
 assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=' | '<<=' | '>>=';
 
-funcCallArguments : '(' expressionList? ')';
-expressionList : expression (',' expression)*;
-
 leftValue : (memberName | 'this') leftValueAccess?;
 leftValueAccess : unwrap='!'? ((functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?) | (tupleAccess leftValueAccess?));
-functionCall : funcCallArguments;
+functionCall : tupleExpression;
 fieldAccess  : '.' memberName;
 tupleAccess  : '.' INT;
 arrayAccess  : '[' expression ']';
@@ -227,6 +224,7 @@ valueAccess : nullable=T_NULL_CONDITIONAL* (tupleAccess | functionCall | fieldAc
 memberName : IDENT;
 
 // Literal values
+expressionList : expression (',' expression)*;
 arrayLiteral : '[' expressionList? ']';
 dictionaryLiteral : '[' dictionaryEntryList ']';
 objectLiteral: '{' objectEntryList? '}';

@@ -714,7 +714,7 @@ namespace ZScript.Runtime.Execution
         void PerformTupleCreation(Token token)
         {
             // Pop the types 
-            var tupleType = (Type)token.TokenObject;
+            var tupleType = ExtractType(token);
 
             // Create the list
             var array = new object[tupleType.GetFields().Length];
@@ -723,6 +723,13 @@ namespace ZScript.Runtime.Execution
             {
                 array[i] = PopValueImplicit(true);
             }
+            
+            if(tupleType.GetGenericArguments().Length == 0)
+            {
+                tupleType = tupleType.MakeGenericType(Type.GetTypeArray(array));
+            }
+
+            var constr = tupleType.GetConstructors();
 
             // Push the array back into the stack
             _stack.Push(Activator.CreateInstance(tupleType, array));
