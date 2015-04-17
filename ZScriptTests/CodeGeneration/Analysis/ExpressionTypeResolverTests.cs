@@ -576,7 +576,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(provider.BooleanType(), expression1.valueAccess().functionCall().tupleExpression().tupleEntry(0).expression().ImplicitCastType);
             Assert.AreEqual(provider.BooleanType(), expression1.valueAccess().functionCall().tupleExpression().tupleEntry(1).expression().ImplicitCastType);
 
-            Assert.AreEqual(provider.ListForType(provider.BooleanType()), expression1.valueAccess().functionCall().tupleExpression().tupleEntry(0).expression().ImplicitCastType);
+            Assert.AreEqual(provider.ListForType(provider.BooleanType()), expression2.valueAccess().functionCall().tupleExpression().tupleEntry(0).expression().ImplicitCastType);
         }
 
         /// <summary>

@@ -680,10 +680,13 @@ namespace ZScript.CodeGeneration.Tokenization
 
                 if (signature != null && i < signature.ParameterInfos.Length)
                 {
-                    if (signature.ParameterInfos[i].IsVariadic && !_context.GenerationContext.TypeProvider.CanImplicitCast(entry.expression().EvaluatedType, signature.ParameterInfos[i].ParameterType))
+                    if (signature.ParameterInfos[i].IsVariadic)
                     {
-                        inVariadic = true;
-                        varCount++;
+                        if (!_context.GenerationContext.TypeProvider.CanImplicitCast(entry.expression().EvaluatedType, signature.ParameterInfos[i].ParameterType))
+                        {
+                            inVariadic = true;
+                            varCount++;
+                        }
                         varType = signature.ParameterInfos[i].RawParameterType;
                     }
                 }
