@@ -332,10 +332,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             if (context.ExpectedType != null)
             {
-                //var def = context.ExpectedType as OptionalTypeDef;
-
                 context.ImplicitCastType = context.ExpectedType;
-                //context.ImplicitCastType = def != null ? def.BaseWrappedType : context.ExpectedType;
             }
 
             context.HasTypeBeenEvaluated = true;
@@ -1049,6 +1046,11 @@ namespace ZScript.CodeGeneration.Analysis
                     if (matchType && curArgInfo.IsVariadic)
                     {
                         variadicMatched = true;
+
+                        // Re-evaluate expression, now that the argument is supposed to be an explicit variadic array
+                        exp.ExpectedType = curArgInfo.ParameterType;
+                        exp.HasTypeBeenEvaluated = false;
+                        ResolveExpression(exp);
                     }
 
                     // Jump to the next callable argument information

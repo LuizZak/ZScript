@@ -551,6 +551,38 @@ namespace ZScriptTests.CodeGeneration.Analysis
         /// Tests callable variadic argument passing
         /// </summary>
         [TestMethod]
+        public void TestCallableVariadicArgumentAsArray()
+        {
+            // Set up the test
+            const string input = "(a:bool...) => { }(true, false);" +
+                                 "(a:bool...) => { }([true, false]);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            var expression1 = parser.statement().expression();
+            var expression2 = parser.statement().expression();
+
+            resolver.ResolveExpression(expression1);
+            resolver.ResolveExpression(expression2);
+
+            container.PrintMessages();
+
+            // Compare the result now
+            Assert.IsFalse(container.HasErrors);
+            Assert.AreEqual(provider.BooleanType(), expression1.valueAccess().functionCall().tupleExpression().tupleEntry(0).expression().ImplicitCastType);
+            Assert.AreEqual(provider.BooleanType(), expression1.valueAccess().functionCall().tupleExpression().tupleEntry(1).expression().ImplicitCastType);
+
+            Assert.AreEqual(provider.ListForType(provider.BooleanType()), expression1.valueAccess().functionCall().tupleExpression().tupleEntry(0).expression().ImplicitCastType);
+        }
+
+        /// <summary>
+        /// Tests callable variadic argument passing
+        /// </summary>
+        [TestMethod]
         public void TestCallableVariadicArgumentPassing()
         {
             // Set up the test
