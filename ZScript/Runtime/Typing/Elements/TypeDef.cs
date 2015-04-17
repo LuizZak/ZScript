@@ -607,7 +607,7 @@ namespace ZScript.Runtime.Typing.Elements
 
             for (int i = 0; i < _parameters.Length; i++)
             {
-                parameters[i] = new CallableTypeDef.CallableParameterInfo(_parameters[i].ParameterType, true, _parameters[i].Optional, _parameters[i].IsVariadic);
+                parameters[i] = new CallableTypeDef.CallableParameterInfo(_parameters[i].ParameterType, true, _parameters[i].Optional, _parameters[i].IsVariadic, _parameters[i].DefaultValue);
             }
 
             return new CallableTypeDef(parameters, _returnType, true);
@@ -672,18 +672,25 @@ namespace ZScript.Runtime.Typing.Elements
         }
 
         /// <summary>
+        /// Gets the default value, in case this is an optional parameter
+        /// </summary>
+        public object DefaultValue { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the ParameterInfo class
         /// </summary>
         /// <param name="name">The name for this parameter</param>
         /// <param name="type">The type signature for this parameter</param>
         /// <param name="isVariadic">Whether the parameter is variadic in nature</param>
         /// <param name="optional">Whether the parameter is optional</param>
-        public ParameterInfo(string name, TypeDef type, bool isVariadic, bool optional)
+        /// <param name="defaultValue">The default value, in case this is an optional parameter</param>
+        public ParameterInfo(string name, TypeDef type, bool isVariadic, bool optional, object defaultValue = null)
         {
             _name = name;
             _type = type;
             _isVariadic = isVariadic;
             _optional = optional;
+            DefaultValue = defaultValue;
         }
     }
 }

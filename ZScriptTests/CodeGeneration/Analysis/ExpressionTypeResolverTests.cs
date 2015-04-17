@@ -509,6 +509,8 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
+            container.PrintMessages();
+
             // Compare the result now
             Assert.AreEqual(3, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to report expected errors about invalid type in arguments");
         }
@@ -538,9 +540,40 @@ namespace ZScriptTests.CodeGeneration.Analysis
             resolver.ResolveExpression(parser.statement().expression());
             resolver.ResolveExpression(parser.statement().expression());
 
+            container.PrintMessages();
+
             // Compare the result now
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooFewArguments),  "Failed to report expected errors about mismatched argument count");
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooManyArguments), "Failed to report expected errors about mismatched argument count");
+        }
+
+        /// <summary>
+        /// Tests callable variadic argument passing
+        /// </summary>
+        [TestMethod]
+        public void TestCallableVariadicArgumentPassing()
+        {
+            // Set up the test
+            const string input = "(a:bool...) => { }();" +
+                                 "(a:bool...) => { }(true, false);" +
+                                 "(a:bool...) => { }([true, false]);" +
+                                 "(a:bool...) => { }([true, false], false);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider));
+
+            // Perform the parsing
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+            resolver.ResolveExpression(parser.statement().expression());
+
+            container.PrintMessages();
+
+            // Compare the result now
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TooManyArguments));
         }
 
         #endregion
@@ -777,7 +810,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             // Compare the result now
             Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[0], "The resolved type did not match the expected type");
-            Assert.AreEqual(provider.IntegerType(), type.ParameterTypes[1], "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.ListForType(provider.IntegerType()), type.ParameterTypes[1], "The resolved type did not match the expected type");
             Assert.AreEqual(true, type.ParameterInfos[1].IsVariadic, "The resolved type did not match the expected type");
         }
 

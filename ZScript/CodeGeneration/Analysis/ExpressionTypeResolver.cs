@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
+
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration.Definitions;
@@ -962,6 +962,8 @@ namespace ZScript.CodeGeneration.Analysis
                 // Analyze type of the parameters
                 ResolveFunctionCallArguments(callableType, context.tupleExpression());
 
+                context.CallableSignature = callableType;
+
                 resType = callableType.ReturnType;
             }
             else if (!leftValue.IsAny)
@@ -1014,8 +1016,16 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 int ci = 0;
                 var curArgInfo = callableType.ParameterInfos[ci];
+                bool variadicMatched = false;
                 foreach (var entry in context.tupleEntry())
                 {
+                    if (variadicMatched)
+                    {
+                        var message = "Trying to pass an argument after a variadic array";
+                        MessageContainer.RegisterError(context, message, ErrorCode.TooManyArguments);
+                        mismatchedCount = true;
+                    }
+
                     var exp = entry.expression();
 
                     // Set expected type
@@ -1029,10 +1039,16 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
 
                     // Match the argument types
-                    if (!TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
+                    var matchType = TypeProvider.CanImplicitCast(argType, curArgInfo.ParameterType);
+                    if (!matchType && !TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
                     {
                         var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
                         MessageContainer.RegisterError(context, message, ErrorCode.InvalidCast);
+                    }
+
+                    if (matchType && curArgInfo.IsVariadic)
+                    {
+                        variadicMatched = true;
                     }
 
                     // Jump to the next callable argument information
@@ -1204,7 +1220,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>The type for the context</returns>
         public TypeDef ResolveFunctionArgument(ZScriptParser.FunctionArgContext context)
         {
-            TypeDef type;
+            var type = TypeProvider.AnyType();
             TypeDef defaultValueType = null;
 
             if (context.compileConstant() != null)
@@ -1230,9 +1246,11 @@ namespace ZScript.CodeGeneration.Analysis
                 // Check default type, instead
                 type = defaultValueType;
             }
-            else
+
+            // Variadic parameter
+            if (context.variadic != null)
             {
-                type = TypeProvider.AnyType();
+                type = TypeProvider.ListForType(type);
             }
 
             return type;

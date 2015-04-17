@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using ZScript.Elements;
@@ -50,7 +51,7 @@ namespace ZScriptTests.Utils
             {
                 foreach (var parameter in parameters.Arguments)
                 {
-                    var varArgs = parameter as Memory.IVarArgs;
+                    var varArgs = parameter as IList;
                     if (varArgs != null)
                     {
                         foreach (var var in varArgs)
@@ -70,7 +71,7 @@ namespace ZScriptTests.Utils
             {
                 foreach (var parameter in parameters.Arguments)
                 {
-                    var varArgs = parameter as Memory.IVarArgs;
+                    var varArgs = parameter as IList;
                     if (varArgs != null)
                     {
                         foreach (var var in varArgs)

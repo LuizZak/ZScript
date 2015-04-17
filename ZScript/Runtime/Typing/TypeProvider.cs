@@ -405,7 +405,6 @@ namespace ZScript.Runtime.Typing
             var ct2 = type2 as CallableTypeDef;
             if (ct1 != null && ct2 != null && ct1.ParameterTypes.Length == ct2.ParameterTypes.Length)
             {
-                // Mismatched variadic typing should
                 for (int i = 0; i < ct1.ParameterInfos.Length; i++)
                 {
                     if(ct1.ParameterInfos[i].IsVariadic != ct2.ParameterInfos[i].IsVariadic)

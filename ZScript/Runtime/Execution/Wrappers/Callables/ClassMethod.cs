@@ -139,7 +139,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
                 var paramType = TypeDefFromNativeType(methodParams[i].ParameterType);
                 bool variadic = Attribute.IsDefined(methodParams[i], typeof(ParamArrayAttribute));
 
-                parameterInfos[i] = new CallableTypeDef.CallableParameterInfo(paramType, true, methodParams[i].HasDefaultValue, variadic);
+                parameterInfos[i] = new CallableTypeDef.CallableParameterInfo(paramType, true, methodParams[i].HasDefaultValue, variadic, methodParams[i].DefaultValue);
             }
 
             return new CallableTypeDef(parameterInfos, returnType, true);

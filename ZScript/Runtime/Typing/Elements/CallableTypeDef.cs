@@ -304,19 +304,26 @@ namespace ZScript.Runtime.Typing.Elements
             }
 
             /// <summary>
+            /// Gets the default value for the parameter
+            /// </summary>
+            public object DefaultValue { get; private set; }
+
+            /// <summary>
             /// Initializes a new instance of the CallableParameterInfo class
             /// </summary>
             /// <param name="parameterType">The type of the parameter</param>
             /// <param name="hasType">Whether this parameter has a type associated with it by the script source</param>
             /// <param name="hasDefault">Whether this parameter has a default value</param>
             /// <param name="isVariadic">Whether this parameter is variadic in nature</param>
-            public CallableParameterInfo(TypeDef parameterType, bool hasType, bool hasDefault, bool isVariadic)
+            /// <param name="defaultValue">The default value for the parameter</param>
+            public CallableParameterInfo(TypeDef parameterType, bool hasType, bool hasDefault, bool isVariadic, object defaultValue = null)
             {
                 _parameterType = parameterType;
                 _hasType = hasType;
                 _hasDefault = hasDefault;
                 _isVariadic = isVariadic;
                 _rawParameterType = _parameterType == null ? null : _isVariadic && _parameterType is ListTypeDef ? ((ListTypeDef)_parameterType).EnclosingType : _parameterType;
+                DefaultValue = defaultValue;
             }
 
             #region Equality members
@@ -325,7 +332,7 @@ namespace ZScript.Runtime.Typing.Elements
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return Equals(_parameterType, other._parameterType) && _isVariadic.Equals(other._isVariadic) && _hasType.Equals(other._hasType) && _hasDefault.Equals(other._hasDefault);
+                return Equals(_parameterType, other._parameterType) && _isVariadic.Equals(other._isVariadic) && _hasType.Equals(other._hasType) && _hasDefault.Equals(other._hasDefault) && Equals(DefaultValue, other.DefaultValue);
             }
 
             public override bool Equals(object obj)
@@ -344,6 +351,7 @@ namespace ZScript.Runtime.Typing.Elements
                     hashCode = (hashCode * 397) ^ _isVariadic.GetHashCode();
                     hashCode = (hashCode * 397) ^ _hasType.GetHashCode();
                     hashCode = (hashCode * 397) ^ _hasDefault.GetHashCode();
+                    hashCode = (hashCode * 397) ^ (DefaultValue != null ? DefaultValue.GetHashCode() : 0);
                     return hashCode;
                 }
             }

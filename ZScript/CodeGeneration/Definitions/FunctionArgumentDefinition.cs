@@ -60,7 +60,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <returns>A callble argument information generated from this function argument</returns>
         public CallableTypeDef.CallableParameterInfo ToArgumentInfo()
         {
-            return new CallableTypeDef.CallableParameterInfo(Type, HasType, HasValue, IsVariadic);
+            return new CallableTypeDef.CallableParameterInfo(Type, HasType, HasValue, IsVariadic, DefaultValue);
         }
 
         /// <summary>

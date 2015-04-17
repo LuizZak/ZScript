@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 using ZScript.CodeGeneration.Tokenization.Helpers;
@@ -659,24 +660,71 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.TupleType));
         }
 
-        private bool VisitTupleEntries(ZScriptParser.TupleExpressionContext context)
+        private bool VisitTupleEntries(ZScriptParser.TupleExpressionContext context, ICallableTypeDef signature = null)
         {
             var entries = context.tupleEntry();
-
-            // Simplified tuple (parenthesized expression): Just tokenize the first expression and leave
-            if (entries.Length == 1)
-            {
-                VisitExpression(entries[0].expression());
-                return false;
-            }
+            bool inVariadic = false;
+            int varCount = 0;
+            var varType = _context.GenerationContext.TypeProvider.AnyType();
 
             // Tokenize the expressions
-            foreach (var entry in entries)
+            for (int i = 0; i < entries.Length; i++)
             {
+                var entry = entries[i];
                 VisitExpression(entry.expression());
+
+                if (inVariadic)
+                {
+                    varCount++;
+                }
+
+                if (signature != null && i < signature.ParameterInfos.Length)
+                {
+                    if (signature.ParameterInfos[i].IsVariadic && !_context.GenerationContext.TypeProvider.CanImplicitCast(entry.expression().EvaluatedType, signature.ParameterInfos[i].ParameterType))
+                    {
+                        inVariadic = true;
+                        varCount++;
+                        varType = signature.ParameterInfos[i].RawParameterType;
+                    }
+                }
             }
 
-            return true;
+            if (inVariadic)
+            {
+                _tokens.Add(TokenFactory.CreateBoxedValueToken(varCount));
+                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(varType, true)));
+            }
+
+            if (signature != null)
+            {
+                int curArgCount = entries.Length;
+                int totalArgCount = signature.ParameterInfos.Length;
+
+                // Handle default parameters
+                for (int i = curArgCount; i < totalArgCount; i++)
+                {
+                    // Parameters must have a default value, if we got here
+                    Contract.Assert(signature.ParameterInfos[i].HasDefault || signature.ParameterInfos[i].IsVariadic);
+
+                    if (signature.ParameterInfos[i].IsVariadic)
+                    {
+                        _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
+                        _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(signature.ParameterInfos[i].RawParameterType, true)));
+                    }
+                    else
+                    {
+                        var defaultValue = signature.ParameterInfos[i].DefaultValue;
+                        if (defaultValue is ZScriptParser.CompileConstantContext)
+                        {
+                            defaultValue = ConstantAtomParser.ParseCompileConstantAtom((ZScriptParser.CompileConstantContext)defaultValue);
+                        }
+
+                        _tokens.Add(TokenFactory.CreateBoxedValueToken(defaultValue));
+                    }
+                }
+            }
+
+            return entries.Length > 1;
         }
 
         private void VisitTupleAccess(ZScriptParser.TupleAccessContext context)
@@ -996,9 +1044,9 @@ namespace ZScript.CodeGeneration.Tokenization
 
         private void VisitFunctionCall(ZScriptParser.FunctionCallContext context)
         {
-            VisitTupleEntries(context.tupleExpression());
+            VisitTupleEntries(context.tupleExpression(), context.CallableSignature);
 
-            _tokens.Add(TokenFactory.CreateBoxedValueToken(context.tupleExpression().tupleEntry().Length));
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(context.CallableSignature.ParameterInfos.Length));
 
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Call));
         }

@@ -132,10 +132,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <returns>A memory block, with the given arguments used as memory spaces</returns>
         public static Memory CreateMemoryFromArgs(ZFunction def, params object[] arguments)
         {
-            Memory mem = new Memory();
-            int i;
-            bool arrayRest = false;
-            FunctionArgument varArg = null;
+            var mem = new Memory();
 
             // Set the default values now
             foreach (var arg in def.Arguments)
@@ -152,51 +149,14 @@ namespace ZScript.Runtime.Execution.VirtualMemory
             }
 
             // Fetch each variable name from the function definition
-            for (i = 0; i < arguments.Length; i++)
+            for (int i = 0; i < arguments.Length; i++)
             {
-                if (def.Arguments[i].IsVariadic)
-                {
-                    arrayRest = true;
-                    varArg = def.Arguments[i];
-                    break;
-                }
-
                 var value = arguments[i];
 
                 if (value is ITuple)
                     value = Activator.CreateInstance(value.GetType(), value);
 
                 mem.SetVariable(def.Arguments[i].Name, TypeOperationProvider.TryCastNumber(value));
-            }
-
-            if (arrayRest && varArg != null)
-            {
-                var rest = VarArgsFromArgument(varArg);
-                for (int j = i; j < arguments.Length; j++)
-                {
-                    // Concat ArrayList arguments
-                    var varArgs = arguments[j] as IVarArgs;
-                    if (varArgs != null)
-                    {
-                        foreach (var obj in varArgs)
-                        {
-                            var value = obj;
-                            if (value is ITuple)
-                                value = Activator.CreateInstance(value.GetType(), value);
-
-                            rest.Add(value);
-                        }
-                    }
-                    else
-                    {
-                        var value = arguments[j];
-                        if (value is ITuple)
-                            value = Activator.CreateInstance(value.GetType(), value);
-
-                        rest.Add(value);
-                    }
-                }
-                mem.SetVariable(def.Arguments[i].Name, rest);
             }
 
             return mem;

@@ -188,13 +188,13 @@ namespace ZScriptTests.Runtime.Execution.VirtualMemory
         {
             var func = new ZFunction("Abc", new TokenList(), new[] { new FunctionArgument("arg1", true) { Type = typeof(long) } }, typeof(void));
 
-            var mem = Memory.CreateMemoryFromArgs(func, 1L, 2L);
+            var mem = Memory.CreateMemoryFromArgs(func, new List<long> { 1L, 2L });
 
             Assert.AreEqual(1, mem.GetCount());
             Assert.IsTrue(mem.HasVariable("arg1"));
-            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(Memory.VarArgsArrayList<long>));
+            Assert.IsInstanceOfType(mem.GetVariable("arg1"), typeof(List<long>));
 
-            var variadic = (Memory.VarArgsArrayList<long>)mem.GetVariable("arg1");
+            var variadic = (List<long>)mem.GetVariable("arg1");
 
             Assert.AreEqual(1L, variadic[0], "Failed to generate expected variadic array");
             Assert.AreEqual(2L, variadic[1], "Failed to generate expected variadic array");

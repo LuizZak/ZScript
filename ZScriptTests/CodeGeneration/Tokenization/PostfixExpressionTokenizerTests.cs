@@ -21,10 +21,11 @@
 
 using System;
 using System.Collections.Generic;
-
+using Antlr4.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.CodeGeneration;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
@@ -130,6 +131,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
+            exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -383,6 +385,11 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var exp = parser.expression();
 
+            exp.leftValue().leftValueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
+            exp.leftValue()
+                .leftValueAccess().leftValueAccess().leftValueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
@@ -423,6 +430,9 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
+
+            exp.leftValue()
+                .leftValueAccess().leftValueAccess().leftValueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2111,6 +2121,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var exp = parser.expression();
 
+            exp.objectAccess().valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
@@ -2146,6 +2158,10 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
+
+            exp.objectAccess().valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+            exp.objectAccess().valueAccess()
+                .valueAccess().valueAccess().functionCall().CallableSignature = new CallableTypeDef(new [] { new CallableTypeDef.CallableParameterInfo(TypeDef.StringType, true, false, false) }, TypeDef.VoidType, true);
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2352,6 +2368,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var exp = parser.expression();
 
+            exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
@@ -2391,6 +2409,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2434,6 +2454,9 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
 
             var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+            exp.valueAccess().valueAccess().valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2835,6 +2858,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             var exp = parser.expression();
 
+            exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
             // Create the expected list
@@ -2858,5 +2883,208 @@ namespace ZScriptTests.CodeGeneration.Tokenization
         }
 
         #endregion
+
+        #region Default/variadic parameter handling
+
+        /// <summary>
+        /// Tests that the postfix generator is generating the correct implicit variadic array creation
+        /// </summary>
+        [TestMethod]
+        public void TestDefaultParameterHandling()
+        {
+            const string input = "defaultInt()";
+            var parser = TestUtils.CreateParser(input);
+            var definitionProvider = new TestFunctionDefinitionProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "defaultInt");
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("defaultInt", true),
+                TokenFactory.CreateBoxedValueToken(5L),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens);
+        }
+
+        /// <summary>
+        /// Tests that the postfix generator is generating the correct implicit variadic array creation
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitArrayInVariadicParameter()
+        {
+            const string input = "variadic1(1, 2, 3)";
+            var parser = TestUtils.CreateParser(input);
+            var definitionProvider = new TestFunctionDefinitionProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "variadic1");
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("variadic1", true),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(3L),
+                TokenFactory.CreateBoxedValueToken(3),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long)),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens);
+        }
+
+        /// <summary>
+        /// Tests that the postfix generator is generating the correct implicit variadic array creation with empty variadic parameters
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitArrayInEmptyVariadicParameter()
+        {
+            const string input = "variadic1()";
+            var parser = TestUtils.CreateParser(input);
+            var definitionProvider = new TestFunctionDefinitionProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "variadic1");
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("variadic1", true),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long)),
+                TokenFactory.CreateBoxedValueToken(1),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens);
+        }
+
+        /// <summary>
+        /// Tests that the postfix generator is generating the correct implicit variadic array creation
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitArrayInLastVariadicParameter()
+        {
+            const string input = "variadic2(1, 2, 3)";
+            var parser = TestUtils.CreateParser(input);
+            var definitionProvider = new TestFunctionDefinitionProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "variadic2");
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("variadic2", true),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(3L),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long)),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// An internal definition provider during tests for default and variadic parameters
+        /// </summary>
+        class TestFunctionDefinitionProvider : IDefinitionTypeProvider
+        {
+            public TypeDef TypeForDefinition(ZScriptParser.MemberNameContext context, string definitionName)
+            {
+                if (definitionName == "defaultInt")
+                {
+                    var param = new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, true, false, 5L);
+
+                    return new CallableTypeDef(new[] { param }, TypeDef.VoidType, true);
+                }
+                if (definitionName == "variadic1")
+                {
+                    var param = new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, true);
+
+                    return new CallableTypeDef(new [] { param }, TypeDef.VoidType, true);
+                }
+                if (definitionName == "variadic2")
+                {
+                    var param1 = new CallableTypeDef.CallableParameterInfo(TypeDef.FloatType, true, false, false);
+                    var param2 = new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, true);
+
+                    return new CallableTypeDef(new[] { param1, param2 }, TypeDef.VoidType, true);
+                }
+
+                return null;
+            }
+
+            public TypeDef TypeForThis(ParserRuleContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public TypeDef TypeForBase(ParserRuleContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool HasBaseTarget(ParserRuleContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

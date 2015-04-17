@@ -52,7 +52,7 @@ namespace ZScriptTests.Utils
         /// <param name="message">The message to display in case the tokens mismatch</param>
         /// <returns>true if the token lists are equivalent, false otherwise</returns>
         /// <exception cref="Exception">The token lists did not match</exception>
-        public static void AssertTokenListEquals(IEnumerable<Token> expected, IEnumerable<Token> actual, string message)
+        public static void AssertTokenListEquals(IEnumerable<Token> expected, IEnumerable<Token> actual, string message = "Failed to generate expected token list")
         {
             var expList = expected.ToList();
             var actualList = actual.ToList();

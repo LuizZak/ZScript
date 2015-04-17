@@ -298,6 +298,17 @@ public partial class ZScriptParser
         public TupleTypeDef TupleType { get; set; }
     }
 
+    /// <summary>
+    /// Provides extensions to the FunctionCallContext for providing function signatures to function call contexts
+    /// </summary>
+    partial class FunctionCallContext
+    {
+        /// <summary>
+        /// Gets or sets the callable signature for the function call context
+        /// </summary>
+        public ICallableTypeDef CallableSignature { get; set; }
+    }
+
     #endregion
 
     #region Statements
