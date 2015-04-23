@@ -2632,6 +2632,41 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
         }
 
+        /// <summary>
+        /// Tests any-valued function calling
+        /// </summary>
+        [TestMethod]
+        public void TestAnyTypedFunctionCall()
+        {
+            const string input = "a(1, 2)";
+            var parser = TestUtils.CreateParser(input);
+            var definitionProvider = new TestDefinitionTypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+
+            var exp = parser.expression();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens);
+        }
+
         #endregion
 
         #region Null coalescing
@@ -2931,11 +2966,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "variadic1(1, 2, 3)";
             var parser = TestUtils.CreateParser(input);
             var definitionProvider = new TestFunctionDefinitionProvider();
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+            var provider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: provider, definitionTypeProvider: definitionProvider)));
 
             var exp = parser.expression();
 
             exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "variadic1");
+            var args = exp.valueAccess().functionCall().tupleExpression().tupleEntry();
+            args[0].expression().EvaluatedType = provider.IntegerType();
+            args[1].expression().EvaluatedType = provider.IntegerType();
+            args[2].expression().EvaluatedType = provider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -3008,11 +3048,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "variadic2(1, 2, 3)";
             var parser = TestUtils.CreateParser(input);
             var definitionProvider = new TestFunctionDefinitionProvider();
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+            var provider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: provider, definitionTypeProvider: definitionProvider)));
 
             var exp = parser.expression();
 
             exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "variadic2");
+            var args = exp.valueAccess().functionCall().tupleExpression().tupleEntry();
+            args[0].expression().EvaluatedType = provider.IntegerType();
+            args[1].expression().EvaluatedType = provider.IntegerType();
+            args[2].expression().EvaluatedType = provider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -3026,6 +3071,51 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(2),
                 TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(long)),
                 TokenFactory.CreateBoxedValueToken(2),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens);
+        }
+
+        /// <summary>
+        /// Tests that the postfix generator is generating the correct implicit variadic array creation with an any-typed variadic argument
+        /// </summary>
+        [TestMethod]
+        public void TestImplicitArrayInLastAnyTypedVariadicParameter()
+        {
+            const string input = "variadic3(1, 2, 3)";
+            var parser = TestUtils.CreateParser(input);
+            var definitionProvider = new TestFunctionDefinitionProvider();
+            var provider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: provider, definitionTypeProvider: definitionProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().functionCall().CallableSignature = (ICallableTypeDef)definitionProvider.TypeForDefinition(exp.memberName(), "variadic3");
+            var args = exp.valueAccess().functionCall().tupleExpression().tupleEntry();
+            args[0].expression().EvaluatedType = provider.IntegerType();
+            args[1].expression().EvaluatedType = provider.IntegerType();
+            args[2].expression().EvaluatedType = provider.IntegerType();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("variadic3", true),
+                TokenFactory.CreateBoxedValueToken(1L),
+                TokenFactory.CreateBoxedValueToken(2L),
+                TokenFactory.CreateBoxedValueToken(3L),
+                TokenFactory.CreateBoxedValueToken(3),
+                TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, typeof(object)),
+                TokenFactory.CreateBoxedValueToken(1),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call)
             };
 
@@ -3056,16 +3146,22 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 }
                 if (definitionName == "variadic1")
                 {
-                    var param = new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, true);
+                    var param = new CallableTypeDef.CallableParameterInfo(new ListTypeDef(TypeDef.IntegerType), true, false, true);
 
                     return new CallableTypeDef(new [] { param }, TypeDef.VoidType, true);
                 }
                 if (definitionName == "variadic2")
                 {
-                    var param1 = new CallableTypeDef.CallableParameterInfo(TypeDef.FloatType, true, false, false);
-                    var param2 = new CallableTypeDef.CallableParameterInfo(TypeDef.IntegerType, true, false, true);
+                    var param1 = new CallableTypeDef.CallableParameterInfo(new ListTypeDef(TypeDef.FloatType), true, false, false);
+                    var param2 = new CallableTypeDef.CallableParameterInfo(new ListTypeDef(TypeDef.IntegerType), true, false, true);
 
                     return new CallableTypeDef(new[] { param1, param2 }, TypeDef.VoidType, true);
+                }
+                if (definitionName == "variadic3")
+                {
+                    var param = new CallableTypeDef.CallableParameterInfo(new ListTypeDef(TypeDef.AnyType), true, false, true);
+
+                    return new CallableTypeDef(new[] { param }, TypeDef.VoidType, true);
                 }
 
                 return null;

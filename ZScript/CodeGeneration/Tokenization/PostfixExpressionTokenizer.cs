@@ -682,7 +682,9 @@ namespace ZScript.CodeGeneration.Tokenization
                 {
                     if (signature.ParameterInfos[i].IsVariadic)
                     {
-                        if (!_context.GenerationContext.TypeProvider.CanImplicitCast(entry.expression().EvaluatedType, signature.ParameterInfos[i].ParameterType))
+                        var type = entry.expression().EvaluatedType;
+                        if (_context.GenerationContext.TypeProvider.AreTypesCompatible(type, signature.ParameterInfos[i].RawParameterType) &&
+                            !_context.GenerationContext.TypeProvider.AreTypesCompatible(type, signature.ParameterInfos[i].ParameterType))
                         {
                             inVariadic = true;
                             varCount++;
@@ -1049,7 +1051,11 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             VisitTupleEntries(context.tupleExpression(), context.CallableSignature);
 
-            _tokens.Add(TokenFactory.CreateBoxedValueToken(context.CallableSignature.ParameterInfos.Length));
+            int count = context.CallableSignature != null
+                ? context.CallableSignature.ParameterInfos.Length
+                : context.tupleExpression().tupleEntry().Length;
+
+            _tokens.Add(TokenFactory.CreateBoxedValueToken(count));
 
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Call));
         }

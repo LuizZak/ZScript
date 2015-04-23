@@ -729,8 +729,6 @@ namespace ZScript.Runtime.Execution
                 tupleType = tupleType.MakeGenericType(Type.GetTypeArray(array));
             }
 
-            var constr = tupleType.GetConstructors();
-
             // Push the array back into the stack
             _stack.Push(Activator.CreateInstance(tupleType, array));
         }
