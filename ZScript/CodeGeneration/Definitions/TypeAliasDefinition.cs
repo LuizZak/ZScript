@@ -57,18 +57,12 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets an array of all fields accessible on this TypeAliasDefinition
         /// </summary>
-        public override TypeFieldDefinition[] Fields
-        {
-            get { return _fields.ToArray(); }
-        }
+        public override TypeFieldDefinition[] Fields => _fields.ToArray();
 
         /// <summary>
         /// Gets an array of all method definitions accessible on this TypeAliasDefinition
         /// </summary>
-        public TypeAliasMethodDefinition[] Functions
-        {
-            get { return _methods.ToArray(); }
-        }
+        public TypeAliasMethodDefinition[] Functions => _methods.ToArray();
 
         /// <summary>
         /// Adds a method definition on this TypeAliasDefinition

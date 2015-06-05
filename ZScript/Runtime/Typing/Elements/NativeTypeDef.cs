@@ -35,10 +35,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the type this native type is equivalent of
         /// </summary>
-        public Type NativeType
-        {
-            get { return nativeType; }
-        }
+        public Type NativeType => nativeType;
 
         /// <summary>
         /// Initializes a new instance of the NativeTypeDef class

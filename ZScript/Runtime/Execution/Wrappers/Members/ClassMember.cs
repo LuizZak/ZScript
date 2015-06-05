@@ -39,10 +39,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <summary>
         /// Gets the target for the get/set operations to perform
         /// </summary>
-        public object Target
-        {
-            get { return target; }
-        }
+        public object Target => target;
 
         /// <summary>
         /// Initializes a new instance of ClassMember object
@@ -79,7 +76,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
                 return CreatePropertyWrapper(target, prop);
             }
 
-            throw new ArgumentException("No public member of name '" + memberName + "' found on object of type '" + target.GetType() + "'", "memberName");
+            throw new ArgumentException("No public member of name '" + memberName + "' found on object of type '" + target.GetType() + "'", nameof(memberName));
         }
 
         /// <summary>

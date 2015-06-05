@@ -75,10 +75,7 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Gets a value specifying whether the virtual machine has a return value associated
         /// </summary>
-        public bool HasReturnValue
-        {
-            get { return _hasReturnValue; }
-        }
+        public bool HasReturnValue => _hasReturnValue;
 
         /// <summary>
         /// Gets the return value for the virtual machine execution.
@@ -101,10 +98,7 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Gets the stack of items being evaluated in this function VM
         /// </summary>
-        public Stack<object> Stack
-        {
-            get { return _stack; }
-        }
+        public Stack<object> Stack => _stack;
 
         /// <summary>
         /// Initializes a new instance of the FunctionVM class with a list of tokens to execute
@@ -843,10 +837,7 @@ namespace ZScript.Runtime.Execution
             object memberName = _stack.Pop();
             object target = PopValueImplicit();
 
-            if (memberName is Token)
-            {
-                memberName = (string)((Token)memberName).TokenObject;
-            }
+            memberName = (memberName as Token)?.TokenObject;
 
             _stack.Push(MemberWrapperHelper.CreateMemberWrapper(target, (string)memberName));
         }
@@ -859,10 +850,7 @@ namespace ZScript.Runtime.Execution
             object memberName = _stack.Pop();
             object target = PopValueImplicit();
 
-            if (memberName is Token)
-            {
-                memberName = (string)((Token)memberName).TokenObject;
-            }
+            memberName = (memberName as Token)?.TokenObject;
 
             _stack.Push(MemberWrapperHelper.CreateCallableWrapper(target, (string)memberName));
         }
@@ -993,11 +981,7 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         void PerformTryDispose()
         {
-            var obj = PopValueImplicit() as IDisposable;
-            if (obj != null)
-            {
-                obj.Dispose();
-            }
+            (PopValueImplicit() as IDisposable)?.Dispose();
         }
 
         /// <summary>

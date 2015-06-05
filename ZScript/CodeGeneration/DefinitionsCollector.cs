@@ -702,8 +702,7 @@ namespace ZScript.CodeGeneration
 
             var seq = GetSequenceScope();
 
-            if(seq != null)
-                seq.AddFrame(frame);
+            seq?.AddFrame(frame);
         }
 
         /// <summary>
@@ -804,11 +803,11 @@ namespace ZScript.CodeGeneration
                     definition is ValueHolderDefinition && (d is ClassDefinition || d is SequenceDefinition))
                     continue;
 
-                int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;
-                int defColumn = definition.Context == null ? 0 : definition.Context.Start.Column;
+                int defLine = definition.Context?.Start.Line ?? 0;
+                int defColumn = definition.Context?.Start.Column ?? 0;
 
-                int dLine = d.Context == null ? 0 : d.Context.Start.Line;
-                int dColumn = d.Context == null ? 0 : d.Context.Start.Column;
+                int dLine = d.Context?.Start.Line ?? 0;
+                int dColumn = d.Context?.Start.Column ?? 0;
 
                 string message = "Duplicated definition of '" + definition.Name + "' at line " + defLine +
                                  " column " + defColumn + " collides with definition " + d + " at line " + dLine +

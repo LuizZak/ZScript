@@ -68,10 +68,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <summary>
         /// Gets the type provider associated with this PostfixExpressionTokenzer
         /// </summary>
-        private TypeProvider TypeProvider
-        {
-            get { return _context.GenerationContext.TypeProvider; }
-        }
+        private TypeProvider TypeProvider => _context.GenerationContext.TypeProvider;
 
         /// <summary>
         /// Initializes a new instance of the IfStatementTokenizer class
@@ -967,7 +964,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
             _isRootMember = false;
             // Verify null conditionality
-            var endTarget = new JumpTargetToken();;
+            var endTarget = new JumpTargetToken();
 
             for (int i = 0; i < context.T_NULL_CONDITIONAL().Length; i++)
             {
@@ -1051,9 +1048,7 @@ namespace ZScript.CodeGeneration.Tokenization
         {
             VisitTupleEntries(context.tupleExpression(), context.CallableSignature);
 
-            int count = context.CallableSignature != null
-                ? context.CallableSignature.ParameterInfos.Length
-                : context.tupleExpression().tupleEntry().Length;
+            int count = context.CallableSignature?.ParameterInfos.Length ?? context.tupleExpression().tupleEntry().Length;
 
             _tokens.Add(TokenFactory.CreateBoxedValueToken(count));
 

@@ -42,8 +42,8 @@ namespace ZScript.Elements
         {
             Name = name;
             Tokens = tokens;
-            _arguments = arguments;
-            _returnType = returnType;
+            Arguments = arguments;
+            ReturnType = returnType;
         }
 
         /// <summary>
@@ -102,23 +102,13 @@ namespace ZScript.Elements
         public CallableTypeDef Signature { get; set; }
 
         /// <summary>
-        /// An array of the arguments for this function
-        /// </summary>
-        private readonly FunctionArgument[] _arguments;
-
-        /// <summary>
-        /// The return type for this function
-        /// </summary>
-        private readonly Type _returnType;
-
-        /// <summary>
         /// Gets an array of the arguments for this function
         /// </summary>
-        public FunctionArgument[] Arguments { get { return _arguments; } }
+        public FunctionArgument[] Arguments { get; }
 
         /// <summary>
         /// Gets the return type for this ZFunction
         /// </summary>
-        public Type ReturnType { get { return _returnType; } }
+        public Type ReturnType { get; }
     }
 }

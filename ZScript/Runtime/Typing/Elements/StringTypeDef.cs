@@ -39,18 +39,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Returns the type enclosed within the string type definition
         /// </summary>
-        public TypeDef EnclosingType
-        {
-            get { return AnyType; }
-        }
+        public TypeDef EnclosingType => AnyType;
 
         /// <summary>
         /// Gets the type of objects accepted by the subscript of the string type
         /// </summary>
-        public TypeDef SubscriptType
-        {
-            get { return IntegerType; }
-        }
+        public TypeDef SubscriptType => IntegerType;
 
         /// <summary>
         /// Initilaizes a new instance of the StringTypeDef class

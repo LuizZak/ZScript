@@ -42,18 +42,12 @@ namespace ZScript.Elements
         /// <summary>
         /// The name for this closure
         /// </summary>
-        public string CallableName
-        {
-            get { return Name; }
-        }
+        public string CallableName => Name;
 
         /// <summary>
         /// The local memory for this closure
         /// </summary>
-        public IMemory<string> LocalMemory
-        {
-            get { return CapturedMemory; }
-        }
+        public IMemory<string> LocalMemory => CapturedMemory;
 
         /// <summary>
         /// Initializes a new instance of the ZClosureFunction class
@@ -76,7 +70,7 @@ namespace ZScript.Elements
         {
             var clone = (ZClosureFunction)MemberwiseClone();
 
-            clone.CapturedMemory = CapturedMemory == null ? null : CapturedMemory.Clone();
+            clone.CapturedMemory = CapturedMemory?.Clone();
 
             return clone;
         }

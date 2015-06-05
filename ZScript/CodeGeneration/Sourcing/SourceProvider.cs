@@ -39,10 +39,7 @@ namespace ZScript.CodeGeneration.Sourcing
         /// <summary>
         /// Gets an array containing all of the sources registered on this scripts provider
         /// </summary>
-        public ZScriptDefinitionsSource[] Sources
-        {
-            get { return _sources.ToArray(); }
-        }
+        public ZScriptDefinitionsSource[] Sources => _sources.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the ScriptsProvider class

@@ -50,74 +50,47 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Gets a list containing all of the code messages stored in this message container
         /// </summary>
-        public CodeMessage[] AllMessages
-        {
-            get { return _warningList.Concat(_errorList.Concat<CodeMessage>(_syntaxErrors)).ToArray(); }
-        }
+        public CodeMessage[] AllMessages => _warningList.Concat(_errorList.Concat<CodeMessage>(_syntaxErrors)).ToArray();
 
         /// <summary>
         /// Returns the array of all the syntax errors that were found during the parsing of the script
         /// </summary>
-        public SyntaxError[] SyntaxErrors
-        {
-            get { return _syntaxErrors.ToArray(); }
-        }
+        public SyntaxError[] SyntaxErrors => _syntaxErrors.ToArray();
 
         /// <summary>
         /// Gets an array of all the errors that were found
         /// </summary>
-        public CodeError[] CodeErrors
-        {
-            get { return _errorList.ToArray(); }
-        }
+        public CodeError[] CodeErrors => _errorList.ToArray();
 
         /// <summary>
         /// Gets an array of all the warnings that were raised
         /// </summary>
-        public Warning[] Warnings
-        {
-            get { return _warningList.ToArray(); }
-        }
+        public Warning[] Warnings => _warningList.ToArray();
 
         /// <summary>
         /// Gets a value specifying whether there are any syntax errors registered on this message container
         /// </summary>
-        public bool HasSyntaxErrors
-        {
-            get { return _syntaxErrors.Count > 0; }
-        }
+        public bool HasSyntaxErrors => _syntaxErrors.Count > 0;
 
         /// <summary>
         /// Gets a value specifying whether there are any code errors registered on this message container
         /// </summary>
-        public bool HasCodeErrors
-        {
-            get { return _errorList.Count > 0; }
-        }
+        public bool HasCodeErrors => _errorList.Count > 0;
 
         /// <summary>
         /// Gets a value specifying whether there are any syntax or code error registered on this message container
         /// </summary>
-        public bool HasErrors
-        {
-            get { return HasSyntaxErrors || HasCodeErrors; }
-        }
+        public bool HasErrors => HasSyntaxErrors || HasCodeErrors;
 
         /// <summary>
         /// Gets a value specifying whether there are any warnings registered on this message container
         /// </summary>
-        public bool HasWarnings
-        {
-            get { return _warningList.Count > 0; }
-        }
+        public bool HasWarnings => _warningList.Count > 0;
 
         /// <summary>
         /// Gets a value specifying whether there are any type of messages registered on this message container
         /// </summary>
-        public bool HasMessages
-        {
-            get { return HasErrors || HasWarnings; }
-        }
+        public bool HasMessages => HasErrors || HasWarnings;
 
         /// <summary>
         /// Prints all the errors and warning messages currently stored in this MessageContainer

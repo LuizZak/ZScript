@@ -49,18 +49,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// The current message container for the analyzer
         /// </summary>
-        private MessageContainer Container
-        {
-            get { return _context.MessageContainer; }
-        }
+        private MessageContainer Container => _context.MessageContainer;
 
         /// <summary>
         /// The current function definition being analyzed
         /// </summary>
-        private FunctionDefinition CurrentDefinition
-        {
-            get { return _currentDefinition; }
-        }
+        private FunctionDefinition CurrentDefinition => _currentDefinition;
 
         /// <summary>
         /// Collects all the returns in the respective function definitions

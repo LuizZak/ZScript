@@ -66,7 +66,7 @@ namespace ZScript.Elements
         private static void CheckType(object obj)
         {
             if (obj == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
 
             if (!(obj is string))
             {

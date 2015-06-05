@@ -36,10 +36,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// <summary>
         /// Gets the IList being subscripted by this ListSubscripter
         /// </summary>
-        public IList List
-        {
-            get { return _list; }
-        }
+        public IList List => _list;
 
         /// <summary>
         /// Gets or sets an index on the IList being subscripted

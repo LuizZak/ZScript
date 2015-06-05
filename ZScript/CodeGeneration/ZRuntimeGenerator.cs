@@ -93,18 +93,12 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Gets a value specifying whether there were any syntax errors on the script generation process
         /// </summary>
-        public bool HasSyntaxErrors
-        {
-            get { return _messageContainer.HasSyntaxErrors; }
-        }
+        public bool HasSyntaxErrors => _messageContainer.HasSyntaxErrors;
 
         /// <summary>
         /// Gets a value specifying whether there are any syntax or code error pending on this runtime generator
         /// </summary>
-        public bool HasErrors
-        {
-            get { return _messageContainer.HasErrors; }
-        }
+        public bool HasErrors => _messageContainer.HasErrors;
 
         /// <summary>
         /// Gets or sets the message container for this scope analyzer
@@ -122,18 +116,12 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Gets the sources provider for this runtime generator
         /// </summary>
-        public SourceProvider SourceProvider
-        {
-            get { return _sourceProvider; }
-        }
+        public SourceProvider SourceProvider => _sourceProvider;
 
         /// <summary>
         /// Gets the internal type provider used to generate typing for the definitions
         /// </summary>
-        public TypeProvider TypeProvider
-        {
-            get { return _typeProvider; }
-        }
+        public TypeProvider TypeProvider => _typeProvider;
 
         /// <summary>
         /// Creates a new instance of the ZScriptGenerator class using a specified string as input
@@ -674,11 +662,11 @@ namespace ZScript.CodeGeneration
                         !(d is GlobalVariableDefinition) && definition is GlobalVariableDefinition)
                         continue;
 
-                    int defLine = definition.Context == null ? 0 : definition.Context.Start.Line;
-                    int defColumn = definition.Context == null ? 0 : definition.Context.Start.Column;
+                    int defLine = definition.Context?.Start.Line ?? 0;
+                    int defColumn = definition.Context?.Start.Column ?? 0;
 
-                    int dLine = d.Context == null ? 0 : d.Context.Start.Line;
-                    int dColumn = d.Context == null ? 0 : d.Context.Start.Column;
+                    int dLine = d.Context?.Start.Line ?? 0;
+                    int dColumn = d.Context?.Start.Column ?? 0;
 
                     string message = "Duplicated definition of '" + definition.Name + "' at line " + defLine +
                                      " column " + defColumn + " collides with definition " + d + " at line " + dLine +

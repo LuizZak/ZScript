@@ -41,18 +41,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the type of the values enclosed in this dictionary
         /// </summary>
-        public TypeDef EnclosingType
-        {
-            get { return _valueType; }
-        }
+        public TypeDef EnclosingType => _valueType;
 
         /// <summary>
         /// Gets the type of the keys that map in this dictionary
         /// </summary>
-        public TypeDef SubscriptType
-        {
-            get { return _keyType; }
-        }
+        public TypeDef SubscriptType => _keyType;
 
         /// <summary>
         /// Initializes a new instance of the DictionaryTypeDef class
@@ -106,8 +100,8 @@ namespace ZScript.Runtime.Typing.Elements
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (_valueType != null ? _valueType.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_keyType != null ? _keyType.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_valueType?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (_keyType?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

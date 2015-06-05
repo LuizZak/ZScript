@@ -41,10 +41,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// <summary>
         /// Gets the object being subscripted by this ListSubscripter
         /// </summary>
-        public object Target
-        {
-            get { return _target; }
-        }
+        public object Target => _target;
 
         /// <summary>
         /// Gets or sets an index on the object being subscripted

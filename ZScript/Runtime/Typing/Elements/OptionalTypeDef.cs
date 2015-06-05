@@ -35,10 +35,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the type wrapped in this optional type def
         /// </summary>
-        public TypeDef WrappedType
-        {
-            get { return _wrappedType; }
-        }
+        public TypeDef WrappedType => _wrappedType;
 
         /// <summary>
         /// Gets the type wrapped in this optional type def, unwrapping any wrapped optional type recursively
@@ -120,7 +117,7 @@ namespace ZScript.Runtime.Typing.Elements
         {
             unchecked
             {
-                return (base.GetHashCode() * 397) ^ (_wrappedType != null ? _wrappedType.GetHashCode() : 0);
+                return (base.GetHashCode() * 397) ^ (_wrappedType?.GetHashCode() ?? 0);
             }
         }
 

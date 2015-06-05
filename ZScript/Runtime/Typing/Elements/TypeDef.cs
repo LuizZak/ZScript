@@ -68,31 +68,22 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the name for this type
         /// </summary>
-        public string Name { get { return name; } }
+        public string Name => name;
 
         /// <summary>
         /// Gets a value specifying whether this type definition represents the 'any' type
         /// </summary>
-        public bool IsAny
-        {
-            get { return isAny; }
-        }
+        public bool IsAny => isAny;
 
         /// <summary>
         /// Gets a value specifying whether this type definition represents the 'void' type
         /// </summary>
-        public bool IsVoid
-        {
-            get { return isVoid; }
-        }
+        public bool IsVoid => isVoid;
 
         /// <summary>
         /// Gets a value specifying whether this type definition represents a native type
         /// </summary>
-        public bool IsNative
-        {
-            get { return isNative; }
-        }
+        public bool IsNative => isNative;
 
         /// <summary>
         /// Static constructor for the TypeDef class which deals with basic type creation
@@ -206,7 +197,7 @@ namespace ZScript.Runtime.Typing.Elements
                     return methodDef;
             }
 
-            return baseType != null ? baseType.GetMethod(methodName) : null;
+            return baseType?.GetMethod(methodName);
         }
 
         /// <summary>
@@ -222,7 +213,7 @@ namespace ZScript.Runtime.Typing.Elements
                     return fieldDef;
             }
 
-            return baseType != null ? baseType.GetField(fieldName) : null;
+            return baseType?.GetField(fieldName);
         }
 
         /// <summary>
@@ -346,7 +337,7 @@ namespace ZScript.Runtime.Typing.Elements
                 var hashCode = isVoid.GetHashCode();
                 hashCode = (hashCode * 397) ^ isAny.GetHashCode();
                 hashCode = (hashCode * 397) ^ isNative.GetHashCode();
-                hashCode = (hashCode * 397) ^ (name != null ? name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (name?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }
@@ -493,10 +484,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// The name for this member
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name => name;
 
         /// <summary>
         /// Initializes a new instance of the TypeMemberDef class
@@ -516,28 +504,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// The type for the field
         /// </summary>
-        private readonly TypeDef _fieldType;
-
-        /// <summary>
-        /// Whether the field is readonly or not
-        /// </summary>
-        private readonly bool _readonly;
-
-        /// <summary>
-        /// The type for the field
-        /// </summary>
-        public TypeDef FieldType
-        {
-            get { return _fieldType; }
-        }
+        public TypeDef FieldType { get; }
 
         /// <summary>
         /// Gets a value specifying whether the field is readonly or not
         /// </summary>
-        public bool Readonly
-        {
-            get { return _readonly; }
-        }
+        public bool Readonly { get; }
 
         /// <summary>
         /// Initializes a new instance of the TypeFieldDef class
@@ -548,8 +520,8 @@ namespace ZScript.Runtime.Typing.Elements
         public TypeFieldDef(string fieldName, TypeDef fieldType, bool isReadonly)
             : base(fieldName)
         {
-            _fieldType = fieldType;
-            _readonly = isReadonly;
+            FieldType = fieldType;
+            Readonly = isReadonly;
         }
     }
 
@@ -571,18 +543,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the array of parameters for the method
         /// </summary>
-        public ParameterInfo[] Parameters
-        {
-            get { return _parameters; }
-        }
+        public ParameterInfo[] Parameters => _parameters;
 
         /// <summary>
         /// Gets the return type for the method
         /// </summary>
-        public TypeDef ReturnType
-        {
-            get { return _returnType; }
-        }
+        public TypeDef ReturnType => _returnType;
 
         /// <summary>
         /// Initializes a new instance of the TypeMethodDef class
@@ -620,61 +586,29 @@ namespace ZScript.Runtime.Typing.Elements
     public class ParameterInfo
     {
         /// <summary>
-        /// The type for the parameter
-        /// </summary>
-        private readonly TypeDef _type;
-
-        /// <summary>
-        /// The name for this parameter
-        /// </summary>
-        private readonly string _name;
-
-        /// <summary>
-        /// Whether the parameter is variadic in nature
-        /// </summary>
-        private readonly bool _isVariadic;
-
-        /// <summary>
-        /// Whether the parameter is optional
-        /// </summary>
-        private readonly bool _optional;
-
-        /// <summary>
         /// Gets the type for the parameter
         /// </summary>
-        public TypeDef ParameterType
-        {
-            get { return _type; }
-        }
+        public TypeDef ParameterType { get; }
 
         /// <summary>
         /// Gets the name for this parameter
         /// </summary>
-        public string ParameterName
-        {
-            get { return _name; }
-        }
+        public string ParameterName { get; }
 
         /// <summary>
         /// Gets a value specifying whether the parameter is variadic in nature
         /// </summary>
-        public bool IsVariadic
-        {
-            get { return _isVariadic; }
-        }
+        public bool IsVariadic { get; }
 
         /// <summary>
         /// Gets a value specifying whether the parameter is optional
         /// </summary>
-        public bool Optional
-        {
-            get { return _optional; }
-        }
+        public bool Optional { get; }
 
         /// <summary>
         /// Gets the default value, in case this is an optional parameter
         /// </summary>
-        public object DefaultValue { get; private set; }
+        public object DefaultValue { get; }
 
         /// <summary>
         /// Initializes a new instance of the ParameterInfo class
@@ -686,10 +620,10 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="defaultValue">The default value, in case this is an optional parameter</param>
         public ParameterInfo(string name, TypeDef type, bool isVariadic, bool optional, object defaultValue = null)
         {
-            _name = name;
-            _type = type;
-            _isVariadic = isVariadic;
-            _optional = optional;
+            ParameterName = name;
+            ParameterType = type;
+            IsVariadic = isVariadic;
+            Optional = optional;
             DefaultValue = defaultValue;
         }
     }

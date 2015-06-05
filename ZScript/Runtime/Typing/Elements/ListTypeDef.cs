@@ -37,10 +37,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the type of items enclosed in this list type
         /// </summary>
-        public TypeDef EnclosingType
-        {
-            get { return _enclosingType; }
-        }
+        public TypeDef EnclosingType => _enclosingType;
 
         /// <summary>
         /// Gets or sets the type of object accepted by the subscript of the list
@@ -101,7 +98,7 @@ namespace ZScript.Runtime.Typing.Elements
         {
             unchecked
             {
-                return (base.GetHashCode() * 397) ^ (_enclosingType != null ? _enclosingType.GetHashCode() : 0);
+                return (base.GetHashCode() * 397) ^ (_enclosingType?.GetHashCode() ?? 0);
             }
         }
 

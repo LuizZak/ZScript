@@ -94,21 +94,12 @@ namespace ZScript.Runtime
         /// <summary>
         /// Gets the current global memory for the runtime
         /// </summary>
-        public IMemory<string> GlobalMemory
-        {
-            get
-            {
-                return _globalMemory;
-            }
-        }
+        public IMemory<string> GlobalMemory => _globalMemory;
 
         /// <summary>
         /// Gets the owner of this ZRuntime object
         /// </summary>
-        public IRuntimeOwner Owner
-        {
-            get { return _owner; }
-        }
+        public IRuntimeOwner Owner => _owner;
 
         /// <summary>
         /// Initializes a new instance of the ZRuntime class from the following definition, and with an owner to specify
@@ -203,7 +194,7 @@ namespace ZScript.Runtime
         public object CallFunction(ZFunction funcDef, CallArguments callArgs)
         {
             // TODO: Clean the clutter on this method
-            if (funcDef == null) throw new ArgumentNullException("funcDef");
+            if (funcDef == null) throw new ArgumentNullException(nameof(funcDef));
             
             if (!_expandedGlobals)
             {
@@ -271,7 +262,7 @@ namespace ZScript.Runtime
         public object CallFunctionWithMemory(ZFunction funcDef, IMemory<string> localMemory, CallArguments callArgs)
         {
             // TODO: Clean the clutter on this method
-            if (funcDef == null) throw new ArgumentNullException("funcDef");
+            if (funcDef == null) throw new ArgumentNullException(nameof(funcDef));
 
             if (!_expandedGlobals)
             {

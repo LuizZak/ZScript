@@ -113,7 +113,7 @@ namespace ZScript.Runtime.Execution.Wrappers
             var methods = MethodsNamedFor(target.GetType(), callableName);
 
             if (methods.Length == 0)
-                throw new ArgumentException("No public method of name '" + callableName + "' found on object of type '" + target.GetType() + "'", "callableName");
+                throw new ArgumentException("No public method of name '" + callableName + "' found on object of type '" + target.GetType() + "'", nameof(callableName));
 
             return new ClassMethod(target, methods);
         }

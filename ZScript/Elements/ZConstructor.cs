@@ -38,10 +38,7 @@ namespace ZScript.Elements
         /// <summary>
         /// Gets the class instance this constructor will create
         /// </summary>
-        public ZClassInstance ClassInstance
-        {
-            get { return _classInstance; }
-        }
+        public ZClassInstance ClassInstance => _classInstance;
 
         /// <summary>
         /// Gets a value specifying whether the constructor requires a base call, or the user already performed the call

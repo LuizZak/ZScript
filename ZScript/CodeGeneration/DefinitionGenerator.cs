@@ -179,7 +179,7 @@ namespace ZScript.CodeGeneration
         /// <returns>An array of function arguments that were collected</returns>
         public static FunctionArgumentDefinition[] CollectFunctionArguments(ZScriptParser.FunctionArgumentsContext context)
         {
-            if (context == null || context.argumentList() == null)
+            if (context?.argumentList() == null)
                 return new FunctionArgumentDefinition[0];
 
             var argList = context.argumentList().functionArg();

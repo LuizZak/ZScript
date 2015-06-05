@@ -50,56 +50,31 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         private readonly Stack<Token> _breakTargetStack = new Stack<Token>();
 
         /// <summary>
-        /// The code scope that is expose to the statements tokenizers
-        /// </summary>
-        private readonly CodeScope _scope;
-
-        /// <summary>
-        /// The generation context for this statement tokenizer
-        /// </summary>
-        private readonly RuntimeGenerationContext _generationContext;
-
-        /// <summary>
         /// The current target for continue statements.
         /// May be null, if no targets are currently registered
         /// </summary>
-        public Token CurrentContinueTarget
-        {
-            get { return _continueTargetStack.FirstOrDefault(); }
-        }
+        public Token CurrentContinueTarget => _continueTargetStack.FirstOrDefault();
 
         /// <summary>
         /// The current target for break statements.
         /// May be null, if no targets are currently registered
         /// </summary>
-        public Token CurrentBreakTarget
-        {
-            get { return _breakTargetStack.FirstOrDefault(); }
-        }
+        public Token CurrentBreakTarget => _breakTargetStack.FirstOrDefault();
 
         /// <summary>
         /// Gets the code scope that contains the definitions that were pre-parsed
         /// </summary>
-        public CodeScope Scope
-        {
-            get { return _scope; }
-        }
+        public CodeScope Scope { get; }
 
         /// <summary>
         /// Gets the generation context for this statement tokenizer
         /// </summary>
-        public RuntimeGenerationContext GenerationContext
-        {
-            get { return _generationContext; }
-        }
+        public RuntimeGenerationContext GenerationContext { get; }
 
         /// <summary>
         /// Gets the temporary definition creator for this StatementTokenizerContext instance
         /// </summary>
-        public ITemporaryDefinitionCreator TemporaryDefinitionCreator
-        {
-            get { return _tempCreator; }
-        }
+        public ITemporaryDefinitionCreator TemporaryDefinitionCreator => _tempCreator;
 
         /// ;<summary>
         /// Initializes a new instance of the StatementTokenizerContext class
@@ -107,9 +82,9 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="context">The context for the runtime generation</param>
         public StatementTokenizerContext(RuntimeGenerationContext context)
         {
-            _scope = context.BaseScope;
+            Scope = context.BaseScope;
 
-            _generationContext = context;
+            GenerationContext = context;
             _tempCreator = new InnerTemporaryCreator();
         }
 

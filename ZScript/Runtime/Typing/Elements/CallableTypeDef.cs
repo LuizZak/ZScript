@@ -58,23 +58,17 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the types for the parameters of this callable type definition
         /// </summary>
-        public TypeDef[] ParameterTypes
-        {
-            get { return _parameterTypes; }
-        }
+        public TypeDef[] ParameterTypes => _parameterTypes;
 
         /// <summary>
         /// Gets a tuple that represents the function parameters for this callable type definition
         /// </summary>
-        public TupleTypeDef ParameterTuple { get; private set; }
+        public TupleTypeDef ParameterTuple { get; }
 
         /// <summary>
         /// Gets the information for the parameters of this callable type definition
         /// </summary>
-        public CallableParameterInfo[] ParameterInfos
-        {
-            get { return _parameterInfos; }
-        }
+        public CallableParameterInfo[] ParameterInfos => _parameterInfos;
 
         /// <summary>
         /// Gets the information for the variadic parameter of this callable type definition.
@@ -94,40 +88,28 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the count of arguments required by this callable type definition
         /// </summary>
-        public int RequiredArgumentsCount
-        {
-            get { return _requiredCount; }
-        }
+        public int RequiredArgumentsCount => _requiredCount;
 
         /// <summary>
         /// Gets the total count of arguments accepted by this callable type definition.
         /// If there is at least one variadic argument, the value returned is int.MaxValue
         /// </summary>
-        public int MaximumArgumentsCount
-        {
-            get { return HasVariadic ? int.MaxValue : _parameterInfos.Length; }
-        }
+        public int MaximumArgumentsCount => HasVariadic ? int.MaxValue : _parameterInfos.Length;
 
         /// <summary>
         /// Gets a value specifying whether a return type has been provided
         /// </summary>
-        public bool HasReturnType { get; private set; }
+        public bool HasReturnType { get; }
 
         /// <summary>
         /// Gets the return type for this callable
         /// </summary>
-        public TypeDef ReturnType
-        {
-            get { return _returnType; }
-        }
+        public TypeDef ReturnType => _returnType;
 
         /// <summary>
         /// Gets a value specifying whether any of the arguments for this callable type definition is variadic
         /// </summary>
-        public bool HasVariadic
-        {
-            get { return _hasVariadic; }
-        }
+        public bool HasVariadic => _hasVariadic;
 
         /// <summary>
         /// Initializes a new instance of the CallableTypeDef with parameter information and return type provided
@@ -215,8 +197,8 @@ namespace ZScript.Runtime.Typing.Elements
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (_parameterInfos != null ? _parameterInfos.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_returnType != null ? _returnType.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_parameterInfos?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (_returnType?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }
@@ -244,11 +226,6 @@ namespace ZScript.Runtime.Typing.Elements
             private readonly TypeDef _parameterType;
 
             /// <summary>
-            /// The raw parameter type, ignoring the variadic modifier
-            /// </summary>
-            private readonly TypeDef _rawParameterType;
-
-            /// <summary>
             /// Whether this parameter is variadic in nature, allowing acceptance of any number of arguments
             /// </summary>
             private readonly bool _isVariadic;
@@ -266,47 +243,32 @@ namespace ZScript.Runtime.Typing.Elements
             /// <summary>
             /// Gets the type for this parameter
             /// </summary>
-            public TypeDef ParameterType
-            {
-                get { return _parameterType; }
-            }
+            public TypeDef ParameterType => _parameterType;
 
             /// <summary>
             /// Gets the raw parameter type, ignoring the variadic modifier
             /// </summary>
-            public TypeDef RawParameterType
-            {
-                get { return _rawParameterType; }
-            }
+            public TypeDef RawParameterType { get; }
 
             /// <summary>
             /// Gets a value specifying whether the parameter is variadic in nature, allowing acceptance of any number of arguments
             /// </summary>
-            public bool IsVariadic
-            {
-                get { return _isVariadic; }
-            }
+            public bool IsVariadic => _isVariadic;
 
             /// <summary>
             /// Gets a value specifying whether the type for the parameter was provided
             /// </summary>
-            public bool HasType
-            {
-                get { return _hasType; }
-            }
+            public bool HasType => _hasType;
 
             /// <summary>
             /// Gets a value specifying whether the parameter has a default value associated with it
             /// </summary>
-            public bool HasDefault
-            {
-                get { return _hasDefault; }
-            }
+            public bool HasDefault => _hasDefault;
 
             /// <summary>
             /// Gets the default value for the parameter
             /// </summary>
-            public object DefaultValue { get; private set; }
+            public object DefaultValue { get; }
 
             /// <summary>
             /// Initializes a new instance of the CallableParameterInfo class
@@ -322,7 +284,7 @@ namespace ZScript.Runtime.Typing.Elements
                 _hasType = hasType;
                 _hasDefault = hasDefault;
                 _isVariadic = isVariadic;
-                _rawParameterType = _parameterType == null ? null : _isVariadic && _parameterType is ListTypeDef ? ((ListTypeDef)_parameterType).EnclosingType : _parameterType;
+                RawParameterType = _parameterType == null ? null : _isVariadic && _parameterType is ListTypeDef ? ((ListTypeDef)_parameterType).EnclosingType : _parameterType;
                 DefaultValue = defaultValue;
             }
 
@@ -347,11 +309,11 @@ namespace ZScript.Runtime.Typing.Elements
             {
                 unchecked
                 {
-                    var hashCode = (_parameterType != null ? _parameterType.GetHashCode() : 0);
+                    var hashCode = _parameterType?.GetHashCode() ?? 0;
                     hashCode = (hashCode * 397) ^ _isVariadic.GetHashCode();
                     hashCode = (hashCode * 397) ^ _hasType.GetHashCode();
                     hashCode = (hashCode * 397) ^ _hasDefault.GetHashCode();
-                    hashCode = (hashCode * 397) ^ (DefaultValue != null ? DefaultValue.GetHashCode() : 0);
+                    hashCode = (hashCode * 397) ^ (DefaultValue?.GetHashCode() ?? 0);
                     return hashCode;
                 }
             }

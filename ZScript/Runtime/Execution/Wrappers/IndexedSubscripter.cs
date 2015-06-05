@@ -43,18 +43,12 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <summary>
         /// Gets the object being subscripted
         /// </summary>
-        public ISubscripterWrapper SubscripterWrapper
-        {
-            get { return _subscripterWrapper; }
-        }
+        public ISubscripterWrapper SubscripterWrapper => _subscripterWrapper;
 
         /// <summary>
         /// Gets the object to index the subscripter as
         /// </summary>
-        public object IndexValue
-        {
-            get { return _indexValue; }
-        }
+        public object IndexValue => _indexValue;
 
         /// <summary>
         /// Initializes a new instance of the IndexedSubscripter class.

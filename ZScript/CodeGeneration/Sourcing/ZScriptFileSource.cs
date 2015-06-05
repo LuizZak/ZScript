@@ -36,19 +36,13 @@ namespace ZScript.CodeGeneration.Sourcing
         /// <summary>
         /// Gets the file path containing the source for the script
         /// </summary>
-        public string FilePath
-        {
-            get { return _filePath; }
-        }
+        public string FilePath => _filePath;
 
         /// <summary>
         /// Gets or sets a value specifying whether this script source requires reload.
         /// Always returns true in a ZScriptFileSource instance
         /// </summary>
-        public override bool ParseRequired
-        {
-            get { return true; }
-        }
+        public override bool ParseRequired => true;
 
         /// <summary>
         /// Initializes a new instance of the ZScriptFileSource class

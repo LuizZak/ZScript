@@ -58,34 +58,22 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <summary>
         /// Gets the TypeContext associated with thi type
         /// </summary>
-        public ZScriptParser.TypeContext TypeContext
-        {
-            get { return _typeContext; }
-        }
+        public ZScriptParser.TypeContext TypeContext => _typeContext;
 
         /// <summary>
         /// Gets the TypeDef associated with this typed token
         /// </summary>
-        public TypeDef TypeDef
-        {
-            get { return _typeDef; }
-        }
+        public TypeDef TypeDef => _typeDef;
 
         /// <summary>
         /// Gets type associated with this typed token
         /// </summary>
-        public Type RawType
-        {
-            get { return _type; }
-        }
+        public Type RawType => _type;
 
         /// <summary>
         /// Gets the raw types associated with this typed token
         /// </summary>
-        public Type[] RawTypes
-        {
-            get { return _types; }
-        }
+        public Type[] RawTypes => _types;
 
         /// <summary>
         /// Initializes a new instance of the TypedToken class
@@ -197,10 +185,10 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (_typeContext != null ? _typeContext.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_typeDef != null ? _typeDef.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_type != null ? _type.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_types != null ? _types.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_typeContext?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (_typeDef?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (_type?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (_types?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

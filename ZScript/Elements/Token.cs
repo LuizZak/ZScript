@@ -84,7 +84,7 @@ namespace ZScript.Elements
         /// <returns>A string representation of this token object</returns>
         public override string ToString()
         {
-            return "{ Token type:" + Type + ", value:'" + TokenObject + "' (" + (TokenObject != null ? TokenObject.GetType().ToString() : "") + "), instruction:" + Instruction + " }";
+            return "{ Token type:" + Type + ", value:'" + TokenObject + "' (" + (TokenObject?.GetType().ToString() ?? "") + "), instruction:" + Instruction + " }";
         }
 
         #region Equality members

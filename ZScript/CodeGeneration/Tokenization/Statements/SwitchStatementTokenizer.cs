@@ -190,22 +190,22 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             /// <summary>
             /// Gets the list of tokens that represent the case entry expression
             /// </summary>
-            public IEnumerable<Token> ExpressionTokens { get; private set; }
+            public IEnumerable<Token> ExpressionTokens { get; }
 
             /// <summary>
             /// Gets the list of tokens that represent the statements inside the case block
             /// </summary>
-            public IEnumerable<Token> CaseStatementTokens { get; private set; }
+            public IEnumerable<Token> CaseStatementTokens { get; }
 
             /// <summary>
             /// Gets the comparision operator to apply to the switch expression result and this case's expression result
             /// </summary>
-            public VmInstruction ComparisionOperator { get; private set; }
+            public VmInstruction ComparisionOperator { get; }
 
             /// <summary>
             /// The jump target token for this case
             /// </summary>
-            public JumpTargetToken JumpTarget { get; private set; }
+            public JumpTargetToken JumpTarget { get; }
 
             /// <summary>
             /// Creates a new instance of the SwitchCaseStatement class

@@ -81,26 +81,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets an array of the children scopes for this scope
         /// </summary>
-        public CodeScope[] ChildrenScopes
-        {
-            get { return _childrenScopes.ToArray(); }
-        }
+        public CodeScope[] ChildrenScopes => _childrenScopes.ToArray();
 
         /// <summary>
         /// The current variables in this scope
         /// </summary>
-        public Definition[] Definitions
-        {
-            get { return _definitions.ToArray(); }
-        }
+        public Definition[] Definitions => _definitions.ToArray();
 
         /// <summary>
         /// Gets the current definition usages in this scope
         /// </summary>
-        public DefinitionUsage[] DefinitionUsages
-        {
-            get { return _usages.ToArray(); }
-        }
+        public DefinitionUsage[] DefinitionUsages => _usages.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the CodeScope class
@@ -185,12 +176,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            if (ParentScope != null)
-            {
-                return ParentScope.GetDefinitionByName(definitionName);
-            }
-
-            return null;
+            return ParentScope?.GetDefinitionByName(definitionName);
         }
 
         /// <summary>
@@ -210,12 +196,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
 
-            if (ParentScope != null)
-            {
-                return ParentScope.GetDefinitionByName<T>(definitionName);
-            }
-
-            return null;
+            return ParentScope?.GetDefinitionByName<T>(definitionName);
         }
 
         /// <summary>

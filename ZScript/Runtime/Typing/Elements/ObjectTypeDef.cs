@@ -36,18 +36,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Gets the type of objects subscript on this ObjectTypeDef
         /// </summary>
-        public TypeDef EnclosingType
-        {
-            get { return _optionalTypeDef; }
-        }
+        public TypeDef EnclosingType => _optionalTypeDef;
 
         /// <summary>
         /// Gets the type accepted by the subscript of the ObjectTypeDef
         /// </summary>
-        public TypeDef SubscriptType
-        {
-            get { return StringType; }
-        }
+        public TypeDef SubscriptType => StringType;
 
         /// <summary>
         /// Initializes a new instance of the ObjectTypeDef class

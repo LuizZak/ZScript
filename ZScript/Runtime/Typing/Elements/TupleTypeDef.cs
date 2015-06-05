@@ -40,12 +40,12 @@ namespace ZScript.Runtime.Typing.Elements
         /// Gets the inner type labels for this tuple type definition.
         /// An entry being null means there is no label defined in the corresponding InnerType entry
         /// </summary>
-        public string[] InnerTypeNames { get; private set; }
+        public string[] InnerTypeNames { get; }
 
         /// <summary>
         /// Gets the inner types for the tuple
         /// </summary>
-        public TypeDef[] InnerTypes { get; private set; }
+        public TypeDef[] InnerTypes { get; }
 
         /// <summary>
         /// Gets or sets the variadic state of the last entry of the tuple.

@@ -26,17 +26,9 @@ namespace ZScript.CodeGeneration.Definitions
     public class Expression
     {
         /// <summary>
-        /// The expression context for this expression
-        /// </summary>
-        private readonly ZScriptParser.ExpressionContext _expressionContext;
-
-        /// <summary>
         /// Gets the expression context for this expression
         /// </summary>
-        public ZScriptParser.ExpressionContext ExpressionContext
-        {
-            get { return _expressionContext; }
-        }
+        public ZScriptParser.ExpressionContext ExpressionContext { get; }
 
         /// <summary>
         /// Initializes a new instance of the Expression class
@@ -44,7 +36,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="expressionContext">An expression context read from a script parser</param>
         public Expression(ZScriptParser.ExpressionContext expressionContext)
         {
-            _expressionContext = expressionContext;
+            ExpressionContext = expressionContext;
         }
     }
 }

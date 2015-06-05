@@ -58,42 +58,27 @@ namespace ZScript.Runtime
         /// <summary>
         /// Gets an array of all the function definitions stored in this ZRuntimeDefinition
         /// </summary>
-        public ZFunction[] ZFunctionDefinitions
-        {
-            get { return _functionDefinitions.ToArray(); }
-        }
+        public ZFunction[] ZFunctionDefinitions => _functionDefinitions.ToArray();
 
         /// <summary>
         /// Gets an array of all the export function definitions stored in this ZRuntimeDefinition
         /// </summary>
-        public ZExportFunction[] ZExportFunctionDefinitions
-        {
-            get { return _exportFunctionDefinitions.ToArray(); }
-        }
+        public ZExportFunction[] ZExportFunctionDefinitions => _exportFunctionDefinitions.ToArray();
 
         /// <summary>
         /// Gets an array of all the closure definitions stored in this ZRuntimeDefinition
         /// </summary>
-        public ZClosureFunction[] ZClosureFunctionDefinitions
-        {
-            get { return _closureDefinitions.ToArray(); }
-        }
+        public ZClosureFunction[] ZClosureFunctionDefinitions => _closureDefinitions.ToArray();
 
         /// <summary>
         /// Gets an array of all the global variable definitions stored in this ZRuntimeDefinition
         /// </summary>
-        public GlobalVariable[] GlobalVariableDefinitions
-        {
-            get { return _globalVariableDefinitions.ToArray(); }
-        }
+        public GlobalVariable[] GlobalVariableDefinitions => _globalVariableDefinitions.ToArray();
 
         /// <summary>
         /// Gets an array of all the class definitions stored in this ZRuntimeDefinition
         /// </summary>
-        public ZClass[] ClassDefinitions
-        {
-            get { return _classDefinitions.ToArray(); }
-        }
+        public ZClass[] ClassDefinitions => _classDefinitions.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the ZRuntimeDefinition class

@@ -55,18 +55,12 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets the list of fields colelcted in this class definition
         /// </summary>
-        public override TypeFieldDefinition[] Fields
-        {
-            get { return fields.ToArray(); }
-        }
+        public override TypeFieldDefinition[] Fields => fields.ToArray();
 
         /// <summary>
         /// Gets the list of methods collected in this class definition
         /// </summary>
-        public MethodDefinition[] Methods
-        {
-            get { return _methods.ToArray(); }
-        }
+        public MethodDefinition[] Methods => _methods.ToArray();
 
         /// <summary>
         /// Gets or sets the public constructor for this class definitions
@@ -227,7 +221,7 @@ namespace ZScript.CodeGeneration.Definitions
             _classTypeDef.ClearMethods();
 
             // Set base type
-            _classTypeDef.BaseType = (BaseClass == null ? null : BaseClass._classTypeDef);
+            _classTypeDef.BaseType = BaseClass?._classTypeDef;
 
             // Add the fields
             foreach (var field in fields)
@@ -336,7 +330,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets a value specifying whether this is a default constructor, that is, a parameter-less empty constructor created by the compiler
         /// </summary>
-        public bool IsDefault { get; private set; }
+        public bool IsDefault { get; }
 
         /// <summary>
         /// Gets or sets a value specifying whether the constructor requires a base call, or the user already performed the call

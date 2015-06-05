@@ -62,11 +62,9 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             for (int i = 0; i < tokens.Tokens.Length; i++)
             {
                 VariableToken varToken = tokens.Tokens[i] as VariableToken;
-                if (varToken == null)
-                    continue;
 
                 // Find the definition the token is pointing at
-                var def = varToken.PointingDefinition;
+                var def = varToken?.PointingDefinition;
                 if (def is FunctionDefinition)
                 {
                     for (int j = 0; j < _functions.Length; j++)

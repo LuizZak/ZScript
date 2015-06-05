@@ -29,11 +29,6 @@ namespace ZScript.Runtime
     public class ZClassInstance
     {
         /// <summary>
-        /// The class this object is an instance of
-        /// </summary>
-        private readonly ZClass _class;
-
-        /// <summary>
         /// The local memory for this class instance
         /// </summary>
         private readonly Memory _localMemory; 
@@ -41,18 +36,12 @@ namespace ZScript.Runtime
         /// <summary>
         /// Gets the class this object is an instance of
         /// </summary>
-        public ZClass Class
-        {
-            get { return _class; }
-        }
+        public ZClass Class { get; }
 
         /// <summary>
         /// Gets the local memory for this class instance
         /// </summary>
-        public Memory LocalMemory
-        {
-            get { return _localMemory; }
-        }
+        public Memory LocalMemory => _localMemory;
 
         /// <summary>
         /// Initializes a new instance of the ZClassInstance class
@@ -60,7 +49,7 @@ namespace ZScript.Runtime
         /// <param name="zClass">The class this object is an instance of</param>
         public ZClassInstance(ZClass zClass)
         {
-            _class = zClass;
+            Class = zClass;
             _localMemory = new Memory();
 
             // Init the local memory with null values for the variables

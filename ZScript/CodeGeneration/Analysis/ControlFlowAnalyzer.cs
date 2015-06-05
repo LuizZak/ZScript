@@ -59,7 +59,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets a list of all the return statements of the currently processed function
         /// </summary>
-        public List<ZScriptParser.ReturnStatementContext> ReturnStatements { get; private set; }
+        public List<ZScriptParser.ReturnStatementContext> ReturnStatements { get; }
 
         /// <summary>
         /// Initializes a new instance of the ControlFlowAnalyzer class
@@ -423,9 +423,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context for the break statement</param>
         public override void EnterBreakStatement(ZScriptParser.BreakStatementContext context)
         {
-            if (_breakDepth <= 0 && _generationContext.MessageContainer != null)
+            if (_breakDepth <= 0)
             {
-                _generationContext.MessageContainer.RegisterError(context, "No target for break statement", ErrorCode.NoTargetForBreakStatement);
+                _generationContext.MessageContainer?.RegisterError(context, "No target for break statement", ErrorCode.NoTargetForBreakStatement);
             }
         }
 
@@ -435,9 +435,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context for the continue statement</param>
         public override void EnterContinueStatement(ZScriptParser.ContinueStatementContext context)
         {
-            if (_continueDepth <= 0 && _generationContext.MessageContainer != null)
+            if (_continueDepth <= 0)
             {
-                _generationContext.MessageContainer.RegisterError(context, "No target for continue statement", ErrorCode.NoTargetForContinueStatement);
+                _generationContext.MessageContainer?.RegisterError(context, "No target for continue statement", ErrorCode.NoTargetForContinueStatement);
             }
         }
 

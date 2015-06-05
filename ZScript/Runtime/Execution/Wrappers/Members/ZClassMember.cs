@@ -45,11 +45,6 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         private readonly ZMethod _method;
 
         /// <summary>
-        /// The type of field stored in this ZClassMember
-        /// </summary>
-        private readonly Type _fieldType;
-
-        /// <summary>
         /// Whether the value on this ZClassMember is readonly
         /// </summary>
         private readonly bool _isReadonly;
@@ -62,26 +57,17 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <summary>
         /// The name of the member referenced by this ZClassMember
         /// </summary>
-        public string MemberName
-        {
-            get { return _name; }
-        }
+        public string MemberName => _name;
 
         /// <summary>
         /// Gets the type of this member
         /// </summary>
-        public Type MemberType
-        {
-            get { return _fieldType; }
-        }
+        public Type MemberType { get; }
 
         /// <summary>
         /// Gets a value specifying whether whether the value on this ZClassMember is readonly
         /// </summary>
-        public bool IsReadonly
-        {
-            get { return _isReadonly; }
-        }
+        public bool IsReadonly => _isReadonly;
 
         /// <summary>
         /// Initializes a new instance of the ZClassMember class
@@ -96,13 +82,13 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
             if (target.Class.Fields.Any(f => f.Name == name))
             {
                 var field = target.Class.Fields.First(f => f.Name == name);
-                _fieldType = field.Type;
+                MemberType = field.Type;
 
                 _isReadonly = false;
             }
             else
             {
-                _fieldType = typeof(ICallableWrapper);
+                MemberType = typeof(ICallableWrapper);
 
                 _method = target.Class.Methods.First(m => m.Name == name);
                 _isMethod = true;

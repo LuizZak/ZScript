@@ -34,11 +34,6 @@ namespace ZScript.CodeGeneration.Definitions
     public class FunctionDefinition : Definition
     {
         /// <summary>
-        /// The context containing the function body's statements
-        /// </summary>
-        private readonly ZScriptParser.FunctionBodyContext _bodyContext;
-
-        /// <summary>
         /// An array of all the function arguments for this function
         /// </summary>
         private readonly FunctionArgumentDefinition[] _parameters;
@@ -54,11 +49,6 @@ namespace ZScript.CodeGeneration.Definitions
         private TypeDef _returnType;
 
         /// <summary>
-        /// The count of required arguments for the function definition
-        /// </summary>
-        private readonly int _requiredCount;
-
-        /// <summary>
         /// Gets or sets a value specifying whether this function definition has a return type associated with it
         /// </summary>
         public bool HasReturnType { get; set; }
@@ -66,7 +56,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets or sets a value specifying whether this function definition has a void return value
         /// </summary>
-        public bool IsVoid { get { return ReturnType == null || ReturnType.IsVoid; } }
+        public bool IsVoid => ReturnType == null || ReturnType.IsVoid;
 
         /// <summary>
         /// List of return statements present in this function definition
@@ -76,10 +66,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets the context containing the function body's statements
         /// </summary>
-        public ZScriptParser.FunctionBodyContext BodyContext
-        {
-            get { return _bodyContext; }
-        }
+        public ZScriptParser.FunctionBodyContext BodyContext { get; }
 
         /// <summary>
         /// The generated tokens for the function body.
@@ -90,32 +77,23 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets an array of all the function arguments for this function
         /// </summary>
-        public FunctionArgumentDefinition[] Parameters
-        {
-            get { return _parameters; }
-        }
+        public FunctionArgumentDefinition[] Parameters => _parameters;
 
         /// <summary>
         /// gets the generic signature information for this function definition
         /// </summary>
-        public GenericSignatureInformation GenericSignature
-        {
-            get { return _genericSignature; }
-        }
+        public GenericSignatureInformation GenericSignature => _genericSignature;
 
         /// <summary>
         /// Gets a value specifying whether this function definition is generic in nature.
         /// Functions are considered generic if they have one or more generic type defined
         /// </summary>
-        public bool IsGeneric { get { return _genericSignature.GenericTypes.Length > 0; } }
+        public bool IsGeneric => _genericSignature.GenericTypes.Length > 0;
 
         /// <summary>
         /// Gets the minimum number of arguments required for the function call
         /// </summary>
-        public int RequiredParametersCount
-        {
-            get { return _requiredCount; }
-        }
+        public int RequiredParametersCount { get; }
 
         /// ;<summary>
         /// Gets or sets the return type for the function
@@ -163,10 +141,10 @@ namespace ZScript.CodeGeneration.Definitions
         {
             Name = name;
             ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();
-            _bodyContext = bodyContext;
+            BodyContext = bodyContext;
             _parameters = parameters;
             _genericSignature = genericSignature;
-            _requiredCount = parameters.Count(p => !(p.IsOptional));
+            RequiredParametersCount = parameters.Count(p => !(p.IsOptional));
 
             RecreateCallableDefinition();
 

@@ -165,7 +165,7 @@ namespace ZScript.CodeGeneration.Analysis
             // Set inheritance
             definition.BaseClass = baseClass;
             // Set constructor inheritance
-            definition.PublicConstructor.BaseMethod = (baseClass != null ? baseClass.PublicConstructor : null);
+            definition.PublicConstructor.BaseMethod = baseClass?.PublicConstructor;
 
             // Setup method overloading
             var methods = definition.Methods;
@@ -275,7 +275,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             var expList = stmt.expression().valueAccess().functionCall().tupleExpression().tupleEntry();
 
-            return expList == null ? 0 : expList.Length;
+            return expList?.Length ?? 0;
         }
 
         /// <summary>

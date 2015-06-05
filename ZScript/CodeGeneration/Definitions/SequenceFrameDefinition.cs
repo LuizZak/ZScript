@@ -78,34 +78,22 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Gets a value specifying whether the frame range of this sequence frame range is relative to the previous range that was read
         /// </summary>
-        public bool IsRelative
-        {
-            get { return _isRelative; }
-        }
+        public bool IsRelative => _isRelative;
 
         /// <summary>
         /// Gets a value specifying whether this sequence frame contains an end frame that specifies a range together with the start frame.
         /// </summary>
-        public bool IsRanged
-        {
-            get { return _isRanged; }
-        }
+        public bool IsRanged => _isRanged;
 
         /// <summary>
         /// Gets the start frame of the sequence
         /// </summary>
-        public int StartFrame
-        {
-            get { return _startFrame; }
-        }
+        public int StartFrame => _startFrame;
 
         /// <summary>
         /// Gets the end frame of the sequence
         /// </summary>
-        public int EndFrame
-        {
-            get { return _endFrame; }
-        }
+        public int EndFrame => _endFrame;
 
         /// <summary>
         /// Initializes a new SequenceFrameRange struct

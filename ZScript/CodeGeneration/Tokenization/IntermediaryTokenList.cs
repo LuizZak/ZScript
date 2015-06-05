@@ -301,7 +301,7 @@ namespace ZScript.CodeGeneration.Tokenization
         public static int OffsetForJump(IList<Token> tokens, JumpToken jumpToken)
         {
             if (!tokens.ContainsReference(jumpToken) || !tokens.ContainsReference(jumpToken.TargetToken))
-                throw new ArgumentException("The provided token does not exists inside this intermediate token list object", "jumpToken");
+                throw new ArgumentException("The provided token does not exists inside this intermediate token list object", nameof(jumpToken));
 
             return tokens.IndexOfReference(jumpToken.TargetToken);
         }
@@ -347,7 +347,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
             if (entryIndex < 0 || entryIndex >= tokenList.Count)
             {
-                throw new ArgumentOutOfRangeException("entryIndex");
+                throw new ArgumentOutOfRangeException(nameof(entryIndex));
             }
 
             // Reset the reachability of the tokens
@@ -487,15 +487,9 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.CopyTo(array, arrayIndex);
         }
 
-        public int Count
-        {
-            get { return _tokens.Count; }
-        }
+        public int Count => _tokens.Count;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public int IndexOf(Token item)
         {

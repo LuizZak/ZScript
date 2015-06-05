@@ -38,7 +38,7 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Gets the count of types stored in this type list
         /// </summary>
-        public int Count { get { return _types.Count; } }
+        public int Count => _types.Count;
 
         /// <summary>
         /// Initializes a new instance of the TypeList class with an empty type list

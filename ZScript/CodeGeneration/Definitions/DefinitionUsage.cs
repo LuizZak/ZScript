@@ -29,30 +29,14 @@ namespace ZScript.CodeGeneration.Definitions
     public class DefinitionUsage
     {
         /// <summary>
-        /// The definition that was used
-        /// </summary>
-        private readonly Definition _definition;
-
-        /// <summary>
-        /// The parser rule context that represents the definition's usage
-        /// </summary>
-        private readonly ParserRuleContext _context;
-
-        /// <summary>
         /// Gets the definition that was used
         /// </summary>
-        public Definition Definition
-        {
-            get { return _definition; }
-        }
+        public Definition Definition { get; }
 
         /// <summary>
         /// Gets the parser rule context that represents the definition's usage
         /// </summary>
-        public ParserRuleContext Context
-        {
-            get { return _context; }
-        }
+        public ParserRuleContext Context { get; }
 
         /// <summary>
         /// Initializes a new instance of the DefinitionUsage class
@@ -61,8 +45,8 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="context">The context in which the definition was used</param>
         public DefinitionUsage(Definition definition, ParserRuleContext context)
         {
-            _definition = definition;
-            _context = context;
+            Definition = definition;
+            Context = context;
         }
     }
 }

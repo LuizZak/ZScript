@@ -48,26 +48,17 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets the type provider using when resolving the type of the expressions
         /// </summary>
-        public TypeProvider TypeProvider
-        {
-            get { return _generationContext.TypeProvider; }
-        }
+        public TypeProvider TypeProvider => _generationContext.TypeProvider;
 
         /// <summary>
         /// Gets the container to report error messages to
         /// </summary>
-        public MessageContainer MessageContainer
-        {
-            get { return _generationContext.MessageContainer; }
-        }
+        public MessageContainer MessageContainer => _generationContext.MessageContainer;
 
         /// <summary>
         /// Gets the definition type provider for the code generation
         /// </summary>
-        public IDefinitionTypeProvider DefinitionTypeProvider
-        {
-            get { return _generationContext.DefinitionTypeProvider; }
-        }
+        public IDefinitionTypeProvider DefinitionTypeProvider => _generationContext.DefinitionTypeProvider;
 
         /// <summary>
         /// Gets or sets the object to notify the closure type matching to
@@ -179,9 +170,9 @@ namespace ZScript.CodeGeneration.Analysis
             else if (context.closureExpression() != null)
             {
                 // Notify of closure inferring
-                if (context.ExpectedType != null && ClosureExpectedTypeNotifier != null)
+                if (context.ExpectedType != null)
                 {
-                    ClosureExpectedTypeNotifier.ClosureTypeMatched(context.closureExpression(), context.ExpectedType);
+                    ClosureExpectedTypeNotifier?.ClosureTypeMatched(context.closureExpression(), context.ExpectedType);
                 }
 
                 retType = ResolveClosureExpression(context.closureExpression());
@@ -1036,7 +1027,7 @@ namespace ZScript.CodeGeneration.Analysis
                         continue;
 
                     // Match the argument types
-                    var matchType = TypeProvider.CanImplicitCast(argType, curArgInfo.ParameterType);
+                    var matchType = TypeProvider.AreTypesCompatible(argType, curArgInfo.ParameterType) && !TypeProvider.AreTypesCompatible(argType, curArgInfo.RawParameterType);
                     if (!matchType && !TypeProvider.CanImplicitCast(argType, curArgInfo.RawParameterType))
                     {
                         var message = "Cannot implicitly cast argument type " + argType + " to parameter type " + curArgInfo.RawParameterType;
@@ -1290,7 +1281,7 @@ namespace ZScript.CodeGeneration.Analysis
         public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
         {
             // Expected type for the list
-            var expectedValueType = context.ExpectedType == null ? null : context.ExpectedType.EnclosingType;
+            var expectedValueType = context.ExpectedType?.EnclosingType;
 
             // Try to infer the type of items in the array
             var listItemsType = expectedValueType ?? TypeProvider.AnyType();
@@ -1386,8 +1377,8 @@ namespace ZScript.CodeGeneration.Analysis
         public DictionaryTypeDef ResolveDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
         {
             // Expected type for the list
-            var expectedValueType = context.ExpectedType == null ? null : context.ExpectedType.EnclosingType;
-            var expectedKeyType = context.ExpectedType == null ? null : context.ExpectedType.SubscriptType;
+            var expectedValueType = context.ExpectedType?.EnclosingType;
+            var expectedKeyType = context.ExpectedType?.SubscriptType;
 
             // Try to infer the type of items in the array
             var dictKeyType = expectedKeyType ?? TypeProvider.AnyType();

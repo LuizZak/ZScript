@@ -188,6 +188,8 @@ expression:  tupleExpression objectAccess?
            |  constantAtom objectAccess?
            ;
 
+assignmentExpression : leftValue assignmentOperator (expression | assignmentExpression);
+
 multOp : ('*' | '/' | '%');
 additionOp : ('+' | '-');
 bitwiseShift : (T_SHIFTLEFT | T_SHIFTRIGHT);
@@ -201,7 +203,6 @@ logicalOr  : '||';
 
 tupleExpression : '(' (tupleEntry (',' tupleEntry)*)? ')';
 tupleEntry : (IDENT ':')? expression;
-assignmentExpression : leftValue assignmentOperator (expression | assignmentExpression);
 newExpression : 'new' typeName tupleExpression;
 closureExpression : (functionArg | functionArguments) returnType? '=>' functionBody;
 
@@ -211,7 +212,7 @@ postfixOperator : '++' | '--';
 unaryOperator : '-' | '!';
 assignmentOperator : '=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=' | '&=' | '~=' | '|=' | '<<=' | '>>=';
 
-leftValue : (memberName | 'this') leftValueAccess?;
+leftValue : ((memberName | 'this') leftValueAccess?) | ('(' leftValue (',' leftValue)+ ')');
 leftValueAccess : unwrap='!'? ((functionCall leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?) | (tupleAccess leftValueAccess?));
 functionCall : tupleExpression;
 fieldAccess  : '.' memberName;

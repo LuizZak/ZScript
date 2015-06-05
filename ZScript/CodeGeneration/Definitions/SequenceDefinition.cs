@@ -40,15 +40,12 @@ namespace ZScript.CodeGeneration.Definitions
         /// <summary>
         /// Get an array of frame definitions for this sequence definition
         /// </summary>
-        public SequenceFrameDefinition[] FrameDefinitions { get { return _frameDefinitions.ToArray(); } }
+        public SequenceFrameDefinition[] FrameDefinitions => _frameDefinitions.ToArray();
 
         /// <summary>
         /// Gets all the fields defined in this sequence definition
         /// </summary>
-        public override TypeFieldDefinition[] Fields
-        {
-            get { return fields.ToArray(); }
-        }
+        public override TypeFieldDefinition[] Fields => fields.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the SequenceDefinition class

@@ -30,30 +30,14 @@ namespace ZScript.CodeGeneration.Definitions
     public class GenericSignatureInformation
     {
         /// <summary>
-        /// The array of generic types defined within this generic parameters definition
-        /// </summary>
-        private readonly GenericTypeDefinition[] _genericTypes;
-
-        /// <summary>
-        /// The constraints for this generic signature information
-        /// </summary>
-        private readonly GenericTypeConstraint[] _constraints;
-
-        /// <summary>
         /// Gets an array of generic types defined within this generic parameters definition
         /// </summary>
-        public GenericTypeDefinition[] GenericTypes
-        {
-            get { return _genericTypes; }
-        }
+        public GenericTypeDefinition[] GenericTypes { get; }
 
         /// <summary>
         /// The constraints for this generic signature information
         /// </summary>
-        public GenericTypeConstraint[] Constraints
-        {
-            get { return _constraints; }
-        }
+        public GenericTypeConstraint[] Constraints { get; }
 
         /// <summary>
         /// Initializes a new instance of the GenericParametersDefinition class with an empty list of generic types
@@ -80,8 +64,8 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="constraints">The constraints for this generic signature</param>
         public GenericSignatureInformation(GenericTypeDefinition[] genericTypes, GenericTypeConstraint[] constraints)
         {
-            _genericTypes = genericTypes;
-            _constraints = constraints;
+            GenericTypes = genericTypes;
+            Constraints = constraints;
         }
     }
 
@@ -164,9 +148,9 @@ namespace ZScript.CodeGeneration.Definitions
         {
             unchecked
             {
-                return ((BaseTypeName != null ? BaseTypeName.GetHashCode() : 0) * 397) ^
-                       ((TypeName != null ? TypeName.GetHashCode() : 0) * 397) ^
-                       (Context != null ? Context.GetHashCode() : 0);
+                return ((BaseTypeName?.GetHashCode() ?? 0) * 397) ^
+                       ((TypeName?.GetHashCode() ?? 0) * 397) ^
+                       (Context?.GetHashCode() ?? 0);
             }
         }
 

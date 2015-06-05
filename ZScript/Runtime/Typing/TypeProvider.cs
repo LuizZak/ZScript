@@ -53,10 +53,7 @@ namespace ZScript.Runtime.Typing
         /// <summary>
         /// Gets type provider used to resolve binary expressions
         /// </summary>
-        public BinaryExpressionTypeProvider BinaryExpressionProvider
-        {
-            get { return _binaryExpressionProvider; }
-        }
+        public BinaryExpressionTypeProvider BinaryExpressionProvider => _binaryExpressionProvider;
 
         /// <summary>
         /// Whether to provide default values for value types when trying to convert null to value types with <see cref="CastObject"/>
@@ -123,7 +120,7 @@ namespace ZScript.Runtime.Typing
         /// <returns></returns>
         public object CastObject(object value, Type newType)
         {
-            if (newType == null) throw new ArgumentNullException("newType");
+            if (newType == null) throw new ArgumentNullException(nameof(newType));
 
             // Resolve nulls
             if (value == null)
@@ -305,8 +302,8 @@ namespace ZScript.Runtime.Typing
         /// <returns>The most common type that fits the two provided types</returns>
         public TypeDef FindCommonType(TypeDef type1, TypeDef type2, bool withCast = true)
         {
-            if (type1 == null) throw new ArgumentNullException("type1");
-            if (type2 == null) throw new ArgumentNullException("type2");
+            if (type1 == null) throw new ArgumentNullException(nameof(type1));
+            if (type2 == null) throw new ArgumentNullException(nameof(type2));
 
             // Equal types: return the type itself
             if (type1 == type2)

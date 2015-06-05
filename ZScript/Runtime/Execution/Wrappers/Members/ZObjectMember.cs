@@ -73,18 +73,12 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <summary>
         /// The name of the member referenced by this ZObjectMember
         /// </summary>
-        public string MemberName
-        {
-            get { return _name; }
-        }
+        public string MemberName => _name;
 
         /// <summary>
         /// Gets the type of this member.
         /// This value is always typeof(object)
         /// </summary>
-        public Type MemberType
-        {
-            get { return typeof(object); }
-        }
+        public Type MemberType => typeof(object);
     }
 }

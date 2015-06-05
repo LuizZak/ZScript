@@ -45,18 +45,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets the type provider which will be usd to check expression solvability
         /// </summary>
-        private TypeProvider TypeProvider
-        {
-            get { return Context.TypeProvider; }
-        }
+        private TypeProvider TypeProvider => Context.TypeProvider;
 
         /// <summary>
         /// The runtime generation context to get the type provider from
         /// </summary>
-        public RuntimeGenerationContext Context
-        {
-            get { return _context; }
-        }
+        public RuntimeGenerationContext Context => _context;
 
         /// <summary>
         /// The type provider which will be used to perform the operations on the constants

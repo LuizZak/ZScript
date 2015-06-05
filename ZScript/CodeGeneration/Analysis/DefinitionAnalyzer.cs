@@ -58,10 +58,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gest the message container that errors will be reported to
         /// </summary>
-        private MessageContainer Container
-        {
-            get { return _context.MessageContainer; }
-        }
+        private MessageContainer Container => _context.MessageContainer;
 
         /// <summary>
         /// Creates a new instance of the VariableUsageAnalyzer class

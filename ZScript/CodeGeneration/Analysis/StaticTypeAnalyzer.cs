@@ -71,18 +71,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets the type provider for this static type analyzer
         /// </summary>
-        private TypeProvider TypeProvider
-        {
-            get { return _generationContext.TypeProvider; }
-        }
+        private TypeProvider TypeProvider => _generationContext.TypeProvider;
 
         /// <summary>
         /// Gets the message container to report errors and warnings to
         /// </summary>
-        private MessageContainer Container
-        {
-            get { return _generationContext.MessageContainer; }
-        }
+        private MessageContainer Container => _generationContext.MessageContainer;
 
         /// <summary>
         /// Initializes a new instance of the DefinitionTypeExpander class
@@ -446,10 +440,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// <summary>
             /// Gets the type provider for this expression statement traverser
             /// </summary>
-            private TypeProvider TypeProvider
-            {
-                get { return _context.TypeProvider; }
-            }
+            private TypeProvider TypeProvider => _context.TypeProvider;
 
             /// <summary>
             /// Initializes a new instance of the ExpressionStatementsTraverser class
@@ -580,8 +571,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             private void ClearLocalStack()
             {
-                if (_definitionsTarget != null)
-                    _definitionsTarget.ClearLocalStack();
+                _definitionsTarget?.ClearLocalStack();
             }
 
             /// <summary>
@@ -589,8 +579,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             private void PushLocalScope()
             {
-                if (_definitionsTarget != null)
-                    _definitionsTarget.PushLocalScope();
+                _definitionsTarget?.PushLocalScope();
             }
 
             /// <summary>
@@ -599,8 +588,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="definition">The definition to add to the top of the definition stack</param>
             private void AddLocal(LocalVariableDefinition definition)
             {
-                if (_definitionsTarget != null)
-                    _definitionsTarget.AddLocal(definition);
+                _definitionsTarget?.AddLocal(definition);
             }
 
             /// <summary>
@@ -608,8 +596,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             private void PopLocalScope()
             {
-                if (_definitionsTarget != null)
-                    _definitionsTarget.PopLocalScope();
+                _definitionsTarget?.PopLocalScope();
             }
 
             /// <summary>

@@ -30,53 +30,19 @@ namespace ZScript.Elements
     public class ZClass
     {
         /// <summary>
-        /// The name for the class
-        /// </summary>
-        private readonly string _className;
-
-        /// <summary>
-        /// The methods for this class
-        /// </summary>
-        private readonly ZMethod[] _methods;
-
-        /// <summary>
-        /// The fields for this class
-        /// </summary>
-        private readonly ZClassField[] _fields;
-
-        /// <summary>
-        /// The constructor for this class
-        /// </summary>
-        private readonly ZMethod _constructor;
-
-        /// <summary>
-        /// The native type associated with this ZClass
-        /// </summary>
-        private readonly Type _nativeType;
-
-        /// <summary>
         /// Gets the name for the class
         /// </summary>
-        public string ClassName
-        {
-            get { return _className; }
-        }
+        public string ClassName { get; }
 
         /// <summary>
         /// Gets the methods for this class
         /// </summary>
-        public ZMethod[] Methods
-        {
-            get { return _methods; }
-        }
+        public ZMethod[] Methods { get; }
 
         /// <summary>
         /// Gets the constructor for this class
         /// </summary>
-        public ZMethod Constructor
-        {
-            get { return _constructor; }
-        }
+        public ZMethod Constructor { get; }
 
         /// <summary>
         /// Gets a value specifying whether the constructor for this class requires a base call, or the user already performed the call
@@ -86,18 +52,12 @@ namespace ZScript.Elements
         /// <summary>
         /// Gets the fields for this class
         /// </summary>
-        public ZClassField[] Fields
-        {
-            get { return _fields; }
-        }
+        public ZClassField[] Fields { get; }
 
         /// <summary>
         /// Gets the native type associated with this ZClass
         /// </summary>
-        public Type NativeType
-        {
-            get { return _nativeType; }
-        }
+        public Type NativeType { get; }
 
         /// <summary>
         /// Initializes a new instance of the ZClass class
@@ -110,11 +70,11 @@ namespace ZScript.Elements
         /// <param name="constructorRequiresBaseCall">Whether the constructor for this class requires a base call, or the user already performed the call</param>
         public ZClass(string className, ZMethod[] methods, ZClassField[] fields, ZMethod constructor, Type nativeType, bool constructorRequiresBaseCall)
         {
-            _className = className;
-            _methods = methods;
-            _fields = fields;
-            _constructor = constructor;
-            _nativeType = nativeType;
+            ClassName = className;
+            Methods = methods;
+            Fields = fields;
+            Constructor = constructor;
+            NativeType = nativeType;
             ConstructorRequiresBaseCall = constructorRequiresBaseCall;
         }
     }

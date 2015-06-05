@@ -42,18 +42,12 @@ namespace ZScript.Elements
         /// <summary>
         /// Gets a value specifying whether this optional has a value contained within
         /// </summary>
-        public bool HasInnerValue
-        {
-            get { return _hasValue; }
-        }
+        public bool HasInnerValue => _hasValue;
 
         /// <summary>
         /// Gets the value stored in this optional
         /// </summary>
-        public object InnerValue
-        {
-            get { return Value; }
-        }
+        public object InnerValue => Value;
 
         /// <summary>
         /// Gets a value specifying whether this optional has a value contained within, or if the value contained is an optional, if that optional has a value
@@ -113,7 +107,7 @@ namespace ZScript.Elements
         /// <summary>
         /// Gets an empty representation of an optional of type T
         /// </summary>
-        public static Optional<T> Empty { get { return new Optional<T>(); } }
+        public static Optional<T> Empty => new Optional<T>();
 
         /// <summary>
         /// Initializes a new instance of the Optional class with a starting value

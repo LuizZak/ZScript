@@ -36,26 +36,17 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <summary>
         /// Gets the name of the field pointed by this FieldClassMember
         /// </summary>
-        public override string MemberName
-        {
-            get { return _field.Name; }
-        }
+        public override string MemberName => _field.Name;
 
         /// <summary>
         /// Gets the type of the field pointed by this FieldClassMember
         /// </summary>
-        public override Type MemberType
-        {
-            get { return _field.FieldType; }
-        }
+        public override Type MemberType => _field.FieldType;
 
         /// <summary>
         /// Gets the field wrapped in this FieldClassMember
         /// </summary>
-        public FieldInfo Field
-        {
-            get { return _field; }
-        }
+        public FieldInfo Field => _field;
 
         /// <summary>
         /// Initializes a new instance of the FieldClassMember class

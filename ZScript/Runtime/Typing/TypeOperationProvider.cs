@@ -535,7 +535,7 @@ namespace ZScript.Runtime.Typing
                 return NumberClass.Double;
 
             if (throwOnError)
-                throw new ArgumentException("The provided boxed object is not a valid numeric type", "boxedNumber");
+                throw new ArgumentException("The provided boxed object is not a valid numeric type", nameof(boxedNumber));
 
             return NumberClass.NotANumber;
         }

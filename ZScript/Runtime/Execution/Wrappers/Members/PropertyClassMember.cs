@@ -36,26 +36,17 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <summary>
         /// Gets the name of the property pointed by this PropertyClassMember
         /// </summary>
-        public override string MemberName
-        {
-            get { return _property.Name; }
-        }
+        public override string MemberName => _property.Name;
 
         /// <summary>
         /// Gets the type of the property pointed by this PropertyClassMember
         /// </summary>
-        public override Type MemberType
-        {
-            get { return _property.PropertyType; }
-        }
+        public override Type MemberType => _property.PropertyType;
 
         /// <summary>
         /// Gets the property wrapped in this PropertyClassMember
         /// </summary>
-        public PropertyInfo Property
-        {
-            get { return _property; }
-        }
+        public PropertyInfo Property => _property;
 
         /// <summary>
         /// Initializes a new instance of the PropertyClassMember class

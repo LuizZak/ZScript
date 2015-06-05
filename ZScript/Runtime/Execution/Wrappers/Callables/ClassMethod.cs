@@ -43,19 +43,13 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// <summary>
         /// Gets the name of the callable wrapped by this ClassMethod
         /// </summary>
-        public string CallableName
-        {
-            get { return _methodInfos[0].Name; }
-        }
+        public string CallableName => _methodInfos[0].Name;
 
         /// <summary>
         /// Gets the local memory for the class method.
         /// Always returns null
         /// </summary>
-        public IMemory<string> LocalMemory
-        {
-            get { return null; }
-        }
+        public IMemory<string> LocalMemory => null;
 
         /// <summary>
         /// Initializes a new instance of the ClassMethod class
