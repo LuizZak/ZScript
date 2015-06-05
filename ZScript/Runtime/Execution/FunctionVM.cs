@@ -837,7 +837,7 @@ namespace ZScript.Runtime.Execution
             object memberName = _stack.Pop();
             object target = PopValueImplicit();
 
-            memberName = (memberName as Token)?.TokenObject;
+            memberName = (memberName as Token)?.TokenObject ?? memberName;
 
             _stack.Push(MemberWrapperHelper.CreateMemberWrapper(target, (string)memberName));
         }
@@ -850,7 +850,7 @@ namespace ZScript.Runtime.Execution
             object memberName = _stack.Pop();
             object target = PopValueImplicit();
 
-            memberName = (memberName as Token)?.TokenObject;
+            memberName = (memberName as Token)?.TokenObject ?? memberName;
 
             _stack.Push(MemberWrapperHelper.CreateCallableWrapper(target, (string)memberName));
         }
