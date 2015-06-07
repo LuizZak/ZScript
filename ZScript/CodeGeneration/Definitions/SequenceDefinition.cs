@@ -19,6 +19,7 @@
 */
 #endregion
 using System.Collections.Generic;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Definitions
 {

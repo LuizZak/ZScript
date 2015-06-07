@@ -22,6 +22,7 @@
 using System.Linq;
 using Antlr4.Runtime;
 using ZScript.CodeGeneration.Definitions;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration
 {

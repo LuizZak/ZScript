@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using ZScript.Parsing.ANTLR;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions

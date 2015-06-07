@@ -22,6 +22,7 @@ using System.Collections.Generic;
 
 using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Parsing.ANTLR;
 using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Analysis

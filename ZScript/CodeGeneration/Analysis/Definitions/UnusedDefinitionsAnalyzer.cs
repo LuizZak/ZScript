@@ -22,6 +22,7 @@
 using System.Linq;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Analysis.Definitions
 {

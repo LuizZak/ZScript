@@ -21,6 +21,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.CodeGeneration.Analysis;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScriptTests.CodeGeneration.Analysis
 {

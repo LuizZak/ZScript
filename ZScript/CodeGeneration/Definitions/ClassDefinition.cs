@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using ZScript.Elements;
+using ZScript.Parsing.ANTLR;
 using ZScript.Runtime;
 using ZScript.Runtime.Typing.Elements;
 

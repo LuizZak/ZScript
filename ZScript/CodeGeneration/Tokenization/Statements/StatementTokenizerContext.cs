@@ -25,6 +25,7 @@ using System.Linq;
 
 using ZScript.CodeGeneration.Analysis;
 using ZScript.Elements;
+using ZScript.Parsing.ANTLR;
 using ZScript.Runtime.Execution;
 
 namespace ZScript.CodeGeneration.Tokenization.Statements

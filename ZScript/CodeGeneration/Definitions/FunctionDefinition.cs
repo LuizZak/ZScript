@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 
 using ZScript.Elements;
+using ZScript.Parsing.ANTLR;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions

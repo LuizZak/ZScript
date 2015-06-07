@@ -28,6 +28,7 @@ using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration
 {

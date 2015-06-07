@@ -21,6 +21,7 @@
 
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
+using ZScript.Parsing.ANTLR;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing.Elements;
 using ZScript.Utils;

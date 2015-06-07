@@ -26,6 +26,7 @@ using Antlr4.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ZScript.Parsing;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScriptTests.Parsing
 {

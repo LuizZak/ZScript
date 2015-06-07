@@ -27,6 +27,7 @@ using Antlr4.Runtime;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Analysis
 {

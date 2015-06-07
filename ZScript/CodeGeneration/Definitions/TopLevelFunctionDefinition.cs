@@ -19,6 +19,8 @@
 */
 #endregion
 
+using ZScript.Parsing.ANTLR;
+
 namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>

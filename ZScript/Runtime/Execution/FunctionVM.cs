@@ -1403,10 +1403,10 @@ namespace ZScript.Runtime.Execution
         /// If the value does not exists, a null value is pushed instead
         /// </summary>
         SafeUnwrapNullified,
-        
-        /// <summary>Logical AND (&&) operation</summary>
+
+        /// <summary>Logical AND (&amp;&amp;) operation</summary>
         LogicalAnd,
-        /// <summary>Logical OR (&&) operation</summary>
+        /// <summary>Logical OR (||) operation</summary>
         LogicalOr,
 
         /// <summary>Ends the function, and if the stack is not empty, pops the top-most value of the stack and using it as a return value</summary>

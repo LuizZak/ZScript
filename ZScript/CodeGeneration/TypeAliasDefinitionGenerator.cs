@@ -21,6 +21,7 @@
 
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Parsing;
+using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration
 {
