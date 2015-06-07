@@ -201,7 +201,9 @@
     <Compile Include="Utils\TokenUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <Antlr4 Include="Parsing\ANTLR\ZScript.g4">
       <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>ZScript.Parsing.ANTLR</CustomToolNamespace>
@@ -213,8 +215,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
