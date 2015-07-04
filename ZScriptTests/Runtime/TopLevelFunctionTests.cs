@@ -18,7 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ZScript.Elements;
+using ZScript.Runtime.Typing;
 using ZScriptTests.Utils;
 
 namespace ZScriptTests.Runtime
@@ -143,5 +147,34 @@ namespace ZScriptTests.Runtime
             // Assert the correct call was made
             Assert.AreEqual(1L, owner.TraceObjects[0], "The function call did not occur as expected");
         }
+
+        #region Parameter Collection
+
+        /// <summary>
+        /// Tests transforming null into an optional parameter
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalParameter()
+        {
+            const string input = "func f1(a:int? = null) { }";
+            
+            // Setup owner call
+            var provider = new TypeProvider();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var definition = generator.GenerateRuntimeDefinition();
+            
+            var functionDefinition = definition.ZFunctionDefinitions[0];
+
+            var optionalType = typeof(Optional<>).MakeGenericType(provider.NativeTypeForTypeDef(provider.IntegerType()));
+
+            Assert.IsTrue(functionDefinition.Arguments[0].HasValue);
+
+            Assert.AreEqual(Activator.CreateInstance(optionalType), functionDefinition.Arguments[0].DefaultValue);
+            Assert.AreEqual(optionalType, functionDefinition.Arguments[0].DefaultValue.GetType());
+        }
+
+        #endregion
     }
 }

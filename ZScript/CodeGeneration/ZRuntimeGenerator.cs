@@ -583,8 +583,11 @@ namespace ZScript.CodeGeneration
                     type = context.TypeProvider.NativeTypeForTypeDef(((IListTypeDef)arg.Type).EnclosingType, true);
                 }
 
-                retArgs[i] = new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue,
-                    arg.HasValue ? ConstantAtomParser.ParseCompileConstantAtom(arg.DefaultValue) : null)
+                var defaultValue = arg.HasValue ? ConstantAtomParser.ParseCompileConstantAtom(arg.DefaultValue) : null;
+
+                defaultValue = context.TypeProvider.CastObject(defaultValue, type);
+
+                retArgs[i] = new FunctionArgument(arg.Name, arg.IsVariadic, arg.HasValue, defaultValue)
                 {
                     Type = type
                 };
