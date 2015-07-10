@@ -341,5 +341,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToSubscriptNonList));
         }
+        
+        /// <summary>
+        /// Tests implicit casting within tuples, where the expected tuple type is optional
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalTupleInnerImplicitCasting()
+        {
+            // Set up the test
+            const string input = "(0, 1);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var exp = parser.statement().expression();
+            var tupleType = provider.TupleForTypes(provider.OptionalTypeForType(provider.IntegerType()), provider.FloatType());
+            exp.ExpectedType = provider.OptionalTypeForType(tupleType);
+
+            resolver.ResolveExpression(exp);
+
+            // Compare the result now
+            Assert.AreEqual(tupleType, exp.tupleExpression().TupleType, "The resolved type did not match the expected type");
+            Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), exp.tupleExpression().tupleEntry(0).expression().ExpectedType, "The resolved type did not match the expected type");
+        }
     }
 }

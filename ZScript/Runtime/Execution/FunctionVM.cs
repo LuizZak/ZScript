@@ -770,7 +770,7 @@ namespace ZScript.Runtime.Execution
 
             for (int i = 0; i < argCount; i++)
             {
-                obj[(string)_stack.Pop()] = PopValueImplicit(true);
+                obj[_stack.Pop()] = PopValueImplicit(true);
             }
 
             // Push the array back into the stack

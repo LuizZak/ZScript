@@ -90,6 +90,7 @@
     <Compile Include="CodeGeneration\Tokenization\PostfixExpressionTokenizer+TupleTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\PostfixExpressionTokenizerTests.cs" />
     <Compile Include="CodeGeneration\Tokenization\StatementTokenizerTests.cs" />
+    <Compile Include="CrashCases\TupleCrashCaseTests.cs" />
     <Compile Include="Elements\OptionalTests.cs" />
     <Compile Include="Elements\TokenFactoryTests.cs" />
     <Compile Include="Elements\ZObjectTests.cs" />

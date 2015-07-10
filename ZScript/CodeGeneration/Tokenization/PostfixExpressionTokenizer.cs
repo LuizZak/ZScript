@@ -723,6 +723,7 @@ namespace ZScript.CodeGeneration.Tokenization
                         }
 
                         _tokens.Add(TokenFactory.CreateBoxedValueToken(defaultValue));
+                        _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, signature.ParameterInfos[i].RawParameterType));
                     }
                 }
             }

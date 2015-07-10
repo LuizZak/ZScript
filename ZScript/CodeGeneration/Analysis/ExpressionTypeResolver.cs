@@ -224,7 +224,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
             else if (context.tupleExpression() != null)
             {
-                var expectedAsTuple = context.ExpectedType as TupleTypeDef;
+                var expectedAsTuple = TypeProvider.UnwrappedOptionalTypeForType(context.ExpectedType) as TupleTypeDef;
                 if (expectedAsTuple != null && context.objectAccess() == null)
                 {
                     context.tupleExpression().ExpectedType = expectedAsTuple;

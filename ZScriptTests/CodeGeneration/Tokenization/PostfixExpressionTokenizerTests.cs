@@ -2931,7 +2931,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             const string input = "defaultInt()";
             var parser = TestUtils.CreateParser(input);
             var definitionProvider = new TestFunctionDefinitionProvider();
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider(), definitionTypeProvider: definitionProvider)));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider, definitionTypeProvider: definitionProvider)));
 
             var exp = parser.expression();
 
@@ -2944,6 +2945,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 TokenFactory.CreateVariableToken("defaultInt", true),
                 TokenFactory.CreateBoxedValueToken(5L),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, typeProvider.IntegerType()),
                 TokenFactory.CreateBoxedValueToken(1),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call)
             };

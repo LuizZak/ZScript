@@ -467,6 +467,19 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
+        /// Returns the wrapped type contained within an optional type provided, or the type itself, in case it's not an optional type.
+        /// The unwrapping is done up to the first level of wrapping where typeof(type) != OptionalTypeDef
+        /// </summary>
+        /// <param name="type">The type to unwrap</param>
+        /// <returns>The unwrapped optional type, or the type itself, if it's not an optional type</returns>
+        public TypeDef UnwrappedOptionalTypeForType(TypeDef type)
+        {
+            var optional = type as OptionalTypeDef;
+
+            return optional != null ? optional.BaseWrappedType : type;
+        }
+
+        /// <summary>
         /// Returns a value specifying whether the given type is an enumerable type
         /// </summary>
         /// <param name="type">The type to verify</param>
