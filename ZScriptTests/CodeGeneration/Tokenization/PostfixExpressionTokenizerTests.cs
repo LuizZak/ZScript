@@ -2899,7 +2899,8 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("i", true),
-                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
+                TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
+                TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, tupleForTypes)
             };
 

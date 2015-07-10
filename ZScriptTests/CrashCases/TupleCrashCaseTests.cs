@@ -62,7 +62,8 @@ namespace ZScriptTests.CrashCases
 
             runtime.CallFunction("main");
 
-            Assert.AreEqual(runtimeOwner.TraceObjects[0], 0);
+            Assert.AreEqual(((dynamic)runtimeOwner.TraceObjects[0]).InnerValue.Field0, new Optional<long>(0));
+            Assert.AreEqual(((dynamic)runtimeOwner.TraceObjects[0]).InnerValue.Field1, 0L);
         }
 
         [TestMethod]
