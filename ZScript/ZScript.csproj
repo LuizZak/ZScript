@@ -210,9 +210,7 @@
     </Antlr4>
     <None Include="ZScript.licenseheader" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Parsing\ANTLRExtend\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>

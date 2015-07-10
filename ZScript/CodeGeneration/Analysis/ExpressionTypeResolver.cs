@@ -839,9 +839,12 @@ namespace ZScript.CodeGeneration.Analysis
                 ResolveTupleAccess(leftValue, leftValueContext, context.tupleAccess(), ref type);
             }
 
+            context.EvaluatedType = type;
+
             if (context.valueAccess() != null)
             {
-                return ResolveValueAccess(type, leftValueContext, context.valueAccess());
+                type = ResolveValueAccess(type, leftValueContext, context.valueAccess());
+                context.EvaluatedType = type;
             }
 
             return context.nullable != null ? TypeProvider.OptionalTypeForType(type) : type;

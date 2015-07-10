@@ -2274,9 +2274,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a?.Length";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
 
             var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2292,6 +2295,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateMemberNameToken("Length"),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
                 jTar
             };
 
@@ -2315,9 +2319,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a?.b?.c";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
 
             var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
+            exp.valueAccess().valueAccess().EvaluatedType = typeProvider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2342,6 +2350,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
                 jTar2,
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
                 jTar1
             };
 
@@ -2365,11 +2374,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a?()";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
 
             var exp = parser.expression();
 
             exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2384,6 +2396,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 jmpT,
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
                 jTar
             };
 
@@ -2452,12 +2465,16 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a?().b?()";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
 
             var exp = parser.expression();
 
             exp.valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
             exp.valueAccess().valueAccess().valueAccess().functionCall().CallableSignature = new CallableTypeDef(new CallableTypeDef.CallableParameterInfo[0], TypeDef.VoidType, true);
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
+            exp.valueAccess().valueAccess().EvaluatedType = typeProvider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2482,6 +2499,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(0),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
                 jTar2,
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
                 jTar1
             };
 
@@ -2505,9 +2523,12 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a?[0]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
 
             var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2523,6 +2544,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
                 jTar
             };
 
@@ -2590,9 +2612,13 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
             const string input = "a?[0].b?[0]";
             var parser = TestUtils.CreateParser(input);
-            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: new TypeProvider())));
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
 
             var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
+            exp.valueAccess().valueAccess().EvaluatedType = typeProvider.IntegerType();
 
             var generatedTokens = tokenizer.TokenizeExpression(exp);
 
@@ -2620,6 +2646,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
                 TokenFactory.CreateInstructionToken(VmInstruction.Get),
                 jTar2,
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
                 jTar1
             };
 
@@ -2844,6 +2871,50 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #endregion
 
+        #region Tuple implicit casting
+        
+        /// <summary>
+        /// Tests tuple implicit casting generation
+        /// </summary>
+        [TestMethod]
+        public void TestTupleImplicitCasting()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "(i, 0)";
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
+
+            var exp = parser.expression();
+
+            var tupleForTypes = typeProvider.TupleForTypes(typeProvider.OptionalTypeForType(typeProvider.IntegerType()), typeProvider.IntegerType());
+            exp.tupleExpression().ExpectedType = tupleForTypes;
+            exp.tupleExpression().TupleType = tupleForTypes;
+            exp.tupleExpression().tupleEntry(0).expression().ImplicitCastType = typeProvider.OptionalTypeForType(typeProvider.IntegerType());
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateVariableToken("i", true),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, tupleForTypes)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
         #region Optionals
 
         /// <summary>
@@ -2868,6 +2939,143 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 'a'
                 TokenFactory.CreateVariableToken("a", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.Unwrap),
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests optional conditional access
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalConditionalFieldAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?.a";
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jt = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // 'a'
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
+                new JumpToken(jt, true, false),
+                TokenFactory.CreateMemberNameToken("a"),
+                TokenFactory.CreateInstructionToken(VmInstruction.GetMember),
+                TokenFactory.CreateInstructionToken(VmInstruction.Get),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
+                jt
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests optional conditional access
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalConditionalFunctionAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?()";
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jt = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // 'a'
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
+                new JumpToken(jt, true, false),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
+                jt
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests optional conditional access
+        /// </summary>
+        [TestMethod]
+        public void TestOptionalConditionalChainedFunctionAccess()
+        {
+            const string message = "Failed to generate expected tokens";
+
+            const string input = "a?()?()";
+            var parser = TestUtils.CreateParser(input);
+            var typeProvider = new TypeProvider();
+            var tokenizer = new PostfixExpressionTokenizer(new StatementTokenizerContext(new RuntimeGenerationContext(typeProvider: typeProvider)));
+
+            var exp = parser.expression();
+
+            exp.valueAccess().EvaluatedType = typeProvider.IntegerType();
+            exp.valueAccess().valueAccess().EvaluatedType = typeProvider.IntegerType();
+
+            var generatedTokens = tokenizer.TokenizeExpression(exp);
+
+            // Create the expected list
+            var jt1 = new JumpTargetToken();
+            var jt2 = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // 'a'
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
+                new JumpToken(jt1, true, false),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                TokenFactory.CreateInstructionToken(VmInstruction.SafeUnwrapNullified),
+                new JumpToken(jt2, true, false),
+                TokenFactory.CreateBoxedValueToken(0),
+                TokenFactory.CreateInstructionToken(VmInstruction.Call),
+                jt2,
+                TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, typeProvider.OptionalTypeForType(typeProvider.IntegerType())),
+                jt1
             };
 
             Console.WriteLine("Dump of tokens: ");

@@ -127,6 +127,17 @@ namespace ZScript.Parsing.ANTLR
         }
 
         /// <summary>
+        /// Provides extensions to the ValueAccessContext to enable implicit optional wrapping when doing null-conditional operations on data
+        /// </summary>
+        partial class ValueAccessContext
+        {
+            /// <summary>
+            /// Gets or sets the evaluated type of this value access
+            /// </summary>
+            public TypeDef EvaluatedType { get; set; }
+        }
+
+        /// <summary>
         /// Provides extensions to the MemberNameContext for binding it to definitions
         /// </summary>
         partial class MemberNameContext

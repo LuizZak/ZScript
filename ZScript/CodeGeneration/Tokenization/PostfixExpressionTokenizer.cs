@@ -960,7 +960,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitValueAccess(ZScriptParser.ValueAccessContext context)
+        private void VisitValueAccess(ZScriptParser.ValueAccessContext context, bool addImplicitWrap = true)
         {
             bool hasUnwrap = context.T_NULL_CONDITIONAL().Length > 0;
 
@@ -994,11 +994,17 @@ namespace ZScript.CodeGeneration.Tokenization
             }
             if (context.valueAccess() != null)
             {
-                VisitValueAccess(context.valueAccess());
+                VisitValueAccess(context.valueAccess(), false);
             }
-
+            
             if (hasUnwrap)
             {
+                if(addImplicitWrap)
+                {
+                    // Add wrap instruction
+                    _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.Wrap, TypeProvider.OptionalTypeForType(context.EvaluatedType)));
+                }
+
                 _tokens.Add(endTarget);
             }
         }
