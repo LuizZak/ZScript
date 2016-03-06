@@ -341,7 +341,26 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
             Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.TryingToSubscriptNonList));
         }
-        
+
+        /// <summary>
+        /// Tests raising errors when trying to create tuples with a void-value in the expression list
+        /// </summary>
+        [TestMethod]
+        public void TestingVoidInTupleExpression()
+        {
+            // Set up the test
+            const string input = "(0, v);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, provider, new TestDefinitionTypeProvider()));
+
+            resolver.ResolveExpression(parser.statement().expression());
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.VoidValueInTupleExpression));
+        }
+
         /// <summary>
         /// Tests implicit casting within tuples, where the expected tuple type is optional
         /// </summary>

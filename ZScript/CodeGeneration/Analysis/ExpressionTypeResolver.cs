@@ -547,6 +547,12 @@ namespace ZScript.CodeGeneration.Analysis
                 {
                     names[i] = entries[i].IDENT() == null ? null : entries[i].IDENT().GetText();
                     innerTypes[i] = ResolveExpression(entries[i].expression());
+
+                    if (innerTypes[i].IsVoid)
+                    {
+                        var message = "Tuple expressions cannot contain void-typed values";
+                        MessageContainer.RegisterError(entries[i].expression(), message, ErrorCode.VoidValueInTupleExpression);
+                    }
                 }
 
                 return context.TupleType = TypeProvider.TupleForTypes(names, innerTypes);
@@ -561,7 +567,7 @@ namespace ZScript.CodeGeneration.Analysis
                 entries[i].expression().ExpectedType = expectedTuple.InnerTypes[i];
 
                 var type = ResolveExpression(entries[i].expression());
-
+                
                 if (!TypeProvider.CanImplicitCast(type, expectedTuple.InnerTypes[i]))
                 {
                     canConvert = false;

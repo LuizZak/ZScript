@@ -155,6 +155,8 @@ namespace ZScript.CodeGeneration.Messages
         NonOptionalNullCoalesceLeftSize,
         /// <summary>Trying to access an object that is not a tuple with an indexed access</summary>
         TryingToIndexNonTuple,
+        /// <summary>Trying to create a tuple which contains a void-typed value within</summary>
+        VoidValueInTupleExpression,
 
         /// <summary>A string contains an invalid escape sequence</summary>
         InvalidEscapeSequence,
