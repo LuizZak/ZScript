@@ -105,5 +105,62 @@ namespace ZScriptTests.Runtime
 
             Assert.IsFalse(generator.MessageContainer.HasErrors);
         }
+
+        /// <summary>
+        /// Tests using a variable inside a generic context
+        /// </summary>
+        [TestMethod]
+        public void TestInternalGenericTypeUsage()
+        {
+            const string input = "func funca<T>(a:T) : T { return a; }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            // Assert the correct call was made
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
+
+        /// <summary>
+        /// Tests using a variable inside a generic context
+        /// </summary>
+        [TestMethod]
+        public void TestInternalMultipleGenericTypeUsage()
+        {
+            const string input = "func funca<T, U>(a: T, b: U) : (T, U) { return (a, b); }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            // Assert the correct call was made
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
+
+        /// <summary>
+        /// Tests generic function calling
+        /// </summary>
+        [TestMethod]
+        public void TestParseGenericCall()
+        {
+            const string input = "func main() { funca(10); } func funca<T>(a: T) : T { return a; }";
+
+            // Setup owner call
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            // Assert the correct call was made
+            generator.MessageContainer.PrintMessages();
+
+            Assert.IsFalse(generator.MessageContainer.HasErrors);
+        }
     }
 }
