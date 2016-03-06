@@ -161,7 +161,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             targetList.Add(_switchBlockEndTarget);
 
             // Add a stack balancing instruction
-            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Pop));
         }
 
         /// <summary>

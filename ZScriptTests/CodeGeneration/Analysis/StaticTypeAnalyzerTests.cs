@@ -24,11 +24,13 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using ZScript.CodeGeneration;
+using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
+using ZScript.Runtime.Typing;
 using ZScript.Utils;
 using ZScriptTests.Utils;
 
@@ -229,7 +231,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                 TokenFactory.CreateOperatorToken(VmInstruction.Cast, provider.NativeTypeForTypeDef(provider.FloatType())),
                 TokenFactory.CreateBoxedValueToken(1),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -264,7 +266,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                 TokenFactory.CreateVariableToken("a", true),
                 TokenFactory.CreateBoxedValueToken(1),
                 TokenFactory.CreateInstructionToken(VmInstruction.Call),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -300,7 +302,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                 TokenFactory.CreateOperatorToken(VmInstruction.Cast, provider.NativeTypeForTypeDef(provider.FloatType())),
                 TokenFactory.CreateVariableToken("a", false),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -340,7 +342,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                 TokenFactory.CreateOperatorToken(VmInstruction.Add),
                 TokenFactory.CreateInstructionToken(VmInstruction.Swap),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -378,7 +380,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
                 TokenFactory.CreateBoxedValueToken(0L),
                 TokenFactory.CreateInstructionToken(VmInstruction.GetSubscript),
                 TokenFactory.CreateInstructionToken(VmInstruction.Set),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -565,6 +567,58 @@ namespace ZScriptTests.CodeGeneration.Analysis
         {
             // Set up the test
             const string input = "func f() { if(false) { } else if(true) { } }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(2, container.Warnings.Count(w => w.WarningCode == WarningCode.ConstantIfCondition), "Failed to raise expected warnings");
+        }
+
+        #endregion
+
+        #region Trailing If statement analysis
+
+        /// <summary>
+        /// Tests checking condition expressions on trailing if statements
+        /// </summary>
+        [TestMethod]
+        public void TestTrailingIfStatementTypeChecking()
+        {
+            // Set up the test
+            const string input = "func f() { 0 + 0 if (true); 0 + 0 if(10); }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidCast), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests checking expression bodies on trailing if statements
+        /// </summary>
+        [TestMethod]
+        public void TestTrailingIfStatementTypeExpanding()
+        {
+            // Set up the test
+            const string input = "func f() { 0 + false if(true); }";
+
+            var generator = TestUtils.CreateGenerator(input);
+            var container = generator.MessageContainer;
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, container.CodeErrors.Count(c => c.ErrorCode == ErrorCode.InvalidTypesOnOperation), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests checking constant condition expressions on trailing if statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrailingIfStatementChecking()
+        {
+            // Set up the test
+            const string input = "func f() { 0 + 0 if(true); 0 + 0 if(false); }";
 
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
@@ -909,6 +963,33 @@ namespace ZScriptTests.CodeGeneration.Analysis
             generator.CollectDefinitions();
 
             Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.ConstantSwitchExpression), "Failed to raise expected errors");
+        }
+
+        /// <summary>
+        /// Tests implicit conversion of switch case expressions
+        /// </summary>
+        [TestMethod]
+        public void TestSwitchCaseExpressionImplicitConversion()
+        {
+            // Set up the test
+            const string input = "switch(10.0) { case 10: break; }";
+
+            var parser = TestUtils.CreateParser(input);
+
+            var switchStmt = parser.switchStatement();
+            var context = new RuntimeGenerationContext(null, new MessageContainer(), new TypeProvider());
+
+            var expressionTypeResolver = new ExpressionTypeResolver(context);
+            var expressionConstantResolver = new ExpressionConstantResolver(context, new TypeOperationProvider());
+            var analyzer = new StaticTypeAnalyzer.SwitchCaseAnalyzer(switchStmt, expressionTypeResolver, expressionConstantResolver);
+
+            // Setup the types for the expressions
+            switchStmt.expression().EvaluatedType = context.TypeProvider.IntegerType();
+            switchStmt.switchBlock().caseBlock(0).expression().EvaluatedType = context.TypeProvider.IntegerType();
+            
+            analyzer.Process();
+
+            Assert.AreEqual(switchStmt.switchBlock().caseBlock(0).expression().ImplicitCastType, context.TypeProvider.FloatType());
         }
 
         #endregion

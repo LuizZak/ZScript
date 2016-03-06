@@ -49,6 +49,51 @@ namespace ZScriptTests.CodeGeneration.Analysis
         }
 
         /// <summary>
+        /// Tests reporting complete return paths on constant trailing IF statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrailingIf()
+        {
+            const string input = "func f() : int { return 0 if(true); }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting incomplete return paths on constant trailing IF statements
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFalseTrailingIf()
+        {
+            const string input = "func f() : int { return 0 if(false); }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(1, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
+        /// Tests reporting complete return paths on trailing IF statements
+        /// </summary>
+        [TestMethod]
+        public void TestCompleteTrailingIf()
+        {
+            const string input = "func f() : int { var a = true; return 0 if(a); return 1; }";
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            generator.CollectDefinitions();
+
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Count(c => c.ErrorCode == ErrorCode.IncompleteReturnPaths));
+            Assert.AreEqual(0, generator.MessageContainer.CodeErrors.Length);
+        }
+
+        /// <summary>
         /// Tests reporting complete return paths on constant ELSE IF statements
         /// </summary>
         [TestMethod]

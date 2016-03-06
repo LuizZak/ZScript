@@ -206,6 +206,9 @@ namespace ZScript.CodeGeneration.Analysis
             if (context.ifStatement() != null)
                 AnalyzeIfStatement(context.ifStatement());
 
+            if(context.trailingIfStatement() != null)
+                AnalyzeTrailingIfStatement(context.trailingIfStatement());
+
             if (context.switchStatement() != null)
                 AnalyzeSwitchStatement(context.switchStatement());
 
@@ -243,6 +246,18 @@ namespace ZScript.CodeGeneration.Analysis
             if (elseStatement != null)
             {
                 AnalyzeStatement(elseStatement.statement());
+            }
+        }
+
+        /// <summary>
+        /// Analyzes a given trailing IF statement context for return statement state
+        /// </summary>
+        private void AnalyzeTrailingIfStatement(ZScriptParser.TrailingIfStatementContext context)
+        {
+            var returnStatement = context.returnStatement();
+            if (returnStatement != null)
+            {
+                AnalyzeReturnStatement(returnStatement);
             }
         }
 

@@ -781,6 +781,15 @@ namespace ZScript.CodeGeneration.Analysis
                 analyzer.Process();
             }
 
+            //
+            // EnterTrailingIfStatement override
+            //
+            public override void EnterTrailingIfStatement(ZScriptParser.TrailingIfStatementContext context)
+            {
+                var analyzer = new TrailingIfStatementAnalyzer(context, _typeResolver, _constantResolver);
+                analyzer.Process();
+            }
+
             // 
             // EnterWhileStatement override
             // 
@@ -964,7 +973,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Helper class that helps with type and integrity analysis of switch statements
         /// </summary>
-        class SwitchCaseAnalyzer : ZScriptBaseListener
+        public class SwitchCaseAnalyzer : ZScriptBaseListener
         {
             /// <summary>
             /// The type resolver to use when resolving the expressions
@@ -1142,6 +1151,8 @@ namespace ZScript.CodeGeneration.Analysis
             public override void EnterCaseBlock(ZScriptParser.CaseBlockContext context)
             {
                 // Expand case's check expression
+                context.expression().ExpectedType = _switchType;
+
                 var caseType = _typeResolver.ResolveExpression(context.expression());
                 _constantResolver.ExpandConstants(context.expression());
 
@@ -1232,6 +1243,80 @@ namespace ZScript.CodeGeneration.Analysis
                     var message = _ifContext.ConstantValue
                                     ? "True constant in if expression always executes the contained statements"
                                     : "False constant in if expression never executes the contained statements";
+
+                    _typeResolver.MessageContainer.RegisterWarning(expression, message, WarningCode.ConstantIfCondition);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Helper class that helps with type ant integrity analysis of trailing if statements
+        /// </summary>
+        class TrailingIfStatementAnalyzer : ZScriptBaseListener
+        {
+            /// <summary>
+            /// The type resolver to use when resolving the expressions
+            /// </summary>
+            private readonly ExpressionTypeResolver _typeResolver;
+
+            /// <summary>
+            /// The constant resolver to use when pre-evaluating constants
+            /// </summary>
+            private readonly ExpressionConstantResolver _constantResolver;
+
+            /// <summary>
+            /// The context for the statement to analyze
+            /// </summary>
+            private readonly ZScriptParser.TrailingIfStatementContext _ifContext;
+
+            /// <summary>
+            /// Initializes a new instance of the TrailingIfStatementAnalyzer class
+            /// </summary>
+            /// <param name="ifContext">The context containing the statement to process</param>
+            /// <param name="typeResolver">The type resolver to use when resolving the expressions</param>
+            /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
+            public TrailingIfStatementAnalyzer(ZScriptParser.TrailingIfStatementContext ifContext, ExpressionTypeResolver typeResolver,
+                ExpressionConstantResolver constantResolver)
+            {
+                _ifContext = ifContext;
+                _typeResolver = typeResolver;
+                _constantResolver = constantResolver;
+            }
+
+            /// <summary>
+            /// Processes the statement
+            /// </summary>
+            public void Process()
+            {
+                var provider = _typeResolver.TypeProvider;
+
+                var expression = _ifContext.exp;
+
+                _typeResolver.ResolveExpression(expression);
+                _constantResolver.ExpandConstants(expression);
+
+                if (_ifContext.returnStatement() == null)
+                {
+                    _typeResolver.ResolveExpression(_ifContext.expression(0));
+                    _constantResolver.ExpandConstants(_ifContext.expression(0));
+                }
+
+                // Check if expression has a boolean type
+                if (!provider.CanImplicitCast(expression.EvaluatedType, provider.BooleanType()))
+                {
+                    const string message = "Expressions on trailing if conditions must be of boolean type";
+                    _typeResolver.MessageContainer.RegisterError(expression, message, ErrorCode.InvalidCast);
+                }
+                else if (expression.IsConstant && expression.EvaluatedType == _typeResolver.TypeProvider.BooleanType())
+                {
+                    _ifContext.IsConstant = true;
+                    _ifContext.ConstantValue = expression.ConstantValue.Equals(true);
+
+                    var bodyMessage = _ifContext.returnStatement() != null ? "return statement" : "expression";
+
+                    var message = _ifContext.ConstantValue
+                                    ? "True constant in trailing if expression always executes the preceeding " + bodyMessage
+                                    : "False constant in trailing if expression never executes the preceeding " + bodyMessage;
 
                     _typeResolver.MessageContainer.RegisterWarning(expression, message, WarningCode.ConstantIfCondition);
                 }

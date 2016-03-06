@@ -156,7 +156,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             // 8: Call $TEMP.Dispose()
             targetList.Add(TokenFactory.CreateVariableToken(tempDef.Name, true));
             targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.TryDispose));
-            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+            targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Pop));
 
             // Store the temporary definition back into the temporary definition collection
             _context.TemporaryDefinitionCreator.ReleaseDefinition(tempDef);

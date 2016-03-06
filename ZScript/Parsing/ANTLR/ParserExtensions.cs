@@ -363,6 +363,22 @@ namespace ZScript.Parsing.ANTLR
         }
 
         /// <summary>
+        /// Provides extensions to the TrailingIfStatementContext for providing constant evaluation flagging
+        /// </summary>
+        partial class TrailingIfStatementContext
+        {
+            /// <summary>
+            /// Gets or sets a value specifying whether the evaluation of this IF statement is constant
+            /// </summary>
+            public bool IsConstant { get; set; }
+
+            /// <summary>
+            /// Gets or sets the constant value that is always evaluated for the IF statement
+            /// </summary>
+            public bool ConstantValue { get; set; }
+        }
+
+        /// <summary>
         /// Provides extensions to the WhileStatementContext for providing constant evaluation flagging
         /// </summary>
         partial class WhileStatementContext

@@ -83,12 +83,15 @@ typeAliasInherit  : '<-' typeAliasName;
 ////
 //// Statements
 ////
-statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | ifStatement | whileStatement | forStatement | forEachStatement | switchStatement | returnStatement | breakStatement | continueStatement | valueDeclareStatement);
+statement : (((expression | assignmentExpression) ';') | blockStatement | ';' | trailingIfStatement ';' | ifStatement | whileStatement | forStatement | forEachStatement | switchStatement | returnStatement ';' | breakStatement ';' | continueStatement ';' | valueDeclareStatement);
 blockStatement : '{' statement* '}';
 
 ////
 //// Control flow statements
 ////
+
+// Trailling If
+trailingIfStatement: (expression | returnStatement) 'if' '(' exp=expression ')';
 
 // If
 ifStatement : 'if' '(' expression ')' statement elseStatement?;
@@ -114,10 +117,10 @@ forEachStatement : 'for' forEachHeader statement;
 forEachHeader : '(' valueHolderDefine 'in' expression ')';
 
 // Return statement
-returnStatement : 'return' value=expression? ';';
+returnStatement : 'return' value=expression?;
 
-breakStatement : 'break' ';';
-continueStatement : 'continue' ';';
+breakStatement : 'break';
+continueStatement : 'continue';
 
 ////
 //// Value holder declare statements
@@ -354,7 +357,7 @@ T_BITWISE_XOR : '^';
 T_BITWISE_OR : '|';
 
 T_SHIFTLEFT : '<<';
-T_SHIFTRIGHT : '<<';
+T_SHIFTRIGHT : '>>';
 
 T_EQUALITY : '==';
 T_UNEQUALITY : '!=';

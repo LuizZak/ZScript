@@ -21,6 +21,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Execution.Wrappers;
 
 namespace ZScript.Runtime.Typing.Elements
@@ -54,7 +55,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// The count of parameters that are required to perform the call
         /// </summary>
         private readonly int _requiredCount;
-
+        
         /// <summary>
         /// Gets the types for the parameters of this callable type definition
         /// </summary>
@@ -112,12 +113,18 @@ namespace ZScript.Runtime.Typing.Elements
         public bool HasVariadic => _hasVariadic;
 
         /// <summary>
+        /// Gers or sets the generic signature for this callable type definition
+        /// </summary>
+        public GenericSignatureInformation GenericSignature { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the CallableTypeDef with parameter information and return type provided
         /// </summary>
         /// <param name="parameterInfos">The type for the callable's parameter</param>
         /// <param name="returnType">The return type for this callable type definition</param>
         /// <param name="hasReturnType">Whether a return type was provided for this callable</param>
-        public CallableTypeDef(CallableParameterInfo[] parameterInfos, TypeDef returnType, bool hasReturnType)
+        /// <param name="genericSignature">The generic signature for this callable type defintiion</param>
+        public CallableTypeDef(CallableParameterInfo[] parameterInfos, TypeDef returnType, bool hasReturnType, GenericSignatureInformation genericSignature = null)
             : base(typeof(ICallableWrapper), "callable")
         {
             _parameterInfos = parameterInfos;
@@ -129,6 +136,7 @@ namespace ZScript.Runtime.Typing.Elements
 
             ParameterTuple = new TupleTypeDef(_parameterTypes) { IsLastVariadic = _hasVariadic };
             HasReturnType = hasReturnType;
+            GenericSignature = genericSignature;
 
             // Count the numer of parameters required
             foreach (var pInfo in _parameterInfos)

@@ -114,8 +114,8 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             if (incr != null)
             {
                 _context.TokenizeExpression(targetList, incr.expression());
-                // Add a clear stack to balance the stack back again
-                targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+                // Add a pop to balance the stack back again
+                targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Pop));
             }
 
             // 4 - Condition expression

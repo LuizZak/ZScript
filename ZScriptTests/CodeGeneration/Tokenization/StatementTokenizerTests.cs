@@ -230,6 +230,237 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
         #endregion
 
+        #region Trailing IF statement generation and execution
+
+        #region Execution tests
+
+        [TestMethod]
+        public void TestTrailingIfCodeGeneration()
+        {
+            const string input = "func f() { var a = true; 0 + 10 if(a); }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            generator.GenerateRuntime(owner);
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+        }
+
+        [TestMethod]
+        public void TestTrailingIfReturnCodeGeneration()
+        {
+            const string input = "func f() : int { var a = true; return 0 if(a); return 10; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            generator.GenerateRuntime(owner);
+
+            Assert.IsFalse(generator.HasSyntaxErrors);
+        }
+
+        [TestMethod]
+        public void TestTrailingIfExpressionExecution()
+        {
+            const string input = "var a = 0; func f() { var b = true; a++ if(b); b = false; a++ if(b); }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(1L, memory.GetVariable("a"));
+        }
+
+        [TestMethod]
+        public void TestTrailingIfReturnExecution()
+        {
+            const string input = "var a = 0; func f() { a = f1(); } func f1() : int { var b = false; return 0 if(b); b = true; return 1 if(b); return 2; }";
+
+            var generator = TestUtils.CreateGenerator(input);
+
+            generator.ParseSources();
+
+            // Generate the runtime now
+            var owner = new TestRuntimeOwner();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            Assert.AreEqual(1L, memory.GetVariable("a"));
+        }
+
+        #endregion
+
+        #region Tokenization tests
+
+        [TestMethod]
+        public void TestTrailingIfTokenGeneration()
+        {
+            const string message = "The tokens generated for the trailing if statement where not generated as expected";
+
+            const string input = "a if(b);";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.trailingIfStatement();
+            var generatedTokens = tokenizer.TokenizeTrailingIfStatement(stmt);
+
+            // Create the expected list
+            var jt = new JumpTargetToken();
+            var expectedTokens = new List<Token>
+            {
+                // If expression
+                TokenFactory.CreateVariableToken("b", true),
+                // False condition jump
+                new JumpToken(jt, true, false),
+                // If body
+                TokenFactory.CreateVariableToken("a", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
+                // End of IF block
+                jt
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests the behavior of the tokenizer with trailing if statements containing expressions that always evaluate to a constant true value
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrueExpressionTrailingIfTokenGeneration()
+        {
+            const string message = "The tokens generated for the trailing if statement where not generated as expected";
+
+            const string input = "b if(a);";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.trailingIfStatement();
+
+            // Mark the statement as constantly evaluated as true
+            stmt.IsConstant = true;
+            stmt.ConstantValue = true;
+
+            var generatedTokens = tokenizer.TokenizeTrailingIfStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                // If body
+                TokenFactory.CreateVariableToken("b", true),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests the behavior of the tokenizer with trailing if statements that always evaluate to a constant true value
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrueReturnTrailingIfTokenGeneration()
+        {
+            const string message = "The tokens generated for the trailing if statement where not generated as expected";
+
+            const string input = "return 0 if(a);";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.trailingIfStatement();
+
+            // Mark the statement as constantly evaluated as true
+            stmt.IsConstant = true;
+            stmt.ConstantValue = true;
+
+            var generatedTokens = tokenizer.TokenizeTrailingIfStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>
+            {
+                TokenFactory.CreateBoxedValueToken(0L),
+                TokenFactory.CreateInstructionToken(VmInstruction.Ret)
+            };
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        /// <summary>
+        /// Tests the behavior of the tokenizer with trailing if statements that always evaluate to a constant false value
+        /// </summary>
+        [TestMethod]
+        public void TestConstantFalseTrailingIfTokenGeneration()
+        {
+            const string message = "The tokens generated for the trailing if statement where not generated as expected";
+
+            const string input = "b if(a);";
+
+            var parser = TestUtils.CreateParser(input);
+            var tokenizer = new StatementTokenizerContext(new RuntimeGenerationContext());
+
+            var stmt = parser.trailingIfStatement();
+
+            // Mark the statement as constantly evaluated as true
+            stmt.IsConstant = true;
+            stmt.ConstantValue = false;
+
+            var generatedTokens = tokenizer.TokenizeTrailingIfStatement(stmt);
+
+            // Create the expected list
+            var expectedTokens = new List<Token>();
+
+            Console.WriteLine("Dump of tokens: ");
+            Console.WriteLine("Expected:");
+            TokenUtils.PrintTokens(expectedTokens);
+            Console.WriteLine("Actual:");
+            TokenUtils.PrintTokens(generatedTokens);
+
+            // Assert the tokens where generated correctly
+            TestUtils.AssertTokenListEquals(expectedTokens, generatedTokens, message);
+        }
+
+        #endregion
+
+        #endregion
+
         #region IF statement generation and execution
 
         #region Execution tests
@@ -355,7 +586,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 new JumpToken(jt, true, false),
                 // If body
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End of IF block
                 jt
             };
@@ -395,7 +626,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // If body
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
 
                 // Jump to skip the else block
                 new JumpToken(jEnd),
@@ -403,7 +634,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // Else block
                 jElse,
                 TokenFactory.CreateVariableToken("c", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End of IF block
                 jEnd
             };
@@ -445,7 +676,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // If body
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // Jump to skip the else block
                 new JumpToken(jEnd1),
 
@@ -457,14 +688,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 new JumpToken(jElse, true, false),
                 // Else if body
                 TokenFactory.CreateVariableToken("d", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // Jump to skip the else block
                 new JumpToken(jEnd2),
 
                 // Else block
                 jElse,
                 TokenFactory.CreateVariableToken("e", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
 
                 // End of inner IF block
                 jEnd2,
@@ -512,7 +743,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                     // If body
                     TokenFactory.CreateVariableToken("b", true),
-                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                    TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                     // Jump to skip the else block
                     new JumpToken(jEnd1),
 
@@ -525,7 +756,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // Else if body
                 
                     TokenFactory.CreateVariableToken("d", true),
-                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                    TokenFactory.CreateInstructionToken(VmInstruction.Pop),
 
                     // 2nd if expression
                     TokenFactory.CreateVariableToken("e", true),
@@ -534,7 +765,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                         // If body
                         TokenFactory.CreateVariableToken("f", true),
-                        TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                        TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                         // Jump to skip else block
                         new JumpToken(jInnerEnd),
 
@@ -542,7 +773,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                     jInnerElse,
 
                         TokenFactory.CreateVariableToken("g", true),
-                        TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                        TokenFactory.CreateInstructionToken(VmInstruction.Pop),
 
                     // End of 2nd if block
                     jInnerEnd,
@@ -554,7 +785,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 jElse1,
 
                     TokenFactory.CreateVariableToken("h", true),
-                    TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                    TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 
                 // End of second IF block
                 jEnd2,
@@ -598,7 +829,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 // If body
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack)
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop)
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -637,7 +868,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             {
                 // Else body
                 TokenFactory.CreateVariableToken("c", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack)
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop)
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -683,7 +914,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // If body
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // Jump to skip the else block
                 new JumpToken(jEnd1),
 
@@ -692,7 +923,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // Else if body
                 TokenFactory.CreateVariableToken("d", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
 
                 // End of IF block
                 jEnd1
@@ -1010,7 +1241,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
 
                 // 5: { Loop body }
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 
                 // Loop verifying
                 loopVerify,
@@ -1024,7 +1255,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1114,7 +1345,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1204,7 +1435,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // 8: Call $TEMP.Dispose()
                 TokenFactory.CreateVariableToken("$TEMP0", true),
                 TokenFactory.CreateInstructionToken(VmInstruction.TryDispose),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1600,14 +1831,14 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // Case body #1
                 jtCase1,
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
                 // Case body #2
                 jtCase2,
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
@@ -1618,7 +1849,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 jtEnd,
 
                 // Stack balancing call
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1654,7 +1885,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 new JumpToken(jtEnd),
                 jtEnd
             };
@@ -1724,7 +1955,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
             var expectedTokens = new List<Token>
             {
                 TokenFactory.CreateVariableToken("c", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 new JumpToken(jtEnd),
                 jtEnd,
             };
@@ -1784,28 +2015,28 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // Case body #1
                 jtCase1,
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
                 // Case body #2
                 jtCase2,
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
                 // Default body
                 jtDefault,
                 TokenFactory.CreateVariableToken("c", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
                 // End of Switch block
                 jtEnd,
                 // Stack balancing call
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");
@@ -1865,21 +2096,21 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 // Case body #1
                 jtCase1,
                 TokenFactory.CreateVariableToken("a", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
                 // Case body #2
                 jtCase2,
                 TokenFactory.CreateVariableToken("b", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
                 // Default body
                 jtDefault,
                 TokenFactory.CreateVariableToken("c", true),
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
                 // End jump
                 new JumpToken(jtEnd),
 
@@ -1887,7 +2118,7 @@ namespace ZScriptTests.CodeGeneration.Tokenization
                 jtEnd,
 
                 // Stack balancing call
-                TokenFactory.CreateInstructionToken(VmInstruction.ClearStack),
+                TokenFactory.CreateInstructionToken(VmInstruction.Pop),
             };
 
             Console.WriteLine("Dump of tokens: ");

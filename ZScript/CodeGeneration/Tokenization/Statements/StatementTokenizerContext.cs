@@ -128,11 +128,16 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             if (statement.expression() != null || statement.assignmentExpression() != null)
             {
                 TokenizeExpressionStatement(targetList, statement);
-                targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.ClearStack));
+                // Pop to remove the top-most expression
+                targetList.Add(TokenFactory.CreateInstructionToken(VmInstruction.Pop));
             }
             else if (statement.ifStatement() != null)
             {
                 TokenizeIfStatement(targetList, statement.ifStatement());
+            }
+            else if (statement.trailingIfStatement() != null)
+            {
+                TokenizeTrailingIfStatement(targetList, statement.trailingIfStatement());
             }
             else if (statement.forStatement() != null)
             {
@@ -203,7 +208,30 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
             var tokenizer = new IfStatementTokenizer(this);
             tokenizer.TokenizeStatement(targetList, statement);
         }
+        
+        /// <summary>
+        /// Tokenizes a given trailing IF statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="statement">The statement to tokenize</param>
+        /// <returns>A list of tokens that corresponds to the if statement</returns>
+        public IntermediaryTokenList TokenizeTrailingIfStatement(ZScriptParser.TrailingIfStatementContext statement)
+        {
+            var tokens = new IntermediaryTokenList();
+            TokenizeTrailingIfStatement(tokens, statement);
+            return tokens;
+        }
 
+        /// <summary>
+        /// Tokenizes a given trailing IF statement on this statement tokenizer context
+        /// </summary>
+        /// <param name="targetList">A target list to tokenize to</param>
+        /// <param name="statement">The statement to tokenize</param>
+        public void TokenizeTrailingIfStatement(IList<Token> targetList, ZScriptParser.TrailingIfStatementContext statement)
+        {
+            var tokenizer = new TrailingIfStatementTokernizer(this);
+            tokenizer.TokenizeStatement(targetList, statement);
+        }
+        
         /// <summary>
         /// Tokenizes a given FOR statement on this statement tokenizer context
         /// </summary>

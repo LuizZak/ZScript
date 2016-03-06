@@ -82,6 +82,7 @@
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenList.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\ForEachStatementTokenizer.cs" />
     <Compile Include="CodeGeneration\Tokenization\Statements\IParserContextTokenizer.cs" />
+    <Compile Include="CodeGeneration\Tokenization\Statements\TrailingIfStatementTokernizer.cs" />
     <Compile Include="Elements\Optional.cs" />
     <Compile Include="Elements\ZClass.cs" />
     <Compile Include="Elements\ZConstructor.cs" />

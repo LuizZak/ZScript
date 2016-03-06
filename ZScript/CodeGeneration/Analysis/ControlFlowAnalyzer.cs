@@ -219,6 +219,34 @@ namespace ZScript.CodeGeneration.Analysis
                         break;
                     }
 
+                    // Trailing if statement
+                    var trailingIfStatement = stmt.trailingIfStatement();
+                    if (trailingIfStatement != null)
+                    {
+                        // Constant if
+                        if (trailingIfStatement.IsConstant)
+                        {
+                            if (trailingIfStatement.ConstantValue)
+                            {
+                                if (trailingIfStatement.returnStatement() != null)
+                                    ReturnStatements.Add(trailingIfStatement.returnStatement());
+
+                                quitBranch = true;
+                                break;
+                            }
+
+                            continue;
+                        }
+
+                        statementStack.Push(new ControlFlowPointer(stmts, i + 1, breakTarget, continueTarget, flow.BackTarget));
+
+                        if (trailingIfStatement.returnStatement() != null)
+                            ReturnStatements.Add(trailingIfStatement.returnStatement());
+                        
+                        quitBranch = true;
+                        break;
+                    }
+
                     // Switch statement
                     var switchStatement = stmt.switchStatement();
                     if (switchStatement != null)

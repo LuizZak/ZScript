@@ -42,7 +42,7 @@ namespace ZScriptTests.Runtime
             var generator = TestUtils.CreateGenerator(input);
             var container = generator.MessageContainer;
             generator.CollectDefinitions();
-
+            
             Assert.IsFalse(container.HasErrors);
         }
 
