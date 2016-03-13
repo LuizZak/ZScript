@@ -479,6 +479,64 @@ namespace ZScriptTests.CodeGeneration.Analysis
 
         #endregion
 
+        #region Trailing If
+
+        /// <summary>
+        /// Tests analyzing a simple branched flow by analyzing a trailing if statement
+        /// </summary>
+        [TestMethod]
+        public void TestSimpleTrailingIfFlow()
+        {
+            const string input = "{ var a; var b; return if(a); var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsTrue(analyzer.IsEndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        #region Constant evaluation
+
+        /// <summary>
+        /// Tests analyzing a simple branched flow by analyzing a constant true trailing if statement
+        /// </summary>
+        [TestMethod]
+        public void TestConstantTrueTrailingIf()
+        {
+            const string input = "{ var a; var b; return if(a); var c; }";
+            var parser = TestUtils.CreateParser(input);
+
+            var body = parser.functionBody();
+
+            // Set the if as constant
+            body.blockStatement().statement(2).trailingIfStatement().IsConstant = true;
+            body.blockStatement().statement(2).trailingIfStatement().ConstantValue = true;
+
+            var analyzer = new ControlFlowAnalyzer(new RuntimeGenerationContext(), body);
+
+            analyzer.Analyze();
+
+            Assert.IsFalse(analyzer.IsEndReachable);
+
+            Assert.IsTrue(body.blockStatement().statement(0).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(1).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsTrue(body.blockStatement().statement(2).Reachable, "Failed mark the statement reachability correctly");
+            Assert.IsFalse(body.blockStatement().statement(3).Reachable, "Failed mark the statement reachability correctly");
+        }
+
+        #endregion
+
+        #endregion
+
         #region Switch statement
 
         /// <summary>
