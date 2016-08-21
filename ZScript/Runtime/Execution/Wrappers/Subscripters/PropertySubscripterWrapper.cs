@@ -45,6 +45,11 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         public object Target => _target;
 
         /// <summary>
+        /// Returns whether failed fetchings should result in an optional return type
+        /// </summary>
+        public bool Optional { get; }
+
+        /// <summary>
         /// Gets or sets an index on the object being subscripted
         /// </summary>
         /// <param name="indexer">The index to subscript into the object</param>
@@ -53,7 +58,17 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         {
             get
             {
-                return _property.GetValue(_target, new[] { indexer });
+                if (!Optional)
+                    return _property.GetValue(_target, new[] {indexer});
+
+                try
+                {
+                    return _property.GetValue(_target, new[] {indexer});
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
             set
             {
@@ -66,10 +81,12 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// </summary>
         /// <param name="target">The object to subscript</param>
         /// <param name="property">The indexed property to index with</param>
-        public PropertySubscripterWrapper(object target, PropertyInfo property)
+        /// <param name="optional">Whether to return an optional type in case the fetching fails</param>
+        public PropertySubscripterWrapper(object target, PropertyInfo property, bool optional)
         {
             _target = target;
             _property = property;
+            Optional = optional;
         }
 
         /// <summary>

@@ -102,7 +102,8 @@ namespace ZScript.Builders
             }
 
             CreateConstructors(tuple, typeBuilder, fields);
-            CreateEqualityComparision(tuple, typeBuilder, fields);
+            CreateEqualityComparision(typeBuilder, fields);
+            CreateGetHashCode(typeBuilder, fields);
 
             var tupleType = typeBuilder.CreateType();
 
@@ -195,10 +196,9 @@ namespace ZScript.Builders
         /// <summary>
         /// Creates the tuple equality comparision on a given type builder
         /// </summary>
-        /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private void CreateEqualityComparision(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private void CreateEqualityComparision(TypeBuilder builder, FieldBuilder[] fields)
         {
             // Fetch the default 'equals' method of the Object class, which will be used to equate the fields of the tuples bellow
             var equalsMethod = typeof(object).GetMethod("Equals", new [] { typeof(object) });
@@ -285,6 +285,75 @@ namespace ZScript.Builders
             ilGenerator.MarkLabel(labelReturnFalse);
 
             ilGenerator.Emit(OpCodes.Ldc_I4_0);
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Implements the GetHashCode() method for the given tuple type builder
+        /// </summary>
+        /// <param name="builder">The type builder to send the tuple fiends into</param>
+        /// <param name="fields">The fields in the tuple type</param>
+        private void CreateGetHashCode(TypeBuilder builder, FieldBuilder[] fields)
+        {
+            // Fetch the default 'GetHashCode' method of the Object class, which will be used to equate the fields of the tuples bellow
+            var baseHashCode = typeof(object).GetMethod("GetHashCode", Type.EmptyTypes);
+
+            var hashCodeMethod = builder.DefineMethod("GetHashCode", MethodAttributes.Public | MethodAttributes.Virtual, CallingConventions.Standard, typeof(int), Type.EmptyTypes);
+
+            // The GetHashCode implementation bellow is an implementation of a FNV hash method as bellow:
+
+            // unchecked
+            // {
+            //    int hash = (int)2166136261;
+            //    
+            //    hash = (hash * 16777619) ^ field0.GetHashCode();
+            //    hash = (hash * 16777619) ^ field1.GetHashCode();
+            //    ...
+            //    hash = (hash * 16777619) ^ fieldN.GetHashCode();
+            //    
+            //    return hash;
+            // }
+
+            // Define the override of the 'GetHashCode' method
+            builder.DefineMethodOverride(hashCodeMethod, baseHashCode);
+
+            // Start writing the code
+            var ilGenerator = hashCodeMethod.GetILGenerator();
+
+            // Define the 'hash' local
+            ilGenerator.DeclareLocal(typeof (int));
+
+            // Store the inital 'hash' varuiable's value
+            unchecked { ilGenerator.Emit(OpCodes.Ldc_I4, (int)2166136261); }
+
+            ilGenerator.Emit(OpCodes.Stloc_0);
+            
+            // Iterate over each field and return the hashcode for that field
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+                var fieldType = builder.GenericTypeParameters[i];
+
+                // Load the 'heap' and multiply by 16777619
+                ilGenerator.Emit(OpCodes.Ldloc_0);
+                ilGenerator.Emit(OpCodes.Ldc_I4, 16777619);
+                ilGenerator.Emit(OpCodes.Mul);
+
+                // Call 'this.fieldN.GetHashCode()'
+                ilGenerator.Emit(OpCodes.Ldarg_0); // Load 'this'
+                ilGenerator.Emit(OpCodes.Ldflda, field); // Load 'fieldN'
+                ilGenerator.Emit(OpCodes.Constrained, fieldType); // Constrain it to 'Tn'
+                ilGenerator.Emit(OpCodes.Callvirt, baseHashCode); // Call System.Object.GetHashCode(), with 'fieldN' as the target called
+                
+                // Apply 'xor' on 'heap' and 'this.fieldN.GetHashCode()'
+                ilGenerator.Emit(OpCodes.Xor);
+
+                // Store back to 'heap'
+                ilGenerator.Emit(OpCodes.Stloc_0);
+            }
+
+            // Load 'heap' and return
+            ilGenerator.Emit(OpCodes.Ldloc_0);
             ilGenerator.Emit(OpCodes.Ret);
         }
     }

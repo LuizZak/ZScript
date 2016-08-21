@@ -42,7 +42,7 @@ namespace ZScriptTests.Runtime.Execution.Wrappers.Subscripters
             var properties = typeof(List<int>).GetProperties();
             PropertyInfo property = properties.First(p => p.GetIndexParameters().Length == 1 && p.GetIndexParameters()[0].ParameterType == typeof(int));
 
-            var wrapper = new PropertySubscripterWrapper(target, property);
+            var wrapper = new PropertySubscripterWrapper(target, property, false);
 
             Assert.AreEqual(target, wrapper.Target, "The target pointed by the Target propert must be the same provided in the cosntructor");
 

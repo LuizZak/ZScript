@@ -147,7 +147,7 @@ namespace ZScript.Runtime.Execution.Wrappers
             {
                 if (property.GetIndexParameters().Length == 1 && property.GetIndexParameters()[0].ParameterType == subscriptType)
                 {
-                    return new PropertySubscripterWrapper(target, property);
+                    return new PropertySubscripterWrapper(target, property, false);
                 }
             }
 
