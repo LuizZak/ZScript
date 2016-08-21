@@ -18,8 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
-using System.Collections.Generic;
 
+using System.Collections.Generic;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
@@ -27,6 +28,90 @@ using ZScript.Utils;
 
 namespace ZScript.CodeGeneration.Analysis
 {
+    /// <summary>
+    /// A base class that visits control flow statements for a function body
+    /// </summary>
+    public class ControlFlowBuilder : ZScriptBaseVisitor<ControlFlowResult>
+    {
+        private ControlFlowGraph graph = new ControlFlowGraph();
+
+        public override ControlFlowResult VisitStatement(ZScriptParser.StatementContext context)
+        {
+            if (context.blockStatement() != null)
+            {
+                var statements = context.blockStatement().statement();
+
+                foreach(var stmt in statements)
+                {
+                    
+                }
+            }
+
+            return new ControlFlowResult();
+        }
+
+        public override ControlFlowResult VisitIfStatement(ZScriptParser.IfStatementContext context)
+        {
+            return base.VisitIfStatement(context);
+        }
+
+        public override ControlFlowResult VisitTrailingIfStatement(ZScriptParser.TrailingIfStatementContext context)
+        {
+            return base.VisitTrailingIfStatement(context);
+        }
+    }
+
+    public class ControlFlowGraph
+    {
+        public ControlFlowNode CurrentNode;
+
+        public ControlFlowNode BaseNode;
+
+        public EndControlFlowNode EndNode = new EndControlFlowNode();
+
+        public ControlFlowGraph()
+        {
+            
+        }
+
+        public void PushNextNode(ControlFlowNode node)
+        {
+            if (BaseNode == null)
+            {
+                BaseNode = node;
+            }
+            if (CurrentNode == null)
+            {
+                CurrentNode = node;
+                return;
+            }
+
+            CurrentNode.NextNodes.Add(node);
+            CurrentNode = node;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ControlFlowNode
+    {
+        private ParserRuleContext context;
+
+        public List<ControlFlowNode> NextNodes = new List<ControlFlowNode>();
+        public List<ControlFlowNode> BackNodes = new List<ControlFlowNode>();
+    }
+
+    public class EndControlFlowNode : ControlFlowNode
+    {
+        
+    }
+
+    public class ControlFlowResult
+    {
+        public ControlFlowNode node;
+    }
+
     /// <summary>
     /// Represents a class capable of analyzing the control flow of a function
     /// </summary>
@@ -93,7 +178,7 @@ namespace ZScript.CodeGeneration.Analysis
                 IsEndReachable = true;
                 return;
             }
-
+            
             var endReturnFlow = new ControlFlowPointer(new ZScriptParser.StatementContext[0], 0);
 
             var visitedExpressions = new List<ZScriptParser.StatementContext>();

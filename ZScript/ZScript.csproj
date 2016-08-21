@@ -62,6 +62,7 @@
     <Compile Include="CodeGeneration\Analysis\Definitions\UnusedDefinitionsAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\GenericTypeResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\GenericTypeSource.cs" />
+    <Compile Include="CodeGeneration\Analysis\RuleContextSourceAttributer.cs" />
     <Compile Include="CodeGeneration\Analysis\StaticTypeAnalyzer.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionConstantResolver.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeResolver+BinaryExpression.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="CodeGeneration\RuntimeGenerationContext.cs" />
     <Compile Include="CodeGeneration\Definitions\TypeAliasDefinition.cs" />
     <Compile Include="CodeGeneration\Analysis\ExpressionTypeAnalyzer.cs" />
+    <Compile Include="CodeGeneration\Sourcing\ZScriptMultipleSourcesProvider.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedToken.cs" />
     <Compile Include="CodeGeneration\Tokenization\Helpers\TypedTokenExpander.cs" />
     <Compile Include="CodeGeneration\Tokenization\IntermediaryTokenList.cs" />

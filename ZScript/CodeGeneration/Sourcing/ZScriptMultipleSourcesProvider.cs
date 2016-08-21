@@ -19,21 +19,16 @@
 */
 #endregion
 
-namespace ZScript.Runtime.Typing.Elements
+namespace ZScript.CodeGeneration.Sourcing
 {
     /// <summary>
-    /// Interface to be implemented by types that enclose other values and can be subscripted like arrays
+    /// A class for classes capable of providing multiple ZScriptDefinitionsSource sources on a single request
     /// </summary>
-    public interface IListTypeDef
+    public abstract class ZScriptMultipleSourcesProvider
     {
         /// <summary>
-        /// Gets the type of items enclosed in this list type
+        /// Gets all the sources on this definition source provider
         /// </summary>
-        TypeDef EnclosingType { get; }
-
-        /// <summary>
-        /// Gets the type of object that is accepted by the subscripting syntax of the list
-        /// </summary>
-        TypeDef SubscriptType { get; }
+        public abstract ZScriptDefinitionsSource[] Sources { get; }
     }
 }

@@ -249,6 +249,15 @@ namespace ZScript.CodeGeneration.Definitions
 
             _classTypeDirty = false;
         }
+
+        /// <summary>
+        /// Returns a string representation of this ClassDefinition
+        /// </summary>
+        /// <returns>A string representation of this ClassDefinition</returns>
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     /// <summary>

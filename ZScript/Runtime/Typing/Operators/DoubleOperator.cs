@@ -18,6 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using System;
 
 namespace ZScript.Runtime.Typing.Operators
@@ -28,6 +29,8 @@ namespace ZScript.Runtime.Typing.Operators
     public class DoubleOperator : ITypeOperator<double>
     {
         public double Sum(double v1, double v2)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             return v1 + v2;
         }

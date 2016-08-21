@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-
 using ZScript.Runtime;
 using ZScript.Runtime.Typing.Elements;
 
@@ -103,6 +102,7 @@ namespace ZScript.Builders
             }
 
             CreateConstructors(tuple, typeBuilder, fields);
+            CreateEqualityComparision(tuple, typeBuilder, fields);
 
             var tupleType = typeBuilder.CreateType();
 
@@ -189,6 +189,102 @@ namespace ZScript.Builders
                 ilGenerator.Emit(OpCodes.Stfld, fields[i]);
             }
 
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Creates the tuple equality comparision on a given type builder
+        /// </summary>
+        /// <param name="tuple">The tuple containing the fields to initialize</param>
+        /// <param name="builder">The type builder to send the tuple fiends into</param>
+        /// <param name="fields">The fields in the tuple type</param>
+        private void CreateEqualityComparision(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        {
+            // Fetch the default 'equals' method of the Object class, which will be used to equate the fields of the tuples bellow
+            var equalsMethod = typeof(object).GetMethod("Equals", new [] { typeof(object) });
+            
+            var equality = builder.DefineMethod("Equals", MethodAttributes.Public | MethodAttributes.Virtual, CallingConventions.Standard, typeof(bool), new [] { typeof(object) });
+
+            // Define the override of the 'Equals' method
+            builder.DefineMethodOverride(equality, equalsMethod);
+
+            // Start writing the code
+            var ilGenerator = equality.GetILGenerator();
+
+            // Declare the local to store the casted tuple object we are going to compare against
+            ilGenerator.DeclareLocal(builder);
+
+            // The label to jump to if the conversion succeeds
+            var labelNotNull = ilGenerator.DefineLabel();
+
+            //// The next lines are equivalent to:
+            ////  var tuple = other as $TUPLE_1<T1, T2, T3..., TN>
+            ////  if(tuple == null)
+            ////      return false;
+            
+            // Loads the 'object other' parameter and test whether it is an instance of this class
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            
+            // var tuple = other as $TUPLE_1<T1, T2, T3..., TN> 
+            ilGenerator.Emit(OpCodes.Isinst, builder);
+            
+            ilGenerator.Emit(OpCodes.Stloc_0);
+
+            // Verify it is not null, if it is not, skip the next return statement
+            // if(tuple == null)
+            ilGenerator.Emit(OpCodes.Ldloc_0);
+            ilGenerator.Emit(OpCodes.Brtrue_S, labelNotNull);
+
+            // Return false
+            //     return false;
+            ilGenerator.Emit(OpCodes.Ldc_I4_0);
+            ilGenerator.Emit(OpCodes.Ret);
+
+            // Jump taret when not false
+            ilGenerator.MarkLabel(labelNotNull);
+            
+            //// The next lines are equivalent to:
+            ////  return field0.equals(other.field0) && field1.equals(other.field1) && ... && fieldN.equals(other.fieldN);
+
+            // Label to jump to if any of the comparisions fails
+            var labelReturnFalse = ilGenerator.DefineLabel();
+
+            // Go field by field comparing the types
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+                var type = builder.GenericTypeParameters[i];
+
+                // Load the fieldN from the 'var tuple = ...' local variable
+                ilGenerator.Emit(OpCodes.Ldloc_0);
+                ilGenerator.Emit(OpCodes.Ldflda, field);
+
+                // Load the fieldN from the called ('this') tuple
+                ilGenerator.Emit(OpCodes.Ldarg_0);
+                ilGenerator.Emit(OpCodes.Ldfld, field);
+
+                // Box the field on the type fieldN and constrain it
+                ilGenerator.Emit(OpCodes.Box, type);
+                ilGenerator.Emit(OpCodes.Constrained, type);
+
+                // Call the equals
+                ilGenerator.Emit(OpCodes.Callvirt, equalsMethod);
+
+                // If this is the last comparision, return its result, otherwise, test jump to the false branch
+                if (i == fields.Length - 1)
+                {
+                    ilGenerator.Emit(OpCodes.Ret);
+                }
+                else
+                {
+                    ilGenerator.Emit(OpCodes.Brfalse_S, labelReturnFalse);
+                }
+            }
+
+            // Build the return false bit
+            ilGenerator.MarkLabel(labelReturnFalse);
+
+            ilGenerator.Emit(OpCodes.Ldc_I4_0);
             ilGenerator.Emit(OpCodes.Ret);
         }
     }

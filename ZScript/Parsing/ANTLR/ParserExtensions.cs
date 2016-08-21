@@ -20,12 +20,24 @@
 #endregion
 
 using ZScript.CodeGeneration.Definitions;
+using ZScript.CodeGeneration.Sourcing;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.Parsing.ANTLR
 {
     public partial class ZScriptParser
     {
+        /// <summary>
+        /// Represents a type that can have a ZScriptDefinitionsSource source attributed
+        /// </summary>
+        internal interface ISourceAttributedContext
+        {
+            /// <summary>
+            /// Gets or sets the source for this ISourceAttributedContext type
+            /// </summary>
+            ZScriptDefinitionsSource Source { get; set; }
+        }
+
         #region Expressions
 
         /// <summary>
@@ -140,7 +152,7 @@ namespace ZScript.Parsing.ANTLR
         /// <summary>
         /// Provides extensions to the MemberNameContext for binding it to definitions
         /// </summary>
-        partial class MemberNameContext
+        partial class MemberNameContext : ISourceAttributedContext
         {
             /// <summary>
             /// Gets or sets the definition this member name context is pointing at
@@ -156,6 +168,11 @@ namespace ZScript.Parsing.ANTLR
             /// Gets or sets a value specifying whether this member name context points to an existing definition
             /// </summary>
             public bool HasDefinition { get; set; }
+
+            /// <summary>
+            /// Gets or sets the source associated with this context
+            /// </summary>
+            public ZScriptDefinitionsSource Source { get; set; }
         }
 
         /// <summary>
@@ -322,6 +339,28 @@ namespace ZScript.Parsing.ANTLR
             public ICallableTypeDef CallableSignature { get; set; }
         }
 
+        /// <summary>
+        /// Provides extensions to the ArgumentNameContext for attributing a source to this argument name
+        /// </summary>
+        partial class ArgumentNameContext : ISourceAttributedContext
+        {
+            /// <summary>
+            /// Gets or sets the Source for this argument name
+            /// </summary>
+            public ZScriptDefinitionsSource Source { get; set; }
+        }
+
+        /// <summary>
+        /// Provides extensions to the FunctionNameContext for attributing a source to this function name
+        /// </summary>
+        partial class FunctionNameContext : ISourceAttributedContext
+        {
+            /// <summary>
+            /// Gets or sets the Source for this function name
+            /// </summary>
+            public ZScriptDefinitionsSource Source { get; set; }
+        }
+
         #endregion
 
         #region Statements
@@ -332,18 +371,9 @@ namespace ZScript.Parsing.ANTLR
         partial class StatementContext
         {
             /// <summary>
-            /// Whether this statement is reachable by any control flow 
-            /// </summary>
-            private bool _reachable = true;
-
-            /// <summary>
             /// Gets or sets a value specifying whether this statement is reachable by any control flow
             /// </summary>
-            public bool Reachable
-            {
-                get { return _reachable; }
-                set { _reachable = value; }
-            }
+            public bool Reachable { get; set; } = true;
         }
 
         /// <summary>
@@ -460,12 +490,17 @@ namespace ZScript.Parsing.ANTLR
         /// <summary>
         /// Provides extensions to the ClassDefinitionContext for binding class definitions to contexts
         /// </summary>
-        partial class ClassDefinitionContext
+        partial class ClassDefinitionContext : ISourceAttributedContext
         {
             /// <summary>
             /// Gets or sets the class definition binded to this ClassDefinitionContext
             /// </summary>
             public ClassDefinition ClassDefinition { get; set; }
+
+            /// <summary>
+            /// Gets or sets the source for this class definition
+            /// </summary>
+            public ZScriptDefinitionsSource Source { get; set; }
         }
 
         /// <summary>

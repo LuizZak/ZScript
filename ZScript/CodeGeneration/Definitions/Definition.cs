@@ -20,6 +20,7 @@
 #endregion
 
 using Antlr4.Runtime;
+using ZScript.CodeGeneration.Sourcing;
 
 namespace ZScript.CodeGeneration.Definitions
 {
@@ -32,6 +33,11 @@ namespace ZScript.CodeGeneration.Definitions
         /// Gets or sets the name for this definition
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the source for this definition
+        /// </summary>
+        public ZScriptDefinitionsSource Source { get; set; }
 
         /// <summary>
         /// Gets or sets the context for the definition

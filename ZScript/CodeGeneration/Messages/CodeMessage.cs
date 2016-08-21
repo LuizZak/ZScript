@@ -18,7 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #endregion
+
 using Antlr4.Runtime;
+using ZScript.CodeGeneration.Sourcing;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Messages
@@ -47,6 +49,11 @@ namespace ZScript.CodeGeneration.Messages
         /// Gets or sets the context the message is contained at
         /// </summary>
         public ParserRuleContext Context { get; set; }
+
+        /// <summary>
+        /// Gets or sets the definition source for this CodeMessage
+        /// </summary>
+        public ZScriptDefinitionsSource Source { get; set; }
 
         /// <summary>
         /// Gets or sets a token object that can be used to identify special contexts.

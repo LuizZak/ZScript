@@ -42,12 +42,16 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("func f1() { }");
             var source2 = new ZScriptStringSource("func f2() { }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var container = generator.MessageContainer;
             var definition = generator.GenerateRuntimeDefinition();
@@ -61,12 +65,16 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("func f1() { f2(); }");
             var source2 = new ZScriptStringSource("func f2() { f1(); }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var container = generator.MessageContainer;
             generator.GenerateRuntimeDefinition();
@@ -79,12 +87,16 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("@_f1() func f1() { _f2(); }");
             var source2 = new ZScriptStringSource("@_f2() func f2() { _f1(); }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var container = generator.MessageContainer;
             generator.GenerateRuntimeDefinition();
@@ -97,12 +109,16 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("var a:any?; func f1() { a = b; }");
             var source2 = new ZScriptStringSource("var b:any?; func f2() { b = a; }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var container = generator.MessageContainer;
             generator.GenerateRuntimeDefinition();
@@ -115,18 +131,22 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("func f1() { }");
             var source2 = new ZScriptStringSource("func f2() { }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var definition = generator.CollectDefinitions();
 
             // Search the sources
-            var s1 = generator.SourceProvider.SourceForContext(definition.GetDefinitionByName("f1").Context);
-            var s2 = generator.SourceProvider.SourceForContext(definition.GetDefinitionByName("f2").Context);
+            var s1 = source.SourceForContext(definition.GetDefinitionByName("f1").Context);
+            var s2 = source.SourceForContext(definition.GetDefinitionByName("f2").Context);
 
             Assert.AreEqual(source1, s1, "The search source by context failed to locate the correct source for a definition");
             Assert.AreEqual(source2, s2, "The search source by context failed to locate the correct source for a definition");
@@ -137,12 +157,16 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("func f1() { }");
             var source2 = new ZScriptStringSource("func f1() { }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var container = generator.MessageContainer;
 
@@ -165,15 +189,18 @@ namespace ZScriptTests.CodeGeneration
         [TestMethod]
         public void TestCrossSourceFunctionExecution()
         {
-            var generator = new ZRuntimeGenerator();
-            generator.Debug = true;
+            var generator = new ZRuntimeGenerator { Debug = true };
+
+            var source = new SourceProvider();
 
             var source1 = new ZScriptStringSource("var a:int = 0; func f1() { f2(); }");
             var source2 = new ZScriptStringSource("func f2() { a = 10; }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var runtime = generator.GenerateRuntime(new TestRuntimeOwner());
             var memory = runtime.GlobalMemory;
@@ -188,12 +215,16 @@ namespace ZScriptTests.CodeGeneration
         {
             var generator = new ZRuntimeGenerator();
 
+            var source = new SourceProvider();
+
             var source1 = new ZScriptStringSource("var a = 10; func f1() { a += b; }");
             var source2 = new ZScriptStringSource("var b = 20; func f2() { b += a; }");
 
             // Add a few sources
-            generator.SourceProvider.AddSource(source1);
-            generator.SourceProvider.AddSource(source2);
+            source.AddSource(source1);
+            source.AddSource(source2);
+
+            generator.SourceProvider = source;
 
             var runtime = generator.GenerateRuntime(new TestRuntimeOwner());
             var memory = runtime.GlobalMemory;

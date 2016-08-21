@@ -22,8 +22,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Antlr4.Runtime.Sharpen;
-
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;

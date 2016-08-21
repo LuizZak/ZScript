@@ -60,7 +60,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestUnusedNestedReporting()
         {
             var definition = GenerateDefinition();
-            var usage = new DefinitionUsage(definition, null);
+            var usage = new DefinitionUsage(definition, null, null);
 
             var scope = new CodeScope();
             var childScope = new CodeScope();
@@ -83,7 +83,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestUnusedNonReporting()
         {
             var definition = GenerateDefinition();
-            var usage = new DefinitionUsage(definition, null);
+            var usage = new DefinitionUsage(definition, null, null);
             var scope = new CodeScope();
             var messages = new MessageContainer();
 
@@ -102,7 +102,7 @@ namespace ZScriptTests.CodeGeneration.Analysis
         public void TestUnusedNestedNonReporting()
         {
             var definition = GenerateDefinition();
-            var usage = new DefinitionUsage(definition, null);
+            var usage = new DefinitionUsage(definition, null, null);
 
             var scope = new CodeScope();
             var childScope = new CodeScope();

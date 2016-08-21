@@ -28,6 +28,7 @@ using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.CodeGeneration.Sourcing;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration
@@ -76,6 +77,11 @@ namespace ZScript.CodeGeneration
         /// Gets the collected base scope containing the scopes defined
         /// </summary>
         public CodeScope CollectedBaseScope { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the definition source to attribute to the definitions collected by this DefinitionsCollector
+        /// </summary>
+        public ZScriptDefinitionsSource Source { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the ScopeCollector class
@@ -661,7 +667,8 @@ namespace ZScript.CodeGeneration
             {
                 Context = classDefinition,
                 ClassContext = classDefinition,
-                IdentifierContext = classDefinition.className()
+                IdentifierContext = classDefinition.className(),
+                Source = classDefinition.Source
             };
             
             _currentScope.AddDefinition(def);

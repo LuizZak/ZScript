@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
+using ZScript.CodeGeneration.Sourcing;
 
 namespace ZScript.CodeGeneration.Messages
 {
@@ -46,6 +47,11 @@ namespace ZScript.CodeGeneration.Messages
         /// A list of all the syntax errors reported
         /// </summary>
         private readonly List<SyntaxError> _syntaxErrors = new List<SyntaxError>();
+
+        /// <summary>
+        /// Gets or sets the definition source to associate with the next messages created on this MessageContainer
+        /// </summary>
+        public ZScriptDefinitionsSource Source { get; set; }
 
         /// <summary>
         /// Gets a list containing all of the code messages stored in this message container
@@ -119,6 +125,8 @@ namespace ZScript.CodeGeneration.Messages
         /// <param name="error">The syntax error to register</param>
         public void RegisterSyntaxError(SyntaxError error)
         {
+            error.Source = Source;
+
             _syntaxErrors.Add(error);
         }
 
@@ -127,7 +135,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterWarning(int line, int position, string warningMessage, WarningCode code, ParserRuleContext context = null)
         {
-            _warningList.Add(new Warning(line, position, warningMessage, code) { Context = context });
+            _warningList.Add(new Warning(line, position, warningMessage, code) { Context = context, Source = Source });
         }
 
         /// <summary>
@@ -135,7 +143,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterWarning(ParserRuleContext context, string warningMessage, WarningCode code)
         {
-            _warningList.Add(new Warning(context.Start.Line, context.Start.Column, warningMessage, code) { Context = context });
+            _warningList.Add(new Warning(context.Start.Line, context.Start.Column, warningMessage, code) { Context = context, Source = Source });
         }
 
         /// <summary>
@@ -143,7 +151,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterError(int line, int position, string errorMessage)
         {
-            _errorList.Add(new CodeError(line, position, errorMessage));
+            _errorList.Add(new CodeError(line, position, errorMessage) { Source = Source });
         }
 
         /// <summary>
@@ -151,7 +159,7 @@ namespace ZScript.CodeGeneration.Messages
         /// </summary>
         public void RegisterError(int line, int position, string errorMessage, ErrorCode errorCode, ParserRuleContext context = null)
         {
-            RegisterError(new CodeError(line, position, errorCode) { Message = errorMessage, Context = context });
+            RegisterError(new CodeError(line, position, errorCode) { Message = errorMessage, Context = context, Source = Source });
         }
 
         /// <summary>
@@ -161,11 +169,11 @@ namespace ZScript.CodeGeneration.Messages
         {
             if(context == null)
             {
-                RegisterError(new CodeError(0, 0, errorMessage) { ErrorCode = errorCode });
+                RegisterError(new CodeError(0, 0, errorMessage) { ErrorCode = errorCode, Source = Source });
                 return;
             }
 
-            RegisterError(new CodeError(context.Start.Line, context.Start.Column, errorMessage) { ErrorCode = errorCode, Context = context });
+            RegisterError(new CodeError(context.Start.Line, context.Start.Column, errorMessage) { ErrorCode = errorCode, Context = context, Source = Source });
         }
 
         /// <summary>

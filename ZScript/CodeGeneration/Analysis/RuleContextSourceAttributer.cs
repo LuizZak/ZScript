@@ -19,42 +19,43 @@
 */
 #endregion
 
-using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using ZScript.CodeGeneration.Sourcing;
+using ZScript.Parsing.ANTLR;
 
-namespace ZScript.CodeGeneration.Definitions
+namespace ZScript.CodeGeneration.Analysis
 {
     /// <summary>
-    /// Declares the usage context of a definition
+    /// Class used to attribute sources to parser rules ina  freshly-parsed AST tree
     /// </summary>
-    public class DefinitionUsage
+    public class RuleContextSourceAttributer : ZScriptBaseVisitor<bool>
     {
         /// <summary>
-        /// Gets the definition that was used
-        /// </summary>
-        public Definition Definition { get; }
-
-        /// <summary>
-        /// Gets the source for this definition usage
+        /// Gets the source to attribute to objects visited by this listener
         /// </summary>
         public ZScriptDefinitionsSource Source { get; }
 
         /// <summary>
-        /// Gets the parser rule context that represents the definition's usage
+        /// Initializes a new instance of the RuleContextSourceAttributer class
         /// </summary>
-        public ParserRuleContext Context { get; }
+        /// <param name="source">The soruce to define on this rule context source attributer</param>
+        public RuleContextSourceAttributer(ZScriptDefinitionsSource source)
+        {
+            Source = source;
+        }
 
         /// <summary>
-        /// Initializes a new instance of the DefinitionUsage class
+        /// Visits the given node, attributing the source to it, in case it's an ISourceAttributedContext object
         /// </summary>
-        /// <param name="definition">The definition that was used</param>
-        /// <param name="context">The context in which the definition was used</param>
-        /// <param name="source">The source for this usage</param>
-        public DefinitionUsage(Definition definition, ParserRuleContext context, ZScriptDefinitionsSource source)
+        public override bool VisitChildren(IRuleNode node)
         {
-            Definition = definition;
-            Context = context;
-            Source = source;
+            var sourceAttributable = node as ZScriptParser.ISourceAttributedContext;
+            if (sourceAttributable != null)
+            {
+                sourceAttributable.Source = Source;
+            }
+
+            return base.VisitChildren(node);
         }
     }
 }

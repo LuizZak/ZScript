@@ -64,7 +64,8 @@ namespace ZScript.CodeGeneration
                 HasReturnType = context.functionDefinition().returnType() != null,
                 ReturnTypeContext = context.functionDefinition().returnType(),
                 IsOverride = context.@override != null,
-                IdentifierContext = context.functionDefinition().functionName()
+                IdentifierContext = context.functionDefinition().functionName(),
+                Source = context.functionDefinition().functionName().Source
             };
 
             context.MethodDefinition = m;
@@ -369,6 +370,8 @@ namespace ZScript.CodeGeneration
         public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDefineContext context)
         {
             def.Context = context;
+
+            def.Source = context.valueHolderName().memberName().Source;
 
             def.Name = context.valueHolderName().memberName().IDENT().GetText();
             def.Context = context;

@@ -384,7 +384,7 @@ namespace ZScript.CodeGeneration.Tokenization
                         tokenList[index].Instruction == VmInstruction.Ret)
                         break;
 
-                    // Check if the token is an unconditional jump; enqueue the jump address
+                    // Check if the token is a jump; enqueue the jump address
                     var jump = tokenList[index] as JumpToken;
                     if (jump != null)
                     {

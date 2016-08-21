@@ -27,6 +27,7 @@ using Antlr4.Runtime;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.CodeGeneration.Sourcing;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Analysis
@@ -42,7 +43,7 @@ namespace ZScript.CodeGeneration.Analysis
         private CodeScope _currentScope;
 
         /// <summary>
-        /// The message container that errors will be reported to
+        /// The runtime generation context for this definition analyzer
         /// </summary>
         private readonly RuntimeGenerationContext _context;
 
@@ -60,6 +61,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// Gest the message container that errors will be reported to
         /// </summary>
         private MessageContainer Container => _context.MessageContainer;
+
+        /// <summary>
+        /// Gets or sets the source this defintition analyzer is going through
+        /// </summary>
+        public ZScriptDefinitionsSource Source { get; set; }
 
         /// <summary>
         /// Creates a new instance of the VariableUsageAnalyzer class
@@ -118,7 +124,7 @@ namespace ZScript.CodeGeneration.Analysis
         {
             // Push class definition
             _classStack.Push(_currentScope.GetDefinitionByName<ClassDefinition>(context.className().GetText()));
-
+            
             if (context.classInherit() != null)
             {
                 // Mark inherited classes as 'used'
@@ -422,7 +428,7 @@ namespace ZScript.CodeGeneration.Analysis
             if (def == null)
                 RegisterMemberNotFound(context);
 
-            _currentScope.AddDefinitionUsage(new DefinitionUsage(def, context));
+            _currentScope.AddDefinitionUsage(new DefinitionUsage(def, context, Source));
         }
 
         /// <summary>
@@ -447,7 +453,8 @@ namespace ZScript.CodeGeneration.Analysis
             error = new CodeError(member.IDENT().Symbol.Line, member.IDENT().Symbol.Column, ErrorCode.UndeclaredDefinition);
             error.Message += " '" + member.IDENT().GetText() + "'";
             error.Context = member;
-
+            error.Source = member.Source;
+            
             Container.RegisterError(error);
         }
 
@@ -480,6 +487,7 @@ namespace ZScript.CodeGeneration.Analysis
             error = new CodeError(context.Start.Line, context.Start.Column, ErrorCode.UndeclaredDefinition);
             error.Message += " '" + context.GetText() + "'";
             error.Context = context;
+            error.Source = Source;
 
             Container.RegisterError(error);
         }

@@ -113,6 +113,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         {
             var warning = "Unused definition '" + definition.Name + "'.";
             var context = definition.IdentifierContext ?? definition.Context;
+            messageContainer.Source = definition.Source;
             messageContainer.RegisterWarning(context.Start.Line, context.Start.Column, warning, WarningCode.UnusedDefinition, definition.IdentifierContext);
         }
 
@@ -125,6 +126,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         {
             var warning = "Definition '" + definition.Name + "' has its value set, but never used.";
             var context = definition.IdentifierContext ?? definition.Context;
+            messageContainer.Source = definition.Source;
             messageContainer.RegisterWarning(context.Start.Line, context.Start.Column, warning, WarningCode.DefinitionOnlySet, definition.IdentifierContext);
         }
     }

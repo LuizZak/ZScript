@@ -61,6 +61,11 @@ namespace ZScript.CodeGeneration
         public bool Debug;
 
         /// <summary>
+        /// Current sources used during parsing/collection of definisions
+        /// </summary>
+        private ZScriptDefinitionsSource[] _currentSources = { };
+
+        /// <summary>
         /// The container for error and warning messages
         /// </summary>
         private MessageContainer _messageContainer;
@@ -79,11 +84,6 @@ namespace ZScript.CodeGeneration
         /// The internal type provider used to generate typing for the definitions
         /// </summary>
         private readonly TypeProvider _typeProvider;
-
-        /// <summary>
-        /// The sources provider for this runtime generator
-        /// </summary>
-        private readonly SourceProvider _sourceProvider;
 
         /// <summary>
         /// The native type builder used during generation time
@@ -116,7 +116,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Gets the sources provider for this runtime generator
         /// </summary>
-        public SourceProvider SourceProvider => _sourceProvider;
+        public ZScriptMultipleSourcesProvider SourceProvider { set; get; }
 
         /// <summary>
         /// Gets the internal type provider used to generate typing for the definitions
@@ -133,7 +133,7 @@ namespace ZScript.CodeGeneration
             _syntaxErrorListener = new ZScriptSyntaxErrorListener(_messageContainer);
             _nativeTypeBuilder = new NativeTypeBuilder("ZScript_Assembly");
 
-            _sourceProvider = new SourceProvider();
+            SourceProvider = new SourceProvider();
         }
 
         /// <summary>
@@ -144,7 +144,20 @@ namespace ZScript.CodeGeneration
             : this()
         {
             // Add a string source to the provider
-            _sourceProvider.AddSource(new ZScriptStringSource(input));
+            var provider = new SourceProvider();
+            provider.AddSource(new ZScriptStringSource(input));
+
+            SourceProvider = provider;
+        }
+
+        /// <summary>
+        /// Creates a new instance of the ZScriptGenerator class using a specified provider
+        /// </summary>
+        /// <param name="provider">The provider to push sources from</param>
+        public ZRuntimeGenerator(ZScriptMultipleSourcesProvider provider)
+            : this()
+        {
+            SourceProvider = provider;
         }
 
         /// <summary>
@@ -174,46 +187,54 @@ namespace ZScript.CodeGeneration
         {
             _messageContainer.ClearSyntaxErrors();
 
+            _currentSources = SourceProvider.Sources;
+
             // Iterate over the source providers, parsing them one by one
-            foreach (var source in _sourceProvider.Sources)
+            foreach (var source in _currentSources)
             {
-                if (source.ParseRequired)
+                if (!source.ParseRequired) continue;
+
+                AntlrInputStream stream = new AntlrInputStream(source.GetScriptSourceString());
+                ITokenSource lexer = new ZScriptLexer(stream);
+                ITokenStream tokens = new CommonTokenStream(lexer);
+
+                // TODO: See how to implement the bail error strategy correctly
+                _parser = new ZScriptParser(tokens)
                 {
-                    AntlrInputStream stream = new AntlrInputStream(source.GetScriptSourceString());
-                    ITokenSource lexer = new ZScriptLexer(stream);
-                    ITokenStream tokens = new CommonTokenStream(lexer);
+                    BuildParseTree = true,
+                    //Interpreter = { PredictionMode = PredictionMode.Sll },
+                    //ErrorHandler = new BailErrorStrategy()
+                };
 
-                    // TODO: See how to implement the bail error strategy correctly
-                    _parser = new ZScriptParser(tokens)
-                    {
-                        BuildParseTree = true,
-                        //Interpreter = { PredictionMode = PredictionMode.Sll },
-                        //ErrorHandler = new BailErrorStrategy()
-                    };
+                _parser.AddErrorListener(_syntaxErrorListener);
 
-                    _parser.AddErrorListener(_syntaxErrorListener);
+                _messageContainer.Source = source;
 
-                    try
-                    {
-                        source.Tree = _parser.program();
-                    }
-                    // Deal with parse exceptions
-                    catch (ParseCanceledException)
-                    {
-                        _parser.ErrorHandler = new DefaultErrorStrategy();
-                        _parser.Interpreter.PredictionMode = PredictionMode.Ll;
-
-                        // Reset error listener
-                        _messageContainer.ClearSyntaxErrors();
-
-                        source.Tree = _parser.program();
-                    }
-
-                    source.ParseRequired = false;
-
-                    // Clear the definitions for the source file
-                    source.Definitions = null;
+                try
+                {
+                    source.Tree = _parser.program();
                 }
+                    // Deal with parse exceptions
+                catch (ParseCanceledException)
+                {
+                    _parser.ErrorHandler = new DefaultErrorStrategy();
+                    _parser.Interpreter.PredictionMode = PredictionMode.Ll;
+
+                    // Reset error listener
+                    _messageContainer.ClearSyntaxErrors();
+
+                    source.Tree = _parser.program();
+                }
+
+                source.ParseRequired = false;
+
+                // Clear the definitions for the source file
+                source.Definitions = null;
+
+                // Attribute the source to the tree
+                var sourceAttributer = new RuleContextSourceAttributer(source);
+
+                sourceAttributer.Visit(source.Tree);
             }
         }
 
@@ -228,16 +249,18 @@ namespace ZScript.CodeGeneration
                 ParseSources();
             }
 
-            CodeScope completeScope = new CodeScope();
+            var completeScope = new CodeScope();
 
             // Clear code errors and warnings that happened in previous definition collections
             _messageContainer.ClearCodeErrors();
             _messageContainer.ClearWarnings();
 
-            foreach (var source in _sourceProvider.Sources)
+            foreach (var source in _currentSources)
             {
                 if (source.Definitions == null)
                 {
+                    _messageContainer.Source = source;
+                    
                     // Analyze the code of the scope
                     var collector = new DefinitionsCollector(_messageContainer);
                     collector.Collect(source.Tree);
@@ -252,17 +275,17 @@ namespace ZScript.CodeGeneration
             var context = CreateContext(completeScope);
 
             // Expand class definitions
-            ClassDefinitionExpander classExpander = new ClassDefinitionExpander(context);
+            var classExpander = new ClassDefinitionExpander(context);
             classExpander.Expand();
 
             _nativeTypeBuilder.ClearCache();
             _nativeTypeBuilder.GenerationContext = context;
 
             // Walk the source trees, now that the definitions were collected
-            ParseTreeWalker walker = new ParseTreeWalker();
-            foreach (var source in _sourceProvider.Sources)
+            var walker = new ParseTreeWalker();
+            foreach (var source in _currentSources)
             {
-                DefinitionAnalyzer varAnalyzer = new DefinitionAnalyzer(context);
+                var varAnalyzer = new DefinitionAnalyzer(context) { Source = source };
                 walker.Walk(varAnalyzer, source.Tree);
             }
 
@@ -361,7 +384,7 @@ namespace ZScript.CodeGeneration
         /// <returns>true if the generator requires parsing, false otherwise</returns>
         private bool RequiresParsing()
         {
-            return _sourceProvider.Sources.Any(source => source.ParseRequired);
+            return _currentSources == null || SourceProvider.Sources.Any(source => source.ParseRequired);
         }
 
         /// <summary>
@@ -792,6 +815,8 @@ namespace ZScript.CodeGeneration
                         return def.Type;
                     }
                 }
+
+                _context.MessageContainer.Source = context.Source;
 
                 _context.MessageContainer.RegisterError(context, "Cannot resolve definition name " + definitionName + " on type expanding phase.", ErrorCode.UndeclaredDefinition);
                 return _context.TypeProvider.AnyType();

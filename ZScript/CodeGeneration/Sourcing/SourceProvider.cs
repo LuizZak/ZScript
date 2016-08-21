@@ -30,7 +30,7 @@ namespace ZScript.CodeGeneration.Sourcing
     /// <summary>
     /// Class that provides script sources to a runtime generator
     /// </summary>
-    public class SourceProvider
+    public class SourceProvider : ZScriptMultipleSourcesProvider
     {
         /// <summary>
         /// Internal collection of sources registered
@@ -40,7 +40,7 @@ namespace ZScript.CodeGeneration.Sourcing
         /// <summary>
         /// Gets an array containing all of the sources registered on this scripts provider
         /// </summary>
-        public ZScriptDefinitionsSource[] Sources => _sources.ToArray();
+        public override ZScriptDefinitionsSource[] Sources => _sources.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the ScriptsProvider class
