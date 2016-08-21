@@ -384,5 +384,29 @@ namespace ZScriptTests.CodeGeneration.Analysis
             Assert.AreEqual(tupleType, exp.tupleExpression().TupleType, "The resolved type did not match the expected type");
             Assert.AreEqual(provider.OptionalTypeForType(provider.IntegerType()), exp.tupleExpression().tupleEntry(0).expression().ExpectedType, "The resolved type did not match the expected type");
         }
+
+        /// <summary>
+        /// Tests inferring tuple types when the expected type of a tuple expression has a mismatched value count
+        /// </summary>
+        [TestMethod]
+        public void TestResolveTupleTypeWithMismatchingExpectedType()
+        {
+            // Set up the test
+            const string input = "(0, 1);";
+
+            var parser = TestUtils.CreateParser(input);
+            var provider = new TypeProvider();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, new MessageContainer(), provider, new TestDefinitionTypeProvider()));
+
+            var exp = parser.statement().expression();
+            var expectedTuple = provider.TupleForTypes(provider.IntegerType(), provider.IntegerType(), provider.IntegerType());
+            var tupleType = provider.TupleForTypes(provider.IntegerType(), provider.IntegerType());
+            exp.ExpectedType = expectedTuple;
+
+            resolver.ResolveExpression(exp);
+
+            // Compare the result now
+            Assert.AreEqual(tupleType, exp.tupleExpression().TupleType, "The resolved type did not match the expected type");
+        }
     }
 }

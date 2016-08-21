@@ -540,8 +540,8 @@ namespace ZScript.CodeGeneration.Analysis
             var names = new string[entries.Length];
             var innerTypes = new TypeDef[entries.Length];
 
-            // Infer types
-            if (expectedTuple == null)
+            // Infer types when the expected type is null, or it has a mismatched count of values
+            if (expectedTuple == null || entries.Length != expectedTuple.InnerTypes.Length)
             {
                 for (int i = 0; i < entries.Length; i++)
                 {
@@ -558,19 +558,22 @@ namespace ZScript.CodeGeneration.Analysis
                 return context.TupleType = TypeProvider.TupleForTypes(names, innerTypes);
             }
 
-            innerTypes = expectedTuple.InnerTypes;
-
             var canConvert = true;
-            for (int i = 0; i < entries.Length; i++)
+            if (entries.Length == expectedTuple.InnerTypes.Length)
             {
-                names[i] = entries[i].IDENT() == null ? null : entries[i].IDENT().GetText();
-                entries[i].expression().ExpectedType = expectedTuple.InnerTypes[i];
+                innerTypes = expectedTuple.InnerTypes;
 
-                var type = ResolveExpression(entries[i].expression());
-                
-                if (!TypeProvider.CanImplicitCast(type, expectedTuple.InnerTypes[i]))
+                for (int i = 0; i < entries.Length; i++)
                 {
-                    canConvert = false;
+                    names[i] = entries[i].IDENT() == null ? null : entries[i].IDENT().GetText();
+                    entries[i].expression().ExpectedType = expectedTuple.InnerTypes[i];
+
+                    var type = ResolveExpression(entries[i].expression());
+
+                    if (!TypeProvider.CanImplicitCast(type, expectedTuple.InnerTypes[i]))
+                    {
+                        canConvert = false;
+                    }
                 }
             }
 
