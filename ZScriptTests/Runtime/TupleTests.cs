@@ -365,6 +365,52 @@ namespace ZScriptTests.Runtime
             Assert.AreEqual(false, result2);
         }
 
+        [TestMethod]
+        public void TestTupleNullCompareElements()
+        {
+            const string input = "var res1 = false; var res2 = false; func f() { res1 = (0, null) == (0, null); res2 = (0, 1) == (0, null); }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            var result1 = memory.GetVariable("res1");
+            Assert.AreEqual(true, result1);
+
+            var result2 = memory.GetVariable("res2");
+            Assert.AreEqual(false, result2);
+        }
+
+        [TestMethod]
+        public void TestTupleHashCodeWithNullField()
+        {
+            const string input = "var res1 = false; var res2 = false; func f() { var dict = [(0, null): true, (1, null): false]; res1 = dict[(0, null)]; res2 = dict[(1, null)]; }";
+
+            // Setup owner call
+            var owner = new TestRuntimeOwner();
+
+            var generator = TestUtils.CreateGenerator(input);
+            generator.ParseSources();
+            var runtime = generator.GenerateRuntime(owner);
+            var memory = runtime.GlobalMemory;
+
+            runtime.CallFunction("f");
+
+            // Assert the correct call was made
+            var result1 = memory.GetVariable("res1");
+            Assert.AreEqual(true, result1);
+
+            var result2 = memory.GetVariable("res2");
+            Assert.AreEqual(false, result2);
+        }
+
         #endregion
     }
 }

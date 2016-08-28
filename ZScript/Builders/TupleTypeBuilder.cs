@@ -118,7 +118,7 @@ namespace ZScript.Builders
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private void CreateConstructors(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateConstructors(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
         {
             CreateFieldConstructor(tuple, builder, fields);
             CreateCopyConstructor(tuple, builder, fields);
@@ -130,7 +130,7 @@ namespace ZScript.Builders
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private void CreateCopyConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateCopyConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
         {
             var baseConst = typeof(object).GetConstructor(Type.EmptyTypes);
 
@@ -158,7 +158,7 @@ namespace ZScript.Builders
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private void CreateFieldConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateFieldConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
         {
             var baseConst = typeof(object).GetConstructor(Type.EmptyTypes);
 
@@ -198,10 +198,12 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private void CreateEqualityComparision(TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateEqualityComparision(TypeBuilder builder, FieldBuilder[] fields)
         {
-            // Fetch the default 'equals' method of the Object class, which will be used to equate the fields of the tuples bellow
+            // Fetch the default 'equals' method of the Object class, which will be used to override the 'Equals' of the type
             var equalsMethod = typeof(object).GetMethod("Equals", new [] { typeof(object) });
+            // Fetch the static 'Equals' method of the Object class, which will be used to compare the tuple fields
+            var equalsStaticMethod = typeof (object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static);
             
             var equality = builder.DefineMethod("Equals", MethodAttributes.Public | MethodAttributes.Virtual, CallingConventions.Standard, typeof(bool), new [] { typeof(object) });
 
@@ -242,10 +244,10 @@ namespace ZScript.Builders
 
             // Jump taret when not false
             ilGenerator.MarkLabel(labelNotNull);
-            
-            //// The next lines are equivalent to:
-            ////  return field0.equals(other.field0) && field1.equals(other.field1) && ... && fieldN.equals(other.fieldN);
 
+            //// The next lines are equivalent to:
+            ////  return Object.Equals(field0, other.field0) && Object.Equals(field1, other.field1) && ... && Object.Equals(fieldN, other.fieldN);
+            
             // Label to jump to if any of the comparisions fails
             var labelReturnFalse = ilGenerator.DefineLabel();
 
@@ -255,20 +257,18 @@ namespace ZScript.Builders
                 var field = fields[i];
                 var type = builder.GenericTypeParameters[i];
 
-                // Load the fieldN from the 'var tuple = ...' local variable
-                ilGenerator.Emit(OpCodes.Ldloc_0);
-                ilGenerator.Emit(OpCodes.Ldflda, field);
-
-                // Load the fieldN from the called ('this') tuple
+                // Load the local field (equivalent to this.fieldN)
                 ilGenerator.Emit(OpCodes.Ldarg_0);
                 ilGenerator.Emit(OpCodes.Ldfld, field);
-
-                // Box the field on the type fieldN and constrain it
                 ilGenerator.Emit(OpCodes.Box, type);
-                ilGenerator.Emit(OpCodes.Constrained, type);
 
-                // Call the equals
-                ilGenerator.Emit(OpCodes.Callvirt, equalsMethod);
+                // Load the field from the other tuple (equivalent to tuple.fieldN)
+                ilGenerator.Emit(OpCodes.Ldloc_0);
+                ilGenerator.Emit(OpCodes.Ldfld, field);
+                ilGenerator.Emit(OpCodes.Box, type);
+
+                // Call Object.Equals() with the arguments
+                ilGenerator.Emit(OpCodes.Call, equalsStaticMethod);
 
                 // If this is the last comparision, return its result, otherwise, test jump to the false branch
                 if (i == fields.Length - 1)
@@ -293,7 +293,7 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private void CreateGetHashCode(TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateGetHashCode(TypeBuilder builder, FieldBuilder[] fields)
         {
             // Fetch the default 'GetHashCode' method of the Object class, which will be used to equate the fields of the tuples bellow
             var baseHashCode = typeof(object).GetMethod("GetHashCode", Type.EmptyTypes);
@@ -306,10 +306,10 @@ namespace ZScript.Builders
             // {
             //    int hash = (int)2166136261;
             //    
-            //    hash = (hash * 16777619) ^ field0.GetHashCode();
-            //    hash = (hash * 16777619) ^ field1.GetHashCode();
+            //    hash = (hash * 16777619) ^ (field0 == null ? 0 : field0.GetHashCode());
+            //    hash = (hash * 16777619) ^ (field1 == null ? 0 : field1.GetHashCode());
             //    ...
-            //    hash = (hash * 16777619) ^ fieldN.GetHashCode();
+            //    hash = (hash * 16777619) ^ (fieldN == null ? 0 : fieldN.GetHashCode());
             //    
             //    return hash;
             // }
@@ -331,6 +331,12 @@ namespace ZScript.Builders
             // Iterate over each field and return the hashcode for that field
             for (int i = 0; i < fields.Length; i++)
             {
+                // Jump to peform in case the field is null
+                var nullJump = ilGenerator.DefineLabel();
+                // Jump to perform in case the field is not null, used to jump over the '0' constant that is loaded
+                // in case the field is null. 
+                var over0Jump = ilGenerator.DefineLabel();
+
                 var field = fields[i];
                 var fieldType = builder.GenericTypeParameters[i];
 
@@ -339,12 +345,29 @@ namespace ZScript.Builders
                 ilGenerator.Emit(OpCodes.Ldc_I4, 16777619);
                 ilGenerator.Emit(OpCodes.Mul);
 
+                // Check 'this.fieldN' is not null
+                ilGenerator.Emit(OpCodes.Ldarg_0); // Load 'this'
+                ilGenerator.Emit(OpCodes.Ldfld, field); // Load 'fieldN'
+
+                // Box the value to compare to null
+                ilGenerator.Emit(OpCodes.Box, fieldType);
+
+                // Jump to constant 0 if field is null
+                ilGenerator.Emit(OpCodes.Brfalse_S, nullJump);
+
                 // Call 'this.fieldN.GetHashCode()'
                 ilGenerator.Emit(OpCodes.Ldarg_0); // Load 'this'
                 ilGenerator.Emit(OpCodes.Ldflda, field); // Load 'fieldN'
                 ilGenerator.Emit(OpCodes.Constrained, fieldType); // Constrain it to 'Tn'
                 ilGenerator.Emit(OpCodes.Callvirt, baseHashCode); // Call System.Object.GetHashCode(), with 'fieldN' as the target called
-                
+
+                // Jump over 0 constant in case field was calculated
+                ilGenerator.Emit(OpCodes.Br_S, over0Jump);
+
+                ilGenerator.MarkLabel(nullJump);
+                ilGenerator.Emit(OpCodes.Ldc_I4_0);
+
+                ilGenerator.MarkLabel(over0Jump);
                 // Apply 'xor' on 'heap' and 'this.fieldN.GetHashCode()'
                 ilGenerator.Emit(OpCodes.Xor);
 
