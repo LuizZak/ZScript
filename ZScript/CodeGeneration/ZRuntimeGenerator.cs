@@ -761,6 +761,8 @@ namespace ZScript.CodeGeneration
                 _localsStack.Pop();
             }
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
             // 
             // IDefinitionTypeProvider.TypeForDefinition implementation
             // 
@@ -906,6 +908,8 @@ namespace ZScript.CodeGeneration
 
                 return false;
             }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
         }
 
         /// <summary>
@@ -989,8 +993,7 @@ namespace ZScript.CodeGeneration
             /// <returns>A native type that was associated with the given calss type at creation time, or null, if none exists</returns>
             public Type TypeForClassType(ClassTypeDef type)
             {
-                Type native;
-                return _mappedClassTypes.TryGetValue(type, out native) ? native : null;
+                return _mappedClassTypes.TryGetValue(type, out Type native) ? native : null;
             }
 
             // 

@@ -79,10 +79,13 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>Specifies a warning issued when an expression for a switch statement resolves to a constant value that matches a constant defined in a case label</summary>
         ConstantSwitchExpression,
 
-        /// <summary>Wraning raised whenever a redundant base() call is placed inside an inherited constructor</summary>
+        /// <summary>Warning raised whenever a redundant base() call is placed inside an inherited constructor</summary>
         RedundantBaseCall,
 
         /// <summary>Warning raised when the expression on the left side of a null-coalesce is a non-optional value</summary>
         NonOptionalNullCoalesceLeftSize,
+
+        /// <summary>Warning raised when trying to compare equality or inequality of tuples of different value counts, which always results in true/false</summary>
+        TupleComparisionOfDifferentValueCounts,
     }
 }

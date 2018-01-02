@@ -24,7 +24,7 @@ using System.Linq;
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
@@ -109,6 +109,8 @@ namespace ZScript.CodeGeneration
             var walker = new ParseTreeWalker();
             walker.Walk(this, context);
         }
+
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #region Scope collection
 
@@ -350,12 +352,14 @@ namespace ZScript.CodeGeneration
         }
 
         #endregion
+        
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         /// <summary>
         /// Pushes a new scope of variables
         /// </summary>
         /// <param name="context">A context binded to the scope</param>
-        void PushScope(ParserRuleContext context)
+        private void PushScope(ParserRuleContext context)
         {
             var newScope = new CodeScope { Context = context };
 
@@ -366,7 +370,7 @@ namespace ZScript.CodeGeneration
         /// <summary>
         /// Pops the current scope, removing along all the variables from the current scope
         /// </summary>
-        void PopScope()
+        private void PopScope()
         {
             _currentScope = _currentScope.ParentScope;
         }
@@ -375,7 +379,7 @@ namespace ZScript.CodeGeneration
         /// Returns whether the current scope is the global scope
         /// </summary>
         /// <returns>A boolean value specifying whether the current scope is the global scope</returns>
-        bool IsInGlobalScope()
+        private bool IsInGlobalScope()
         {
             return _currentScope.Context is ZScriptParser.ProgramContext;
         }
@@ -384,7 +388,7 @@ namespace ZScript.CodeGeneration
         /// Returns whether the current scope is an instance (object or sequence) scope
         /// </summary>
         /// <returns>A boolean value specifying whether the current scope is instance (object or sequence) scope</returns>
-        bool IsInInstanceScope()
+        private bool IsInInstanceScope()
         {
             return _classStack.Count > 0 || _currentScope.Context is ZScriptParser.ClassBodyContext ||
                    _currentScope.Context is ZScriptParser.SequenceBodyContext;
@@ -395,11 +399,11 @@ namespace ZScript.CodeGeneration
         /// Returns null when none are found
         /// </summary>
         /// <returns>A definition that describes the nearest definition in the definition scopes that can hold variables, or null, when none are found</returns>
-        Definition GetNearestValueHoldingDefinition()
+        private Definition GetNearestValueHoldingDefinition()
         {
             // Traverse up the scopes
-            CodeScope scope = _currentScope;
-
+            var scope = _currentScope;
+            
             while (scope != null)
             {
                 if (scope.Context is ZScriptParser.ProgramContext)
@@ -426,7 +430,7 @@ namespace ZScript.CodeGeneration
         /// If the collector is currently not inside a class context, null is returned
         /// </summary>
         /// <returns>A class definition for the current scope</returns>
-        ClassDefinition GetClassScope()
+        private ClassDefinition GetClassScope()
         {
             return _classStack.Count > 0 ? _classStack.Peek() : null;
         }
@@ -436,7 +440,7 @@ namespace ZScript.CodeGeneration
         /// If the collector is currently not inside a sequence context, null is returned
         /// </summary>
         /// <returns>A sequence definition for the current scope</returns>
-        SequenceDefinition GetSequenceScope()
+        private SequenceDefinition GetSequenceScope()
         {
             return _sequenceStack.Count > 0 ? _sequenceStack.Peek() : null;
         }
@@ -446,7 +450,7 @@ namespace ZScript.CodeGeneration
         /// If the collector is currently not inside a type alias context, null is returned
         /// </summary>
         /// <returns>A type alias definition for the current scope</returns>
-        TypeAliasDefinition GetTypeAliasScope()
+        private TypeAliasDefinition GetTypeAliasScope()
         {
             return _typeAliasStack.Count > 0 ? _typeAliasStack.Peek() : null;
         }
@@ -455,11 +459,13 @@ namespace ZScript.CodeGeneration
         /// Defines a new variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The context containing the variable to define</param>
-        void DefineLocalVariable(ZScriptParser.ValueHolderDeclContext variable)
+        private void DefineLocalVariable(ZScriptParser.ValueHolderDeclContext variable)
         {
             var def = DefinitionGenerator.GenerateLocalVariable(variable);
 
             def.IsInstanceValue = IsInInstanceScope();
+
+            def.FunctionDefinition = GetNearestValueHoldingDefinition() as FunctionDefinition;
 
             CheckCollisions(def, variable);
 
@@ -470,7 +476,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The context containing the variable to define</param>
-        LocalVariableDefinition DefineLocalVariable(ZScriptParser.ValueHolderDefineContext variable)
+        private LocalVariableDefinition DefineLocalVariable(ZScriptParser.ValueHolderDefineContext variable)
         {
             var def = DefinitionGenerator.GenerateLocalVariable(variable);
 
@@ -507,7 +513,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new global variable in the current top-most scope
         /// </summary>
         /// <param name="variable">The global variable to define</param>
-        void DefineGlobalVariable(ZScriptParser.GlobalVariableContext variable)
+        private void DefineGlobalVariable(ZScriptParser.GlobalVariableContext variable)
         {
             var def = DefinitionGenerator.GenerateGlobalVariable(variable);
 
@@ -523,7 +529,7 @@ namespace ZScript.CodeGeneration
         /// Defines a function argument on the top-most scope
         /// </summary>
         /// <param name="argument">The argument to define</param>
-        void DefineFunctionArgument(ZScriptParser.FunctionArgContext argument)
+        private void DefineFunctionArgument(ZScriptParser.FunctionArgContext argument)
         {
             var def = DefinitionGenerator.GenerateFunctionArgumentDef(argument);
 
@@ -539,7 +545,8 @@ namespace ZScript.CodeGeneration
         /// Defines a field that is hidden, that is, it can be accessed, but does not comes from the script source
         /// </summary>
         /// <param name="variableName">The name of the variable to define</param>
-        ValueHolderDefinition DefineHiddenField(string variableName)
+        [NotNull]
+        private ValueHolderDefinition DefineHiddenField([NotNull] string variableName)
         {
             var def = new TypeFieldDefinition(variableName);
 
@@ -554,7 +561,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new export function on the current top-most scope
         /// </summary>
         /// <param name="exportFunction">The export function to define</param>
-        ExportFunctionDefinition DefineExportFunction(ZScriptParser.ExportDefinitionContext exportFunction)
+        private ExportFunctionDefinition DefineExportFunction(ZScriptParser.ExportDefinitionContext exportFunction)
         {
             var def = DefinitionGenerator.GenerateExportFunctionDef(exportFunction);
 
@@ -569,7 +576,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new function in the current top-most scope
         /// </summary>
         /// <param name="function">The function to define</param>
-        TopLevelFunctionDefinition DefineTopLevelFunction(ZScriptParser.FunctionDefinitionContext function)
+        private TopLevelFunctionDefinition DefineTopLevelFunction(ZScriptParser.FunctionDefinitionContext function)
         {
             var def = DefinitionGenerator.GenerateTopLevelFunctionDef(function);
 
@@ -584,7 +591,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new function in the current top-most scope
         /// </summary>
         /// <param name="function">The function to define</param>
-        void DefineTopLevelFunction(TopLevelFunctionDefinition function)
+        private void DefineTopLevelFunction(TopLevelFunctionDefinition function)
         {
             _currentScope.AddDefinition(function);
         }
@@ -593,7 +600,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new method in the current top-most scope
         /// </summary>
         /// <param name="method">The method to define</param>
-        void DefineMethod(MethodDefinition method)
+        private void DefineMethod(MethodDefinition method)
         {
             // Constructor detection
             if (method.Name == GetClassScope().Name)
@@ -627,7 +634,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new class method in the current top-most scope
         /// </summary>
         /// <param name="method">The method to define</param>
-        MethodDefinition DefineMethod(ZScriptParser.ClassMethodContext method)
+        private MethodDefinition DefineMethod(ZScriptParser.ClassMethodContext method)
         {
             var def = DefinitionGenerator.GenerateMethodDef(method);
 
@@ -644,7 +651,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new closure in the current top-most scope
         /// </summary>
         /// <param name="closure">The closure to define</param>
-        ClosureDefinition DefineClosure(ZScriptParser.ClosureExpressionContext closure)
+        private ClosureDefinition DefineClosure(ZScriptParser.ClosureExpressionContext closure)
         {
             var def = DefinitionGenerator.GenerateClosureDef(closure);
 
@@ -661,7 +668,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="classDefinition">The class to define</param>
         /// <returns>The class that was defined</returns>
-        ClassDefinition DefineClass(ZScriptParser.ClassDefinitionContext classDefinition)
+        private ClassDefinition DefineClass(ZScriptParser.ClassDefinitionContext classDefinition)
         {
             var def = new ClassDefinition(classDefinition.className().IDENT().GetText())
             {
@@ -683,7 +690,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="sequence">The sequence to define</param>
         /// <returns>The sequence that was defined</returns>
-        SequenceDefinition DefineSequence(ZScriptParser.SequenceBlockContext sequence)
+        private SequenceDefinition DefineSequence(ZScriptParser.SequenceBlockContext sequence)
         {
             var def = new SequenceDefinition(sequence.sequenceName().IDENT().GetText())
             {
@@ -704,7 +711,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="frame">The sequence frame to define</param>
         /// <returns>The sequence frame that was defined</returns>
-        void DefineSequenceFrame(SequenceFrameDefinition frame)
+        private void DefineSequenceFrame(SequenceFrameDefinition frame)
         {
             _currentScope.AddDefinition(frame);
 
@@ -718,7 +725,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="frame">The sequence frame to define</param>
         /// <returns>The sequence frame that was defined</returns>
-        SequenceFrameDefinition DefineSequenceFrame(ZScriptParser.SequenceFrameContext frame)
+        private SequenceFrameDefinition DefineSequenceFrame(ZScriptParser.SequenceFrameContext frame)
         {
             var def = DefinitionGenerator.GenerateSequenceFrameDef(frame);
 
@@ -735,7 +742,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new type alias definition in the current top-most scope
         /// </summary>
         /// <param name="typeAlias">The type alias to define</param>
-        TypeAliasDefinition DefineTypeAlias(ZScriptParser.TypeAliasContext typeAlias)
+        private TypeAliasDefinition DefineTypeAlias(ZScriptParser.TypeAliasContext typeAlias)
         {
             var def = TypeAliasDefinitionGenerator.GenerateTypeAlias(typeAlias);
 
@@ -748,7 +755,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new type alias field in the current type alias context
         /// </summary>
         /// <param name="variable">The variable to define in the type alias</param>
-        void DefineTypeAliasField(ZScriptParser.TypeAliasVariableContext variable)
+        private void DefineTypeAliasField(ZScriptParser.TypeAliasVariableContext variable)
         {
             var def = TypeAliasDefinitionGenerator.GenerateTypeField(variable);
 
@@ -763,7 +770,7 @@ namespace ZScript.CodeGeneration
         /// Defines a new type alias field in the current type alias context
         /// </summary>
         /// <param name="method">The variable to define in the type alias</param>
-        void DefineTypeAliasFunction(ZScriptParser.TypeAliasFunctionContext method)
+        private void DefineTypeAliasFunction(ZScriptParser.TypeAliasFunctionContext method)
         {
             var def = TypeAliasDefinitionGenerator.GenerateTypeMethod(method);
 
@@ -779,7 +786,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="definition">The definition to check</param>
         /// <param name="context">A context used during analysis to report where the error happened</param>
-        void CheckCollisions(Definition definition, ParserRuleContext context)
+        private void CheckCollisions(Definition definition, ParserRuleContext context)
         {
             // Unlabeled sequence frame definitions do not collide with other definitions
             if (definition is SequenceFrameDefinition && definition.Name == "")

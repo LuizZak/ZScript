@@ -78,6 +78,7 @@ namespace ZScript.Elements
         // 
         // CanSubscriptWithIndexType override
         // 
+        /// <inheritdoc />
         public bool CanSubscriptWithIndexType(Type type)
         {
             return type == typeof(string);

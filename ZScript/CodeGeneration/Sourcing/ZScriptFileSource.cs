@@ -70,6 +70,8 @@ namespace ZScript.CodeGeneration.Sourcing
 
         #region Equality members
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public bool Equals(ZScriptFileSource other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -103,6 +105,8 @@ namespace ZScript.CodeGeneration.Sourcing
         {
             return !Equals(left, right);
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

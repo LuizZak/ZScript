@@ -101,6 +101,8 @@ namespace ZScript.CodeGeneration.Analysis
             ResolveAssignmentExpression(context);
         }
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         // 
         // ZScriptBaseListener.EnterExpression implementation
         // 
@@ -133,6 +135,8 @@ namespace ZScript.CodeGeneration.Analysis
                 }
             }
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         /// <summary>
         /// Resolves the expression contained within a given expression context

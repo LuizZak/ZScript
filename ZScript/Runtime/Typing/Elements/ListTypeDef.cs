@@ -30,14 +30,9 @@ namespace ZScript.Runtime.Typing.Elements
     public class ListTypeDef : NativeTypeDef, IListTypeDef, IEquatable<ListTypeDef>
     {
         /// <summary>
-        /// The type of items enclosed in this list type
-        /// </summary>
-        private readonly TypeDef _enclosingType;
-
-        /// <summary>
         /// Gets the type of items enclosed in this list type
         /// </summary>
-        public TypeDef EnclosingType => _enclosingType;
+        public TypeDef EnclosingType { get; }
 
         /// <summary>
         /// Gets or sets the type of object accepted by the subscript of the list
@@ -51,7 +46,7 @@ namespace ZScript.Runtime.Typing.Elements
         public ListTypeDef(TypeDef enclosingType)
             : base(typeof(List<>), "list<" + enclosingType.Name + ">")
         {
-            _enclosingType = enclosingType;
+            EnclosingType = enclosingType;
             // Default the subscript to integer
             SubscriptType = IntegerType;
 
@@ -74,16 +69,18 @@ namespace ZScript.Runtime.Typing.Elements
         /// <returns>A string representation of this ListTypeDef</returns>
         public override string ToString()
         {
-            return "[" + _enclosingType + "]";
+            return "[" + EnclosingType + "]";
         }
 
         #region Equality members
+
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         public bool Equals(ListTypeDef other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && Equals(_enclosingType, other._enclosingType);
+            return base.Equals(other) && Equals(EnclosingType, other.EnclosingType);
         }
 
         public override bool Equals(object obj)
@@ -98,7 +95,7 @@ namespace ZScript.Runtime.Typing.Elements
         {
             unchecked
             {
-                return (base.GetHashCode() * 397) ^ (_enclosingType?.GetHashCode() ?? 0);
+                return (base.GetHashCode() * 397) ^ (EnclosingType?.GetHashCode() ?? 0);
             }
         }
 
@@ -111,6 +108,8 @@ namespace ZScript.Runtime.Typing.Elements
         {
             return !Equals(left, right);
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

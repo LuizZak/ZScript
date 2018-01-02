@@ -40,7 +40,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// Gets the information for the parameters of this callable type definition
         /// </summary>
         CallableTypeDef.CallableParameterInfo[] ParameterInfos { get; }
-
+        
         /// <summary>
         /// Gets the count of arguments required by this callable type definition
         /// </summary>

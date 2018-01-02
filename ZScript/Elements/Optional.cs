@@ -152,6 +152,8 @@ namespace ZScript.Elements
 
         #region Equality members
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public bool Equals(Optional<T> other)
         {
             return HasInnerValue == other.HasInnerValue && EqualityComparer<T>.Default.Equals(_value, other._value);
@@ -201,6 +203,8 @@ namespace ZScript.Elements
         {
             return left.HasInnerValue && right != null ? !right.Equals(left._value) : left._value != null;
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

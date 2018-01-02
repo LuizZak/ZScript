@@ -99,7 +99,7 @@ namespace ZScript.CodeGeneration.Tokenization
         }
 
         /// <summary>
-        /// Safely removes a token, retargeting any temporary jump instruction point to it
+        /// Safely removes a token, retargeting any temporary jump instruction pointing to it
         /// </summary>
         /// <param name="source">The source to remove the token from</param>
         /// <param name="token">The token to remove</param>
@@ -462,6 +462,8 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region IList implementation
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public IEnumerator<Token> GetEnumerator()
         {
             return _tokens.GetEnumerator();
@@ -511,6 +513,8 @@ namespace ZScript.CodeGeneration.Tokenization
             get { return _tokens[index]; }
             set { _tokens[index] = value; }
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

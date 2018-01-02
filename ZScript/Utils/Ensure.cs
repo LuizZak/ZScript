@@ -1,4 +1,4 @@
-#region License information
+﻿#region License information
 /*
     ZScript Game Scripting Programming Language
     Copyright (C) 2015  Luiz Fernando Silva
@@ -19,16 +19,30 @@
 */
 #endregion
 
-namespace ZScript.CodeGeneration.Definitions
+using System;
+using System.Diagnostics;
+using JetBrains.Annotations;
+
+namespace ZScript.Utils
 {
     /// <summary>
-    /// Represents a local variable in a function context
+    /// Helper contract-style assertions used within some methods
     /// </summary>
-    public class LocalVariableDefinition : ValueHolderDefinition
+    public static class Ensure
     {
+        // Based off of StackOverflow answer: https://stackoverflow.com/a/32139346/1463239
+
         /// <summary>
-        /// Gets or sets the function definition that owns this local variable
+        /// Ensures that the specified argument is not null.
         /// </summary>
-        public FunctionDefinition FunctionDefinition { get; set; }
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="argument">The argument.</param>
+        [DebuggerStepThrough]
+        [ContractAnnotation("halt <= argument:null")]
+        public static void ArgumentNotNull(object argument, [InvokerParameterName] string argumentName)
+        {
+            if (argument == null)
+                throw new ArgumentNullException(argumentName);
+        }
     }
 }

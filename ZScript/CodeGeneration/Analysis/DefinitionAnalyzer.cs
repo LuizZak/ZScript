@@ -79,6 +79,8 @@ namespace ZScript.CodeGeneration.Analysis
             _localsStack = new Stack<List<Definition>>();
         }
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         #region Scope walking
 
         public override void EnterProgram(ZScriptParser.ProgramContext context)
@@ -294,12 +296,14 @@ namespace ZScript.CodeGeneration.Analysis
 
         #endregion
 
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         /// <summary>
         /// Enters a scope with the given context binded. If the context is not found, an exception is raised
         /// </summary>
         /// <param name="context">The context to enter</param>
         /// <exception cref="ArgumentException">The context is not nested in any child code scope of the current code scope</exception>
-        void EnterContextScope(ParserRuleContext context)
+        private void EnterContextScope(ParserRuleContext context)
         {
             // Get the scope on the current scope tree that matches the context
             foreach (var s in _currentScope.ChildrenScopes)
@@ -317,7 +321,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Exists the context scope, jumping to the parent context
         /// </summary>
-        void ExitContextScope()
+        private void ExitContextScope()
         {
             // Analyze the scope for unused definitions
             UnusedDefinitionsAnalyzer.Analyze(_currentScope, Container);
@@ -329,7 +333,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Gets the current top-most scope
         /// </summary>
         /// <returns>The current top-most scope</returns>
-        CodeScope CurrentScope()
+        private CodeScope CurrentScope()
         {
             return _currentScope;
         }
@@ -337,7 +341,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Pushes a new definition scope
         /// </summary>
-        void PushDefinitionScope()
+        private void PushDefinitionScope()
         {
             _localsStack.Push(new List<Definition>());
         }
@@ -346,7 +350,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Adds a given definition to the top of the definition stack
         /// </summary>
         /// <param name="definition">The definition to add to the top of the definition stack</param>
-        void AddDefinition(Definition definition)
+        private void AddDefinition(Definition definition)
         {
             _localsStack.Peek().Add(definition);
         }
@@ -354,7 +358,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Pops a definition scope
         /// </summary>
-        void PopDefinitionScope()
+        private void PopDefinitionScope()
         {
             _localsStack.Pop();
         }
@@ -365,7 +369,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition to search for</param>
         /// <returns>The definition found, or null, if none was found</returns>
-        Definition GetDefinitionByName(string definitionName)
+        private Definition GetDefinitionByName(string definitionName)
         {
             foreach (var locals in _localsStack)
             {
@@ -408,7 +412,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition that was used</param>
         /// <param name="context">The context in which the definition was used</param>
-        void RegisterDefinitionUsage(string definitionName, ZScriptParser.MemberNameContext context)
+        private void RegisterDefinitionUsage(string definitionName, ZScriptParser.MemberNameContext context)
         {
             var definition = GetDefinitionByName(definitionName);
 
@@ -423,7 +427,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="def">The definition that was used</param>
         /// <param name="context">The context in which the definition was used</param>
-        void RegisterDefinitionUsage(Definition def, ParserRuleContext context)
+        private void RegisterDefinitionUsage(Definition def, ParserRuleContext context)
         {
             if (def == null)
                 RegisterMemberNotFound(context);
@@ -435,7 +439,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Registers a new variable not found error
         /// </summary>
         /// <param name="member">The member containing the name of the variable that was not found</param>
-        void RegisterMemberNotFound(ZScriptParser.MemberNameContext member)
+        private void RegisterMemberNotFound(ZScriptParser.MemberNameContext member)
         {
             CodeError error;
 
@@ -462,10 +466,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// Registers a new variable not found error
         /// </summary>
         /// <param name="context">The context containing the name of the member that was not found</param>
-        void RegisterMemberNotFound(ParserRuleContext context)
+        private void RegisterMemberNotFound(ParserRuleContext context)
         {
-            var member = context as ZScriptParser.MemberNameContext;
-            if (member != null)
+            if (context is ZScriptParser.MemberNameContext member)
             {
                 RegisterMemberNotFound(member);
                 return;

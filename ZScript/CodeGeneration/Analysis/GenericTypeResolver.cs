@@ -20,6 +20,8 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
 
@@ -38,28 +40,29 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Gets the context associated with this generic type resolver
         /// </summary>
-        public RuntimeGenerationContext Context { private set; get; }
+        public RuntimeGenerationContext Context { get; }
 
         /// <summary>
         /// Fetches a copy of the stored function calls on this generic type resolver
         /// </summary>
+        [NotNull]
         public ZScriptParser.FunctionCallContext[] EnqueuedFunctionCalls => _functionCalls.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the GenericTypeResolver with an associated runtime generation context
         /// </summary>
         /// <param name="context">The generation context for this generic type resolver</param>
-        public GenericTypeResolver(RuntimeGenerationContext context)
+        public GenericTypeResolver([NotNull] RuntimeGenerationContext context)
         {
             _functionCalls = new Stack<ZScriptParser.FunctionCallContext>();
             Context = context;
         }
-
+        
         /// <summary>
         /// Pushes a generic function call context in this generic type resolver to be resolved later
         /// </summary>
         /// <param name="functionCall">Function call to store on this generic type resolver</param>
-        public void PushGenericCallContext(ZScriptParser.FunctionCallContext functionCall)
+        public void PushGenericCallContext([NotNull] ZScriptParser.FunctionCallContext functionCall)
         {
             _functionCalls.Push(functionCall);
         }
@@ -69,7 +72,11 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         public void ResolveGenericCalls()
         {
-            
+            // Solve from innermost to outermost
+            foreach (var functionCall in _functionCalls.Reverse())
+            {
+                
+            }
         }
 
         /// <summary>
@@ -77,7 +84,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="functionCall">The context for the function call to resolve</param>
         /// <returns>Any associated messages generated during the type resolving</returns>
-        public CodeMessage[] ResolveFunctionCall(ZScriptParser.FunctionCallContext functionCall)
+        [NotNull]
+        public CodeMessage[] ResolveFunctionCall([NotNull] ZScriptParser.FunctionCallContext functionCall)
         {
             return new CodeMessage[0];
         }

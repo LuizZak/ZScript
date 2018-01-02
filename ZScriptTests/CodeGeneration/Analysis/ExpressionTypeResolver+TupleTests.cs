@@ -408,5 +408,47 @@ namespace ZScriptTests.CodeGeneration.Analysis
             // Compare the result now
             Assert.AreEqual(tupleType, exp.tupleExpression().TupleType, "The resolved type did not match the expected type");
         }
+
+        /// <summary>
+        /// Tests warning when trying to compare equality tuples of different value counts
+        /// </summary>
+        [TestMethod]
+        public void TestWarningOnMismatchedTupleEquality()
+        {
+            // Set up the test
+            const string input = "(0, 1) == (0, 2, 3);";
+
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider(), new TestDefinitionTypeProvider()));
+
+            var exp = parser.statement().expression();
+
+            resolver.ResolveExpression(exp);
+            
+            // Compare the result now
+            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.TupleComparisionOfDifferentValueCounts));
+        }
+
+        /// <summary>
+        /// Tests warning when trying to compare inequality tuples of different value counts
+        /// </summary>
+        [TestMethod]
+        public void TestWarningOnMismatchedTupleInequality()
+        {
+            // Set up the test
+            const string input = "(0, 1) != (0, 2, 3);";
+            
+            var parser = TestUtils.CreateParser(input);
+            var container = new MessageContainer();
+            var resolver = new ExpressionTypeResolver(new RuntimeGenerationContext(null, container, new TypeProvider(), new TestDefinitionTypeProvider()));
+
+            var exp = parser.statement().expression();
+
+            resolver.ResolveExpression(exp);
+
+            // Compare the result now
+            Assert.AreEqual(1, container.Warnings.Count(c => c.WarningCode == WarningCode.TupleComparisionOfDifferentValueCounts));
+        }
     }
 }

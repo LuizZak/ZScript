@@ -126,6 +126,8 @@ namespace ZScript.CodeGeneration.Definitions
 
         #region Equality Members
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public bool Equals(SequenceFrameRange other)
         {
             return _isRelative.Equals(other._isRelative) && _isRanged.Equals(other._isRanged) && _startFrame == other._startFrame && _endFrame == other._endFrame;
@@ -158,6 +160,8 @@ namespace ZScript.CodeGeneration.Definitions
         {
             return !left.Equals(right);
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

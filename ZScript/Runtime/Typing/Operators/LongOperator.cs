@@ -19,6 +19,8 @@
 */
 #endregion
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
 namespace ZScript.Runtime.Typing.Operators
 {
     /// <summary>

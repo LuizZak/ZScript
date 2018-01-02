@@ -22,10 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Antlr4.Runtime;
 
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Definitions;
+using ZScript.CodeGeneration.Messages;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
@@ -167,6 +169,28 @@ namespace ZScriptTests.Utils
 
             return inst;
         }
+        
+        /// <summary>
+        /// Helper that returns whether the given list of messages matches a reg-exp string match.
+        /// 
+        /// The matcher matches if the message is exactly equal to match, contains a substring equal
+        /// to match, or if the match string is interpreted as a Regex it matches the message string.
+        /// 
+        /// Optionally allows specifying the expected count of matches to find (-1 means no limit, but at least one)
+        /// </summary>
+        public static bool Expect(this IEnumerable<CodeMessage> messages, string match, int count = -1)
+        {
+            if (count < -1) throw new ArgumentOutOfRangeException(nameof(count));
+
+            var regex = new Regex(match);
+
+            int matches = messages.Count(message => message.Message == match || message.Message.Contains(match) || regex.IsMatch(message.Message));
+
+            if (matches == 0)
+                return false;
+
+            return count == -1 || matches == count;
+        }
     }
 
     /// <summary>
@@ -180,7 +204,7 @@ namespace ZScriptTests.Utils
     /// <summary>
     /// Test derived class used in a few type-related tests
     /// </summary>
-    class TestDerivedClass : TestBaseClass
+    internal class TestDerivedClass : TestBaseClass
     {
 
     }

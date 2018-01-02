@@ -25,6 +25,7 @@ using System.Linq;
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
@@ -83,7 +84,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Initializes a new instance of the DefinitionTypeExpander class
         /// </summary>
         /// <param name="generationContext">The generation context for this static type analyzer</param>
-        public StaticTypeAnalyzer(RuntimeGenerationContext generationContext)
+        public StaticTypeAnalyzer([NotNull] RuntimeGenerationContext generationContext)
         {
             _baseScope = generationContext.BaseScope;
 
@@ -473,7 +474,7 @@ namespace ZScript.CodeGeneration.Analysis
             {
                 ClearLocalStack();
 
-                ParseTreeWalker walker = new ParseTreeWalker();
+                var walker = new ParseTreeWalker();
                 walker.Walk(this, context);
             }
 
@@ -1060,7 +1061,7 @@ namespace ZScript.CodeGeneration.Analysis
                     return;
                 }
 
-                var varName = _switchContext.valueHolderDecl() == null ? null : _switchContext.valueHolderDecl().valueHolderDefine().valueHolderName().GetText();
+                var varName = _switchContext.valueHolderDecl()?.valueHolderDefine().valueHolderName().GetText();
 
                 foreach (var caseContext in _processedCases)
                 {
@@ -1186,7 +1187,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Helper class that helps with type ant integrity analysis of if statements
         /// </summary>
-        class IfStatementAnalyzer : ZScriptBaseListener
+        private class IfStatementAnalyzer : ZScriptBaseListener
         {
             /// <summary>
             /// The type resolver to use when resolving the expressions
@@ -1252,7 +1253,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Helper class that helps with type ant integrity analysis of trailing if statements
         /// </summary>
-        class TrailingIfStatementAnalyzer : ZScriptBaseListener
+        private class TrailingIfStatementAnalyzer : ZScriptBaseListener
         {
             /// <summary>
             /// The type resolver to use when resolving the expressions
@@ -1326,7 +1327,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Custom type source that can feed types based on class names
         /// </summary>
-        class ClassTypeSource : ICustomTypeSource
+        private class ClassTypeSource : ICustomTypeSource
         {
             /// <summary>
             /// List of classes registered on this ClassTypeSource

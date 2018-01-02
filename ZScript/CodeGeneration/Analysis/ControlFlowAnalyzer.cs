@@ -26,6 +26,8 @@ using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
 using ZScript.Utils;
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
 namespace ZScript.CodeGeneration.Analysis
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace ZScript.CodeGeneration.Analysis
     /// </summary>
     public class ControlFlowBuilder : ZScriptBaseVisitor<ControlFlowResult>
     {
-        private ControlFlowGraph graph = new ControlFlowGraph();
+        private ControlFlowGraph _graph = new ControlFlowGraph();
 
         public override ControlFlowResult VisitStatement(ZScriptParser.StatementContext context)
         {

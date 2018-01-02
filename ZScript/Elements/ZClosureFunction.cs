@@ -75,6 +75,8 @@ namespace ZScript.Elements
             return clone;
         }
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         // 
         // ICallableWrapper.CallableTypeWithArguments implementation
         // 
@@ -89,6 +91,8 @@ namespace ZScript.Elements
         public object Call(VmContext context, CallArguments arguments)
         {
             return context.Runtime.CallFunction(this, arguments);
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
         }
     }
 }

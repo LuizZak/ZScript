@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Runtime.Typing;
@@ -66,7 +66,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// Analyzes a given generic signature
         /// </summary>
         /// <param name="signature">The generic signature to analyze</param>
-        public void AnalyzeSignature(GenericSignatureInformation signature)
+        public void AnalyzeSignature([NotNull] GenericSignatureInformation signature)
         {
             // Hashset of types constrained in the signature, used to detect duplicated constraints
             var constraints = new HashSet<string>();
@@ -105,7 +105,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
                 }
 
                 // Detect cyclical referencing
-                if (baseType.IsSubtypeOf(type) || type == (baseType as GenericTypeDefinition))
+                if (baseType.IsSubtypeOf(type) || type == baseType as GenericTypeDefinition)
                 {
                     var message = "Cyclical generic constraining detected between " + type + " and " + baseType;
                     _context.MessageContainer.RegisterError(constraint.Context, message, ErrorCode.CyclicalGenericConstraint);

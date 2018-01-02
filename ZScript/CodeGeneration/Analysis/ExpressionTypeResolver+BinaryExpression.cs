@@ -19,6 +19,7 @@
 */
 #endregion
 
+using System.Linq;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -73,7 +74,10 @@ namespace ZScript.CodeGeneration.Analysis
 
             var type1 = ResolveExpression(context.expression(0));
             var type2 = ResolveExpression(context.expression(1));
-            
+
+            // Perform overall diagnostics
+            DiagnoseBinaryExpression(context);
+
             // Register an error when trying to perform an operation with a void value
             if (type1.IsVoid || type2.IsVoid)
             {
@@ -102,6 +106,31 @@ namespace ZScript.CodeGeneration.Analysis
             return TypeProvider.BinaryExpressionProvider.TypeForOperation(instruction, type1, type2);
         }
 
+        /// <summary>
+        /// Performs diagnostics on a given binary expression.
+        /// This diagnostics goes beyond basic validity of binary expression.
+        /// </summary>
+        private void DiagnoseBinaryExpression(ZScriptParser.ExpressionContext context)
+        {
+            var str = ExpressionUtils.OperatorOnExpression(context);
+            var instruction = TokenFactory.InstructionForOperator(str);
+
+            // Diagnose tuples of different value count
+            if (instruction == VmInstruction.Equals || instruction == VmInstruction.Unequals)
+            {
+                var leftTuple = context.expression(0).EvaluatedType as TupleTypeDef;
+                var rightTuple = context.expression(1).EvaluatedType as TupleTypeDef;
+
+                if (leftTuple == null || rightTuple == null) return;
+
+                if (leftTuple.InnerTypes.Length != rightTuple.InnerTypes.Length)
+                {
+                    var message = $"Trying to compare tuple types of different value counts {leftTuple} & {rightTuple} always results to " + (instruction == VmInstruction.Equals ? "false" : "true");
+                    MessageContainer.RegisterWarning(context.Start.Line, context.Start.Column, message, WarningCode.TupleComparisionOfDifferentValueCounts, context);
+                }
+            }
+        }
+        
         /// <summary>
         /// Returns whether a given instruction represents an arithmetic instruction
         /// </summary>

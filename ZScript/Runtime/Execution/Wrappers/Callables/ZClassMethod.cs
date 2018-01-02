@@ -73,7 +73,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         public object Call(VmContext context, CallArguments arguments)
         {
             // Wrap the context's local memory
-            MemoryMapper mapper = new MemoryMapper();
+            var mapper = new MemoryMapper();
 
             // Add the local memory of the class object
             mapper.AddMemory(_target.LocalMemory);

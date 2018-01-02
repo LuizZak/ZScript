@@ -103,6 +103,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
 
         #region Equality members
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public bool Equals(JumpToken other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -141,6 +143,8 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         {
             return !Equals(left, right);
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

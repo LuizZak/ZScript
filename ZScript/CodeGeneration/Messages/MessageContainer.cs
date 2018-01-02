@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Sourcing;
 
 namespace ZScript.CodeGeneration.Messages
@@ -56,21 +57,25 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Gets a list containing all of the code messages stored in this message container
         /// </summary>
+        [NotNull]
         public CodeMessage[] AllMessages => _warningList.Concat(_errorList.Concat<CodeMessage>(_syntaxErrors)).ToArray();
 
         /// <summary>
         /// Returns the array of all the syntax errors that were found during the parsing of the script
         /// </summary>
+        [NotNull]
         public SyntaxError[] SyntaxErrors => _syntaxErrors.ToArray();
 
         /// <summary>
         /// Gets an array of all the errors that were found
         /// </summary>
+        [NotNull]
         public CodeError[] CodeErrors => _errorList.ToArray();
 
         /// <summary>
         /// Gets an array of all the warnings that were raised
         /// </summary>
+        [NotNull]
         public Warning[] Warnings => _warningList.ToArray();
 
         /// <summary>
@@ -123,7 +128,7 @@ namespace ZScript.CodeGeneration.Messages
         /// Registers a syntax error
         /// </summary>
         /// <param name="error">The syntax error to register</param>
-        public void RegisterSyntaxError(SyntaxError error)
+        public void RegisterSyntaxError([NotNull] SyntaxError error)
         {
             error.Source = Source;
 
@@ -141,7 +146,7 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Registers a warning at a context
         /// </summary>
-        public void RegisterWarning(ParserRuleContext context, string warningMessage, WarningCode code)
+        public void RegisterWarning([NotNull] ParserRuleContext context, string warningMessage, WarningCode code)
         {
             _warningList.Add(new Warning(context.Start.Line, context.Start.Column, warningMessage, code) { Context = context, Source = Source });
         }
@@ -165,7 +170,7 @@ namespace ZScript.CodeGeneration.Messages
         /// <summary>
         /// Registers an error at a context
         /// </summary>
-        public void RegisterError(ParserRuleContext context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
+        public void RegisterError([CanBeNull] ParserRuleContext context, string errorMessage, ErrorCode errorCode = ErrorCode.Undefined)
         {
             if(context == null)
             {
@@ -182,6 +187,16 @@ namespace ZScript.CodeGeneration.Messages
         public void RegisterError(CodeError error)
         {
             _errorList.Add(error);
+        }
+
+        /// <summary>
+        /// Adds the messages from a given container to this container.
+        /// </summary>
+        public void AddMessagesFrom([NotNull] MessageContainer container)
+        {
+            _errorList.AddRange(container._errorList);
+            _warningList.AddRange(container._warningList);
+            _syntaxErrors.AddRange(container._syntaxErrors);
         }
 
         /// <summary>
@@ -216,6 +231,23 @@ namespace ZScript.CodeGeneration.Messages
         public void ClearWarnings()
         {
             _warningList.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Contains useful extensions for IEnumerable&lt;CodeMessage&gt;
+    /// </summary>
+    public static class CodeMessageEnumerable
+    {
+        /// <summary>
+        /// Joins all code messages within an IEnumerable, optionally specifying a string joiner to use (defaults to line-feed)
+        /// </summary>
+        [NotNull]
+        public static string JoinMessages([NotNull] this IEnumerable<CodeMessage> messages, string joiner = "\n")
+        {
+            var lines = messages.Select(message => message.ToString());
+
+            return string.Join(joiner, lines);
         }
     }
 }

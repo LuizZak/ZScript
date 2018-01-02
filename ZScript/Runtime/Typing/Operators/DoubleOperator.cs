@@ -21,6 +21,8 @@
 
 using System;
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
 namespace ZScript.Runtime.Typing.Operators
 {
     /// <summary>
@@ -29,8 +31,6 @@ namespace ZScript.Runtime.Typing.Operators
     public class DoubleOperator : ITypeOperator<double>
     {
         public double Sum(double v1, double v2)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             return v1 + v2;
         }

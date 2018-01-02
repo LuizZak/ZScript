@@ -134,6 +134,8 @@ namespace ZScript.Runtime.Typing.Elements
 
         #region Equality members
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public override bool Equals(TypeDef other)
         {
             var tuple = other as TupleTypeDef;
@@ -187,6 +189,8 @@ namespace ZScript.Runtime.Typing.Elements
             return !Equals(left, right);
         }
 
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         #endregion
 
         /// <summary>
@@ -197,8 +201,8 @@ namespace ZScript.Runtime.Typing.Elements
         /// <returns>A representation of the tuple provided</returns>
         private static string CreateTupleName(string[] innerTypeNames, TypeDef[] innerTypes)
         {
-            StringBuilder builder = new StringBuilder();
-
+            var builder = new StringBuilder();
+            
             builder.Append("(");
 
             for (int i = 0; i < innerTypeNames.Length; i++)

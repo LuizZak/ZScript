@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -86,6 +87,22 @@ namespace ZScript.Runtime.Typing.Elements
         public bool IsNative => isNative;
 
         /// <summary>
+        /// Returns a value specifying whether this type represents a generic parameterizable
+        /// type
+        /// </summary>
+        public bool IsGeneric => false;
+
+        /// <summary>
+        /// If this type is generic (<see cref="IsGeneric"/> is true), this array has .Length > 0
+        /// and contains all parameterizable types.
+        /// 
+        /// If any of this parameters is null, the type is not complete and must be parameterized
+        /// before being used.
+        /// </summary>
+        [NotNull]
+        public TypeDef[] GenericParameters => new TypeDef[0];
+
+        /// <summary>
         /// Static constructor for the TypeDef class which deals with basic type creation
         /// </summary>
         static TypeDef()
@@ -143,6 +160,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="inherited">Whether to search the parent chain when searching for elements</param>
         /// <returns>An array containing all the public methods of this type definition</returns>
+        [NotNull]
         public TypeMethodDef[] GetMethods(bool inherited = true)
         {
             if (!inherited || baseType == null)
@@ -166,6 +184,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="inherited">Whether to search the parent chain when searching for elements</param>
         /// <returns>An array containing all of the public fields of this type definition</returns>
+        [NotNull]
         public TypeFieldDef[] GetFields(bool inherited = true)
         {
             if (!inherited || baseType == null)
@@ -412,7 +431,8 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="objectType">The resulting object type for this operation</param>
         /// <param name="stringType">The resulting string type for this operation</param>
         /// <param name="boolType">The resulting bool type for this operation</param>
-        public static void GenerateBaseTypes(out TypeDef objectType, out StringTypeDef stringType, out TypeDef boolType)
+        public static void GenerateBaseTypes([NotNull] out TypeDef objectType, [NotNull] out StringTypeDef stringType,
+            [NotNull] out TypeDef boolType)
         {
             objectType = new NativeTypeDef(typeof(object), "object");
             stringType = new StringTypeDef();
@@ -531,24 +551,14 @@ namespace ZScript.Runtime.Typing.Elements
     public class TypeMethodDef : TypeMemberDef
     {
         /// <summary>
-        /// The parameters for the method
-        /// </summary>
-        private readonly ParameterInfo[] _parameters;
-
-        /// <summary>
-        /// The return type for the method
-        /// </summary>
-        private readonly TypeDef _returnType;
-
-        /// <summary>
         /// Gets the array of parameters for the method
         /// </summary>
-        public ParameterInfo[] Parameters => _parameters;
+        public ParameterInfo[] Parameters { get; }
 
         /// <summary>
         /// Gets the return type for the method
         /// </summary>
-        public TypeDef ReturnType => _returnType;
+        public TypeDef ReturnType { get; }
 
         /// <summary>
         /// Initializes a new instance of the TypeMethodDef class
@@ -559,24 +569,25 @@ namespace ZScript.Runtime.Typing.Elements
         public TypeMethodDef(string name, ParameterInfo[] parameters, TypeDef returnType)
             : base(name)
         {
-            _parameters = parameters;
-            _returnType = returnType;
+            Parameters = parameters;
+            ReturnType = returnType;
         }
 
         /// <summary>
         /// Gets the callable type definition that mirrors this type method definition
         /// </summary>
         /// <returns>A callable type definition that mirrors this type method definition</returns>
+        [NotNull]
         public CallableTypeDef CallableTypeDef()
         {
-            var parameters = new CallableTypeDef.CallableParameterInfo[_parameters.Length];
+            var parameters = new CallableTypeDef.CallableParameterInfo[Parameters.Length];
 
-            for (int i = 0; i < _parameters.Length; i++)
+            for (int i = 0; i < Parameters.Length; i++)
             {
-                parameters[i] = new CallableTypeDef.CallableParameterInfo(_parameters[i].ParameterType, true, _parameters[i].Optional, _parameters[i].IsVariadic, _parameters[i].DefaultValue);
+                parameters[i] = new CallableTypeDef.CallableParameterInfo(Parameters[i].ParameterType, true, Parameters[i].Optional, Parameters[i].IsVariadic, Parameters[i].DefaultValue);
             }
 
-            return new CallableTypeDef(parameters, _returnType, true);
+            return new CallableTypeDef(parameters, ReturnType, true);
         }
     }
 

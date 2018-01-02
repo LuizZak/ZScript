@@ -63,6 +63,8 @@ namespace ZScript.CodeGeneration.Analysis
             _genericContextStack.Clear();
         }
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         // 
         // ICustomTypeSource.HasType implementation
         // 
@@ -92,5 +94,7 @@ namespace ZScript.CodeGeneration.Analysis
 
             return null;
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
     }
 }

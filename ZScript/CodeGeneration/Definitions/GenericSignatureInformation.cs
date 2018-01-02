@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 using ZScript.Parsing.ANTLR;
 using ZScript.Runtime.Typing.Elements;
 
@@ -82,8 +83,8 @@ namespace ZScript.CodeGeneration.Definitions
         /// <exception cref="ArgumentException">The provided type value causes a circular inheritance chain</exception>
         public TypeDef BaseType
         {
-            get { return baseType; }
-            set { baseType = value; }
+            get => baseType;
+            set => baseType = value;
         }
 
         /// <summary>
@@ -92,11 +93,25 @@ namespace ZScript.CodeGeneration.Definitions
         public ZScriptParser.GenericTypeContext Context { get; set; }
 
         /// <summary>
+        /// The concrete type for this generic type definition.
+        /// 
+        /// A generic type is considered Open until this parameter is non-null and points to a complete type, at which point
+        /// it becomes a Closed (complete) generic type.
+        /// </summary>
+        [CanBeNull]
+        public TypeDef ConcreteType { get; set; }
+
+        /// <summary>
+        /// Returns whether this generic type is complete.
+        /// </summary>
+        public bool IsComplete => ConcreteType != null;
+
+        /// <summary>
         /// Initializes a new instance of the GenericTypeDefinition class with a generic name specified
         /// </summary>
         /// <param name="name">The name for the generic type</param>
         public GenericTypeDefinition(string name)
-            : base(name, false)
+            : base(name)
         {
             
         }
@@ -134,6 +149,8 @@ namespace ZScript.CodeGeneration.Definitions
 
         #region Equality members
 
+#pragma warning disable CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
+
         public bool Equals(GenericTypeConstraint other)
         {
             return string.Equals(BaseTypeName, other.BaseTypeName) && string.Equals(TypeName, other.TypeName) && Context == other.Context;
@@ -164,6 +181,8 @@ namespace ZScript.CodeGeneration.Definitions
         {
             return !left.Equals(right);
         }
+
+#pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente
 
         #endregion
     }

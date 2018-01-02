@@ -47,6 +47,12 @@ namespace ZScript.CodeGeneration.Analysis
         private readonly RuntimeGenerationContext _generationContext;
 
         /// <summary>
+        /// Used in function call-sites to register generic signatures as the analyzer
+        /// traverses up and down expression trees that contain generic calls
+        /// </summary>
+        private GenericTypeResolver _genericTypeResolver;
+
+        /// <summary>
         /// Gets the type provider using when resolving the type of the expressions
         /// </summary>
         public TypeProvider TypeProvider => _generationContext.TypeProvider;
@@ -73,6 +79,7 @@ namespace ZScript.CodeGeneration.Analysis
         public ExpressionTypeResolver(RuntimeGenerationContext generationContext)
         {
             _generationContext = generationContext;
+            _genericTypeResolver = new GenericTypeResolver(_generationContext);
         }
 
         /// <summary>
@@ -305,6 +312,8 @@ namespace ZScript.CodeGeneration.Analysis
             // Value/object access
             if (context.valueAccess() != null)
             {
+                
+
                 retType = ResolveValueAccess(retType, null, context.valueAccess());
             }
             else if (context.objectAccess() != null)

@@ -54,11 +54,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
             tokens.BindJumpTargets(endJumpTargetInstruction);
 
             // Optimize the jump flow
-            bool optimize = true;
-            while (optimize)
-            {
-                optimize = OptimizeJumpPointing(tokens);
-            }
+            while (OptimizeJumpPointing(tokens)) { }
         }
 
         /// <summary>
@@ -193,7 +189,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
                     continue;
                 }
 
-                // If a conditional jump jumps immediately after an immediate unconditional jump, remove the unconditional jump and flip the conditional jump's condition
+                // If a conditional jump precedes an unconditional jump, and the conditional jump points past the conditional one, remove the unconditional jump and flip the conditional's condition
                 if (i < tokens.Count - 2 && jumpToken.Conditional && !jumpToken.NullCheck && jumpToken.ConsumesStack && tokens[i + 1] is JumpToken)
                 {
                     var immediateJump = (JumpToken)tokens[i + 1];

@@ -2,8 +2,11 @@
 using System.Diagnostics;
 
 using ZScript.CodeGeneration;
+
+/*
 using ZScriptTests.Performance;
 using ZScriptTests.Runtime.Execution;
+*/
 
 namespace StandaloneTests
 {
@@ -131,7 +134,7 @@ namespace StandaloneTests
             //TestThing();
             
             //TestMove();
-
+            /*
             PerformanceTests tests = new PerformanceTests();
             ZScriptTests.ZScriptTests zScriptTests = new ZScriptTests.ZScriptTests();
 
@@ -149,7 +152,7 @@ namespace StandaloneTests
             Console.ReadKey();*/
 
             return;
-
+            /*
             FunctionVmTests ftests = new FunctionVmTests();
 
             ftests.TestManualAddressing();
@@ -188,6 +191,7 @@ namespace StandaloneTests
 
             Console.Write(sw.ElapsedMilliseconds);
             Console.Read();
+            */
         }
     }
 }

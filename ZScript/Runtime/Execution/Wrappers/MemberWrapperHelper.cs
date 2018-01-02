@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers.Callables;
 using ZScript.Runtime.Execution.Wrappers.Members;
@@ -126,11 +126,8 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <returns>An array containing all of the methods for the given type</returns>
         private static MethodInfo[] MethodsForType(Type type)
         {
-            MethodInfo[] o;
-            if (TypeMethods.TryGetValue(type, out o))
-            {
+            if (TypeMethods.TryGetValue(type, out MethodInfo[] o))
                 return o;
-            }
 
             return TypeMethods[type] = type.GetMethods();
         }
@@ -141,10 +138,9 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="type">The type to get the methods of</param>
         /// <param name="methodName">The name of the methods to match</param>
         /// <returns>An array containing all of the methods for the given type</returns>
-        private static MethodInfo[] MethodsNamedFor(Type type, string methodName)
+        private static MethodInfo[] MethodsNamedFor([NotNull] Type type, string methodName)
         {
-            List<TypeMethodsNamed> cachedMethods;
-            if (!CachedTypeMethodsNamed.TryGetValue(type, out cachedMethods))
+            if (!CachedTypeMethodsNamed.TryGetValue(type, out List<TypeMethodsNamed> cachedMethods))
             {
                 cachedMethods = CachedTypeMethodsNamed[type] = new List<TypeMethodsNamed>();
             }
