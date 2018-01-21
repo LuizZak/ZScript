@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
@@ -60,7 +61,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Collects all the returns in the respective function definitions
         /// </summary>
-        public void CollectReturnsOnDefinitions(RuntimeGenerationContext context)
+        public void CollectReturnsOnDefinitions([NotNull] RuntimeGenerationContext context)
         {
             // Check for inconsistent return statement valuation
             _context = context;
@@ -89,7 +90,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Analyzes a given scope for functions with mismatching return statements
         /// </summary>
         /// <param name="context">The context containing the scope to analyze and message container to report errors and warnings to</param>
-        public void Analyze(RuntimeGenerationContext context)
+        public void Analyze([NotNull] RuntimeGenerationContext context)
         {
             _context = context;
 
@@ -110,7 +111,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Analyzes a given function definition
         /// </summary>
         /// <param name="func">The function definition to analyze</param>
-        private void NewAnalyzeFunction(FunctionDefinition func)
+        private void NewAnalyzeFunction([NotNull] FunctionDefinition func)
         {
             _currentDefinition = func;
 
@@ -182,7 +183,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given block statement
         /// </summary>
-        private void AnalyzeBlockStatement(ZScriptParser.BlockStatementContext block)
+        private void AnalyzeBlockStatement([NotNull] ZScriptParser.BlockStatementContext block)
         {
             var statements = block.statement();
 
@@ -198,7 +199,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given statement context for return statement state
         /// </summary>
-        private void AnalyzeStatement(ZScriptParser.StatementContext context)
+        private void AnalyzeStatement([NotNull] ZScriptParser.StatementContext context)
         {
             if (context.returnStatement() != null)
                 AnalyzeReturnStatement(context.returnStatement());
@@ -225,7 +226,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given return statement. Always returns ReturnStatementState.Present
         /// </summary>
-        private void AnalyzeReturnStatement(ZScriptParser.ReturnStatementContext context)
+        private void AnalyzeReturnStatement([NotNull] ZScriptParser.ReturnStatementContext context)
         {
             context.TargetFunction = CurrentDefinition;
 
@@ -235,7 +236,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given IF statement context for return statement state
         /// </summary>
-        private void AnalyzeIfStatement(ZScriptParser.IfStatementContext context)
+        private void AnalyzeIfStatement([NotNull] ZScriptParser.IfStatementContext context)
         {
             // If's start with their state set as the nested statement, and the
             // final type resolving depends on whether there is an else clause.
@@ -252,7 +253,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given trailing IF statement context for return statement state
         /// </summary>
-        private void AnalyzeTrailingIfStatement(ZScriptParser.TrailingIfStatementContext context)
+        private void AnalyzeTrailingIfStatement([NotNull] ZScriptParser.TrailingIfStatementContext context)
         {
             var returnStatement = context.returnStatement();
             if (returnStatement != null)
@@ -264,7 +265,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given WHILE statement context for return statement state
         /// </summary>
-        private void AnalyzeWhileStatement(ZScriptParser.WhileStatementContext context)
+        private void AnalyzeWhileStatement([NotNull] ZScriptParser.WhileStatementContext context)
         {
             AnalyzeStatement(context.statement());
         }
@@ -272,7 +273,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given FOR statement context for return statement state
         /// </summary>
-        private void AnalyzeForStatement(ZScriptParser.ForStatementContext context)
+        private void AnalyzeForStatement([NotNull] ZScriptParser.ForStatementContext context)
         {
             AnalyzeStatement(context.statement());
         }
@@ -280,7 +281,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Analyzes a given IF statement context for return statement state
         /// </summary>
-        private void AnalyzeSwitchStatement(ZScriptParser.SwitchStatementContext context)
+        private void AnalyzeSwitchStatement([NotNull] ZScriptParser.SwitchStatementContext context)
         {
             var block = context.switchBlock();
             var cases = block.caseBlock();

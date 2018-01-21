@@ -22,6 +22,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 
 namespace ZScript.Builders
 {
@@ -67,7 +68,7 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="name">The name of the assembly to generate</param>
         /// <returns>A new TypeBuildingContext to use on type builders</returns>
-        public static TypeBuildingContext CreateBuilderContext(string name)
+        public static TypeBuildingContext CreateBuilderContext([NotNull] string name)
         {
             var context = new TypeBuildingContext
             {

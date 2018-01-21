@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
 using ZScript.Runtime;
@@ -282,7 +283,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <exception cref="ArgumentException">The provided type value causes a circular inheritance chain</exception>
         public TypeDef BaseType
         {
-            get { return baseType; }
+            get => baseType;
             set
             {
                 var b = value;
@@ -313,7 +314,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         public Type ClassNativeType
         {
-            get { return _classNativeType; }
+            get => _classNativeType;
             set
             {
                 _classNativeType = value;
@@ -354,7 +355,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="bodyContext">The body context for the constructor</param>
         /// <param name="parameters">The parameters for the constructor</param>
         /// <param name="isDefault">Whether this is a default constructor, that is, a parameter-less empty constructor created by the compiler</param>
-        public ConstructorDefinition(ClassDefinition classDefinition, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, bool isDefault)
+        public ConstructorDefinition([NotNull] ClassDefinition classDefinition, ZScriptParser.FunctionBodyContext bodyContext, [NotNull] FunctionArgumentDefinition[] parameters, bool isDefault)
             : base(classDefinition.Name, bodyContext, parameters)
         {
             ReturnType = classDefinition.ClassTypeDef;

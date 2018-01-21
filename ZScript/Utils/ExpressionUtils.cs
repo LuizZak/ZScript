@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
 
@@ -35,7 +36,7 @@ namespace ZScript.Utils
         /// </summary>
         /// <param name="context">The context containing the operator</param>
         /// <returns>The string that represents the operator</returns>
-        public static string OperatorOnExpression(ZScriptParser.ExpressionContext context)
+        public static string OperatorOnExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             var str = "";
 
@@ -98,7 +99,7 @@ namespace ZScript.Utils
         /// </summary>
         /// <param name="context">The context that contains the assignment operator</param>
         /// <returns>Whether the given assignment operator is a compound assignment operator</returns>
-        public static bool IsCompoundAssignmentOperator(ZScriptParser.AssignmentOperatorContext context)
+        public static bool IsCompoundAssignmentOperator([NotNull] ZScriptParser.AssignmentOperatorContext context)
         {
             return context.GetText() != "=";
         }
@@ -109,7 +110,7 @@ namespace ZScript.Utils
         /// </summary>
         /// <param name="context">The context that contains the assignment operator to get the token for</param>
         /// <returns>The underlying arithmetic operator from a provided compound assignment operator</returns>
-        public static Token OperatorForCompound(ZScriptParser.AssignmentOperatorContext context)
+        public static Token OperatorForCompound([NotNull] ZScriptParser.AssignmentOperatorContext context)
         {
             if (!IsCompoundAssignmentOperator(context))
             {

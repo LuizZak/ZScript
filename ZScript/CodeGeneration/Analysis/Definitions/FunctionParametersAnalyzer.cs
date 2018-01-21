@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 
@@ -61,7 +62,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// Analyzes a given function's parameters
         /// </summary>
         /// <param name="func">The function definition to analyze</param>
-        public void AnalyzeFunction(FunctionDefinition func)
+        public void AnalyzeFunction([NotNull] FunctionDefinition func)
         {
             bool endRequiredList = false;
             for (int i = 0; i < func.Parameters.Length; i++)

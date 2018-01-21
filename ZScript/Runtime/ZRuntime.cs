@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Execution.VirtualMemory;
@@ -106,7 +106,7 @@ namespace ZScript.Runtime
         /// </summary>
         /// <param name="definition">The runtime definition object to create this runtime from</param>
         /// <param name="owner">The owner of this ZRuntime</param>
-        public ZRuntime(ZRuntimeDefinition definition, IRuntimeOwner owner)
+        public ZRuntime([NotNull] ZRuntimeDefinition definition, IRuntimeOwner owner)
         {
             _definition = definition;
             _zFunctions = definition.GetFunctions();
@@ -164,7 +164,7 @@ namespace ZScript.Runtime
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallWrapper(ICallableWrapper callable, CallArguments callArgs)
+        public object CallWrapper([NotNull] ICallableWrapper callable, CallArguments callArgs)
         {
             bool pushed = false;
 
@@ -191,7 +191,7 @@ namespace ZScript.Runtime
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallFunction(ZFunction funcDef, CallArguments callArgs)
+        public object CallFunction([NotNull] ZFunction funcDef, CallArguments callArgs)
         {
             // TODO: Clean the clutter on this method
             if (funcDef == null) throw new ArgumentNullException(nameof(funcDef));
@@ -202,8 +202,7 @@ namespace ZScript.Runtime
             }
 
             // Export functions are handled separatedly
-            var exportFunction = funcDef as ZExportFunction;
-            if (exportFunction != null)
+            if (funcDef is ZExportFunction exportFunction)
             {
                 if(_owner.RespondsToFunction(exportFunction))
                     return _owner.CallFunction(exportFunction, callArgs);
@@ -222,8 +221,7 @@ namespace ZScript.Runtime
             }
 
             // Class constructors
-            var constructor = funcDef as ZConstructor;
-            if (constructor != null)
+            if (funcDef is ZConstructor constructor)
             {
                 // Call the base constructor sequentially
                 if(constructor.BaseMethod != null && constructor.RequiresBaseCall)
@@ -240,7 +238,7 @@ namespace ZScript.Runtime
                 localMemory = classMemory;
 
                 // Init the fields beforehand
-                MemoryMapper constructorMapper = new MemoryMapper();
+                var constructorMapper = new MemoryMapper();
                 constructorMapper.AddMemory(_globalMemory);
                 constructorMapper.AddMemory(constructor.ClassInstance.LocalMemory);
                 constructor.InitFields(new VmContext(constructorMapper, _globalAddressedMemory, this, _owner, _typeProvider, new TypeList(callArgs.GenericTypes)));
@@ -259,7 +257,7 @@ namespace ZScript.Runtime
         /// <returns>The return of the function that was called</returns>
         /// <exception cref="ArgumentException">A function with the specified name does not exists</exception>
         /// <exception cref="Exception">The function call failed</exception>
-        public object CallFunctionWithMemory(ZFunction funcDef, IMemory<string> localMemory, CallArguments callArgs)
+        public object CallFunctionWithMemory([NotNull] ZFunction funcDef, IMemory<string> localMemory, [NotNull] CallArguments callArgs)
         {
             // TODO: Clean the clutter on this method
             if (funcDef == null) throw new ArgumentNullException(nameof(funcDef));
@@ -271,14 +269,14 @@ namespace ZScript.Runtime
 
             var constructor = funcDef as ZConstructor;
 
-            MemoryMapper mapper = new MemoryMapper();
+            var mapper = new MemoryMapper();
             mapper.AddMemory(_globalMemory);
             mapper.AddMemory(localMemory);
 
             _localMemoriesStack.Push(localMemory);
             _functionStack.Push(funcDef);
 
-            FunctionVM vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider, new TypeList(callArgs.GenericTypes)));
+            var vm = new FunctionVM(funcDef.Tokens, new VmContext(mapper, _globalAddressedMemory, this, _owner, _typeProvider, new TypeList(callArgs.GenericTypes)));
             vm.Execute();
 
             _functionStack.Pop();
@@ -314,8 +312,7 @@ namespace ZScript.Runtime
             // TODO: Deal with this special 'base' case here
             if (functionName == "base" && _functionStack.Count > 0)
             {
-                var topMethod = _functionStack.Peek() as ZMethod;
-                if (topMethod != null)
+                if (_functionStack.Peek() is ZMethod topMethod)
                 {
                     var cloneBaseMethod = topMethod.BaseMethod.Clone();
                     cloneBaseMethod.LocalMemory = topMethod.LocalMemory;
@@ -324,12 +321,11 @@ namespace ZScript.Runtime
                 }
             }
 
-            foreach (ZFunction func in _zFunctions)
+            foreach (var func in _zFunctions)
             {
                 if (func.Name == functionName)
                 {
-                    var closure = func as ZClosureFunction;
-                    if (closure != null && captureClosures)
+                    if (captureClosures && func is ZClosureFunction closure)
                     {
                         return CaptureClosure(closure);
                     }
@@ -355,7 +351,7 @@ namespace ZScript.Runtime
         /// </summary>
         /// <param name="zClass">The class to create the constructor out of</param>
         /// <returns>A ZConstructor that when executed returns an instance of a class</returns>
-        private ZConstructor CreateConstructor(ZClass zClass)
+        private ZConstructor CreateConstructor([NotNull] ZClass zClass)
         {
             var instType = (ZClassInstance)Activator.CreateInstance(zClass.NativeType, zClass);
 
@@ -368,7 +364,7 @@ namespace ZScript.Runtime
         /// </summary>
         /// <param name="closure">The closure to capture</param>
         /// <returns>A closure that represents the captured losure</returns>
-        private ZClosureFunction CaptureClosure(ZClosureFunction closure)
+        private ZClosureFunction CaptureClosure([NotNull] ZClosureFunction closure)
         {
             // Capture the memory now
             var capturedMemory = new MemoryMapper();
@@ -395,7 +391,7 @@ namespace ZScript.Runtime
 
             if (index >= _closuresStart)
             {
-                return CaptureClosure(func as ZClosureFunction);
+                return CaptureClosure((ZClosureFunction)func);
             }
 
             return func;
@@ -467,7 +463,7 @@ namespace ZScript.Runtime
         /// </summary>
         /// <param name="arguments">The parameters for the function call</param>
         /// <param name="genericTypes">The generic types being passed to the function call</param>
-        public CallArguments(object[] arguments, Type[] genericTypes)
+        public CallArguments(object[] arguments, [NotNull] Type[] genericTypes)
         {
             Arguments = arguments;
             GenericTypes = genericTypes;

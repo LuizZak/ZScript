@@ -20,7 +20,7 @@
 #endregion
 
 using System;
-
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
 using ZScript.Utils;
@@ -36,7 +36,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// Expands the jump tokens associated with the given token list
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
-        public static void OptimizeJumps(IntermediaryTokenList tokens)
+        public static void OptimizeJumps([NotNull] IntermediaryTokenList tokens)
         {
             tokens.BindJumpTargets(VmInstruction.Noop);
 
@@ -49,7 +49,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
         /// <param name="endJumpTargetInstruction">The instruction to expand the last jump target as</param>
-        public static void OptimizeJumps(IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
+        public static void OptimizeJumps([NotNull] IntermediaryTokenList tokens, VmInstruction endJumpTargetInstruction)
         {
             tokens.BindJumpTargets(endJumpTargetInstruction);
 
@@ -63,7 +63,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokens">The list of tokens to optimize</param>
         /// <returns>true when optimizations where realized; false otherwise</returns>
-        public static bool OptimizeJumpPointing(IntermediaryTokenList tokens)
+        public static bool OptimizeJumpPointing([NotNull] IntermediaryTokenList tokens)
         {
             bool optimized = false;
 
@@ -236,7 +236,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="pointingJump">The second jump token which is pointing to the first jump token</param>
         /// <param name="owningList">The list of tokens that own the two tokens</param>
         /// <returns>true if any optimization was made, false otherwise</returns>
-        private static bool OptimizeJumpRelationship(JumpToken pointedJump, JumpToken pointingJump, IntermediaryTokenList owningList)
+        private static bool OptimizeJumpRelationship([NotNull] JumpToken pointedJump, JumpToken pointingJump, IntermediaryTokenList owningList)
         {
             // Unconditional jump, forward the other jump to this jump's target
             if (!pointedJump.Conditional)
@@ -284,7 +284,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// <param name="newTarget">A new target for jump tokens that aim at the given jump. Leave null to re-target to the jump's current target</param>
         /// <param name="force">Whether to force the removal, even if it is a conditional jump</param>
         /// <returns>Whether the method successfully removed the jump token</returns>
-        private static bool TryRemoveJumpInstruction(JumpToken jmp, IntermediaryTokenList tokens, bool force = false, Token newTarget = null)
+        private static bool TryRemoveJumpInstruction([NotNull] JumpToken jmp, IntermediaryTokenList tokens, bool force = false, Token newTarget = null)
         {
             if (jmp.Conditional && (jmp.ConsumesStack || jmp.NullCheck) && !force)
                 return false;

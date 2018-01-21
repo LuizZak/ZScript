@@ -19,7 +19,7 @@
 */
 #endregion
 
-using System.Linq;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -64,7 +64,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveBinaryExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolveBinaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Null coalescing expression
             if (context.T_NULL_COALESCE() != null)
@@ -110,7 +110,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Performs diagnostics on a given binary expression.
         /// This diagnostics goes beyond basic validity of binary expression.
         /// </summary>
-        private void DiagnoseBinaryExpression(ZScriptParser.ExpressionContext context)
+        private void DiagnoseBinaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             var str = ExpressionUtils.OperatorOnExpression(context);
             var instruction = TokenFactory.InstructionForOperator(str);

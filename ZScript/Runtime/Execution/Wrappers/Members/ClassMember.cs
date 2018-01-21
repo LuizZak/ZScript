@@ -21,6 +21,7 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Execution.Wrappers.Members
 {
@@ -63,7 +64,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// <param name="memberName">The name of the member to get</param>
         /// <returns>A ClassMember that wraps the member</returns>
         /// <exception cref="ArgumentException">The member name provided does not points to a valid visible field or property</exception>
-        public static ClassMember CreateMemberWrapper(object target, string memberName)
+        public static ClassMember CreateMemberWrapper([NotNull] object target, string memberName)
         {
             var field = target.GetType().GetField(memberName);
             if (field != null)

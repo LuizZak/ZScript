@@ -28,6 +28,7 @@ using Antlr4.Runtime;
 using ZScript.CodeGeneration;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
+using ZScript.CodeGeneration.Sourcing;
 using ZScript.CodeGeneration.Tokenization;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
@@ -107,6 +108,16 @@ namespace ZScriptTests.Utils
         public static ZRuntimeGenerator CreateGenerator(string input)
         {
             return new ZRuntimeGenerator(input) { Debug = true };
+        }
+
+        /// <summary>
+        /// Creates the default generator to use in tests
+        /// </summary>
+        /// <param name="source">The source of scripts to use in the generator</param>
+        /// <returns>A default runtime generator to use in tests</returns>
+        public static ZRuntimeGenerator CreateGenerator(ZScriptDefinitionsSource source)
+        {
+            return new ZRuntimeGenerator(source) { Debug = true };
         }
 
         /// <summary>

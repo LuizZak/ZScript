@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.VirtualMemory;
 
@@ -48,7 +49,7 @@ namespace ZScript.Runtime
         /// Initializes a new instance of the ZClassInstance class
         /// </summary>
         /// <param name="zClass">The class this object is an instance of</param>
-        public ZClassInstance(ZClass zClass)
+        public ZClassInstance([NotNull] ZClass zClass)
         {
             Class = zClass;
             _localMemory = new Memory();

@@ -72,31 +72,25 @@ namespace ZScript.CodeGeneration.Messages
                 RuleContext context = Context;
                 while (context != null)
                 {
-                    var fd = context as ZScriptParser.FunctionDefinitionContext;
-                    if (fd != null)
+                    switch (context)
                     {
-                        return "function '" + fd.functionName().IDENT().GetText() + "'";
-                    }
+                        case ZScriptParser.FunctionDefinitionContext fd:
+                            return "function '" + fd.functionName().IDENT().GetText() + "'";
 
-                    var od = context as ZScriptParser.ClassDefinitionContext;
-                    if (od != null)
-                    {
-                        return "object '" + od.className().IDENT().GetText() + "'";
-                    }
+                        case ZScriptParser.ClassDefinitionContext cd:
+                            return "object '" + cd.className().IDENT().GetText() + "'";
 
-                    var sf = context as ZScriptParser.SequenceFrameContext;
-                    if (sf != null)
-                    {
-                        if(sf.frameRange() != null)
-                            return "sequence '" + ((ZScriptParser.SequenceBlockContext)sf.Parent.Parent).sequenceName().IDENT() + "' frame range " + sf.frameRange().GetText();
+                        case ZScriptParser.SequenceFrameContext sf:
+                            if (sf.frameRange() != null)
+                                return "sequence '" +
+                                       ((ZScriptParser.SequenceBlockContext) sf.Parent.Parent).sequenceName().IDENT() +
+                                       "' frame range " + sf.frameRange().GetText();
 
-                        return "sequence '" + ((ZScriptParser.SequenceBlockContext)sf.Parent.Parent).sequenceName().IDENT() + "' frame range +1";
-                    }
-
-                    var sb = context as ZScriptParser.SequenceBodyContext;
-                    if (sb != null)
-                    {
-                        return "sequence '" + ((ZScriptParser.SequenceBlockContext)sb.Parent).sequenceName().IDENT() + "'";
+                            return "sequence '" +
+                                   ((ZScriptParser.SequenceBlockContext) sf.Parent.Parent).sequenceName().IDENT() +
+                                   "' frame range +1";
+                        case ZScriptParser.SequenceBodyContext sb:
+                            return "sequence '" + ((ZScriptParser.SequenceBlockContext)sb.Parent).sequenceName().IDENT() + "'";
                     }
 
                     context = context.Parent;
@@ -115,6 +109,6 @@ namespace ZScript.CodeGeneration.Messages
         /// Transforms this code message into a string
         /// </summary>
         /// <returns>The string representation of this code message</returns>
-        public override abstract string ToString();
+        public abstract override string ToString();
     }
 }

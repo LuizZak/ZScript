@@ -22,7 +22,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -70,7 +72,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.ForEachStatementContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.ForEachStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
             TokenizeStatement(tokens, context);
@@ -83,10 +85,12 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="targetList">The target list to add the tokens to</param>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ForEachStatementContext context)
+        public void TokenizeStatement([NotNull] IList<Token> targetList, [NotNull] ZScriptParser.ForEachStatementContext context)
         {
             var listType = _context.GenerationContext.TypeProvider.NativeTypeForTypeDef(context.forEachHeader().expression().EvaluatedType);
-            var isEnumerable = listType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            Debug.Assert(listType != null, nameof(listType) + " != null");
+
+            bool isEnumerable = listType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 
             if (!isEnumerable)
             {

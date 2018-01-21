@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -49,7 +50,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.IfStatementContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.IfStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
 
@@ -63,7 +64,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="targetList">The target list to tokenize to</param>
         /// <param name="context">The context containinng</param>
-        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.IfStatementContext context)
+        public void TokenizeStatement(IList<Token> targetList, [NotNull] ZScriptParser.IfStatementContext context)
         {
             // Read first if block of the chain
             TokenizeIfStatement(targetList, context);
@@ -74,7 +75,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="retTokens">The target list to add the tokens to</param>
         /// <param name="context">The context containing the IF statement to tokenize</param>
-        private void TokenizeIfStatement(IList<Token> retTokens, ZScriptParser.IfStatementContext context)
+        private void TokenizeIfStatement(IList<Token> retTokens, [NotNull] ZScriptParser.IfStatementContext context)
         {
             // Constant if statements are evaluated differently
             if (context.IsConstant)

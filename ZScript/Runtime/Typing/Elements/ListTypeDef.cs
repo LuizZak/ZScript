@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -43,7 +44,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// Initializes a new isntance of the ListTypeDef class
         /// </summary>
         /// <param name="enclosingType">The type of items in this list type</param>
-        public ListTypeDef(TypeDef enclosingType)
+        public ListTypeDef([NotNull] TypeDef enclosingType)
             : base(typeof(List<>), "list<" + enclosingType.Name + ">")
         {
             EnclosingType = enclosingType;

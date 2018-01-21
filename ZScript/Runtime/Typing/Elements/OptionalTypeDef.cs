@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -74,7 +75,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// Initializes a new instance of the OptionalTypeDef class
         /// </summary>
         /// <param name="wrappedType">The type wrapped in this optional type def</param>
-        public OptionalTypeDef(TypeDef wrappedType) : base("optional<" + wrappedType.Name + ">")
+        public OptionalTypeDef([NotNull] TypeDef wrappedType) : base("optional<" + wrappedType.Name + ">")
         {
             _wrappedType = wrappedType;
         }

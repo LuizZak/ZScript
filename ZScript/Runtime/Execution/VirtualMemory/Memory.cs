@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Elements.ValueHolding;
 using ZScript.Runtime.Typing;
@@ -51,7 +52,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// </summary>
         /// <param name="variableName">The variable to seek in the memory</param>
         /// <returns>Whether the variable exists or not</returns>
-        public bool HasVariable(string variableName)
+        public bool HasVariable([NotNull] string variableName)
         {
             return _memory.ContainsKey(variableName);
         }
@@ -62,7 +63,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <param name="variableName">The variable ID to get the value form</param>
         /// <returns>The current value stored on the variable</returns>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">The variable name was not found on this memory object</exception>
-        public object GetVariable(string variableName)
+        public object GetVariable([NotNull] string variableName)
         {
             return _memory[variableName];
         }
@@ -74,7 +75,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <param name="identifier">The identifier of the variable to try to get</param>
         /// <param name="value">The value that was fetched. Will be null, if the fetch fails</param>
         /// <returns>Whether the fetch was successful</returns>
-        public bool TryGetVariable(string identifier, out object value)
+        public bool TryGetVariable([NotNull] string identifier, out object value)
         {
             return _memory.TryGetValue(identifier, out value);
         }
@@ -84,7 +85,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// </summary>
         /// <param name="variableName">The variable ID to change</param>
         /// <param name="value">The new value to set the variable to</param>
-        public void SetVariable(string variableName, object value)
+        public void SetVariable([NotNull] string variableName, object value)
         {
             _memory[variableName] = value;
         }
@@ -93,7 +94,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// Clears the given variable from the memory now
         /// </summary>
         /// <param name="variableName">The variable to clear</param>
-        public void ClearVariable(string variableName)
+        public void ClearVariable([NotNull] string variableName)
         {
             _memory.Remove(variableName);
         }
@@ -130,7 +131,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// <param name="def">Definition to be used as base when replacing variables with their names</param>
         /// <param name="arguments">The arguments to use as memory spaces</param>
         /// <returns>A memory block, with the given arguments used as memory spaces</returns>
-        public static Memory CreateMemoryFromArgs(ZFunction def, params object[] arguments)
+        public static Memory CreateMemoryFromArgs([NotNull] ZFunction def, [NotNull] params object[] arguments)
         {
             var mem = new Memory();
 
@@ -167,7 +168,7 @@ namespace ZScript.Runtime.Execution.VirtualMemory
         /// </summary>
         /// <param name="argument">The function argument that contains the type of variable arguments list to create</param>
         /// <returns>A new generic VarArgsArrayList created from the given function argument</returns>
-        public static IVarArgs VarArgsFromArgument(FunctionArgument argument)
+        public static IVarArgs VarArgsFromArgument([NotNull] FunctionArgument argument)
         {
             return (IVarArgs)Activator.CreateInstance(typeof(VarArgsArrayList<>).MakeGenericType(argument.Type));
         }

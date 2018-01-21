@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
 using ZScript.Runtime.Typing.Elements;
@@ -101,7 +101,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         public TypeDef ReturnType
         {
-            get { return _returnType; }
+            get => _returnType;
             set
             {
                 _returnType = value;
@@ -125,7 +125,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="name">The name for the definition</param>
         /// <param name="bodyContext">The context containing the function body's statements</param>
         /// <param name="parameters">The arguments for this function definition</param>
-        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
+        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, [NotNull] FunctionArgumentDefinition[] parameters)
             : this(name, bodyContext, parameters, new GenericSignatureInformation())
         {
             
@@ -138,7 +138,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="bodyContext">The context containing the function body's statements</param>
         /// <param name="parameters">The arguments for this function definition</param>
         /// <param name="genericSignature">The generic types for this function definition</param>
-        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericSignature)
+        public FunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, [NotNull] FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericSignature)
         {
             Name = name;
             ReturnStatements = new List<ZScriptParser.ReturnStatementContext>();

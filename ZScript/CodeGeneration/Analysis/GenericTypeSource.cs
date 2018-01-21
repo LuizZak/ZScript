@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Runtime.Typing;
 using ZScript.Runtime.Typing.Elements;
@@ -83,6 +83,7 @@ namespace ZScript.CodeGeneration.Analysis
         // 
         // ICustomTypeSource.TypeNamed implementation
         // 
+        [CanBeNull]
         public TypeDef TypeNamed(string typeName)
         {
             foreach (var signature in _genericContextStack)

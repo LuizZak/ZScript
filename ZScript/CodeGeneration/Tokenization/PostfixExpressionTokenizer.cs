@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -85,7 +85,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The statement to tokenize</param>
         /// <returns>A TokenList object generated from the given statament</returns>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.StatementContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.StatementContext context)
         {
             _tokens = new List<Token>();
             TokenizeStatement(_tokens, context);
@@ -98,7 +98,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="tokens">The list to tokenize to</param>
         /// <param name="context">The statement to tokenize</param>
         /// <returns>A TokenList object generated from the given statament</returns>
-        public void TokenizeStatement(IList<Token> tokens, ZScriptParser.StatementContext context)
+        public void TokenizeStatement(IList<Token> tokens, [NotNull] ZScriptParser.StatementContext context)
         {
             _tokens = tokens;
 
@@ -117,7 +117,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The context containing the expression to tokenize</param>
         /// <returns>The list of tokens containing the expression that was tokenized</returns>
-        public IntermediaryTokenList TokenizeExpression(ZScriptParser.ExpressionContext context)
+        public IntermediaryTokenList TokenizeExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             _tokens = new List<Token>();
             TokenizeExpression(_tokens, context);
@@ -130,7 +130,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="tokens">The list to tokenize to</param>
         /// <param name="context">The context containing the expression to tokenize</param>
         /// <returns>The list of tokens containing the expression that was tokenized</returns>
-        public void TokenizeExpression(IList<Token> tokens, ZScriptParser.ExpressionContext context)
+        public void TokenizeExpression(IList<Token> tokens, [NotNull] ZScriptParser.ExpressionContext context)
         {
             _tokens = tokens;
             VisitExpression(context);
@@ -141,7 +141,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The context containing the assignment expression to tokenize</param>
         /// <returns>The list of tokens containing the assignment expression that was tokenized</returns>
-        public IntermediaryTokenList TokenizeAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        public IntermediaryTokenList TokenizeAssignmentExpression([NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             _tokens = new IntermediaryTokenList();
 
@@ -156,7 +156,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="tokens">The list to tokenize to</param>
         /// <param name="context">The context containing the assignment expression to tokenize</param>
         /// <returns>The list of tokens containing the assignment expression that was tokenized</returns>
-        public void TokenizeAssignmentExpression(IList<Token> tokens, ZScriptParser.AssignmentExpressionContext context)
+        public void TokenizeAssignmentExpression(IList<Token> tokens, [NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             _tokens = tokens;
             VisitAssignmentExpression(context);
@@ -168,7 +168,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The context containing the expression with the constant expanded within it</param>
         /// <exception cref="Exception">The context does not contains a pre-evaluated constant value</exception>
-        void VisitExpressionWithConstant(ZScriptParser.ExpressionContext context)
+        void VisitExpressionWithConstant([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Verify constant values
             if (!context.IsConstant)
@@ -176,8 +176,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 throw new Exception("Trying to visit an expression that has no constant pre-evaluated within it");
             }
 
-            var s = context.ConstantValue as string;
-            if (s != null)
+            if (context.ConstantValue is string s)
             {
                 _tokens.Add(TokenFactory.CreateStringToken(s));
             }
@@ -189,7 +188,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Assignment Expression
 
-        void VisitAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        void VisitAssignmentExpression([NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             if (ExpressionUtils.IsCompoundAssignmentOperator(context.assignmentOperator()))
             {
@@ -243,7 +242,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        void VisitAssignmentOperator(ZScriptParser.AssignmentOperatorContext context)
+        void VisitAssignmentOperator([NotNull] ZScriptParser.AssignmentOperatorContext context)
         {
             // When the token is not a common equality operator, it must be one of
             // the other tokens that require the value to have an operation performed
@@ -263,7 +262,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.Set));
         }
 
-        void VisitLeftValue(ZScriptParser.LeftValueContext context)
+        void VisitLeftValue([NotNull] ZScriptParser.LeftValueContext context)
         {
             // leftValue : (memberName | 'this') leftValueAccess?;
             // leftValueAccess : (funcCallArguments leftValueAccess) | ('.' leftValue) | (arrayAccess leftValueAccess?);
@@ -285,7 +284,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        void VisitLeftValueAccess(ZScriptParser.LeftValueAccessContext context)
+        void VisitLeftValueAccess([NotNull] ZScriptParser.LeftValueAccessContext context)
         {
             if (context.unwrap != null)
             {
@@ -338,7 +337,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Expression
 
-        void VisitExpression(ZScriptParser.ExpressionContext context)
+        void VisitExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Verify constant values
             if (context.IsConstant && context.IsConstantPrimitive)
@@ -551,7 +550,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitMemberName(ZScriptParser.MemberNameContext context)
+        private void VisitMemberName([NotNull] ZScriptParser.MemberNameContext context)
         {
             if (_isRootMember)
             {
@@ -563,7 +562,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitPrefixOperator(ZScriptParser.PrefixOperatorContext context)
+        private void VisitPrefixOperator([NotNull] ZScriptParser.PrefixOperatorContext context)
         {
             switch (context.GetText())
             {
@@ -576,7 +575,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitPostfixOperator(ZScriptParser.PostfixOperatorContext context)
+        private void VisitPostfixOperator([NotNull] ZScriptParser.PostfixOperatorContext context)
         {
             switch (context.GetText())
             {
@@ -598,7 +597,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateVariableToken(closureName, true));
         }
 
-        private void VisitNewExpression(ZScriptParser.NewExpressionContext context)
+        private void VisitNewExpression([NotNull] ZScriptParser.NewExpressionContext context)
         {
             // Consume the type name
             VisitTypeName(context.typeName());
@@ -611,12 +610,12 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.New));
         }
 
-        private void VisitTypeName(ZScriptParser.TypeNameContext context)
+        private void VisitTypeName([NotNull] ZScriptParser.TypeNameContext context)
         {
             _tokens.Add(TokenFactory.CreateStringToken(context.GetText()));
         }
 
-        private void VisitUnwrapExpression(ZScriptParser.ExpressionContext context)
+        private void VisitUnwrapExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Evaluate expression
             VisitExpression(context.expression(0));
@@ -632,14 +631,14 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Type casting/checking
 
-        private void VisitTypeCastExpression(ZScriptParser.ExpressionContext context)
+        private void VisitTypeCastExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             VisitExpression(context.expression(0));
 
             _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Operator, VmInstruction.Cast, context.type()));
         }
 
-        private void VisitTypeCheckExpression(ZScriptParser.ExpressionContext context)
+        private void VisitTypeCheckExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             VisitExpression(context.expression(0));
 
@@ -650,7 +649,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Tuples
 
-        private void VisitTupleExpression(ZScriptParser.TupleExpressionContext context)
+        private void VisitTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context)
         {
             if (!VisitTupleEntries(context)) return;
 
@@ -658,7 +657,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateTypeToken(TokenType.Instruction, VmInstruction.CreateTuple, context.TupleType));
         }
 
-        private bool VisitTupleEntries(ZScriptParser.TupleExpressionContext context, ICallableTypeDef signature = null)
+        private bool VisitTupleEntries([NotNull] ZScriptParser.TupleExpressionContext context, ICallableTypeDef signature = null)
         {
             var entries = context.tupleEntry();
             bool inVariadic = false;
@@ -716,7 +715,7 @@ namespace ZScript.CodeGeneration.Tokenization
                     }
                     else
                     {
-                        var defaultValue = signature.ParameterInfos[i].DefaultValue;
+                        object defaultValue = signature.ParameterInfos[i].DefaultValue;
                         if (defaultValue is ZScriptParser.CompileConstantContext)
                         {
                             defaultValue = ConstantAtomParser.ParseCompileConstantAtom((ZScriptParser.CompileConstantContext)defaultValue);
@@ -731,7 +730,7 @@ namespace ZScript.CodeGeneration.Tokenization
             return entries.Length > 1;
         }
 
-        private void VisitTupleAccess(ZScriptParser.TupleAccessContext context)
+        private void VisitTupleAccess([NotNull] ZScriptParser.TupleAccessContext context)
         {
             var index = int.Parse(context.INT().GetText());
 
@@ -749,7 +748,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Ternary, binary, unary
 
-        private void VisitUnaryExpression(ZScriptParser.ExpressionContext context)
+        private void VisitUnaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Maybe we matched an unary operator?
             if (context.unaryOperator() != null)
@@ -779,7 +778,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitBinaryExpression(ZScriptParser.ExpressionContext context)
+        private void VisitBinaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Null coalescing expression
             if (context.T_NULL_COALESCE() != null)
@@ -797,7 +796,7 @@ namespace ZScript.CodeGeneration.Tokenization
             VisitExpressionOperator(context);
         }
 
-        private void VisitTernaryExpression(ZScriptParser.ExpressionContext context)
+        private void VisitTernaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Constant evaluation
             if (context.expression(0).IsConstant && context.expression(0).EvaluatedType == TypeProvider.BooleanType())
@@ -837,7 +836,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(endT);
         }
 
-        private void VisitExpressionOperator(ZScriptParser.ExpressionContext context)
+        private void VisitExpressionOperator([NotNull] ZScriptParser.ExpressionContext context)
         {
             var str = ExpressionUtils.OperatorOnExpression(context);
             var t = TokenFactory.CreateOperatorToken(str);
@@ -855,7 +854,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitNullCoalescingExpression(ZScriptParser.ExpressionContext context)
+        private void VisitNullCoalescingExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Null coalescing expression: a ?: b
 
@@ -906,7 +905,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// pushing a jump to the short-circuit jump stack when the operator on the context provided is a logical operator
         /// </summary>
         /// <param name="context">The context conaining the jump to perform</param>
-        private void ProcessLogicalOperator(ZScriptParser.ExpressionContext context)
+        private void ProcessLogicalOperator([NotNull] ZScriptParser.ExpressionContext context)
         {
             var str = ExpressionUtils.OperatorOnExpression(context);
 
@@ -937,7 +936,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Member accessing
 
-        private void VisitObjectAccess(ZScriptParser.ObjectAccessContext context)
+        private void VisitObjectAccess([NotNull] ZScriptParser.ObjectAccessContext context)
         {
             _isRootMember = false;
 
@@ -960,7 +959,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitValueAccess(ZScriptParser.ValueAccessContext context, bool addImplicitWrap = true)
+        private void VisitValueAccess([NotNull] ZScriptParser.ValueAccessContext context, bool addImplicitWrap = true)
         {
             bool hasUnwrap = context.T_NULL_CONDITIONAL().Length > 0;
 
@@ -1009,7 +1008,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitFieldAccess(ZScriptParser.FieldAccessContext context, bool functionCall)
+        private void VisitFieldAccess([NotNull] ZScriptParser.FieldAccessContext context, bool functionCall)
         {
             if (context.IsTupleAccess)
             {
@@ -1027,10 +1026,8 @@ namespace ZScript.CodeGeneration.Tokenization
 
             VisitMemberName(context.memberName());
 
-            if (functionCall)
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetCallable));
-            else
-                _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.GetMember));
+            var funcOrMember = functionCall ? VmInstruction.GetCallable : VmInstruction.GetMember;
+            _tokens.Add(TokenFactory.CreateInstructionToken(funcOrMember));
 
             // Expand the index subscripter in case it is a get access
             if (_isGetAccess && !functionCall)
@@ -1039,7 +1036,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitArrayAccess(ZScriptParser.ArrayAccessContext context)
+        private void VisitArrayAccess([NotNull] ZScriptParser.ArrayAccessContext context)
         {
             VisitExpression(context.expression());
 
@@ -1052,7 +1049,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitFunctionCall(ZScriptParser.FunctionCallContext context)
+        private void VisitFunctionCall([NotNull] ZScriptParser.FunctionCallContext context)
         {
             VisitTupleEntries(context.tupleExpression(), context.CallableSignature);
 
@@ -1067,7 +1064,7 @@ namespace ZScript.CodeGeneration.Tokenization
 
         #region Literals
 
-        private void VisitArrayLiteral(ZScriptParser.ArrayLiteralContext context)
+        private void VisitArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context)
         {
             // Collect the expressions
             VisitExpressionList(context.expressionList());
@@ -1079,7 +1076,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(context.EvaluatedValueType, true)));
         }
 
-        private void VisitArrayLiteralInit(ZScriptParser.ArrayLiteralInitContext context)
+        private void VisitArrayLiteralInit([NotNull] ZScriptParser.ArrayLiteralInitContext context)
         {
             // Create a 0 token to notify no arguments
             _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
@@ -1091,7 +1088,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateInstructionToken(VmInstruction.CreateArray, TypeProvider.NativeTypeForTypeDef(context.EvaluatedValueType, true)));
         }
 
-        private void VisitDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
+        private void VisitDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context)
         {
             // Get the type for the key and value
             var keyType = context.EvaluatedKeyType;
@@ -1114,7 +1111,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 }));
         }
 
-        private void VisitDictionaryLiteralInit(ZScriptParser.DictionaryLiteralInitContext context)
+        private void VisitDictionaryLiteralInit([NotNull] ZScriptParser.DictionaryLiteralInitContext context)
         {
             // Create a 0 token to notify no arguments
             _tokens.Add(TokenFactory.CreateBoxedValueToken(0));
@@ -1137,7 +1134,7 @@ namespace ZScript.CodeGeneration.Tokenization
                 }));
         }
 
-        private void VisitDictionaryEntryList(ZScriptParser.DictionaryEntryListContext context)
+        private void VisitDictionaryEntryList([NotNull] ZScriptParser.DictionaryEntryListContext context)
         {
             var entryDefs = context.dictionaryEntry();
 
@@ -1159,7 +1156,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
         }
 
-        private void VisitObjectLiteral(ZScriptParser.ObjectLiteralContext context)
+        private void VisitObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context)
         {
             VisitObjectEntryList(context.objectEntryList());
 
@@ -1188,7 +1185,7 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
         }
 
-        private void VisitEntryName(ZScriptParser.EntryNameContext context)
+        private void VisitEntryName([NotNull] ZScriptParser.EntryNameContext context)
         {
             if (context.IDENT() != null)
             {
@@ -1200,7 +1197,7 @@ namespace ZScript.CodeGeneration.Tokenization
             }
         }
 
-        private void VisitTupleLiteralInit(ZScriptParser.TupleLiteralInitContext context)
+        private void VisitTupleLiteralInit([NotNull] ZScriptParser.TupleLiteralInitContext context)
         {
             if (!VisitTupleEntries(context.functionCall().tupleExpression())) return;
 
@@ -1230,11 +1227,11 @@ namespace ZScript.CodeGeneration.Tokenization
             _tokens.Add(TokenFactory.CreateBoxedValueToken(argCount));
         }
 
-        private void VisitConstantAtom(ZScriptParser.ConstantAtomContext context)
+        private void VisitConstantAtom([NotNull] ZScriptParser.ConstantAtomContext context)
         {
             if (context.stringLiteral() != null)
             {
-                var strToken = context.stringLiteral().GetText();
+                string strToken = context.stringLiteral().GetText();
                 strToken = strToken.Substring(1, strToken.Length - 2);
 
                 _tokens.Add(TokenFactory.CreateStringToken(strToken));
@@ -1256,11 +1253,9 @@ namespace ZScript.CodeGeneration.Tokenization
                 return;
             }
 
-            var str = context.GetText();
-
-            object value;
-            var succeed = ValueParser.TryParseValueBoxed(str, out value);
-            if (succeed)
+            string str = context.GetText();
+            
+            if (ValueParser.TryParseValueBoxed(str, out var value))
             {
                 _tokens.Add(TokenFactory.CreateBoxedValueToken(value));
             }
@@ -1277,7 +1272,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The context containing the value access</param>
         /// <returns>Whether the node represents a function call</returns>
-        private static bool IsFunctionCallAccess(ZScriptParser.ObjectAccessContext context)
+        private static bool IsFunctionCallAccess([NotNull] ZScriptParser.ObjectAccessContext context)
         {
             return context.valueAccess() != null && context.valueAccess().functionCall() != null;
         }
@@ -1287,7 +1282,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The context containing the value access</param>
         /// <returns>Whether the node represents a function call</returns>
-        private static bool IsFunctionCallAccess(ZScriptParser.ValueAccessContext context)
+        private static bool IsFunctionCallAccess([NotNull] ZScriptParser.ValueAccessContext context)
         {
             return context.valueAccess() != null && context.valueAccess().functionCall() != null;
         }
@@ -1297,7 +1292,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The context containing the value access</param>
         /// <returns>Whether the node represents a function call</returns>
-        private static bool IsFunctionCallAccess(ZScriptParser.LeftValueAccessContext context)
+        private static bool IsFunctionCallAccess([NotNull] ZScriptParser.LeftValueAccessContext context)
         {
             return context.leftValueAccess() != null && context.leftValueAccess().functionCall() != null;
         }

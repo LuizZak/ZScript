@@ -89,7 +89,7 @@ namespace ZScript.Elements
         /// <summary>
         /// Gets the tokens associated with this function definition
         /// </summary>
-        public TokenList Tokens { get; private set; }
+        public TokenList Tokens { get; }
 
         /// <summary>
         /// Gets or sets a value specifying whether this function is a closure function type

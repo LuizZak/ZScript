@@ -49,8 +49,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         public override bool VisitChildren(IRuleNode node)
         {
-            var sourceAttributable = node as ZScriptParser.ISourceAttributedContext;
-            if (sourceAttributable != null)
+            if (node is ZScriptParser.ISourceAttributedContext sourceAttributable)
             {
                 sourceAttributable.Source = Source;
             }

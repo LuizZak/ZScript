@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -60,7 +61,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.WhileStatementContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.WhileStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
             TokenizeStatement(tokens, context);
@@ -73,7 +74,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="targetList">The target list to tokenize to</param>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens tokenized from the given context</returns>
-        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.WhileStatementContext context)
+        public void TokenizeStatement([NotNull] IList<Token> targetList, [NotNull] ZScriptParser.WhileStatementContext context)
         {
             // WHILE loop tokenization:
             // 1 - Condition expression

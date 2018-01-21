@@ -20,7 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -57,7 +57,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given SWITCH statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.SwitchStatementContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.SwitchStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
             TokenizeStatement(tokens, context);
@@ -69,7 +69,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="targetList">The target list to tokenize to</param>
         /// <param name="context">The context containinng</param>
-        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.SwitchStatementContext context)
+        public void TokenizeStatement([NotNull] IList<Token> targetList, [NotNull] ZScriptParser.SwitchStatementContext context)
         {
             // Create the end switch block target
             _switchBlockEndTarget = new JumpTargetToken();
@@ -169,7 +169,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given CASE statement into a switch case statement container
         /// </summary>
         /// <param name="context">The context containing the ELSE statement to tokenize</param>
-        private SwitchCaseStatement TokenizeCaseStatement(ZScriptParser.CaseBlockContext context)
+        private SwitchCaseStatement TokenizeCaseStatement([NotNull] ZScriptParser.CaseBlockContext context)
         {
             var stmtTokens = new IntermediaryTokenList();
 

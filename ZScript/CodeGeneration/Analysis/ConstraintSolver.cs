@@ -273,10 +273,11 @@ namespace ZScript.CodeGeneration.Analysis
             string ResolveNameWithAlias(string typeName)
             {
                 var type = types.First(t => t.Name == typeName);
-                if (type.ConcreteTypeDef != null)
-                    return $"{typeName} (aka {type.ConcreteTypeDef.Name})";
 
-                return typeName;
+                return
+                    type.ConcreteTypeDef != null
+                        ? $"{typeName} (aka {type.ConcreteTypeDef.Name})"
+                        : typeName;
             }
 
             return $"{ResolveNameWithAlias(constraint.FirstType)} {(constraint.Constraint == Constraint.SameType ? "==" : ":")} {ResolveNameWithAlias(constraint.SecondType)}";
@@ -286,7 +287,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// An Open type is free type that is yet to be constrained down to a
         /// Closed type.
         /// </summary>
-        public struct ConstraintType : IEquatable<ConstraintType>
+        public readonly struct ConstraintType : IEquatable<ConstraintType>
         {
             /// <summary>
             /// Initializes a new instance of the ConstraintType struct
@@ -353,7 +354,7 @@ namespace ZScript.CodeGeneration.Analysis
             public override bool Equals(object obj)
             {
                 if (ReferenceEquals(null, obj)) return false;
-                return obj is ConstraintType && Equals((ConstraintType) obj);
+                return obj is ConstraintType type && Equals(type);
             }
 
             /// <summary>
@@ -374,7 +375,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <summary>
         /// Constrains an open type to another open type or closed type.
         /// </summary>
-        private struct TypeConstraint : IEquatable<TypeConstraint>
+        private readonly struct TypeConstraint : IEquatable<TypeConstraint>
         {
             public TypeConstraint([NotNull] string firstType, Constraint constraint, [NotNull] string secondType, [CanBeNull] ParserRuleContext context) : this()
             {

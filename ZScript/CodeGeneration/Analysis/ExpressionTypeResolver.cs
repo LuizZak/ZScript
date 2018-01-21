@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
@@ -87,14 +87,14 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        public TypeDef ResolveAssignmentExpression([NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             if (context.HasTypeBeenEvaluated)
             {
                 return context.EvaluatedType;
             }
 
-            TypeDef variableType = ResolveLeftValue(context.leftValue());
+            var variableType = ResolveLeftValue(context.leftValue());
             TypeDef valueType;
 
             // Find the type of the expression
@@ -151,7 +151,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolveExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             if (context.HasTypeBeenEvaluated)
             {
@@ -346,7 +346,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the new expression</param>
         /// <returns>The type for the new expression</returns>
-        public TypeDef ResolveNewExpression(ZScriptParser.NewExpressionContext context)
+        public TypeDef ResolveNewExpression([NotNull] ZScriptParser.NewExpressionContext context)
         {
             var typeName = context.typeName().GetText();
             var type =  TypeProvider.TypeNamed(typeName);
@@ -407,7 +407,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the prefix operation to evaluate</param>
         /// <returns>A type resolved from the context</returns>
-        public TypeDef ResolvePrefixExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolvePrefixExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Get the type of the left value
             TypeDef leftValueType = ResolveLeftValue(context.leftValue());
@@ -431,7 +431,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the postfix operation to evaluate</param>
         /// <returns>A type resolved from the context</returns>
-        public TypeDef ResolvePostfixExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolvePostfixExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Get the type of the left value
             TypeDef leftValueType = ResolveLeftValue(context.leftValue());
@@ -455,7 +455,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the unary operation to evaluate</param>
         /// <returns>A type resolved from the context</returns>
-        public TypeDef ResolveUnaryExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolveUnaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             var unary = context.unaryOperator();
             var expType = ResolveExpression(context.expression()[0]);
@@ -493,7 +493,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the ternary expression to resolve</param>
         /// <returns>The type definition for the expressions of the ternary</returns>
-        public TypeDef ResolveTernaryExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolveTernaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             context.expression(0).ExpectedType = TypeProvider.BooleanType();
 
@@ -532,7 +532,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// returns a Void type, and passing a tuple with 1 type returns a TypeDef for the contained expression.
         /// </param>
         /// <returns>The type for the tuple expression</returns>
-        public TypeDef ResolveTupleExpression(ZScriptParser.TupleExpressionContext context, bool collapseSimpleExpression = true)
+        public TypeDef ResolveTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context, bool collapseSimpleExpression = true)
         {
             var expectedTuple = context.ExpectedType;
             var entries = context.tupleEntry();
@@ -636,7 +636,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveOptionalUnwrapping(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolveOptionalUnwrapping([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Resolve inner type
             var inner = ResolveExpression(context.expression(0));
@@ -662,7 +662,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the ternary expression to resolve</param>
         /// <returns>The type definition for the expressions of the ternary</returns>
-        public TypeDef ResolveNullCoalescingExpression(ZScriptParser.ExpressionContext context)
+        public TypeDef ResolveNullCoalescingExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Find type of expressions on both sides
             var type1 = ResolveExpression(context.expression(0));
@@ -721,19 +721,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the left value to resolve</param>
         /// <returns>The type for the left value</returns>
-        public TypeDef ResolveLeftValue(ZScriptParser.LeftValueContext context)
+        public TypeDef ResolveLeftValue([NotNull] ZScriptParser.LeftValueContext context)
         {
             var memberName = context.memberName();
-            TypeDef type;
-            
-            if(memberName != null)
-            {
-                type = ResolveMemberName(memberName);
-            }
-            else
-            {
-                type = ResolveThisType(context);
-            }
+            var type = memberName != null ? ResolveMemberName(memberName) : ResolveThisType(context);
 
             context.IsConstant = memberName == null || memberName.IsConstant;
 
@@ -751,7 +742,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context containing the left value to resolve</param>
         /// <returns>The type for the left value</returns>
-        public TypeDef ResolveMemberName(ZScriptParser.MemberNameContext context)
+        public TypeDef ResolveMemberName([NotNull] ZScriptParser.MemberNameContext context)
         {
             if(DefinitionTypeProvider == null)
                 throw new Exception("No definition type provider exists on the context provided when constructing this ExpressionTypeResolver. No member name can be resolved to a type!");
@@ -766,7 +757,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context containing the left value access to resolve</param>
         /// <returns>The type for the left value access</returns>
-        public TypeDef ResolveLeftValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.LeftValueAccessContext context)
+        public TypeDef ResolveLeftValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, [NotNull] ZScriptParser.LeftValueAccessContext context)
         {
             // leftValueAccess : (funcCallArguments leftValueAccess) | (fieldAccess leftValueAccess?) | (arrayAccess leftValueAccess?);
             var type = TypeProvider.AnyType();
@@ -823,7 +814,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context that contains the value access</param>
         /// <returns>A type resolved from the value access</returns>
-        public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ValueAccessContext context)
+        public TypeDef ResolveValueAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, [NotNull] ZScriptParser.ValueAccessContext context)
         {
             var type = TypeProvider.AnyType();
             // Unwrap optional
@@ -875,9 +866,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context that contains the value access</param>
         /// <returns>A type resolved from the value access</returns>
-        public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ObjectAccessContext context)
+        public TypeDef ResolveObjectAccess(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, [NotNull] ZScriptParser.ObjectAccessContext context)
         {
-            TypeDef resType = TypeProvider.AnyType();
+            var resType = TypeProvider.AnyType();
 
             if (context.arrayAccess() != null)
             {
@@ -964,10 +955,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context of the function call</param>
         /// <param name="resType">The type to update the resulting function call return type to</param>
-        private void ResolveFunctionCall(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.FunctionCallContext context, ref TypeDef resType)
+        private void ResolveFunctionCall([NotNull] TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.FunctionCallContext context, ref TypeDef resType)
         {
-            var callableType = leftValue as ICallableTypeDef;
-            if (callableType != null)
+            if (leftValue is ICallableTypeDef callableType)
             {
                 // Analyze type of the parameters
                 ResolveFunctionCallArguments(callableType, context.tupleExpression());
@@ -996,7 +986,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="callableType">A callable type used to verify the argument types correctly</param>
         /// <param name="context">The context containing the function call arguments</param>
         /// <returns>An array of types related to the function call</returns>
-        public TypeDef[] ResolveFunctionCallArguments(ICallableTypeDef callableType, ZScriptParser.TupleExpressionContext context)
+        public TypeDef[] ResolveFunctionCallArguments([NotNull] ICallableTypeDef callableType, [NotNull] ZScriptParser.TupleExpressionContext context)
         {
             // Collect the list of arguments
             var argTypes = new List<TypeDef>();
@@ -1086,11 +1076,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="leftValueContext">The base context for the left value being analyzed</param>
         /// <param name="context">The context of the subscription</param>
         /// <param name="resType">The type to update the resulting subscripting type to</param>
-        private void ResolveSubscript(TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ArrayAccessContext context, ref TypeDef resType)
+        private void ResolveSubscript([NotNull] TypeDef leftValue, ZScriptParser.LeftValueContext leftValueContext, ZScriptParser.ArrayAccessContext context, ref TypeDef resType)
         {
             // Get the type of object being subscripted
-            var listType = leftValue as IListTypeDef;
-            if (listType != null)
+            if (leftValue is IListTypeDef listType)
             {
                 resType = listType.EnclosingType;
 
@@ -1133,7 +1122,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="origin">The origin of the value type tring to be cast</param>
         /// <param name="castType">The type tring to cast the value as</param>
         /// <returns>A type definition that represents the casted type</returns>
-        public TypeDef ResolveTypeCasting(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext castType)
+        public TypeDef ResolveTypeCasting([NotNull] TypeDef valueType, ZScriptParser.ExpressionContext origin, [NotNull] ZScriptParser.TypeContext castType)
         {
             TypeDef target = ResolveType(castType, false);
             if (!TypeProvider.CanExplicitCast(valueType, target))
@@ -1152,7 +1141,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="origin">The origin of the value type tring to be checked</param>
         /// <param name="typeToCheck">The type tring to check the value as</param>
         /// <returns>A type definition that represents the result of the operation</returns>
-        public TypeDef ResolveTypeCheck(TypeDef valueType, ZScriptParser.ExpressionContext origin, ZScriptParser.TypeContext typeToCheck)
+        public TypeDef ResolveTypeCheck(TypeDef valueType, ZScriptParser.ExpressionContext origin, [NotNull] ZScriptParser.TypeContext typeToCheck)
         {
             // Resolve the type
             ResolveType(typeToCheck, true);
@@ -1168,7 +1157,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public CallableTypeDef ResolveClosureExpression(ZScriptParser.ClosureExpressionContext context)
+        public CallableTypeDef ResolveClosureExpression([NotNull] ZScriptParser.ClosureExpressionContext context)
         {
             if (context.IsInferred)
             {
@@ -1233,7 +1222,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveFunctionArgument(ZScriptParser.FunctionArgContext context)
+        public TypeDef ResolveFunctionArgument([NotNull] ZScriptParser.FunctionArgContext context)
         {
             var type = TypeProvider.AnyType();
             TypeDef defaultValueType = null;
@@ -1280,7 +1269,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public ObjectTypeDef ResolveObjectLiteral(ZScriptParser.ObjectLiteralContext context)
+        public ObjectTypeDef ResolveObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context)
         {
             var entry = context.objectEntryList();
 
@@ -1300,7 +1289,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public ListTypeDef ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
+        public ListTypeDef ResolveArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context)
         {
             // Expected type for the list
             var expectedValueType = context.ExpectedType?.EnclosingType;
@@ -1379,7 +1368,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public ListTypeDef ResolveArrayLiteralInit(ZScriptParser.ArrayLiteralInitContext context)
+        public ListTypeDef ResolveArrayLiteralInit([NotNull] ZScriptParser.ArrayLiteralInitContext context)
         {
             var type = ResolveType(context.type(), false);
 
@@ -1396,7 +1385,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The dictionary type for the context</returns>
-        public DictionaryTypeDef ResolveDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
+        public DictionaryTypeDef ResolveDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context)
         {
             // Expected type for the list
             var expectedValueType = context.ExpectedType?.EnclosingType;
@@ -1488,7 +1477,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public DictionaryTypeDef ResolveDictionaryLiteralInit(ZScriptParser.DictionaryLiteralInitContext context)
+        public DictionaryTypeDef ResolveDictionaryLiteralInit([NotNull] ZScriptParser.DictionaryLiteralInitContext context)
         {
             var keyType = ResolveType(context.type(0), false);
             var valueType = ResolveType(context.type(1), false);
@@ -1507,7 +1496,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The tuple type for the context</returns>
-        public TupleTypeDef ResolveTupleLiteralInit(ZScriptParser.TupleLiteralInitContext context)
+        public TupleTypeDef ResolveTupleLiteralInit([NotNull] ZScriptParser.TupleLiteralInitContext context)
         {
             var tupleType = ResolveTupleType(context.tupleType());
 
@@ -1525,7 +1514,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveConstantAtom(ZScriptParser.ConstantAtomContext context)
+        public TypeDef ResolveConstantAtom([NotNull] ZScriptParser.ConstantAtomContext context)
         {
             if (context.numericAtom() != null)
             {
@@ -1552,7 +1541,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveCompileConstant(ZScriptParser.CompileConstantContext context)
+        public TypeDef ResolveCompileConstant([NotNull] ZScriptParser.CompileConstantContext context)
         {
             if (context.numericAtom() != null)
             {
@@ -1579,7 +1568,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The type for the context</returns>
-        private TypeDef ResolveNumericAtom(ZScriptParser.NumericAtomContext context)
+        private TypeDef ResolveNumericAtom([NotNull] ZScriptParser.NumericAtomContext context)
         {
             if (context.INT() != null || context.hexadecimalNumber() != null || context.binaryNumber() != null)
             {
@@ -1603,7 +1592,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The context to resolve</param>
         /// <param name="allowVoid">Whether to allow void types when resolving, or raise errors when void is found</param>
         /// <returns>The type for the context</returns>
-        public TypeDef ResolveType(ZScriptParser.TypeContext context, bool allowVoid)
+        public TypeDef ResolveType([NotNull] ZScriptParser.TypeContext context, bool allowVoid)
         {
             TypeDef type;
 
@@ -1661,7 +1650,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The list type for the context</returns>
-        public ListTypeDef ResolveListType(ZScriptParser.ListTypeContext context)
+        public ListTypeDef ResolveListType([NotNull] ZScriptParser.ListTypeContext context)
         {
             return TypeProvider.ListForType(ResolveType(context.type(), false));
         }
@@ -1671,7 +1660,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The dictionary type for the context</returns>
-        public DictionaryTypeDef ResolveDictionaryType(ZScriptParser.DictionaryTypeContext context)
+        public DictionaryTypeDef ResolveDictionaryType([NotNull] ZScriptParser.DictionaryTypeContext context)
         {
             // Key type
             var keyType = ResolveType(context.keyType, false);
@@ -1685,7 +1674,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The tuple type for the context</returns>
-        public TupleTypeDef ResolveTupleType(ZScriptParser.TupleTypeContext context)
+        public TupleTypeDef ResolveTupleType([NotNull] ZScriptParser.TupleTypeContext context)
         {
             var types = context.tupleTypeEntry();
             var typeNames = new string[types.Length];
@@ -1705,7 +1694,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to resolve</param>
         /// <returns>The callable type for the context</returns>
-        public CallableTypeDef ResolveCallableType(ZScriptParser.CallableTypeContext context)
+        public CallableTypeDef ResolveCallableType([NotNull] ZScriptParser.CallableTypeContext context)
         {
             var parameterTypes = new List<TypeDef>();
             var variadic = new List<bool>();
@@ -1819,7 +1808,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="type">The type to get the type definition from</param>
         /// <returns>The type for the given type context</returns>
-        public TypeDef TypeForContext(ZScriptParser.TypeContext type)
+        public TypeDef TypeForContext([NotNull] ZScriptParser.TypeContext type)
         {
             return ResolveType(type, true);
         }

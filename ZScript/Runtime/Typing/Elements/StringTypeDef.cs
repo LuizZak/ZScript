@@ -22,6 +22,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -71,7 +72,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// Inserts a method on this TypeDef from a given method information
         /// </summary>
         /// <param name="method">The method to add to this TypeDef</param>
-        private void AddMethodFrom(MethodInfo method)
+        private void AddMethodFrom([NotNull] MethodInfo method)
         {
             // Create the parameters
             var parameters = method.GetParameters();

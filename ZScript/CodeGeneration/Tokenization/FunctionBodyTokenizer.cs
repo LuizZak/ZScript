@@ -20,7 +20,7 @@
 #endregion
 
 using System;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.CodeGeneration.Tokenization.Statements;
 using ZScript.Elements;
@@ -59,7 +59,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="context">The function body to tokenize</param>
         /// <returns>A token list for the givne function body</returns>
-        public TokenList TokenizeBody(ZScriptParser.FunctionBodyContext context)
+        public TokenList TokenizeBody([NotNull] ZScriptParser.FunctionBodyContext context)
         {
             var state = context.blockStatement();
 

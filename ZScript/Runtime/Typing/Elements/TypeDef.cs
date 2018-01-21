@@ -208,6 +208,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="methodName">The name of the method to search for</param>
         /// <returns>The method type definition that was fetched; or null, if none was found</returns>
+        [CanBeNull]
         public TypeMethodDef GetMethod(string methodName)
         {
             foreach (var methodDef in methods)
@@ -224,6 +225,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="fieldName">The name of the field to search for</param>
         /// <returns>The field type definition that was fetched; or null, if none was found</returns>
+        [CanBeNull]
         public TypeFieldDef GetField(string fieldName)
         {
             foreach (var fieldDef in fields)
@@ -240,6 +242,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="memberName">The name of the mebmer to search for</param>
         /// <returns>The member type definition that was fetched; or null, if none was found</returns>
+        [CanBeNull]
         public TypeMemberDef GetMember(string memberName)
         {
             // Search fields first
@@ -292,7 +295,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="type">The type to get the most fitting type out of</param>
         /// <returns>A TypeDef that matches the given type's description</returns>
-        protected static TypeDef MostFittingType(Type type)
+        protected static TypeDef MostFittingType([NotNull] Type type)
         {
             // Numeric
             if (type == typeof(long))

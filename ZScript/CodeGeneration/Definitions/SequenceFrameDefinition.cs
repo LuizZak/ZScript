@@ -55,7 +55,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Specifies a frame range that triggers a frame from a sequence
     /// </summary>
-    public struct SequenceFrameRange : IEquatable<SequenceFrameRange>
+    public readonly struct SequenceFrameRange : IEquatable<SequenceFrameRange>
     {
         /// <summary>
         /// Whether the frame range of this sequence frame range is relative to the previous range that was read
@@ -136,7 +136,7 @@ namespace ZScript.CodeGeneration.Definitions
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is SequenceFrameRange && Equals((SequenceFrameRange)obj);
+            return obj is SequenceFrameRange range && Equals(range);
         }
 
         public override int GetHashCode()

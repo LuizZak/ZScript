@@ -20,7 +20,7 @@
 #endregion
 
 using System.Linq;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
@@ -46,7 +46,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Initializes a new instance of the ClassDefinitionExpander class
         /// </summary>
         /// <param name="generationContext">The generation context for this static type analyzer</param>
-        public ClassDefinitionExpander(RuntimeGenerationContext generationContext)
+        public ClassDefinitionExpander([NotNull] RuntimeGenerationContext generationContext)
         {
             _baseScope = generationContext.BaseScope;
 
@@ -116,7 +116,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Updates the inheritance of the given class
         /// </summary>
         /// <param name="definition">The class definition to set the inheritance of</param>
-        private void SetupInheritance(ClassDefinition definition)
+        private void SetupInheritance([NotNull] ClassDefinition definition)
         {
             // Detect inheritance
             ClassDefinition baseClass = null;
@@ -190,28 +190,25 @@ namespace ZScript.CodeGeneration.Analysis
         /// Verifies the constructor of the given class
         /// </summary>
         /// <param name="definition">The class definition to verify the constructor of</param>
-        private void VerifyConstructor(ClassDefinition definition)
+        private void VerifyConstructor([NotNull] ClassDefinition definition)
         {
-            if (definition.PublicConstructor.Context == null)
+            var constructor = (ZScriptParser.ClassMethodContext) definition.PublicConstructor.Context;
+            if (constructor?.functionDefinition().returnType() == null) 
                 return;
 
-            var constructor = ((ZScriptParser.ClassMethodContext)definition.PublicConstructor.Context);
-            if (constructor.functionDefinition().returnType() != null)
-            {
-                const string message = "Constructors cannot specify a return type";
-                _generationContext.MessageContainer.RegisterError(constructor.functionDefinition().returnType(), message, ErrorCode.ReturnTypeOnConstructor);
+            const string message = "Constructors cannot specify a return type";
+            _generationContext.MessageContainer.RegisterError(constructor.functionDefinition().returnType(), message, ErrorCode.ReturnTypeOnConstructor);
 
-                // Remove the constructor's type
-                constructor.MethodDefinition.ReturnType = null;
-                constructor.MethodDefinition.HasReturnType = false;
-            }
+            // Remove the constructor's type
+            constructor.MethodDefinition.ReturnType = null;
+            constructor.MethodDefinition.HasReturnType = false;
         }
 
         /// <summary>
         /// Verifies base calls on overriden constructors
         /// </summary>
         /// <param name="definition">The class definition to verify the constructor of</param>
-        private void VerifyBaseConstructorCall(ClassDefinition definition)
+        private void VerifyBaseConstructorCall([NotNull] ClassDefinition definition)
         {
             definition.PublicConstructor.RequiresBaseCall = true;
 
@@ -259,7 +256,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definition">The constructor definition to analyzer</param>
         /// <returns>Whether the given constructor has a valid base call</returns>
-        private static bool HasValidBaseCall(ConstructorDefinition definition)
+        private static bool HasValidBaseCall([NotNull] ConstructorDefinition definition)
         {
             return GetBaseCallContext(definition) != null;
         }
@@ -269,7 +266,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definition">The constructor definition to analyzer</param>
         /// <returns>The ammount of arguments used in a base call, or -1, if no base call was found</returns>
-        private static int BaseCallArgumentCount(ConstructorDefinition definition)
+        private static int BaseCallArgumentCount([NotNull] ConstructorDefinition definition)
         {
             var stmt = GetBaseCallContext(definition);
             if (stmt == null)
@@ -286,7 +283,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definition">The constructor definition to analyzer</param>
         /// <returns>The base call context for the given constructor definition, or null, if none was found</returns>
-        private static ZScriptParser.StatementContext GetBaseCallContext(ConstructorDefinition definition)
+        [CanBeNull]
+        private static ZScriptParser.StatementContext GetBaseCallContext([NotNull] ConstructorDefinition definition)
         {
             var body = definition.BodyContext;
             var block = body.blockStatement();
@@ -308,7 +306,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Checks collisions of methods of a given class definition with its parent classes
         /// </summary>
         /// <param name="definition">The definition to check collisions on</param>
-        private void CheckMethodCollisions(ClassDefinition definition)
+        private void CheckMethodCollisions([NotNull] ClassDefinition definition)
         {
             var methods = definition.Methods;
             var inheritedMethods = definition.GetAllMethods(TypeMemberAttribute.Inherited);
@@ -367,7 +365,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Checks collisions of fields of a given class definition with its parent classes
         /// </summary>
         /// <param name="definition">The definition to check collisions on</param>
-        private void CheckFieldCollisions(ClassDefinition definition)
+        private void CheckFieldCollisions([NotNull] ClassDefinition definition)
         {
             var fields = definition.Fields;
             var inheritedFields = definition.GetAllFields(TypeMemberAttribute.Inherited);
@@ -387,7 +385,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Verifies that the field of a class is compile-time resolvable
         /// </summary>
         /// <param name="definition">The definition to check collisions on</param>
-        private void VerifyFieldType(ClassDefinition definition)
+        private void VerifyFieldType([NotNull] ClassDefinition definition)
         {
             var fields = definition.Fields;
 

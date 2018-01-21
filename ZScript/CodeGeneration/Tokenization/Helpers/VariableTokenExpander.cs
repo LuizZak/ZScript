@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
@@ -55,7 +56,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// Expands the jump tokens associated with the given token list
         /// </summary>
         /// <param name="tokens">The list of tokens to expand the jumps on</param>
-        public void ExpandInList(TokenList tokens)
+        public void ExpandInList([NotNull] TokenList tokens)
         {
             // TODO: Re-visit this portion of the code so we can manipulate pre-processed token lists, instead of post-processed TokenList objects
 

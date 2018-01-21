@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 using ZScript.Runtime.Execution;
 using ZScript.Runtime.Typing.Elements;
 
@@ -54,7 +55,7 @@ namespace ZScript.Runtime.Typing
         /// Initializes a new instance of the BinaryExpressionTypeProvider class
         /// </summary>
         /// <param name="provider">The type provider to use when searching types to return</param>
-        public BinaryExpressionTypeProvider(TypeProvider provider)
+        public BinaryExpressionTypeProvider([NotNull] TypeProvider provider)
         {
             _intType = provider.IntegerType();
             _floatType = provider.FloatType();
@@ -69,7 +70,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="type1">The first type to check</param>
         /// <param name="type2">The second type to check</param>
         /// <returns>true if the operation can be performed between the two values, false otherwise</returns>
-        public bool CanPerformOperation(VmInstruction operation, TypeDef type1, TypeDef type2)
+        public bool CanPerformOperation(VmInstruction operation, [NotNull] TypeDef type1, TypeDef type2)
         {
             // Any types can have any operation performed between them
             if (type1.IsAny && type2.IsAny)
@@ -293,7 +294,7 @@ namespace ZScript.Runtime.Typing
         /// <summary>
         /// Returns whether the two given types can be compared for equality
         /// </summary>
-        public bool CanEqual(TypeDef type1, TypeDef type2)
+        public bool CanEqual([NotNull] TypeDef type1, TypeDef type2)
         {
             return !type1.IsVoid && !type2.IsVoid;
         }
@@ -301,7 +302,7 @@ namespace ZScript.Runtime.Typing
         /// <summary>
         /// Returns whether the two given types can be compared for inequality
         /// </summary>
-        public bool CanUnequal(TypeDef type1, TypeDef type2)
+        public bool CanUnequal([NotNull] TypeDef type1, TypeDef type2)
         {
             return !type1.IsVoid && !type2.IsVoid;
         }

@@ -47,7 +47,7 @@ namespace ZScript.Elements
         /// <summary>
         /// Gets a value specifying whether the constructor for this class requires a base call, or the user already performed the call
         /// </summary>
-        public bool ConstructorRequiresBaseCall { get; private set; }
+        public bool ConstructorRequiresBaseCall { get; }
 
         /// <summary>
         /// Gets the fields for this class

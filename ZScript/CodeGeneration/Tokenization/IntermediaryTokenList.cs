@@ -22,7 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Runtime.Execution;
@@ -52,7 +52,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// Initializes a new instance of the IntermediateTokenList class with a starting list of tokens
         /// </summary>
         /// <param name="tokens">An enumerable of tokens to add to this intermediate token list</param>
-        public IntermediaryTokenList(IEnumerable<Token> tokens)
+        public IntermediaryTokenList([NotNull] IEnumerable<Token> tokens)
         {
             _tokens = new List<Token>(tokens);
         }
@@ -61,7 +61,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// Adds a range of tokens to the end of this intermediate token list
         /// </summary>
         /// <param name="tokens">A range of tokens to add to this intermediate token list</param>
-        public void AddRange(IEnumerable<Token> tokens)
+        public void AddRange([NotNull] IEnumerable<Token> tokens)
         {
             foreach (var token in tokens)
             {
@@ -104,7 +104,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="source">The source to remove the token from</param>
         /// <param name="token">The token to remove</param>
         /// <param name="newTarget">A new target for jump instructions that may be pointing to it</param>
-        public static void RemoveToken(IList<Token> source, Token token, Token newTarget)
+        public static void RemoveToken([NotNull] IList<Token> source, Token token, Token newTarget)
         {
             // Iterate again the jump tokens, now fixing the address of the token pointing
             foreach (Token t in source)
@@ -230,7 +230,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// tokens, and returning the newly generateed list
         /// </summary>
         /// <exception cref="Exception">One of the jump tokens points to a target token that is not inside the same token list</exception>
-        public static List<Token> CreateExpandedTokenList(IList<Token> source)
+        public static List<Token> CreateExpandedTokenList([NotNull] IList<Token> source)
         {
             var expandedTokens = new List<Token>(source);
             
@@ -285,7 +285,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
         /// <exception cref="ArgumentException">The provided jump token is not part of this token list</exception>
-        public int OffsetForJump(JumpToken jumpToken)
+        public int OffsetForJump([NotNull] JumpToken jumpToken)
         {
             return OffsetForJump(_tokens, jumpToken);
         }
@@ -298,7 +298,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
         /// <exception cref="ArgumentException">The provided jump token is not part of this token list</exception>
-        public static int OffsetForJump(IList<Token> tokens, JumpToken jumpToken)
+        public static int OffsetForJump([NotNull] IList<Token> tokens, [NotNull] JumpToken jumpToken)
         {
             if (!tokens.ContainsReference(jumpToken) || !tokens.ContainsReference(jumpToken.TargetToken))
                 throw new ArgumentException("The provided token does not exists inside this intermediate token list object", nameof(jumpToken));
@@ -311,7 +311,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="tokenList">The list of token to remove the unreachable tokens from</param>
         /// <param name="entryIndex">The index of the token to start analyzing from</param>
-        public static void RemoveUnreachableTokens(IList<Token> tokenList, int entryIndex = 0)
+        public static void RemoveUnreachableTokens([NotNull] IList<Token> tokenList, int entryIndex = 0)
         {
             // Detect the reachability of the tokens
             DetectReachability(tokenList, entryIndex);
@@ -340,7 +340,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// <param name="tokenList">The token list to detect the reachability on</param>
         /// <param name="entryIndex">The index of the token to start analyzing from</param>
         /// <exception cref="ArgumentOutOfRangeException">The entryIndex points outside the list of tokens</exception>
-        public static bool[] DetectReachability(IList<Token> tokenList, int entryIndex = 0)
+        public static bool[] DetectReachability([NotNull] IList<Token> tokenList, int entryIndex = 0)
         {
             if (entryIndex == 0 && tokenList.Count == 0)
                 return new bool[0];
@@ -405,7 +405,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="tokenList">The list of tokens to remove the duplicate instructions from</param>
         /// <param name="instruction">The instruction to remove duplicates of</param>
-        private static void RemoveSequentialInstructions(IList<Token> tokenList, VmInstruction instruction)
+        private static void RemoveSequentialInstructions([NotNull] IList<Token> tokenList, VmInstruction instruction)
         {
             for (int i = 1; i < tokenList.Count; i++)
             {
@@ -427,8 +427,9 @@ namespace ZScript.CodeGeneration.Tokenization
         /// Analyzes a given jump token for errors
         /// </summary>
         /// <param name="jumpToken">The jump token</param>
-        // ReSharper disable once UnusedParameter.Local
-        static void AnalyzeJump(JumpToken jumpToken)
+        // ReSharper disable once ArrangeTypeMemberModifiers
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        static void AnalyzeJump([NotNull] JumpToken jumpToken)
         {
             if (ReferenceEquals(jumpToken.TargetToken, jumpToken))
                 throw new Exception("Jump instruction is pointing at itself!");
@@ -442,7 +443,7 @@ namespace ZScript.CodeGeneration.Tokenization
         /// </summary>
         /// <param name="token">The token to check</param>
         /// <returns>One of the VmInstruction jumps that represents the token passed</returns>
-        static VmInstruction InstructionForJumpToken(JumpToken token)
+        static VmInstruction InstructionForJumpToken([NotNull] JumpToken token)
         {
             // Unconditional jump
             if (!token.Conditional)
@@ -510,8 +511,8 @@ namespace ZScript.CodeGeneration.Tokenization
 
         public Token this[int index]
         {
-            get { return _tokens[index]; }
-            set { _tokens[index] = value; }
+            get => _tokens[index];
+            set => _tokens[index] = value;
         }
 
 #pragma warning restore CS1591 // O comentário XML ausente não foi encontrado para o tipo ou membro visível publicamente

@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Elements.ValueHolding;
 
@@ -106,7 +107,7 @@ namespace ZScript.Runtime
         /// Adds a range of new function definitions to this ZRuntimeDefinition calss
         /// </summary>
         /// <param name="defs">A valid enumerable if ZFunction values</param>
-        public void AddFunctionDefs(IEnumerable<ZFunction> defs)
+        public void AddFunctionDefs([NotNull] IEnumerable<ZFunction> defs)
         {
             foreach (var function in defs)
             {
@@ -118,7 +119,7 @@ namespace ZScript.Runtime
         /// Adds a range of new export function definitions to this ZRuntimeDefinition calss
         /// </summary>
         /// <param name="defs">A valid enumerable of ZExportFunction values</param>
-        public void AddExportFunctionDefs(IEnumerable<ZExportFunction> defs)
+        public void AddExportFunctionDefs([NotNull] IEnumerable<ZExportFunction> defs)
         {
             _exportFunctionDefinitions.AddRange(defs);
         }
@@ -127,7 +128,7 @@ namespace ZScript.Runtime
         /// Adds a range of new closure definitions to this ZRuntimeDefinition calss
         /// </summary>
         /// <param name="defs">A valid enumerable of ZClosureFunction values</param>
-        public void AddClosurenDefs(IEnumerable<ZClosureFunction> defs)
+        public void AddClosurenDefs([NotNull] IEnumerable<ZClosureFunction> defs)
         {
             _closureDefinitions.AddRange(defs);
         }
@@ -145,7 +146,7 @@ namespace ZScript.Runtime
         /// Adds a range of global variable definitions to this ZRuntimeDefinition class
         /// </summary>
         /// <param name="definitions">A valid enumerable of global variable definitions</param>
-        public void AddGlobalVariables(IEnumerable<GlobalVariable> definitions)
+        public void AddGlobalVariables([NotNull] IEnumerable<GlobalVariable> definitions)
         {
             foreach (var definition in definitions)
             {
@@ -157,7 +158,7 @@ namespace ZScript.Runtime
         /// Adds a range of class definitions to this ZRuntimeDefinition class
         /// </summary>
         /// <param name="definitions">A valid enumerable of class definitions</param>
-        public void AddClassDefinitions(IEnumerable<ZClass> definitions)
+        public void AddClassDefinitions([NotNull] IEnumerable<ZClass> definitions)
         {
             _classDefinitions.AddRange(definitions);
         }

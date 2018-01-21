@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -35,7 +36,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="bodyContext">The context containing the function body's statements</param>
         /// <param name="parameters">The arguments for this function definition</param>
         /// <param name="genericSignature">The generic signature for the function</param>
-        public TopLevelFunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericSignature)
+        public TopLevelFunctionDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, [NotNull] FunctionArgumentDefinition[] parameters, GenericSignatureInformation genericSignature)
             : base(name, bodyContext, parameters, genericSignature)
         {
 

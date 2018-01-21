@@ -20,7 +20,7 @@
 #endregion
 
 using System;
-
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime;
 
@@ -51,7 +51,7 @@ namespace ZScript.CodeGeneration.Tokenization.Helpers
         /// </summary>
         /// <param name="tokenList">The list of tokens to expand</param>
         /// <exception cref="Exception">A type context could not be converted to an appropriate type</exception>
-        public void ExpandInList(TokenList tokenList)
+        public void ExpandInList([NotNull] TokenList tokenList)
         {
             // TODO: Deal with generic types during type expanding
             var tokens = tokenList.Tokens;

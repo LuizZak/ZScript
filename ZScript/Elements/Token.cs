@@ -100,9 +100,9 @@ namespace ZScript.Elements
             if ((TokenObject != null) && (other.TokenObject != null) && (TokenObject.GetType() != other.TokenObject.GetType())) return false;
 
             // Array of objects checking
-            if (TokenObject is object[])
+            if (TokenObject is object[] objects && other.TokenObject is object[] otherObjects)
             {
-                if (!((object[])TokenObject).SequenceEqual((object[])other.TokenObject))
+                if (!objects.SequenceEqual(otherObjects))
                     return false;
             }
             else if (!Equals(TokenObject, other.TokenObject))

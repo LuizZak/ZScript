@@ -21,6 +21,7 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing.Elements;
 
@@ -50,6 +51,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// Gets the local memory for the class method.
         /// Always returns null
         /// </summary>
+        [CanBeNull]
         public IMemory<string> LocalMemory => null;
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the method call</returns>
         /// <exception cref="Exception"></exception>
-        public object Call(VmContext context, CallArguments arguments)
+        public object Call(VmContext context, [NotNull] CallArguments arguments)
         {
             // TODO: Se how we are going to deal with long -> int conversions during native calls
             var method = MatchMethod(arguments.Arguments);
@@ -85,7 +87,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// </summary>
         /// <param name="arguments">The list of arguments to get the callable type info of</param>
         /// <returns>A CallableTypeDef for a given argument list</returns>
-        public CallableTypeDef CallableTypeWithArguments(CallArguments arguments)
+        public CallableTypeDef CallableTypeWithArguments([NotNull] CallArguments arguments)
         {
             var info = MatchMethod(arguments.Arguments);
 
@@ -100,6 +102,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// </summary>
         /// <param name="arguments">The list of arguments to get the matching method information from</param>
         /// <returns>A MethodBase that matches the given argument list, or null, if none was found</returns>
+        [CanBeNull]
         private MethodInfo MatchMethod(object[] arguments)
         {
             var ps = new ParameterModifier[1];
@@ -107,8 +110,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
             if(arguments.Length > 0)
                 ps[0] = new ParameterModifier(arguments.Length);
 
-            object state;
-            var info = Type.DefaultBinder.BindToMethod(BindingFlags.Public, _methodInfos, ref arguments, ps, null, null, out state);
+            var info = Type.DefaultBinder.BindToMethod(BindingFlags.Public, _methodInfos, ref arguments, ps, null, null, out var state);
 
             if(state != null)
                 Type.DefaultBinder.ReorderArgumentArray(ref arguments, state);
@@ -121,7 +123,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// </summary>
         /// <param name="info">The method information to convert</param>
         /// <returns>A callable type definition for the given method information</returns>
-        private static CallableTypeDef CallableFromMethodInfo(MethodInfo info)
+        private static CallableTypeDef CallableFromMethodInfo([NotNull] MethodInfo info)
         {
             // TODO: Dump this into a utility class so the functionality can be accessed by type aliasers and etc.
             var methodParams = info.GetParameters();
@@ -145,7 +147,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// </summary>
         /// <param name="type">The type to create the TypeDef from</param>
         /// <returns>A TypeDef that wraps the given Type class</returns>
-        private static TypeDef TypeDefFromNativeType(Type type)
+        private static TypeDef TypeDefFromNativeType([NotNull] Type type)
         {
             return new TypeDef(type.AssemblyQualifiedName, true);
         }

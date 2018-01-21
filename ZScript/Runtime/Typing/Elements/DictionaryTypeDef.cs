@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -54,7 +55,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="keyType">The types of values in the dictionary</param>
         /// <param name="valueType">The types of keys in the dictionary</param>
-        public DictionaryTypeDef(TypeDef keyType, TypeDef valueType)
+        public DictionaryTypeDef([NotNull] TypeDef keyType, [NotNull] TypeDef valueType)
             : base(typeof(Dictionary<,>), "dictionary<" + keyType.Name + ":" + valueType.Name + ">")
         {
             _keyType = keyType;

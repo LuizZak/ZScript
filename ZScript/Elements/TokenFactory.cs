@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Parsing.ANTLR;
@@ -38,7 +39,7 @@ namespace ZScript.Elements
         /// <summary>
         /// Token that represents a GET_SUBSCRIPT call
         /// </summary>
-        public readonly static Token GetSubscriptToken = new Token(TokenType.Instruction, null, VmInstruction.GetSubscript);
+        public static readonly Token GetSubscriptToken = new Token(TokenType.Instruction, null, VmInstruction.GetSubscript);
 
         /// <summary>
         /// Creates a new token that represents a member name
@@ -334,7 +335,7 @@ namespace ZScript.Elements
         /// <param name="methodName">The function to call on the variable</param>
         /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
         /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
-        public static IEnumerable<Token> CreateMethodCall(string variableName, string methodName, params IEnumerable<Token>[] argumentList)
+        public static IEnumerable<Token> CreateMethodCall(string variableName, string methodName, [NotNull] params IEnumerable<Token>[] argumentList)
         {
             var tokens = new List<Token>();
 
@@ -351,7 +352,7 @@ namespace ZScript.Elements
         /// <param name="method">The reflected method to call on the variable</param>
         /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
         /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
-        public static IEnumerable<Token> CreateMethodCall(string variableName, MethodInfo method, params IEnumerable<Token>[] argumentList)
+        public static IEnumerable<Token> CreateMethodCall(string variableName, MethodInfo method, [NotNull] params IEnumerable<Token>[] argumentList)
         {
             var tokens = new List<Token> { CreateVariableToken(variableName, true) };
 
@@ -366,7 +367,7 @@ namespace ZScript.Elements
         /// <param name="methodInfo">A reflected method information to call on</param>
         /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
         /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
-        public static IEnumerable<Token> CreateFunctionCall(MethodInfo methodInfo, params IEnumerable<Token>[] argumentList)
+        public static IEnumerable<Token> CreateFunctionCall(MethodInfo methodInfo, [NotNull] params IEnumerable<Token>[] argumentList)
         {
             var tokens = new List<Token>();
 
@@ -387,7 +388,7 @@ namespace ZScript.Elements
         /// </summary>
         /// <param name="argumentList">A list of IEnumerable objects containing the arguments for the call</param>
         /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
-        public static IEnumerable<Token> CreateFunctionCall(params IEnumerable<Token>[] argumentList)
+        public static IEnumerable<Token> CreateFunctionCall([NotNull] params IEnumerable<Token>[] argumentList)
         {
             var tokens = new List<Token>();
 
@@ -513,7 +514,7 @@ namespace ZScript.Elements
         /// <param name="variableName">The name of the variable to assign</param>
         /// <param name="value">An enumerable of tokens containing the instructions that will generate the value to set</param>
         /// <returns>An IEnumerable containing the instruction tokens for the operation</returns>
-        public static IEnumerable<Token> CreateVariableAssignment(string variableName, IEnumerable<Token> value)
+        public static IEnumerable<Token> CreateVariableAssignment(string variableName, [NotNull] IEnumerable<Token> value)
         {
             var tokens = new List<Token>(value)
             {

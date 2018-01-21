@@ -21,6 +21,7 @@
 
 using System;
 using System.Globalization;
+using JetBrains.Annotations;
 
 namespace ZScript.Parsing
 {
@@ -75,6 +76,7 @@ namespace ZScript.Parsing
         /// </summary>
         /// <param name="valueString">The string to convert</param>
         /// <returns>The converted string as a boxed numeric value, or null, if the conversion fails</returns>
+        [CanBeNull]
         public static object ParseNumberBoxed(string valueString)
         {
             if (valueString.StartsWith("0x") || valueString.StartsWith("-0x"))
@@ -101,7 +103,7 @@ namespace ZScript.Parsing
             }
 
             double outDouble;
-            if (valueString.IndexOf('.') > 0 || valueString.IndexOf("e") > 0)
+            if (valueString.IndexOf('.') > 0 || valueString.IndexOf("e", StringComparison.Ordinal) > 0)
             {
                 if (double.TryParse(valueString, NumberStyles.Number | NumberStyles.AllowExponent, Nfi, out outDouble))
                 {
@@ -111,8 +113,7 @@ namespace ZScript.Parsing
                 return null;
             }
 
-            long outLong;
-            if (long.TryParse(valueString, out outLong))
+            if (long.TryParse(valueString, out var outLong))
             {
                 return outLong;
             }
@@ -221,7 +222,7 @@ namespace ZScript.Parsing
         /// </summary>
         /// <param name="hex">The hexadecimal to convert</param>
         /// <returns>An integer representing the hexadecimal number</returns>
-        public static int ParseHex(string hex)
+        public static int ParseHex([NotNull] string hex)
         {
             // Remove '0x' leading
             return int.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
@@ -231,7 +232,7 @@ namespace ZScript.Parsing
         /// </summary>
         /// <param name="hex">The hexadecimal to convert</param>
         /// <returns>An integer representing the hexadecimal number</returns>
-        public static uint ParseHexUint(string hex)
+        public static uint ParseHexUint([NotNull] string hex)
         {
             // Remove '0x' leading
             return uint.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);
@@ -241,7 +242,7 @@ namespace ZScript.Parsing
         /// </summary>
         /// <param name="hex">The hexadecimal to convert</param>
         /// <returns>An integer representing the hexadecimal number</returns>
-        public static long ParseHexLong(string hex)
+        public static long ParseHexLong([NotNull] string hex)
         {
             // Remove '0x' leading
             return long.Parse(hex.StartsWith("0x") ? hex.Substring(2) : hex, NumberStyles.HexNumber);

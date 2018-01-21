@@ -22,6 +22,7 @@
 using System;
 
 using Antlr4.Runtime.Tree;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Elements;
@@ -73,7 +74,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the constants on a given expression context
         /// </summary>
         /// <param name="context">The context containing the constants to expand</param>
-        public void ExpandConstants(ZScriptParser.ExpressionContext context)
+        public void ExpandConstants([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Traverse the expression tree
             var walker = new ParseTreeWalker();
@@ -89,7 +90,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the constants on a given assignment expression context
         /// </summary>
         /// <param name="context">The context containing the constants to expand</param>
-        public void ExpandConstants(ZScriptParser.AssignmentExpressionContext context)
+        public void ExpandConstants([NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             // Traverse the expression tree
             var walker = new ParseTreeWalker();
@@ -106,7 +107,7 @@ namespace ZScript.CodeGeneration.Analysis
         // 
         // ZScriptBaseListener.EnterExpression implementation
         // 
-        public override void EnterExpression(ZScriptParser.ExpressionContext context)
+        public override void EnterExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             if (context.constantAtom() != null && context.objectAccess() == null)
             {
@@ -142,7 +143,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the expression contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        void ResolveExpression(ZScriptParser.ExpressionContext context)
+        void ResolveExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // No need to analyze an expression that was already marked as constant
             if (!context.IsConstant)
@@ -199,7 +200,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the assignment expression contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        void ResolveAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        void ResolveAssignmentExpression([NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             if(context.expression() != null)
                 ResolveExpression(context.expression());
@@ -211,7 +212,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the unary expression contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        void ResolveUnaryExpression(ZScriptParser.ExpressionContext context)
+        void ResolveUnaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // Find out which unary operator it is
             var inst = TokenFactory.InstructionForUnaryOperator(ExpressionUtils.OperatorOnExpression(context));
@@ -235,7 +236,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the tuple expression contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        void ResolveTupleExpression(ZScriptParser.TupleExpressionContext context)
+        void ResolveTupleExpression([NotNull] ZScriptParser.TupleExpressionContext context)
         {
             foreach (var entry in context.tupleEntry())
             {
@@ -247,7 +248,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the binary expression contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        void ResolveBinaryExpression(ZScriptParser.ExpressionContext context)
+        void ResolveBinaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             if (context.T_NULL_COALESCE() != null)
             {
@@ -295,7 +296,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the ternary expression contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        void ResolveTernaryExpression(ZScriptParser.ExpressionContext context)
+        void ResolveTernaryExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             var exp1 = context.expression(0);
             var exp2 = context.expression(1);
@@ -326,7 +327,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the null coalesce contained within a given expression context
         /// </summary>
         /// <param name="context">The context containing the expression to resolve</param>
-        private void ResolveNullCoalesce(ZScriptParser.ExpressionContext context)
+        private void ResolveNullCoalesce([NotNull] ZScriptParser.ExpressionContext context)
         {
             var exp1 = context.expression(0);
             var exp2 = context.expression(1);
@@ -359,7 +360,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the array literal contained within a given expression context
         /// </summary>
         /// <param name="context">The context to analyze</param>
-        void ResolveArrayLiteral(ZScriptParser.ArrayLiteralContext context)
+        void ResolveArrayLiteral([NotNull] ZScriptParser.ArrayLiteralContext context)
         {
             if (context.expressionList() == null)
                 return;
@@ -375,7 +376,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the dictionary literal contained within a given expression context
         /// </summary>
         /// <param name="context">The context to analyze</param>
-        void ResolveDictionaryLiteral(ZScriptParser.DictionaryLiteralContext context)
+        void ResolveDictionaryLiteral([NotNull] ZScriptParser.DictionaryLiteralContext context)
         {
             var entries = context.dictionaryEntryList().dictionaryEntry();
 
@@ -394,7 +395,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Resolves the object literal contained within a given expression context
         /// </summary>
         /// <param name="context">The context to analyze</param>
-        void ResolveObjectLiteral(ZScriptParser.ObjectLiteralContext context)
+        void ResolveObjectLiteral([NotNull] ZScriptParser.ObjectLiteralContext context)
         {
             var entries = context.objectEntryList();
 
@@ -413,10 +414,8 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The member name context to analyze</param>
         /// <returns>true if the member name resolved to a valid constant; false otherwise</returns>
-        void ResolveMemberNameExpression(ZScriptParser.ExpressionContext context)
+        void ResolveMemberNameExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
-            object value;
-
             if (context.memberName() == null)
                 return;
 
@@ -437,7 +436,7 @@ namespace ZScript.CodeGeneration.Analysis
                 return;
             }
 
-            if (!ResolveMemberName(context.memberName(), out value))
+            if (!ResolveMemberName(context.memberName(), out var value))
             {
                 return;
             }
@@ -457,10 +456,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="context">The member name context to analyze</param>
         /// <param name="value">The value the member name was resolved to</param>
         /// <returns>true if the member name resolved to a valid constant; false otherwise</returns>
-        bool ResolveMemberName(ZScriptParser.MemberNameContext context, out object value)
+        bool ResolveMemberName([NotNull] ZScriptParser.MemberNameContext context, out object value)
         {
-            var valueHolderDef = context.Definition as ValueHolderDefinition;
-            if (context.HasDefinition && valueHolderDef != null && valueHolderDef.IsConstant && valueHolderDef.HasValue)
+            if (context.HasDefinition && context.Definition is ValueHolderDefinition valueHolderDef &&
+                valueHolderDef.IsConstant && valueHolderDef.HasValue)
             {
                 ExpandConstants(valueHolderDef.ValueExpression.ExpressionContext);
 
@@ -561,7 +560,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <param name="typeOperationProvider">A type provider to perform the operations on</param>
         /// <returns>The result of the given unary operation on the operand</returns>
         /// <exception cref="ArgumentException">The provided instruction does not describes a valid unary operation</exception>
-        private object PerformUnaryExpression(object operand, VmInstruction instruction, TypeOperationProvider typeOperationProvider)
+        private object PerformUnaryExpression(object operand, VmInstruction instruction, [NotNull] TypeOperationProvider typeOperationProvider)
         {
             object ret;
 

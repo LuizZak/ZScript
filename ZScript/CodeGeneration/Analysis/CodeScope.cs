@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Parsing.ANTLR;
 
@@ -116,7 +117,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="scope">The subscope to add</param>
         /// <exception cref="ArgumentException">The scope already has a parent, or this scope is contained within the passed scope's children list</exception>
-        public void AddSubscope(CodeScope scope)
+        public void AddSubscope([NotNull] CodeScope scope)
         {
             if (scope.ParentScope != null)
             {
@@ -167,9 +168,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition to search</param>
         /// <returns>The definition that was found</returns>
+        [CanBeNull]
         public Definition GetDefinitionByName(string definitionName)
         {
-            foreach (Definition def in _definitions)
+            foreach (var def in _definitions)
             {
                 if (def.Name == definitionName)
                 {
@@ -186,12 +188,12 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition to search</param>
         /// <returns>The definition that was found</returns>
+        [CanBeNull]
         public T GetDefinitionByName<T>(string definitionName) where T : Definition
         {
             foreach (var definition in _definitions)
             {
-                var def = definition as T;
-                if (def != null && def.Name == definitionName)
+                if (definition is T def && def.Name == definitionName)
                 {
                     return def;
                 }
@@ -206,9 +208,10 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context of the definition to search</param>
         /// <returns>The definition that was found</returns>
+        [CanBeNull]
         public Definition GetDefinitionByContextRecursive(RuleContext context)
         {
-            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
+            var scopeQueue = new Stack<CodeScope>();
 
             scopeQueue.Push(this);
 
@@ -254,9 +257,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>An enumerable containing the definitions collected</returns>
         public IEnumerable<Definition> GetAllDefinitionsRecursive()
         {
-            List<Definition> definitions = new List<Definition>();
+            var definitions = new List<Definition>();
 
-            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
+            var scopeQueue = new Stack<CodeScope>();
 
             scopeQueue.Push(this);
 
@@ -282,9 +285,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>An enumerable containing the definitions collected</returns>
         public IEnumerable<TDefinition> GetDefinitionsByTypeRecursive<TDefinition>() where TDefinition : Definition
         {
-            List<TDefinition> definitions = new List<TDefinition>();
+            var definitions = new List<TDefinition>();
 
-            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
+            var scopeQueue = new Stack<CodeScope>();
 
             scopeQueue.Push(this);
 
@@ -359,9 +362,9 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>An enumerable containing the definition usages collected</returns>
         public IEnumerable<DefinitionUsage> GetAllUsagesRecursive()
         {
-            List<DefinitionUsage> usages = new List<DefinitionUsage>();
+            var usages = new List<DefinitionUsage>();
 
-            Stack<CodeScope> scopeQueue = new Stack<CodeScope>();
+            var scopeQueue = new Stack<CodeScope>();
 
             scopeQueue.Push(this);
 
@@ -386,6 +389,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="context">The context to search in this CodeScope</param>
         /// <returns>A CodeScope which contains the given scope, or null, if none is found</returns>
+        [CanBeNull]
         public CodeScope GetScopeContainingContext(RuleContext context)
         {
             // Assume that if this scope has no parent, it is the root scope, and return it when the query is for a Program context (the root context)
@@ -423,7 +427,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// <returns>An enumerable containing all the definition usages for a given definition</returns>
         public IEnumerable<DefinitionUsage> GetUsagesForDefinition(Definition definition)
         {
-            List<DefinitionUsage> usages = new List<DefinitionUsage>();
+            var usages = new List<DefinitionUsage>();
 
             InternalGetUsagesForDefinition(definition, usages);
 

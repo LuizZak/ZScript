@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Analysis.Definitions;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
@@ -71,7 +71,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Creates a new instance of the VariableUsageAnalyzer class
         /// </summary>
         /// <param name="context">The runtime generation context for base the analysis on</param>
-        public DefinitionAnalyzer(RuntimeGenerationContext context)
+        public DefinitionAnalyzer([NotNull] RuntimeGenerationContext context)
         {
             _currentScope = context.BaseScope;
             _context = context;
@@ -122,7 +122,7 @@ namespace ZScript.CodeGeneration.Analysis
             ExitContextScope();
         }
 
-        public override void EnterClassDefinition(ZScriptParser.ClassDefinitionContext context)
+        public override void EnterClassDefinition([NotNull] ZScriptParser.ClassDefinitionContext context)
         {
             // Push class definition
             _classStack.Push(_currentScope.GetDefinitionByName<ClassDefinition>(context.className().GetText()));
@@ -236,7 +236,7 @@ namespace ZScript.CodeGeneration.Analysis
             PushDefinitionScope();
         }
 
-        public override void ExitForEachHeader(ZScriptParser.ForEachHeaderContext context)
+        public override void ExitForEachHeader([NotNull] ZScriptParser.ForEachHeaderContext context)
         {
             AddDefinition(context.LoopVariable);
         }
@@ -264,12 +264,12 @@ namespace ZScript.CodeGeneration.Analysis
 
         #region Definition checking
 
-        public override void ExitValueHolderDecl(ZScriptParser.ValueHolderDeclContext context)
+        public override void ExitValueHolderDecl([NotNull] ZScriptParser.ValueHolderDeclContext context)
         {
             AddDefinition(context.Definition);
         }
 
-        public override void EnterExpression(ZScriptParser.ExpressionContext context)
+        public override void EnterExpression([NotNull] ZScriptParser.ExpressionContext context)
         {
             // First entrance
             if (context.memberName() != null)
@@ -284,7 +284,7 @@ namespace ZScript.CodeGeneration.Analysis
             }
         }
 
-        public override void EnterAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+        public override void EnterAssignmentExpression([NotNull] ZScriptParser.AssignmentExpressionContext context)
         {
             // First entrance
             if (context.leftValue().memberName() != null)
@@ -369,6 +369,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition to search for</param>
         /// <returns>The definition found, or null, if none was found</returns>
+        [CanBeNull]
         private Definition GetDefinitionByName(string definitionName)
         {
             foreach (var locals in _localsStack)
@@ -412,7 +413,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// </summary>
         /// <param name="definitionName">The name of the definition that was used</param>
         /// <param name="context">The context in which the definition was used</param>
-        private void RegisterDefinitionUsage(string definitionName, ZScriptParser.MemberNameContext context)
+        private void RegisterDefinitionUsage(string definitionName, [NotNull] ZScriptParser.MemberNameContext context)
         {
             var definition = GetDefinitionByName(definitionName);
 

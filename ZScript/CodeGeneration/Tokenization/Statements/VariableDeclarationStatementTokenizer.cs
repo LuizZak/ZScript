@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Parsing.ANTLR;
@@ -51,7 +52,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.ValueHolderDeclContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.ValueHolderDeclContext context)
         {
             var tokens = new IntermediaryTokenList();
             TokenizeStatement(tokens, context);
@@ -64,7 +65,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// <param name="targetList">The target list to add the tokens to</param>
         /// <param name="context">The context to tokenize</param>
         /// <returns>A list of tokens that were tokenized from the given context</returns>
-        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.ValueHolderDeclContext context)
+        public void TokenizeStatement(IList<Token> targetList, [NotNull] ZScriptParser.ValueHolderDeclContext context)
         {
             var expression = context.expression();
             var name = context.valueHolderDefine().valueHolderName().memberName().IDENT().GetText();

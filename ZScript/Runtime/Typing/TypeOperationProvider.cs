@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Typing.Operators;
 
@@ -205,8 +206,8 @@ namespace ZScript.Runtime.Typing
 
         public object BitwiseAnd(object v1, object v2)
         {
-            if (v1 is bool && v2 is bool)
-                return (bool)v1 & (bool)v2;
+            if (v1 is bool b && v2 is bool b2)
+                return b & b2;
 
             var c = BestFitForTypes(v1, v2);
 
@@ -228,8 +229,8 @@ namespace ZScript.Runtime.Typing
 
         public object BitwiseXOr(object v1, object v2)
         {
-            if (v1 is bool && v2 is bool)
-                return (bool)v1 ^ (bool)v2;
+            if (v1 is bool b && v2 is bool b2)
+                return b ^ b2;
 
             var c = BestFitForTypes(v1, v2);
 
@@ -251,8 +252,8 @@ namespace ZScript.Runtime.Typing
 
         public object BitwiseOr(object v1, object v2)
         {
-            if (v1 is bool && v2 is bool)
-                return (bool)v1 | (bool)v2;
+            if (v1 is bool b && v2 is bool b2)
+                return b | b2;
 
             var c = BestFitForTypes(v1, v2);
 
@@ -274,8 +275,8 @@ namespace ZScript.Runtime.Typing
 
         public object ShiftLeft(object v1, object v2)
         {
-            if (v1 is bool && v2 is bool)
-                return (bool)v1 ^ (bool)v2;
+            if (v1 is bool b && v2 is bool b2)
+                return b ^ b2;
 
             var c = BestFitForTypes(v1, v2);
 
@@ -297,8 +298,8 @@ namespace ZScript.Runtime.Typing
 
         public object ShiftRight(object v1, object v2)
         {
-            if (v1 is bool && v2 is bool)
-                return (bool)v1 | (bool)v2;
+            if (v1 is bool b && v2 is bool b2)
+                return b | b2;
 
             var c = BestFitForTypes(v1, v2);
 
@@ -436,16 +437,14 @@ namespace ZScript.Runtime.Typing
             if (v1 == null && v2 == null)
                 return true;
 
-            var optionalV1 = v1 as IOptional;
-            if (optionalV1 != null)
+            if (v1 is IOptional optionalV1)
             {
                 if (!optionalV1.HasBaseInnerValue)
                     return v2 == null;
                 return Equals(optionalV1.BaseInnerValue, v2);
             }
 
-            var optionalV2 = v2 as IOptional;
-            if (optionalV2 != null)
+            if (v2 is IOptional optionalV2)
             {
                 if (!optionalV2.HasBaseInnerValue)
                     return v1 == null;
@@ -483,10 +482,10 @@ namespace ZScript.Runtime.Typing
             throw new Exception("Cannot apply ArithmeticNegate operation on objects of type " + v1.GetType());
         }
 
-        public object LogicalNegate(object v1)
+        public object LogicalNegate([NotNull] object v1)
         {
-            if (v1 is bool)
-                return !(bool)v1;
+            if (v1 is bool b)
+                return !b;
 
             throw new Exception("Cannot apply LogicalNegate operation on objects of type " + v1.GetType());
         }
@@ -523,19 +522,25 @@ namespace ZScript.Runtime.Typing
         /// <returns>The number type for the given boxed number</returns>
         public static NumberClass NumberClassForNumber(object boxedNumber, bool throwOnError = true)
         {
-            if (boxedNumber is int)
-                return NumberClass.ExactInteger;
-            if (boxedNumber is long)
-                return NumberClass.ExactLong;
-            if (boxedNumber is float)
-                return NumberClass.ExactFloat;
-            if (boxedNumber is double)
-                return NumberClass.ExactDouble;
-
-            if (boxedNumber is byte || boxedNumber is sbyte || boxedNumber is short || boxedNumber is ushort || boxedNumber is uint)
-                return NumberClass.Long;
-            if (boxedNumber is ulong)
-                return NumberClass.Double;
+            switch (boxedNumber)
+            {
+                case int _:
+                    return NumberClass.ExactInteger;
+                case long _:
+                    return NumberClass.ExactLong;
+                case float _:
+                    return NumberClass.ExactFloat;
+                case double _:
+                    return NumberClass.ExactDouble;
+                case byte _:
+                case sbyte _:
+                case short _:
+                case ushort _:
+                case uint _:
+                    return NumberClass.Long;
+                case ulong _:
+                    return NumberClass.Double;
+            }
 
             if (throwOnError)
                 throw new ArgumentException("The provided boxed object is not a valid numeric type", nameof(boxedNumber));
@@ -594,6 +599,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         /// <param name="type">The type of number to get the type of</param>
         /// <returns>The type that equates to the specified number type</returns>
+        [CanBeNull]
         public static Type GetTypeForNumberType(NumberClass type)
         {
             switch (type)

@@ -27,7 +27,7 @@ namespace ZScript.Elements
     /// <summary>
     /// Represents a generic optional value
     /// </summary>
-    public struct Optional<T> : IOptional, IEquatable<Optional<T>>
+    public readonly struct Optional<T> : IOptional, IEquatable<Optional<T>>
     {
         /// <summary>
         /// Gets the value stored in this optional
@@ -59,8 +59,7 @@ namespace ZScript.Elements
                 if (!_hasValue)
                     return false;
 
-                var value = _value as IOptional;
-                if (value != null)
+                if (_value is IOptional value)
                 {
                     return value.HasBaseInnerValue;
                 }
@@ -79,8 +78,7 @@ namespace ZScript.Elements
         {
             get
             {
-                var value = _value as IOptional;
-                if (_hasValue && value != null)
+                if (_hasValue && _value is IOptional value)
                 {
                     return value.BaseInnerValue;
                 }
@@ -172,7 +170,7 @@ namespace ZScript.Elements
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is Optional<T> && Equals((Optional<T>)obj);
+            return obj is Optional<T> optional && Equals(optional);
         }
 
         public override int GetHashCode()

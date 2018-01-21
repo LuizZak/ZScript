@@ -21,6 +21,7 @@
 
 using System;
 using System.Linq;
+using JetBrains.Annotations;
 using ZScript.Elements;
 
 namespace ZScript.Runtime.Execution.Wrappers.Members
@@ -75,7 +76,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Members
         /// </summary>
         /// <param name="target">The ZClassInstance to wrap on ZClassMember</param>
         /// <param name="name">The name of the ZClassInstance member to wrap</param>
-        public ZClassMember(ZClassInstance target, string name)
+        public ZClassMember([NotNull] ZClassInstance target, string name)
         {
             _target = target;
             _name = name;

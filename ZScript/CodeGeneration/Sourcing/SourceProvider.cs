@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Antlr4.Runtime;
+using JetBrains.Annotations;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Sourcing
@@ -80,6 +81,7 @@ namespace ZScript.CodeGeneration.Sourcing
         /// </summary>
         /// <param name="context">The context to search on this source provider</param>
         /// <returns>The definition source for the given context, or null, if none were found on this source provider</returns>
+        [CanBeNull]
         public ZScriptDefinitionsSource SourceForContext(RuleContext context)
         {
             // To simplify, traverse the context up to the Program context, if available

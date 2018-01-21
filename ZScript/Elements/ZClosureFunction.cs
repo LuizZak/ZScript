@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 using ZScript.Elements.ValueHolding;
 using ZScript.Runtime;
 using ZScript.Runtime.Execution;
@@ -88,7 +89,7 @@ namespace ZScript.Elements
         // 
         // ICallableWrapper.Call implementation
         // 
-        public object Call(VmContext context, CallArguments arguments)
+        public object Call([NotNull] VmContext context, CallArguments arguments)
         {
             return context.Runtime.CallFunction(this, arguments);
 

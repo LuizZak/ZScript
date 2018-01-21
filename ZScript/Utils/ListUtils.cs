@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ZScript.Utils
 {
@@ -35,7 +36,7 @@ namespace ZScript.Utils
         /// <param name="list">The list of items to search in</param>
         /// <param name="obj">The object to find in the list</param>
         /// <returns>True if the item is in the list, false otherwise</returns>
-        public static bool ContainsReference<T>(this IList<T> list, T obj)
+        public static bool ContainsReference<T>([NotNull] this IList<T> list, T obj)
         {
             return list.IndexOfReference(obj) != -1;
         }
@@ -47,7 +48,7 @@ namespace ZScript.Utils
         /// <param name="list">The list of items to operate on</param>
         /// <param name="obj">The object to remove from the list</param>
         /// <returns>True if the item was in the list and was removed, false otherwise</returns>
-        public static bool RemoveReference<T>(this IList<T> list, T obj)
+        public static bool RemoveReference<T>([NotNull] this IList<T> list, T obj)
         {
             int index = list.IndexOfReference(obj);
 
@@ -66,7 +67,7 @@ namespace ZScript.Utils
         /// <param name="list">The list of items to search in</param>
         /// <param name="obj">The object to find in the list</param>
         /// <returns>Returns a zero-based index of the first item that matches the reference of another object, or -1, if none is found</returns>
-        public static int IndexOfReference<T>(this IList<T> list, T obj)
+        public static int IndexOfReference<T>([NotNull] this IList<T> list, T obj)
         {
             for (int i = 0; i < list.Count; i++)
             {
@@ -80,7 +81,7 @@ namespace ZScript.Utils
         /// <summary>
         /// Adds a range of items to an IList object
         /// </summary>
-        public static void AddRange<T>(this IList<T> list, IEnumerable<T> collection)
+        public static void AddRange<T>(this IList<T> list, [NotNull] IEnumerable<T> collection)
         {
             foreach (var value in collection)
             {

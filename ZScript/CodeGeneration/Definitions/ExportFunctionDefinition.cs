@@ -19,6 +19,8 @@
 */
 #endregion
 
+using JetBrains.Annotations;
+
 namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         /// <param name="name">The name for the definition</param>
         /// <param name="parameters">The list of arguments for the definition</param>
-        public ExportFunctionDefinition(string name, FunctionArgumentDefinition[] parameters)
+        public ExportFunctionDefinition(string name, [NotNull] FunctionArgumentDefinition[] parameters)
             : base(name, null, parameters)
         {
 

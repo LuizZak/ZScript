@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -49,7 +50,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="name">The name of the method to create</param>
         /// <param name="bodyContext">The context containing the body of the method</param>
         /// <param name="parameters">The parameters for the method</param>
-        public MethodDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
+        public MethodDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, [NotNull] FunctionArgumentDefinition[] parameters)
             : base(name, bodyContext, parameters)
         {
 

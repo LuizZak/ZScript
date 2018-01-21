@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
 using ZScript.Utils;
@@ -37,7 +38,7 @@ namespace ZScript.CodeGeneration.Analysis
     {
         private ControlFlowGraph _graph = new ControlFlowGraph();
 
-        public override ControlFlowResult VisitStatement(ZScriptParser.StatementContext context)
+        public override ControlFlowResult VisitStatement([NotNull] ZScriptParser.StatementContext context)
         {
             if (context.blockStatement() != null)
             {
@@ -200,7 +201,7 @@ namespace ZScript.CodeGeneration.Analysis
                 }
 
                 var stmts = flow.Statements;
-                var index = flow.StatementIndex;
+                int index = flow.StatementIndex;
 
                 bool quitBranch = false;
                 for (int i = index; i < stmts.Length; i++)
@@ -526,7 +527,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// This listener override is used during the beginning of the analysis to mark all statements of the block as unreachable
         /// </summary>
         /// <param name="context">The context to reset</param>
-        public override void EnterStatement(ZScriptParser.StatementContext context)
+        public override void EnterStatement([NotNull] ZScriptParser.StatementContext context)
         {
             context.Reachable = false;
         }

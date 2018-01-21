@@ -23,7 +23,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.Wrappers;
 using ZScript.Runtime.Execution.Wrappers.Callables;
@@ -227,9 +227,9 @@ namespace ZScript.Runtime.Execution
         /// Performs an operation specified by a given instruction on items on the top of in the stack, an pushes the result in back again
         /// </summary>
         /// <param name="token">A token containing the instruction that specifies the operation to perform</param>
-        void PerformOperation(Token token)
+        void PerformOperation([NotNull] Token token)
         {
-            VmInstruction instruction = token.Instruction;
+            var instruction = token.Instruction;
 
             switch (instruction)
             {
@@ -256,8 +256,8 @@ namespace ZScript.Runtime.Execution
                     return;
             }
 
-            object value2 = PopValueImplicit();
-            object value1 = PopValueImplicit();
+            var value2 = PopValueImplicit();
+            var value1 = PopValueImplicit();
 
             object ret;
             
@@ -396,7 +396,7 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="token">The token containing the instruction to perform</param>
         /// <exception cref="ArgumentException">The provided instruction is not a valid command instruction</exception>
-        void PerformInstruction(Token token)
+        void PerformInstruction([NotNull] Token token)
         {
             var instruction = token.Instruction;
 
@@ -542,7 +542,7 @@ namespace ZScript.Runtime.Execution
         {
             // Pop the variable and value to set
             var variable = _stack.Pop();
-            object value = PopValueImplicit(true);
+            var value = PopValueImplicit(true);
             SetValue(variable, value);
 
             _stack.Push(value);
@@ -565,7 +565,7 @@ namespace ZScript.Runtime.Execution
         {
             // Pop the variable and value to set
             var variable = _stack.Pop();
-            object value = PopValueImplicit(true);
+            var value = PopValueImplicit(true);
 
             _context.AddressedMemory.SetVariable((int)variable, value);
             _stack.Push(value);
@@ -576,7 +576,7 @@ namespace ZScript.Runtime.Execution
         /// on the current runtime, and using the operands on the token as the generic parameters
         /// </summary>
         /// <param name="token">The token for the CallGeneric instruction being executed</param>
-        void PerformGenericFunctionCall(Token token)
+        void PerformGenericFunctionCall([NotNull] Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
@@ -589,7 +589,7 @@ namespace ZScript.Runtime.Execution
                 arguments[argCount - i - 1] = PopValueImplicit(true);
             }
 
-            object callable = PopCallable();
+            var callable = PopCallable();
 
             // Fetch the generic types
             var types = ExtractTypes(token);
@@ -602,7 +602,7 @@ namespace ZScript.Runtime.Execution
         /// on the current runtime
         /// </summary>
         /// <param name="token">The token for the Call instruction being executed</param>
-        void PerformFunctionCall(Token token)
+        void PerformFunctionCall([NotNull] Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
@@ -629,15 +629,13 @@ namespace ZScript.Runtime.Execution
                     return;
                 }
 
-                var zMethod = token.TokenObject as ZMethod;
-                if (zMethod != null)
+                if (token.TokenObject is ZMethod zMethod)
                 {
                     callable = new ZClassMethod((ZClassInstance)PopValueImplicit(), zMethod);
                 }
                 else
                 {
-                    var zFunc = token.TokenObject as ZFunction;
-                    if (zFunc != null)
+                    if (token.TokenObject is ZFunction zFunc)
                     {
                         callable = zFunc;
                     }
@@ -659,24 +657,23 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Calls a callable function object with the specified parameters on this FunctionVM
         /// </summary>
-        private void CallFunction(object callable, Type[] genericTypes, object[] arguments)
+        private void CallFunction(object callable, [NotNull] Type[] genericTypes, object[] arguments)
         {
-            var closure = callable as ZClosureFunction;
-            if (closure != null)
+            if (callable is ZClosureFunction closure)
             {
                 callable = closure.Clone();
             }
 
-            var zFunction = callable as ZFunction;
-            if (zFunction != null)
+            var args = new CallArguments(arguments, genericTypes);
+
+            switch (callable)
             {
-                _stack.Push(_context.Runtime.CallFunction(zFunction, new CallArguments(arguments, genericTypes)));
-                return;
-            }
-            var wrapper = callable as ICallableWrapper;
-            if (wrapper != null)
-            {
-                _stack.Push(_context.Runtime.CallWrapper(wrapper, new CallArguments(arguments, genericTypes)));
+                case ZFunction zFunction:
+                    _stack.Push(_context.Runtime.CallFunction(zFunction, args));
+                    return;
+                case ICallableWrapper wrapper:
+                    _stack.Push(_context.Runtime.CallWrapper(wrapper, args));
+                    break;
             }
         }
 
@@ -684,7 +681,7 @@ namespace ZScript.Runtime.Execution
         /// Performs an array creation using the values on the stack, pushing the created array back into the top of the stack
         /// </summary>
         /// <param name="token">The token for the array creation instruction</param>
-        void PerformArrayCreation(Token token)
+        void PerformArrayCreation([NotNull] Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
@@ -705,7 +702,7 @@ namespace ZScript.Runtime.Execution
         /// Performs a tuple creation using the values on the stack, pushing the created tuple back into the top of the stack
         /// </summary>
         /// <param name="token">The token for the tuple creation instruction</param>
-        void PerformTupleCreation(Token token)
+        void PerformTupleCreation([NotNull] Token token)
         {
             // Pop the types 
             var tupleType = ExtractType(token);
@@ -731,7 +728,7 @@ namespace ZScript.Runtime.Execution
         /// Performs a dictionary creation using the values on the stack, pushing the created dictionary back into the top of the stack
         /// </summary>
         /// <param name="token">The token for the dictionary creation</param>
-        void PerformDictionaryCreation(Token token)
+        void PerformDictionaryCreation([NotNull] Token token)
         {
             // Pop the argument count
             int argCount = (int)_stack.Pop();
@@ -786,7 +783,7 @@ namespace ZScript.Runtime.Execution
             int argCount = (int)_stack.Pop();
 
             // Pop the arguments from the stack
-            ArrayList arguments = new ArrayList();
+            var arguments = new ArrayList();
 
             for (int i = 0; i < argCount; i++)
             {
@@ -807,8 +804,8 @@ namespace ZScript.Runtime.Execution
         /// <exception cref="InvalidOperationException">The value on top of the stack cannot be subscripted</exception>
         void PerformGetSubscripter()
         {
-            object index = PopValueImplicit(true);
-            object target = PopValueImplicit();
+            var index = PopValueImplicit(true);
+            var target = PopValueImplicit();
 
             _stack.Push(IndexedSubscripter.CreateSubscripter(target, index));
         }
@@ -816,7 +813,7 @@ namespace ZScript.Runtime.Execution
         /// <summary>
         /// Performs a member-fetch on the object on top of the stack, pushing a resulting IMemberWrapper back on the stack
         /// </summary>
-        void PerformGetMember(Token token)
+        void PerformGetMember([NotNull] Token token)
         {
             if (token.TokenObject != null)
             {
@@ -834,8 +831,8 @@ namespace ZScript.Runtime.Execution
                 }
             }
 
-            object memberName = _stack.Pop();
-            object target = PopValueImplicit();
+            var memberName = _stack.Pop();
+            var target = PopValueImplicit();
 
             memberName = (memberName as Token)?.TokenObject ?? memberName;
 
@@ -847,8 +844,8 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         void PerformGetCallable()
         {
-            object memberName = _stack.Pop();
-            object target = PopValueImplicit();
+            var memberName = _stack.Pop();
+            var target = PopValueImplicit();
 
             memberName = (memberName as Token)?.TokenObject ?? memberName;
 
@@ -859,9 +856,9 @@ namespace ZScript.Runtime.Execution
         /// Performs an 'is' operation with the values on top of the stack
         /// </summary>
         /// <param name="token">The 'is' operation token that contains the type to check against as argument</param>
-        void PerformIsOperator(Token token)
+        void PerformIsOperator([NotNull] Token token)
         {
-            object value = PopValueImplicit();
+            var value = PopValueImplicit();
 
             _stack.Push(ExtractType(token).IsInstanceOfType(value));
         }
@@ -870,10 +867,10 @@ namespace ZScript.Runtime.Execution
         /// Performs a cast operation with the values on top of the stack
         /// </summary>
         /// <param name="token">The cast operation token that contains the type to cast to as argument</param>
-        void PerformCastOperation(Token token)
+        void PerformCastOperation([NotNull] Token token)
         {
-            object value = PopValueImplicit(true);
-            object castedObject = _context.TypeProvider.CastObject(value, ExtractType(token));
+            var value = PopValueImplicit(true);
+            var castedObject = _context.TypeProvider.CastObject(value, ExtractType(token));
 
             _stack.Push(castedObject);
         }
@@ -883,9 +880,9 @@ namespace ZScript.Runtime.Execution
         /// The value on top of the stack is not removed
         /// </summary>
         /// <param name="token">The type check instruction token that contains the type to check against</param>
-        void PerformTypeCheck(Token token)
+        void PerformTypeCheck([NotNull] Token token)
         {
-            object value = PeekValueImplicit();
+            var value = PeekValueImplicit();
             var type = ExtractType(token);
 
             CheckType(value, type);
@@ -898,7 +895,7 @@ namespace ZScript.Runtime.Execution
         /// <param name="value">The value to check</param>
         /// <param name="type">The type to verify against the value</param>
         /// <exception cref="VirtualMachineException">The value's type does not matches the provided type</exception>
-        private static void CheckType(object value, Type type)
+        private static void CheckType(object value, [NotNull] Type type)
         {
             // Null value types
             if (value == null && type.IsValueType)
@@ -946,7 +943,7 @@ namespace ZScript.Runtime.Execution
         /// The contained wrapped is pushed on top of the stack
         /// </summary>
         /// <param name="token">The token containing the instruction to wrap</param>
-        void PerformWrap(Token token)
+        void PerformWrap([NotNull] Token token)
         {
             var value = PopValueImplicit();
             if(value == null)
@@ -992,15 +989,15 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="token">The token containing the type to extract</param>
         /// <returns>A type extracted from the given token</returns>
-        Type ExtractType(Token token)
+        Type ExtractType([NotNull] Token token)
         {
             var type = token.TokenObject as Type;
             if(type != null)
                 return type;
 
-            if (token.TokenObject is int)
+            if (token.TokenObject is int i)
             {
-                return _context.TypeList.TypeAtIndex((int)token.TokenObject);
+                return _context.TypeList.TypeAtIndex(i);
             }
 
             throw new VirtualMachineException("Could not extract type from tokens " + token);
@@ -1014,14 +1011,12 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="token">The token containing the types to extract</param>
         /// <returns>An array of types extracted from the given token</returns>
-        Type[] ExtractTypes(Token token)
+        Type[] ExtractTypes([NotNull] Token token)
         {
-            var type = token.TokenObject as Type[];
-            if (type != null)
+            if (token.TokenObject is Type[] type)
                 return type;
 
-            var ind = token.TokenObject as int[];
-            if (ind != null)
+            if (token.TokenObject is int[] ind)
             {
                 var types = new Type[ind.Length];
 
@@ -1174,7 +1169,7 @@ namespace ZScript.Runtime.Execution
         /// </summary>
         /// <param name="valueContainer">The value containing the object to get</param>
         /// <exception cref="VirtualMachineException">The value container cannot have its value get</exception>
-        object GetValue(object valueContainer)
+        object GetValue([NotNull] object valueContainer)
         {
             object value;
 
@@ -1210,7 +1205,7 @@ namespace ZScript.Runtime.Execution
         /// <param name="valueContainer">The value containing the object to get</param>
         /// <param name="value">The value to set</param>
         /// <exception cref="VirtualMachineException">The value container cannot have its value set</exception>
-        void SetValue(object valueContainer, object value)
+        void SetValue([NotNull] object valueContainer, object value)
         {
             var token = valueContainer as Token;
             if (token != null)
@@ -1243,31 +1238,32 @@ namespace ZScript.Runtime.Execution
         public static NumberType NumberTypeForBoxedNumber(object boxedNumber)
         {
             // Leave the most common types first to decrease useless lookup times
-            if (boxedNumber is long)
-                return NumberType.Long;
-            if (boxedNumber is double)
-                return NumberType.Double;
-            if (boxedNumber is int)
-                return NumberType.Integer;
-
+            switch (boxedNumber)
+            {
+                case long _:
+                    return NumberType.Long;
+                case double _:
+                    return NumberType.Double;
+                case int _:
+                    return NumberType.Integer;
+                case byte _:
+                    return NumberType.Byte;
+                case sbyte _:
+                    return NumberType.SByte;
+                case decimal _:
+                    return NumberType.Decimal;
+                case short _:
+                    return NumberType.Short;
+                case ushort _:
+                    return NumberType.UShort;
+                case uint _:
+                    return NumberType.UInteger;
+                case ulong _:
+                    return NumberType.ULong;
+                case float _:
+                    return NumberType.Float;
+            }
             
-            if(boxedNumber is byte)
-                return NumberType.Byte;
-            if (boxedNumber is sbyte)
-                return NumberType.SByte;
-            if (boxedNumber is decimal)
-                return NumberType.Decimal;
-            if(boxedNumber is short)
-                return NumberType.Short;
-            if(boxedNumber is ushort)
-                return NumberType.UShort;
-            if (boxedNumber is uint)
-                return NumberType.UInteger;
-            if (boxedNumber is ulong)
-                return NumberType.ULong;
-            if (boxedNumber is float)
-                return NumberType.Float;
-
             return NumberType.Unspecified;
         }
 

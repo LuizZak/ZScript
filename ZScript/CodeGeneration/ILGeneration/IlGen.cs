@@ -19,27 +19,29 @@
 */
 #endregion
 
-using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Antlr4.Runtime.Tree;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
+using ZScript.Parsing;
 using ZScript.Parsing.ANTLR;
 
-namespace ZScript.CodeGeneration.ILGen
+namespace ZScript.CodeGeneration.ILGeneration
 {
     /// <summary>
     /// A class capable of generating IL from code
     /// </summary>
-    public class ILGen
+    public class IlGen
     {
         private readonly RuntimeGenerationContext _generationContext;
 
         /// <summary>
         /// Inits a new ILGen instance with the given runtime generation context
         /// </summary>
-        public ILGen(RuntimeGenerationContext generationContext)
+        public IlGen(RuntimeGenerationContext generationContext)
         {
             _generationContext = generationContext;
         }
@@ -47,22 +49,24 @@ namespace ZScript.CodeGeneration.ILGen
         /// <summary>
         /// Returns whether the given function body context can be tokenized into IL.
         /// </summary>
-        public bool CanGenerateIl(ZScriptParser.FunctionBodyContext context, FunctionDefinition functionDefinition, CodeScope scope)
+        public bool CanGenerateIl(ZScriptParser.FunctionBodyContext context, [NotNull] FunctionDefinition functionDefinition, CodeScope scope)
         {
             // Cannot convert closures, methods or export functions
             if (functionDefinition is ClosureDefinition || functionDefinition is MethodDefinition ||
                 functionDefinition is ExportFunctionDefinition || functionDefinition is SequenceFrameDefinition)
                 return false;
 
+            var typeProvider = _generationContext.TypeProvider;
+
             // Verify native types are available for all parameters and the return type of the function definition
-            if (_generationContext.TypeProvider.NativeTypeForTypeDef(functionDefinition.ReturnType) == null)
+            if (!typeProvider.HasNativeType(functionDefinition.ReturnType))
                 return false;
-            if (functionDefinition.Parameters.Any(parameter => _generationContext.TypeProvider.NativeTypeForTypeDef(parameter.Type) == null))
+            if (!functionDefinition.Parameters.All(parameter => typeProvider.HasNativeType(parameter.Type)))
                 return false;
 
             // Verify all locals can be defined using native types
             var definitions = scope.GetAllDefinitionsRecursive();
-            if (definitions.OfType<ValueHolderDefinition>().Select(d => d.Type).Any(local => _generationContext.TypeProvider.NativeTypeForTypeDef(local) == null))
+            if (!definitions.OfType<ValueHolderDefinition>().Select(d => d.Type).All(local => typeProvider.HasNativeType(local)))
                 return false;
 
             // Verify all usages are of local variables or parameters of the function on the context
@@ -73,36 +77,71 @@ namespace ZScript.CodeGeneration.ILGen
                 var definition = usage.Definition;
 
                 // Local variable that is local to the function being converted
-                var local = definition as LocalVariableDefinition;
-                if (local != null && local.FunctionDefinition == functionDefinition)
+                if (definition is LocalVariableDefinition local && local.FunctionDefinition == functionDefinition)
                 {
                     continue;
                 }
 
                 // A function argument that is not referencing another function argument (e.g. closure)
-                var argument = definition as FunctionArgumentDefinition;
-                if (argument != null && argument.Function == functionDefinition)
+                if (definition is FunctionArgumentDefinition argument && argument.Function == functionDefinition)
                 {
                     continue;
                 }
 
+                /* TODO: Support function calling.
+
+                // All function calls require proper native types on each parameter as well as the return type, even if it's not used.
+                if (definition is FunctionDefinition funcDef && funcDef.Parameters.All(p => typeProvider.HasNativeType(p.Type)))
+                {
+                    if (funcDef.HasReturnType && typeProvider.HasNativeType(funcDef.ReturnType))
+                        continue;
+                }
+                */
+                
                 return false;
             }
 
             return false;
         }
-
+        
         /// <summary>
         /// Generates an IL-assembly instruction set from the given function definition, on a given target type
         /// </summary>
-        public MethodBuilder GenerateIl(ZScriptParser.FunctionBodyContext context, FunctionDefinition functionDefinition, CodeScope scope, TypeBuilder targetType)
+        public MethodBuilder GenerateIl(ZScriptParser.FunctionBodyContext context, [NotNull] FunctionDefinition functionDefinition, CodeScope scope, [NotNull] TypeBuilder targetType)
         {
             var returnType = _generationContext.TypeProvider.NativeTypeForTypeDef(functionDefinition.ReturnType);
             var parameterTypes = functionDefinition.Parameters.Select(parameter => _generationContext.TypeProvider.NativeTypeForTypeDef(parameter.Type)).ToArray();
 
             var method = targetType.DefineMethod(functionDefinition.Name, MethodAttributes.Static, CallingConventions.Standard, returnType, parameterTypes);
 
+            var gen = method.GetILGenerator();
+
+            var generator = new MethodIlGen(_generationContext, scope, context.blockStatement());
+
+            generator.Generate(gen);
+            
             return method;
         }
+    }
+
+    internal class MethodIlGen
+    {
+        private readonly RuntimeGenerationContext _generationContext;
+        private readonly CodeScope _scope;
+        private readonly ZScriptParser.BlockStatementContext _context;
+
+        public MethodIlGen([NotNull] RuntimeGenerationContext generationContext, [NotNull] CodeScope scope, [NotNull] ZScriptParser.BlockStatementContext context)
+        {
+            _generationContext = generationContext;
+            _scope = scope;
+            _context = context;
+        }
+
+        public void Generate(ILGenerator builder)
+        {
+            
+        }
+        
+
     }
 }

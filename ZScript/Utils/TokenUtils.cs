@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 
@@ -36,7 +37,7 @@ namespace ZScript.Utils
         /// Prints a given list of tokens into the console
         /// </summary>
         /// <param name="tokenList">The list of tokens to print</param>
-        public static void PrintTokens(IEnumerable<Token> tokenList)
+        public static void PrintTokens([NotNull] IEnumerable<Token> tokenList)
         {
             int add = 0;
 
@@ -80,7 +81,7 @@ namespace ZScript.Utils
         /// Prints a given list of tokens into the console
         /// </summary>
         /// <param name="tokenList">The list of tokens to print</param>
-        public static void PrintTokens(TokenList tokenList)
+        public static void PrintTokens([NotNull] TokenList tokenList)
         {
             int add = 0;
 
@@ -103,7 +104,7 @@ namespace ZScript.Utils
         /// Prints the contents of a given token on the console
         /// </summary>
         /// <param name="token">The token to print</param>
-        public static void PrintToken(Token token)
+        public static void PrintToken([NotNull] Token token)
         {
             if (token is JumpTargetToken)
             {
@@ -144,7 +145,7 @@ namespace ZScript.Utils
         /// <param name="tokenList">The list of tokens to analyze</param>
         /// <param name="jumpToken">The jump to analyze</param>
         /// <returns>The index that represents the jump's target after evaluation</returns>
-        public static int OffsetForJump(IEnumerable<Token> tokenList, JumpToken jumpToken)
+        public static int OffsetForJump([NotNull] IEnumerable<Token> tokenList, JumpToken jumpToken)
         {
             int i = 0;
             foreach (var token in tokenList)

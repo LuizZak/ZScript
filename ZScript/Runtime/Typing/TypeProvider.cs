@@ -23,8 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using System.Reflection;
 using System.Runtime.Serialization;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Typing.Elements;
 
@@ -118,7 +118,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="value">The value to convert</param>
         /// <param name="newType">The new type to convert to</param>
         /// <returns></returns>
-        public object CastObject(object value, Type newType)
+        public object CastObject(object value, [NotNull] Type newType)
         {
             if (newType == null) throw new ArgumentNullException(nameof(newType));
 
@@ -162,8 +162,11 @@ namespace ZScript.Runtime.Typing
             {
                 return Convert.ChangeType(value, newType);
             }
+            
+            var castMethod = GetType().GetMethod("Cast")?.MakeGenericMethod(newType);
+            if (castMethod == null) 
+                throw new Exception($"Could not find Cast<> method on type {GetType()} to use");
 
-            MethodInfo castMethod = GetType().GetMethod("Cast").MakeGenericMethod(newType);
             return castMethod.Invoke(null, new[] {value});
         }
 
@@ -205,12 +208,32 @@ namespace ZScript.Runtime.Typing
         }
 
         /// <summary>
+        /// Returns whether a native equivalent for a given <see cref="TypeDef"/> can be fetched.
+        /// </summary>
+        /// <param name="typeDef">The type to get the native equivalent of</param>
+        /// <param name="anyAsObject">Whether to resolve 'any' types as <see cref="object"/>. If left false, 'any' types return false</param>
+        /// <returns>Whether the given <see cref="TypeDef"/> has a native <see cref="Type"/> equivalent</returns>
+        public bool HasNativeType(TypeDef typeDef, bool anyAsObject = false)
+        {
+            // Search in the native type sources
+            foreach (var source in _customNativeTypeSources)
+            {
+                var ret = source.NativeTypeForTypeDef(typeDef, anyAsObject);
+                if (ret != null)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Returns a native equivalent for a given TypeDef.
         /// If no equivalent native type is found, null is returned
         /// </summary>
         /// <param name="typeDef">The type to get the native equivalent of</param>
-        /// <param name="anyAsObject">Whether to resolve 'any' types as 'object'. If left false, 'any' types return null</param>
+        /// <param name="anyAsObject">Whether to resolve 'any' types as <see cref="object"/>. If left false, 'any' types return null</param>
         /// <returns>A Type that represents a native equivalent for the given type</returns>
+        [CanBeNull]
         public Type NativeTypeForTypeDef(TypeDef typeDef, bool anyAsObject = false)
         {
             // Search in the native type sources
@@ -230,7 +253,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         /// <param name="type">A valid type definition</param>
         /// <returns>A type that represents a type of list for the given object type</returns>
-        public ListTypeDef ListForType(TypeDef type)
+        public ListTypeDef ListForType([NotNull] TypeDef type)
         {
             return new ListTypeDef(type) { SubscriptType = IntegerType() };
         }
@@ -241,7 +264,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="keyType">The type of the keys that will map the dictionary</param>
         /// <param name="valueType">The type of values that will be mapped in the dictionary</param>
         /// <returns>A new DictionaryTypeDef that represents the created dictionary type</returns>
-        public DictionaryTypeDef DictionaryForTypes(TypeDef keyType, TypeDef valueType)
+        public DictionaryTypeDef DictionaryForTypes([NotNull] TypeDef keyType, [NotNull] TypeDef valueType)
         {
             return new DictionaryTypeDef(keyType, valueType);
         }
@@ -251,7 +274,7 @@ namespace ZScript.Runtime.Typing
         /// </summary>
         /// <param name="innerTypes">The inner types for the tuple</param>
         /// <returns>A new TupleTypeDef with the specified inner types containg within</returns>
-        public TupleTypeDef TupleForTypes(params TypeDef[] innerTypes)
+        public TupleTypeDef TupleForTypes([NotNull] params TypeDef[] innerTypes)
         {
             return new TupleTypeDef(innerTypes);
         }
@@ -262,7 +285,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="typeNames">An optional array of matching names for the tuple entries</param>
         /// <param name="innerTypes">The inner types for the tuple</param>
         /// <returns>A new TupleTypeDef with the specified inner types containg within</returns>
-        public TupleTypeDef TupleForTypes(string[] typeNames, TypeDef[] innerTypes)
+        public TupleTypeDef TupleForTypes([NotNull] string[] typeNames, [NotNull] TypeDef[] innerTypes)
         {
             return new TupleTypeDef(typeNames, innerTypes);
         }
@@ -300,7 +323,7 @@ namespace ZScript.Runtime.Typing
         /// Whether to take casts in consideration when finding the common type. Turning off cast considerations disables casting of compatible types e.g. int -> float etc.
         /// </param>
         /// <returns>The most common type that fits the two provided types</returns>
-        public TypeDef FindCommonType(TypeDef type1, TypeDef type2, bool withCast = true)
+        public TypeDef FindCommonType([NotNull] TypeDef type1, [NotNull] TypeDef type2, bool withCast = true)
         {
             if (type1 == null) throw new ArgumentNullException(nameof(type1));
             if (type2 == null) throw new ArgumentNullException(nameof(type2));
@@ -364,9 +387,7 @@ namespace ZScript.Runtime.Typing
             }
 
             // Inheritable types
-            var classT1 = type1 as IInheritableTypeDef;
-            var classT2 = type2 as IInheritableTypeDef;
-            if (classT1 != null && classT2 != null)
+            if (type1 is IInheritableTypeDef classT1 && type2 is IInheritableTypeDef classT2)
             {
                 // Check inheritance
                 if (classT1.IsSubtypeOf(classT2))
@@ -495,7 +516,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="origin">The origin type to cast</param>
         /// <param name="target">The target type to cast</param>
         /// <returns>Whether the origin type can be explicitly casted to the target type</returns>
-        public bool CanExplicitCast(TypeDef origin, TypeDef target)
+        public bool CanExplicitCast([NotNull] TypeDef origin, TypeDef target)
         {
             // Explicit casts can always be performed if implicit casts can be performed
             if (CanImplicitCast(origin, target))
@@ -526,20 +547,20 @@ namespace ZScript.Runtime.Typing
                 return true;
 
             // Callables
-            if (origin is CallableTypeDef && target is CallableTypeDef)
-                return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
+            if (origin is CallableTypeDef originCallable && target is CallableTypeDef targetCallable)
+                return CheckCallableCompatibility(originCallable, targetCallable);
 
             // Booleans can only be compared to booleans
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
             // Inheritable typing
-            if (origin is IInheritableTypeDef && target is IInheritableTypeDef)
-                return CanExplicitCastInheritable((IInheritableTypeDef)origin, (IInheritableTypeDef)target);
+            if (origin is IInheritableTypeDef origindInh && target is IInheritableTypeDef targetInh)
+                return CanExplicitCastInheritable(origindInh, targetInh);
 
             // TODO: Improve native type checking to be able to handle primitive value types
-            NativeTypeDef nativeOrigin = origin as NativeTypeDef;
-            NativeTypeDef nativeTarget = target as NativeTypeDef;
+            var nativeOrigin = origin as NativeTypeDef;
+            var nativeTarget = target as NativeTypeDef;
 
             if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
             {
@@ -555,7 +576,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="origin">The origin type to cast</param>
         /// <param name="target">The target type to cast</param>
         /// <returns>Whether the origin type can be implicitly casted to the target type</returns>
-        public bool CanImplicitCast(TypeDef origin, TypeDef target)
+        public bool CanImplicitCast([NotNull] TypeDef origin, TypeDef target)
         {
             // Cannot convert voids
             if (origin.IsVoid || target.IsVoid)
@@ -574,16 +595,16 @@ namespace ZScript.Runtime.Typing
                 return true;
 
             // Callables
-            if (origin is CallableTypeDef && target is CallableTypeDef)
-                return CheckCallableCompatibility((CallableTypeDef)origin, (CallableTypeDef)target);
+            if (origin is CallableTypeDef originCallable && target is CallableTypeDef targetCallable)
+                return CheckCallableCompatibility(originCallable, targetCallable);
 
             // Booleans can only be compared to booleans
             if ((origin == BooleanType()) != (target == BooleanType()))
                 return false;
 
             // Class typing
-            if (origin is IInheritableTypeDef && target is IInheritableTypeDef)
-                return CanImplicitCastInheritable((IInheritableTypeDef)origin, (IInheritableTypeDef)target);
+            if (origin is IInheritableTypeDef originInh && target is IInheritableTypeDef targetInh)
+                return CanImplicitCastInheritable(originInh, targetInh);
 
             // Optional typing
             var optionalTarget = target as OptionalTypeDef;
@@ -597,13 +618,13 @@ namespace ZScript.Runtime.Typing
                 return true;
 
             // TODO: Improve native type checking to be able to handle primitive value types
-            NativeTypeDef nativeOrigin = origin as NativeTypeDef;
-            NativeTypeDef nativeTarget = target as NativeTypeDef;
+            var nativeOrigin = origin as NativeTypeDef;
+            var nativeTarget = target as NativeTypeDef;
 
             if (origin.IsNative && target.IsNative && nativeOrigin != null && nativeTarget != null)
             {
-                Type typeOrigin = NativeTypeForTypeDef(nativeOrigin);
-                Type typeTarget = NativeTypeForTypeDef(nativeTarget);
+                var typeOrigin = NativeTypeForTypeDef(nativeOrigin);
+                var typeTarget = NativeTypeForTypeDef(nativeTarget);
 
                 return typeTarget.IsAssignableFrom(typeOrigin) || CanImplicitCastPrimitive(typeOrigin, typeTarget);
             }
@@ -714,7 +735,7 @@ namespace ZScript.Runtime.Typing
         /// <param name="origin">The origin type to check</param>
         /// <param name="target">The target type to check</param>
         /// <returns>Whether the origin callable type is compatible with the given target callable type</returns>
-        private bool CheckCallableCompatibility(CallableTypeDef origin, CallableTypeDef target)
+        private bool CheckCallableCompatibility([NotNull] CallableTypeDef origin, [NotNull] CallableTypeDef target)
         {
             // Check required argument count
             if (origin.RequiredArgumentsCount != target.RequiredArgumentsCount)
@@ -905,7 +926,7 @@ namespace ZScript.Runtime.Typing
         /// <summary>
         /// The internal native type converter
         /// </summary>
-        class InternalNativeTypeConverter : INativeTypeSource
+        private class InternalNativeTypeConverter : INativeTypeSource
         {
             /// <summary>
             /// The parent type provider for this native type converter

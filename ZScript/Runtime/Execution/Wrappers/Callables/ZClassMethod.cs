@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 using ZScript.Elements;
 using ZScript.Runtime.Execution.VirtualMemory;
 using ZScript.Runtime.Typing.Elements;
@@ -70,7 +71,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Callables
         /// <param name="context">A VM context to use when executing the method</param>
         /// <returns>The return of the method call</returns>
         /// <exception cref="Exception"></exception>
-        public object Call(VmContext context, CallArguments arguments)
+        public object Call([NotNull] VmContext context, [NotNull] CallArguments arguments)
         {
             // Wrap the context's local memory
             var mapper = new MemoryMapper();

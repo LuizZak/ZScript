@@ -21,6 +21,7 @@
 
 using System.Linq;
 using Antlr4.Runtime;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Parsing.ANTLR;
 
@@ -36,7 +37,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to generate the frame definition from</param>
         /// <returns>A sequence frame definition generated from the given context</returns>
-        public static SequenceFrameDefinition GenerateSequenceFrameDef(ZScriptParser.SequenceFrameContext context)
+        public static SequenceFrameDefinition GenerateSequenceFrameDef([NotNull] ZScriptParser.SequenceFrameContext context)
         {
             var frameName = context.frameName() == null ? "" : context.frameName().GetText();
 
@@ -55,7 +56,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to generate the method definition from</param>
         /// <returns>A method definition generated from the given context</returns>
-        public static MethodDefinition GenerateMethodDef(ZScriptParser.ClassMethodContext context)
+        public static MethodDefinition GenerateMethodDef([NotNull] ZScriptParser.ClassMethodContext context)
         {
             var m = new MethodDefinition(context.functionDefinition().functionName().IDENT().GetText(), context.functionDefinition().functionBody(),
                 CollectFunctionArguments(context.functionDefinition().functionArguments()))
@@ -78,7 +79,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to generate the function definition from</param>
         /// <returns>A function definition generated from the given context</returns>
-        public static TopLevelFunctionDefinition GenerateTopLevelFunctionDef(ZScriptParser.FunctionDefinitionContext context)
+        public static TopLevelFunctionDefinition GenerateTopLevelFunctionDef([NotNull] ZScriptParser.FunctionDefinitionContext context)
         {
             var f = new TopLevelFunctionDefinition(context.functionName().IDENT().GetText(), context.functionBody(),
                 CollectFunctionArguments(context.functionArguments()), CollectGenericSignature(context.genericParametersDefinition()))
@@ -97,7 +98,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to generate the closure definition from</param>
         /// <returns>A closure definition generated from the given context</returns>
-        public static ClosureDefinition GenerateClosureDef(ZScriptParser.ClosureExpressionContext context)
+        public static ClosureDefinition GenerateClosureDef([NotNull] ZScriptParser.ClosureExpressionContext context)
         {
             var args = new FunctionArgumentDefinition[0];
 
@@ -127,7 +128,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to generate the export function definition from</param>
         /// <returns>An export function definition generated from the given context</returns>
-        public static ExportFunctionDefinition GenerateExportFunctionDef(ZScriptParser.ExportDefinitionContext context)
+        public static ExportFunctionDefinition GenerateExportFunctionDef([NotNull] ZScriptParser.ExportDefinitionContext context)
         {
             var e = new ExportFunctionDefinition(context.functionName().IDENT().GetText(),
                 CollectFunctionArguments(context.functionArguments()))
@@ -146,7 +147,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the function argument to create</param>
         /// <returns>A FunctionArgumentDefinition for the given context</returns>
-        public static FunctionArgumentDefinition GenerateFunctionArgumentDef(ZScriptParser.FunctionArgContext context)
+        public static FunctionArgumentDefinition GenerateFunctionArgumentDef([NotNull] ZScriptParser.FunctionArgContext context)
         {
             var a = new FunctionArgumentDefinition
             {
@@ -225,7 +226,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to collect the generic type from</param>
         /// <returns>The generic type definition that were collected</returns>
-        public static GenericTypeDefinition CollectGenericType(ZScriptParser.GenericTypeContext context)
+        public static GenericTypeDefinition CollectGenericType([NotNull] ZScriptParser.GenericTypeContext context)
         {
             return new GenericTypeDefinition(context.IDENT().GetText()) { Context = context };
         }
@@ -235,7 +236,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context to collect the generic type from</param>
         /// <returns>The generic type definition that were collected</returns>
-        public static GenericTypeConstraint CollectGenericTypeConstraint(ZScriptParser.GenericConstraintContext context)
+        public static GenericTypeConstraint CollectGenericTypeConstraint([NotNull] ZScriptParser.GenericConstraintContext context)
         {
             return new GenericTypeConstraint(context.genericType().IDENT().GetText(), context.complexTypeName().GetText(), context);
         }
@@ -285,7 +286,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the local variable definition</param>
         /// <returns>A new local variable definition based on the given value holder declaration context</returns>
-        public static LocalVariableDefinition GenerateLocalVariable(ZScriptParser.ValueHolderDeclContext context)
+        public static LocalVariableDefinition GenerateLocalVariable([NotNull] ZScriptParser.ValueHolderDeclContext context)
         {
             var def = new LocalVariableDefinition();
 
@@ -299,7 +300,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the local variable definition</param>
         /// <returns>A new local variable definition based on the given value holder declaration context</returns>
-        public static LocalVariableDefinition GenerateLocalVariable(ZScriptParser.ValueHolderDefineContext context)
+        public static LocalVariableDefinition GenerateLocalVariable([NotNull] ZScriptParser.ValueHolderDefineContext context)
         {
             var def = new LocalVariableDefinition();
 
@@ -313,7 +314,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the local variable definition</param>
         /// <returns>A new local variable definition based on the given value holder declaration context</returns>
-        public static TypeFieldDefinition GenerateClassField(ZScriptParser.ClassFieldContext context)
+        public static TypeFieldDefinition GenerateClassField([NotNull] ZScriptParser.ClassFieldContext context)
         {
             // TODO: Oh god what is this
             var def = new TypeFieldDefinition(context.valueDeclareStatement().valueHolderDecl().valueHolderDefine().valueHolderName().memberName().IDENT().GetText());
@@ -328,7 +329,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the global vriable definition</param>
         /// <returns>A new global variable definition based on the given global variable declaration context</returns>
-        public static GlobalVariableDefinition GenerateGlobalVariable(ZScriptParser.GlobalVariableContext context)
+        public static GlobalVariableDefinition GenerateGlobalVariable([NotNull] ZScriptParser.GlobalVariableContext context)
         {
             GlobalVariableDefinition def = new GlobalVariableDefinition();
 
@@ -344,7 +345,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="def">The definition to fill</param>
         /// <param name="context">The value declaration context that the definition will be filled with</param>
-        public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDeclContext context)
+        public static void FillValueHolderDef([NotNull] ValueHolderDefinition def, [NotNull] ZScriptParser.ValueHolderDeclContext context)
         {
             def.Context = context;
 
@@ -367,7 +368,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="def">The definition to fill</param>
         /// <param name="context">The value declaration context that the definition will be filled with</param>
-        public static void FillValueHolderDef(ValueHolderDefinition def, ZScriptParser.ValueHolderDefineContext context)
+        public static void FillValueHolderDef([NotNull] ValueHolderDefinition def, [NotNull] ZScriptParser.ValueHolderDefineContext context)
         {
             def.Context = context;
 

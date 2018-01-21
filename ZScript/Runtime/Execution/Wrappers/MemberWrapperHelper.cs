@@ -42,7 +42,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="memberName">The name of the member to wrap</param>
         /// <returns>An IMemberWrapper created from the given target</returns>
         /// <exception cref="ArgumentException">No member with the given name found on target object</exception>
-        public static IMemberWrapper CreateMemberWrapper(object target, string memberName)
+        public static IMemberWrapper CreateMemberWrapper([NotNull] object target, string memberName)
         {
             // ZObjects always wrap any member name incoming
             var zObj = target as ZObject;
@@ -85,7 +85,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="callableName">The name of the method to wrap</param>
         /// <returns>An ICallableWrapper created from the given target</returns>
         /// <exception cref="ArgumentException">No method with the given name found on target object</exception>
-        public static ICallableWrapper CreateCallableWrapper(object target, string callableName)
+        public static ICallableWrapper CreateCallableWrapper([NotNull] object target, string callableName)
         {
             // ZClassInstance method
             var zClassInstance = target as ZClassInstance;
@@ -124,7 +124,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// </summary>
         /// <param name="type">The type to get the methods of</param>
         /// <returns>An array containing all of the methods for the given type</returns>
-        private static MethodInfo[] MethodsForType(Type type)
+        private static MethodInfo[] MethodsForType([NotNull] Type type)
         {
             if (TypeMethods.TryGetValue(type, out MethodInfo[] o))
                 return o;

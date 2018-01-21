@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace ZScript.Elements
 {
@@ -79,7 +80,7 @@ namespace ZScript.Elements
         /// Initializes a new instance of the TokenList class
         /// </summary>
         /// <param name="tokens">An enumerable containing the tokens to create</param>
-        public TokenList(IEnumerable<Token> tokens)
+        public TokenList([NotNull] IEnumerable<Token> tokens)
         {
             Tokens = tokens.ToArray();
         }

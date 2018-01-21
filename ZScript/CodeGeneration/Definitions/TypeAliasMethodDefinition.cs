@@ -19,6 +19,8 @@
 */
 #endregion
 
+using JetBrains.Annotations;
+
 namespace ZScript.CodeGeneration.Definitions
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// </summary>
         /// <param name="name">The name for the method</param>
         /// <param name="parameters">The parameters for the method</param>
-        public TypeAliasMethodDefinition(string name, FunctionArgumentDefinition[] parameters)
+        public TypeAliasMethodDefinition(string name, [NotNull] FunctionArgumentDefinition[] parameters)
             : base(name, null, parameters)
         {
 

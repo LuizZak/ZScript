@@ -36,7 +36,7 @@ namespace ZScript.CodeGeneration.Sourcing
         /// </summary>
         public string Script
         {
-            get { return _script; }
+            get => _script;
             set
             {
                 _script = value;

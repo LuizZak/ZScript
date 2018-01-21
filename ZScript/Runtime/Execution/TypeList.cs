@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Execution
 {
@@ -53,7 +54,7 @@ namespace ZScript.Runtime.Execution
         /// Initializes a new instance of the TypeList class with a specified enumerable object of types to start from
         /// </summary>
         /// <param name="types">An enumerable to create the type list from</param>
-        public TypeList(IEnumerable<Type> types)
+        public TypeList([NotNull] IEnumerable<Type> types)
         {
             _types = new List<Type>(types);
         }

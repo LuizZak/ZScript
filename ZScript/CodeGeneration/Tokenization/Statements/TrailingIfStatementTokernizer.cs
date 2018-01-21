@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Tokenization.Helpers;
 using ZScript.Elements;
 using ZScript.Parsing.ANTLR;
@@ -50,7 +51,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// Tokenizes a given trailing IF statement into a list of tokens
         /// </summary>
         /// <param name="context">The context containinng</param>
-        public IntermediaryTokenList TokenizeStatement(ZScriptParser.TrailingIfStatementContext context)
+        public IntermediaryTokenList TokenizeStatement([NotNull] ZScriptParser.TrailingIfStatementContext context)
         {
             var tokens = new IntermediaryTokenList();
 
@@ -64,7 +65,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="targetList">The target list to tokenize to</param>
         /// <param name="context">The context containinng</param>
-        public void TokenizeStatement(IList<Token> targetList, ZScriptParser.TrailingIfStatementContext context)
+        public void TokenizeStatement(IList<Token> targetList, [NotNull] ZScriptParser.TrailingIfStatementContext context)
         {
             // Read first if block of the chain
             TokenizeTrailingIfStatement(targetList, context);
@@ -75,7 +76,7 @@ namespace ZScript.CodeGeneration.Tokenization.Statements
         /// </summary>
         /// <param name="retTokens">The target list to add the tokens to</param>
         /// <param name="context">The context containing the trailing IF statement to tokenize</param>
-        private void TokenizeTrailingIfStatement(IList<Token> retTokens, ZScriptParser.TrailingIfStatementContext context)
+        private void TokenizeTrailingIfStatement(IList<Token> retTokens, [NotNull] ZScriptParser.TrailingIfStatementContext context)
         {
             // Constant if statements are evaluated differently
             if (context.IsConstant)

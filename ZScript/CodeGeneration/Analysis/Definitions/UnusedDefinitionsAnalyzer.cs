@@ -20,6 +20,7 @@
 #endregion
 
 using System.Linq;
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.CodeGeneration.Messages;
 using ZScript.Parsing.ANTLR;
@@ -36,7 +37,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// </summary>
         /// <param name="scope">The scope to search the unused definitions at</param>
         /// <param name="messageContainer">The message container to report errors to</param>
-        public static void Analyze(CodeScope scope, MessageContainer messageContainer)
+        public static void Analyze([NotNull] CodeScope scope, MessageContainer messageContainer)
         {
             // Collect definitions
             foreach (var definition in scope.Definitions)
@@ -93,7 +94,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// </summary>
         /// <param name="scope">The scope to search the unused definitions at</param>
         /// <param name="messageContainer">The message container to report errors to</param>
-        public static void AnalyzeRecursive(CodeScope scope, MessageContainer messageContainer)
+        public static void AnalyzeRecursive([NotNull] CodeScope scope, MessageContainer messageContainer)
         {
             Analyze(scope, messageContainer);
 
@@ -109,7 +110,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// </summary>
         /// <param name="definition">The definition to report the warning of</param>
         /// <param name="messageContainer">The message container to report the warning at</param>
-        static void RegisterDefinitionNotUsed(Definition definition, MessageContainer messageContainer)
+        static void RegisterDefinitionNotUsed([NotNull] Definition definition, [NotNull] MessageContainer messageContainer)
         {
             var warning = "Unused definition '" + definition.Name + "'.";
             var context = definition.IdentifierContext ?? definition.Context;
@@ -122,7 +123,7 @@ namespace ZScript.CodeGeneration.Analysis.Definitions
         /// </summary>
         /// <param name="definition">The definition to report the warning of</param>
         /// <param name="messageContainer">The message container to report the warning at</param>
-        static void RegisterDefinitionOnlySet(Definition definition, MessageContainer messageContainer)
+        static void RegisterDefinitionOnlySet([NotNull] Definition definition, [NotNull] MessageContainer messageContainer)
         {
             var warning = "Definition '" + definition.Name + "' has its value set, but never used.";
             var context = definition.IdentifierContext ?? definition.Context;

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using JetBrains.Annotations;
 using ZScript.Runtime.Execution.Wrappers.Subscripters;
 
 namespace ZScript.Runtime.Execution.Wrappers
@@ -59,7 +60,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="subscripterWrapper">The subscripter to subscript into</param>
         /// <param name="indexValue">The index on the subscripter to subscript to</param>
         /// <exception cref="ArgumentException">The proided subscripter cannot be subscripted with an object of the index's type</exception>
-        public IndexedSubscripter(ISubscripterWrapper subscripterWrapper, object indexValue)
+        public IndexedSubscripter(ISubscripterWrapper subscripterWrapper, [NotNull] object indexValue)
         {
             _subscripterWrapper = subscripterWrapper;
             _indexValue = indexValue;
@@ -109,7 +110,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="target">The target object to generate the subscripter with</param>
         /// <param name="indexValue">The index to generate the subscripter with</param>
         /// <returns>A new IndexedSubscripter with the target object and index value binded on</returns>
-        public static IndexedSubscripter CreateSubscripter(object target, object indexValue)
+        public static IndexedSubscripter CreateSubscripter([NotNull] object target, [NotNull] object indexValue)
         {
             return new IndexedSubscripter(indexValue, GetSubscripterForObject(target, indexValue.GetType()));
         }
@@ -121,7 +122,7 @@ namespace ZScript.Runtime.Execution.Wrappers
         /// <param name="target">The target object to generate the subscripter with</param>
         /// <param name="subscriptType">The type of object used to subscript on the target object</param>
         /// <returns>A new ISubscripterWrapper that can subscript the target object with the type provided</returns>
-        public static ISubscripterWrapper GetSubscripterForObject(object target, Type subscriptType)
+        public static ISubscripterWrapper GetSubscripterForObject([NotNull] object target, Type subscriptType)
         {
             // target itself is a subscript wrapper
             var o = target as ISubscripterWrapper;

@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -39,7 +40,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// <param name="name">The name for this closure</param>
         /// <param name="bodyContext">The body context containing the closure's statements</param>
         /// <param name="parameters">The list of arguments for the closure</param>
-        public ClosureDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, FunctionArgumentDefinition[] parameters)
+        public ClosureDefinition(string name, ZScriptParser.FunctionBodyContext bodyContext, [NotNull] FunctionArgumentDefinition[] parameters)
             : base(name, bodyContext, parameters)
         {
 

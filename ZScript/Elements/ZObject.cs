@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using JetBrains.Annotations;
 using ZScript.Runtime.Execution.Wrappers;
 
 namespace ZScript.Elements
@@ -36,14 +36,13 @@ namespace ZScript.Elements
         /// </summary>
         /// <param name="indexer">The object to index this ZObject with</param>
         /// <returns>The value corresponding to the indexer</returns>
-        public object this[object indexer]
+        public object this[[NotNull] object indexer]
         {
             get
             {
                 CheckType(indexer);
 
-                object ret;
-                if (TryGetValue((string)indexer, out ret))
+                if (TryGetValue((string)indexer, out var ret))
                 {
                     return new Optional<object>(ret);
                 }
@@ -64,7 +63,7 @@ namespace ZScript.Elements
         /// <param name="obj">The object to check</param>
         /// <exception cref="ArgumentException">The given object is not a string type</exception>
         /// <exception cref="ArgumentNullException">The provided obj argument is null</exception>
-        private static void CheckType(object obj)
+        private static void CheckType([NotNull] object obj)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));

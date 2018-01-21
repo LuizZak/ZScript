@@ -20,6 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using ZScript.Runtime.Typing.Elements;
 
 namespace ZScript.CodeGeneration.Definitions
@@ -114,6 +115,7 @@ namespace ZScript.CodeGeneration.Definitions
         /// Converts this TypeAliasDefinition into an immutable TypeDef object
         /// </summary>
         /// <returns>A TypeDef generate from this type alias definition</returns>
+        [CanBeNull]
         public TypeDef ToTypeDef()
         {
             return null;

@@ -174,7 +174,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Performs deeper analysis of types by exploring statement nodes and deriving their types, as well as pre-evaluating any constants
         /// </summary>
         /// <param name="scope">The code scope to process expressions on</param>
-        private void ProcessStatements(CodeScope scope)
+        private void ProcessStatements([NotNull] CodeScope scope)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
             var traverser = new ExpressionStatementsTraverser(_generationContext, this, resolver);
@@ -203,7 +203,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type of a given function definition
         /// </summary>
         /// <param name="definition">The definition to expand</param>
-        private void ExpandFunctionDefinition(FunctionDefinition definition)
+        private void ExpandFunctionDefinition([NotNull] FunctionDefinition definition)
         {
             // Push the context for the function definition's generic context
             _genericTypeSource.PushGenericContext(definition.GenericSignature);
@@ -222,7 +222,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Analyzes the return statements of a given function definition, raising errors about mismatched types
         /// </summary>
         /// <param name="definition">The function definition to analyze the return statements from</param>
-        private void AnalyzeReturns(FunctionDefinition definition)
+        private void AnalyzeReturns([NotNull] FunctionDefinition definition)
         {
             if (!definition.HasReturnType)
                 return;
@@ -257,7 +257,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type of a given global variable
         /// </summary>
         /// <param name="definition">The global variable to expand</param>
-        private void ExpandGlobalVarable(GlobalVariableDefinition definition)
+        private void ExpandGlobalVarable([NotNull] GlobalVariableDefinition definition)
         {
             var resolver = new ExpressionConstantResolver(_generationContext, new TypeOperationProvider());
             var traverser = new ExpressionStatementsTraverser(_generationContext, this, resolver);
@@ -269,7 +269,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type of a given class definition
         /// </summary>
         /// <param name="definition">The class definition to expand</param>
-        private void ExpandClassDefinition(ClassDefinition definition)
+        private void ExpandClassDefinition([NotNull] ClassDefinition definition)
         {
             // Expand the fields
             foreach (var classField in definition.GetAllFields())
@@ -299,7 +299,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type of a given variable definition
         /// </summary>
         /// <param name="definition">The definition to expand</param>
-        private void ExpandValueHolderDefinition(ValueHolderDefinition definition)
+        private void ExpandValueHolderDefinition([NotNull] ValueHolderDefinition definition)
         {
             // Evaluate definition type
             ExpandValueHolderType(definition);
@@ -310,7 +310,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type declaration of a given variable definition
         /// </summary>
         /// <param name="definition">The definition to expand</param>
-        private void ExpandValueHolderType(ValueHolderDefinition definition)
+        private void ExpandValueHolderType([NotNull] ValueHolderDefinition definition)
         {
             definition.Type = TypeProvider.AnyType();
 
@@ -325,7 +325,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type of a given value holder definition from its initialization expression, if any
         /// </summary>
         /// <param name="definition">The definition to expand</param>
-        private void ExpandValueHolderTypeFromValue(ValueHolderDefinition definition)
+        private void ExpandValueHolderTypeFromValue([NotNull] ValueHolderDefinition definition)
         {
             if (!definition.HasValue)
             {
@@ -340,9 +340,8 @@ namespace ZScript.CodeGeneration.Analysis
 
             // Compare applicability
             TypeDef valueType;
-            
-            var argumentDefinition = definition as FunctionArgumentDefinition;
-            if (argumentDefinition != null)
+
+            if (definition is FunctionArgumentDefinition argumentDefinition)
             {
                 valueType = _typeResolver.ResolveCompileConstant(argumentDefinition.DefaultValue);
             }
@@ -394,7 +393,7 @@ namespace ZScript.CodeGeneration.Analysis
         /// Expands the type of a given function argument definition
         /// </summary>
         /// <param name="definition">The definition to expand</param>
-        private void ExpandFunctionArgument(FunctionArgumentDefinition definition)
+        private void ExpandFunctionArgument([NotNull] FunctionArgumentDefinition definition)
         {
             // Push the generic context
             _genericTypeSource.PushGenericContext(definition.Function.GenericSignature);
@@ -450,10 +449,9 @@ namespace ZScript.CodeGeneration.Analysis
             /// <param name="context">The context for the runtime generation</param>
             /// <param name="typeAnalyzer">The type analyzer that owns this ExpressionStatementsTraverser</param>
             /// <param name="constantResolver">A constant resolver to use for pre-evaluating constants in expressions</param>
-            public ExpressionStatementsTraverser(RuntimeGenerationContext context, StaticTypeAnalyzer typeAnalyzer, ExpressionConstantResolver constantResolver)
+            public ExpressionStatementsTraverser(RuntimeGenerationContext context, [NotNull] StaticTypeAnalyzer typeAnalyzer, [NotNull] ExpressionConstantResolver constantResolver)
             {
-                var target = constantResolver.Context.DefinitionTypeProvider as ZRuntimeGenerator.DefaultDefinitionTypeProvider;
-                if (target != null)
+                if (constantResolver.Context.DefinitionTypeProvider is ZRuntimeGenerator.DefaultDefinitionTypeProvider target)
                 {
                     _definitionsTarget = target;
                 }
@@ -481,7 +479,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterStatement override
             // 
-            public override void EnterStatement(ZScriptParser.StatementContext context)
+            public override void EnterStatement([NotNull] ZScriptParser.StatementContext context)
             {
                 if (context.expression() != null)
                 {
@@ -496,7 +494,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterClosureExpression override
             // 
-            public override void EnterClosureExpression(ZScriptParser.ClosureExpressionContext context)
+            public override void EnterClosureExpression([NotNull] ZScriptParser.ClosureExpressionContext context)
             {
                 PushLocalScope();
 
@@ -514,7 +512,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterReturnStatement override
             // 
-            public override void EnterReturnStatement(ZScriptParser.ReturnStatementContext context)
+            public override void EnterReturnStatement([NotNull] ZScriptParser.ReturnStatementContext context)
             {
                 if (context.expression() == null)
                     return;
@@ -605,7 +603,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// Analyzes a given expression, making sure the expression is correct and valid
             /// </summary>
             /// <param name="context">The context containig the expression to analyze</param>
-            private void AnalyzeExpression(ZScriptParser.ExpressionContext context)
+            private void AnalyzeExpression([NotNull] ZScriptParser.ExpressionContext context)
             {
                 if (context.HasTypeBeenEvaluated)
                     return;
@@ -618,7 +616,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// Analyzes a given assignment expression, making sure the assignment is correct and valid
             /// </summary>
             /// <param name="context">The context containig the assignment expression to analyze</param>
-            private void AnalyzeAssignmentExpression(ZScriptParser.AssignmentExpressionContext context)
+            private void AnalyzeAssignmentExpression([NotNull] ZScriptParser.AssignmentExpressionContext context)
             {
                 if (context.HasTypeBeenEvaluated)
                     return;
@@ -631,7 +629,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// Analyzes a given value holder declaration context
             /// </summary>
             /// <param name="valueHolderDecl">The context containing the value declaration to analyze</param>
-            private void AnalyzeVariableDeclaration(ZScriptParser.ValueHolderDeclContext valueHolderDecl)
+            private void AnalyzeVariableDeclaration([NotNull] ZScriptParser.ValueHolderDeclContext valueHolderDecl)
             {
                 _typeAnalyzer.ExpandValueHolderDefinition(valueHolderDecl.Definition);
 
@@ -645,7 +643,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// Expands the type of a given function argument definition
             /// </summary>
             /// <param name="definition">The definition to expand</param>
-            private void AnalyzeFunctionArgument(FunctionArgumentDefinition definition)
+            private void AnalyzeFunctionArgument([NotNull] FunctionArgumentDefinition definition)
             {
                 _typeAnalyzer.ExpandValueHolderDefinition(definition);
 
@@ -659,7 +657,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// Expands the type of a closure definition, inferring types of arguments and returns when possible
             /// </summary>
             /// <param name="definition">The closure definition to expand</param>
-            private void AnalyzeClosureDefinition(ClosureDefinition definition)
+            private void AnalyzeClosureDefinition([NotNull] ClosureDefinition definition)
             {
                 // Find the context the closure was defined in
                 var definedContext = (ZScriptParser.ClosureExpressionContext)definition.Context;
@@ -744,7 +742,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             /// <param name="closureContext">The context for the closure</param>
             /// <returns>A type definition that states the expected type for the closure in its defining context</returns>
-            private TypeDef FindExpectedTypeForClosure(ZScriptParser.ClosureExpressionContext closureContext)
+            private TypeDef FindExpectedTypeForClosure([NotNull] ZScriptParser.ClosureExpressionContext closureContext)
             {
                 // Search closures registered on expected type closures list
                 if (closureContext.Parent != null)
@@ -766,7 +764,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterValueDeclareStatement override
             // 
-            public override void EnterValueDeclareStatement(ZScriptParser.ValueDeclareStatementContext context)
+            public override void EnterValueDeclareStatement([NotNull] ZScriptParser.ValueDeclareStatementContext context)
             {
                 var valueHolderDecl = context.valueHolderDecl();
 
@@ -794,7 +792,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterWhileStatement override
             // 
-            public override void EnterWhileStatement(ZScriptParser.WhileStatementContext context)
+            public override void EnterWhileStatement([NotNull] ZScriptParser.WhileStatementContext context)
             {
                 var provider = _typeResolver.TypeProvider;
 
@@ -819,7 +817,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterSwitchStatement override
             // 
-            public override void EnterSwitchStatement(ZScriptParser.SwitchStatementContext context)
+            public override void EnterSwitchStatement([NotNull] ZScriptParser.SwitchStatementContext context)
             {
                 PushLocalScope();
 
@@ -844,7 +842,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterForInit override
             // 
-            public override void EnterForInit(ZScriptParser.ForInitContext context)
+            public override void EnterForInit([NotNull] ZScriptParser.ForInitContext context)
             {
                 // Value declaration
                 if (context.valueHolderDecl() != null)
@@ -863,7 +861,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterForCondition override
             // 
-            public override void EnterForCondition(ZScriptParser.ForConditionContext context)
+            public override void EnterForCondition([NotNull] ZScriptParser.ForConditionContext context)
             {
                 // For loops can ommit the condition expression
                 var expression = context.expression();
@@ -892,7 +890,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterForIncrement override
             // 
-            public override void EnterForIncrement(ZScriptParser.ForIncrementContext context)
+            public override void EnterForIncrement([NotNull] ZScriptParser.ForIncrementContext context)
             {
                 // For loops can ommit the increment expression
                 if (context.expression() == null)
@@ -904,7 +902,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterForEachHeader override
             // 
-            public override void EnterForEachHeader(ZScriptParser.ForEachHeaderContext context)
+            public override void EnterForEachHeader([NotNull] ZScriptParser.ForEachHeaderContext context)
             {
                 // Verify type of the expression
                 var valueType = _typeResolver.ResolveExpression(context.expression());
@@ -917,8 +915,7 @@ namespace ZScript.CodeGeneration.Analysis
 
                 // Type of variable is the inner type of the value
                 var itemType = _context.TypeProvider.AnyType();
-                var listTypeDef = valueType as IListTypeDef;
-                if (listTypeDef != null)
+                if (valueType is IListTypeDef listTypeDef)
                 {
                     itemType = listTypeDef.EnclosingType;
                 }
@@ -945,7 +942,7 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // IClosureExpectedTypeNotifier.ClosureTypeMatched implementation
             // 
-            public void ClosureTypeMatched(ZScriptParser.ClosureExpressionContext context, TypeDef expectedType)
+            public void ClosureTypeMatched([NotNull] ZScriptParser.ClosureExpressionContext context, TypeDef expectedType)
             {
                 AnalyzeClosureDefinition(context.Definition);
 
@@ -1149,7 +1146,8 @@ namespace ZScript.CodeGeneration.Analysis
             // 
             // EnterCaseBlock override
             // 
-            public override void EnterCaseBlock(ZScriptParser.CaseBlockContext context)
+            /// <inheritdoc />
+            public override void EnterCaseBlock([NotNull] ZScriptParser.CaseBlockContext context)
             {
                 // Expand case's check expression
                 context.expression().ExpectedType = _switchType;

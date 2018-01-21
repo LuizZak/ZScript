@@ -29,7 +29,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <summary>
         /// Initializes a new instance of the 'any' type
         /// </summary>
-        public AnyTypeDef() : base("any", false)
+        public AnyTypeDef() : base("any")
         {
 
         }

@@ -19,6 +19,7 @@
 */
 #endregion
 
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Parsing;
 using ZScript.Parsing.ANTLR;
@@ -35,7 +36,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the type alias to generate</param>
         /// <returns>A type alias definition generated from the given type alias context</returns>
-        public static TypeAliasDefinition GenerateTypeAlias(ZScriptParser.TypeAliasContext context)
+        public static TypeAliasDefinition GenerateTypeAlias([NotNull] ZScriptParser.TypeAliasContext context)
         {
             var runtimeTypeName = ConstantAtomParser.ParseStringAtom(context.stringLiteral());
             var definition = new TypeAliasDefinition
@@ -55,7 +56,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the type alias variable to get</param>
         /// <returns>A new TypeFieldDefinition that corresponds to the given type alias variable context</returns>
-        public static TypeFieldDefinition GenerateTypeField(ZScriptParser.TypeAliasVariableContext context)
+        public static TypeFieldDefinition GenerateTypeField([NotNull] ZScriptParser.TypeAliasVariableContext context)
         {
             var declare = context.valueDeclareStatement();
             var name = declare.valueHolderDecl().valueHolderDefine().valueHolderName().memberName().GetText();
@@ -72,7 +73,7 @@ namespace ZScript.CodeGeneration
         /// </summary>
         /// <param name="context">The context containing the type alias method to get</param>
         /// <returns>A new TypeAliasMethodDefinition that corresponds to the given type alias method context</returns>
-        public static TypeAliasMethodDefinition GenerateTypeMethod(ZScriptParser.TypeAliasFunctionContext context)
+        public static TypeAliasMethodDefinition GenerateTypeMethod([NotNull] ZScriptParser.TypeAliasFunctionContext context)
         {
             var args = DefinitionGenerator.CollectFunctionArguments(context.functionArguments());
 

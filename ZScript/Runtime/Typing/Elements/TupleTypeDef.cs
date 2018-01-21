@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -56,8 +57,8 @@ namespace ZScript.Runtime.Typing.Elements
         /// Initializes a new instance of the TupleTypeDef class
         /// </summary>
         /// <param name="innerTypes">The inner types for the tuple</param>
-        public TupleTypeDef(params TypeDef[] innerTypes)
-            : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")", false)
+        public TupleTypeDef([NotNull] params TypeDef[] innerTypes)
+            : base("(" + string.Join(",", (IEnumerable<object>)innerTypes) + ")")
         {
             InnerTypes = innerTypes;
             InnerTypeNames = new string[innerTypes.Length];
@@ -74,8 +75,8 @@ namespace ZScript.Runtime.Typing.Elements
         /// </summary>
         /// <param name="innerTypeNames">An array of names for the inner types</param>
         /// <param name="innerTypes">The inner types for the tuple</param>
-        public TupleTypeDef(string[] innerTypeNames, TypeDef[] innerTypes)
-            : base(CreateTupleName(innerTypeNames, innerTypes), false)
+        public TupleTypeDef([NotNull] string[] innerTypeNames, [NotNull] TypeDef[] innerTypes)
+            : base(CreateTupleName(innerTypeNames, innerTypes))
         {
             InnerTypes = innerTypes;
             InnerTypeNames = new string[innerTypes.Length];
@@ -199,7 +200,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// <param name="innerTypeNames">An array of names for the inner types</param>
         /// <param name="innerTypes">The inner types for the tuple</param>
         /// <returns>A representation of the tuple provided</returns>
-        private static string CreateTupleName(string[] innerTypeNames, TypeDef[] innerTypes)
+        private static string CreateTupleName([NotNull] string[] innerTypeNames, TypeDef[] innerTypes)
         {
             var builder = new StringBuilder();
             

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Execution.Wrappers.Subscripters
 {
@@ -44,7 +45,7 @@ namespace ZScript.Runtime.Execution.Wrappers.Subscripters
         /// </summary>
         /// <param name="indexer">The index to subscript into the list. This index must be an Int32 or Int64 value</param>
         /// <returns>The object that was in the given index on the underlying list</returns>
-        public object this[object indexer]
+        public object this[[NotNull] object indexer]
         {
             get
             {

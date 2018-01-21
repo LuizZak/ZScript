@@ -21,9 +21,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
-
+using JetBrains.Annotations;
 using ZScript.CodeGeneration.Definitions;
 using ZScript.Elements;
 using ZScript.Runtime;
@@ -78,7 +79,7 @@ namespace ZScript.Builders
         /// Constructs and returns a type for a given class definition
         /// </summary>
         /// <param name="definition">The class definition to construct</param>
-        public Type ConstructType(ClassDefinition definition)
+        public Type ConstructType([NotNull] ClassDefinition definition)
         {
             if (_mappedTypes.ContainsKey(definition))
             {
@@ -126,7 +127,7 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="definition">The class definition to generate the constructor from</param>
         /// <param name="builder">The type builder to generate the constructor on</param>
-        private void DefineConstructor(ClassDefinition definition, TypeBuilder builder)
+        private void DefineConstructor([NotNull] ClassDefinition definition, [NotNull] TypeBuilder builder)
         {
             var constructorDef = definition.PublicConstructor;
 
@@ -141,10 +142,11 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="generator">The generator to generate the tokens on</param>
         /// <param name="constructor">The constructor containing the tokens to generate the IL from</param>
-        private void FillConstructor(ILGenerator generator, MethodDefinition constructor)
+        private void FillConstructor([NotNull] ILGenerator generator, MethodDefinition constructor)
         {
             ParameterModifier[] mod = { new ParameterModifier(1) };
             var zConst = typeof(ZClassInstance).GetConstructor(BindingFlags.Public | BindingFlags.Instance, Type.DefaultBinder, CallingConventions.Any, new[] { typeof(ZClass) }, mod);
+            Debug.Assert(zConst != null, nameof(zConst) + " != null");
 
             // For a constructor, argument zero is a reference to the new
             // instance. Push it on the stack before calling the base

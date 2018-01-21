@@ -21,9 +21,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 using ZScript.Runtime;
 using ZScript.Runtime.Typing.Elements;
 
@@ -78,11 +80,10 @@ namespace ZScript.Builders
         /// Constructs and returns a type for a given class definition
         /// </summary>
         /// <param name="tuple">The class definition to construct</param>
-        public Type ConstructType(TupleTypeDef tuple)
+        public Type ConstructType([NotNull] TupleTypeDef tuple)
         {
-            var key = tuple.InnerTypes.Length;
-            Type outTuple;
-            if (_mappedTypes.TryGetValue(key, out outTuple))
+            int key = tuple.InnerTypes.Length;
+            if (_mappedTypes.TryGetValue(key, out var outTuple))
             {
                 return outTuple;
             }
@@ -118,7 +119,7 @@ namespace ZScript.Builders
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private static void CreateConstructors(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateConstructors([NotNull] TupleTypeDef tuple, [NotNull] TypeBuilder builder, [NotNull] IReadOnlyList<FieldBuilder> fields)
         {
             CreateFieldConstructor(tuple, builder, fields);
             CreateCopyConstructor(tuple, builder, fields);
@@ -130,9 +131,10 @@ namespace ZScript.Builders
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private static void CreateCopyConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateCopyConstructor([NotNull] TupleTypeDef tuple, [NotNull] TypeBuilder builder, IReadOnlyList<FieldBuilder> fields)
         {
             var baseConst = typeof(object).GetConstructor(Type.EmptyTypes);
+            Debug.Assert(baseConst != null, nameof(baseConst) + " != null");
 
             var constructor = builder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[]{ builder });
             var ilGenerator = constructor.GetILGenerator();
@@ -158,9 +160,10 @@ namespace ZScript.Builders
         /// <param name="tuple">The tuple containing the fields to initialize</param>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private static void CreateFieldConstructor(TupleTypeDef tuple, TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateFieldConstructor([NotNull] TupleTypeDef tuple, [NotNull] TypeBuilder builder, [NotNull] IReadOnlyList<FieldBuilder> fields)
         {
             var baseConst = typeof(object).GetConstructor(Type.EmptyTypes);
+            Debug.Assert(baseConst != null, nameof(baseConst) + " != null");
 
             var constructor = builder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, fields.Select(t => t.FieldType).ToArray());
             var ilGenerator = constructor.GetILGenerator();
@@ -198,13 +201,16 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private static void CreateEqualityComparision(TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateEqualityComparision([NotNull] TypeBuilder builder, [NotNull] IReadOnlyList<FieldBuilder> fields)
         {
             // Fetch the default 'equals' method of the Object class, which will be used to override the 'Equals' of the type
             var equalsMethod = typeof(object).GetMethod("Equals", new [] { typeof(object) });
+            Debug.Assert(equalsMethod != null, nameof(equalsMethod) + " != null");
+            
             // Fetch the static 'Equals' method of the Object class, which will be used to compare the tuple fields
             var equalsStaticMethod = typeof (object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static);
-            
+            Debug.Assert(equalsStaticMethod != null, nameof(equalsStaticMethod) + " != null");
+
             var equality = builder.DefineMethod("Equals", MethodAttributes.Public | MethodAttributes.Virtual, CallingConventions.Standard, typeof(bool), new [] { typeof(object) });
 
             // Define the override of the 'Equals' method
@@ -252,7 +258,7 @@ namespace ZScript.Builders
             var labelReturnFalse = ilGenerator.DefineLabel();
 
             // Go field by field comparing the types
-            for (int i = 0; i < fields.Length; i++)
+            for (int i = 0; i < fields.Count; i++)
             {
                 var field = fields[i];
                 var type = builder.GenericTypeParameters[i];
@@ -271,7 +277,7 @@ namespace ZScript.Builders
                 ilGenerator.Emit(OpCodes.Call, equalsStaticMethod);
 
                 // If this is the last comparision, return its result, otherwise, test jump to the false branch
-                if (i == fields.Length - 1)
+                if (i == fields.Count - 1)
                 {
                     ilGenerator.Emit(OpCodes.Ret);
                 }
@@ -293,12 +299,14 @@ namespace ZScript.Builders
         /// </summary>
         /// <param name="builder">The type builder to send the tuple fiends into</param>
         /// <param name="fields">The fields in the tuple type</param>
-        private static void CreateGetHashCode(TypeBuilder builder, FieldBuilder[] fields)
+        private static void CreateGetHashCode([NotNull] TypeBuilder builder, [NotNull] IReadOnlyList<FieldBuilder> fields)
         {
             // Fetch the default 'GetHashCode' method of the Object class, which will be used to equate the fields of the tuples bellow
             var baseHashCode = typeof(object).GetMethod("GetHashCode", Type.EmptyTypes);
+            Debug.Assert(baseHashCode != null, nameof(baseHashCode) + " != null");
 
             var hashCodeMethod = builder.DefineMethod("GetHashCode", MethodAttributes.Public | MethodAttributes.Virtual, CallingConventions.Standard, typeof(int), Type.EmptyTypes);
+            Debug.Assert(hashCodeMethod != null, nameof(hashCodeMethod) + " != null");
 
             // The GetHashCode implementation bellow is an implementation of a FNV hash method as bellow:
 
@@ -329,7 +337,7 @@ namespace ZScript.Builders
             ilGenerator.Emit(OpCodes.Stloc_0);
             
             // Iterate over each field and return the hashcode for that field
-            for (int i = 0; i < fields.Length; i++)
+            for (int i = 0; i < fields.Count; i++)
             {
                 // Jump to peform in case the field is null
                 var nullJump = ilGenerator.DefineLabel();

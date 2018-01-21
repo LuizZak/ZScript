@@ -120,7 +120,7 @@ namespace ZScript.CodeGeneration.Definitions
     /// <summary>
     /// Represents a generic type constraint from a generic signature information
     /// </summary>
-    public struct GenericTypeConstraint : IEquatable<GenericTypeConstraint>
+    public readonly struct GenericTypeConstraint : IEquatable<GenericTypeConstraint>
     {
         /// <summary>
         /// Gets the name of the type to constraint
@@ -159,7 +159,7 @@ namespace ZScript.CodeGeneration.Definitions
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is GenericTypeConstraint && Equals((GenericTypeConstraint)obj);
+            return obj is GenericTypeConstraint constraint && Equals(constraint);
         }
 
         public override int GetHashCode()

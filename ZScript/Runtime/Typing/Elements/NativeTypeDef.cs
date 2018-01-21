@@ -20,6 +20,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 
 namespace ZScript.Runtime.Typing.Elements
 {
@@ -42,7 +43,7 @@ namespace ZScript.Runtime.Typing.Elements
         /// Initializes a new instance of the NativeTypeDef class
         /// </summary>
         /// <param name="type">The type to create this native type out of</param>
-        public NativeTypeDef(Type type) : base(type.Name, true)
+        public NativeTypeDef([NotNull] Type type) : base(type.Name, true)
         {
             nativeType = type;
         }

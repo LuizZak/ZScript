@@ -22,6 +22,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using JetBrains.Annotations;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.Parsing
@@ -42,7 +43,7 @@ namespace ZScript.Parsing
         /// <param name="context">The context containing the constant to parse</param>
         /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An object that represents the constant atom parsed</returns>
-        public static object ParseCompileConstantAtom(ZScriptParser.CompileConstantContext context)
+        public static object ParseCompileConstantAtom([NotNull] ZScriptParser.CompileConstantContext context)
         {
             /*
              * compileConstant :  ('-')? numericAtom | T_FALSE | T_TRUE | T_NULL | stringLiteral;
@@ -69,7 +70,7 @@ namespace ZScript.Parsing
         /// <param name="context">The context containing the constant to parse</param>
         /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An object that represents the constant atom parsed</returns>
-        public static object ParseConstantAtom(ZScriptParser.ConstantAtomContext context)
+        public static object ParseConstantAtom([NotNull] ZScriptParser.ConstantAtomContext context)
         {
             /*
              * constantAtom : numericAtom
@@ -99,7 +100,7 @@ namespace ZScript.Parsing
         /// <param name="context">The context containing the string to parse</param>
         /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An object that represents the string atom parsed</returns>
-        public static string ParseStringAtom(ZScriptParser.StringLiteralContext context)
+        public static string ParseStringAtom([NotNull] ZScriptParser.StringLiteralContext context)
         {
             var str = context.StringLiteral().GetText();
 
@@ -120,7 +121,7 @@ namespace ZScript.Parsing
         /// <param name="str">The string to escape</param>
         /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An escaped version of the string</returns>
-        private static string EscapeDoubleQuoted(string str)
+        private static string EscapeDoubleQuoted([NotNull] string str)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -172,7 +173,7 @@ namespace ZScript.Parsing
         /// <param name="str">The string to escape</param>
         /// <exception cref="FormatException">The string contains invalid escape sequences</exception>
         /// <returns>An escaped version of the string</returns>
-        private static string EscapeSingleQuoted(string str)
+        private static string EscapeSingleQuoted([NotNull] string str)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -215,7 +216,8 @@ namespace ZScript.Parsing
         /// <param name="context">The context containing the number to parse</param>
         /// <param name="negative">Whether to return a negative version of the parsed number</param>
         /// <returns>An object that represents the numeric atom parsed</returns>
-        public static object ParseNumericAtom(ZScriptParser.NumericAtomContext context, bool negative)
+        [CanBeNull]
+        public static object ParseNumericAtom([NotNull] ZScriptParser.NumericAtomContext context, bool negative)
         {
             if (context.hexadecimalNumber() != null)
             {
@@ -246,7 +248,7 @@ namespace ZScript.Parsing
         /// </summary>
         /// <param name="context">The context containing the hexadecimal number to parse</param>
         /// <returns>A long value representing the hexadecimal number parsed</returns>
-        public static long ParseHexadecimalNumber(ZScriptParser.HexadecimalNumberContext context)
+        public static long ParseHexadecimalNumber([NotNull] ZScriptParser.HexadecimalNumberContext context)
         {
             return long.Parse(context.HEX().GetText().Substring(2), NumberStyles.HexNumber);
         }
@@ -256,7 +258,7 @@ namespace ZScript.Parsing
         /// </summary>
         /// <param name="context">The context containing the binary number to parse</param>
         /// <returns>A long value representing the binary number parsed</returns>
-        public static long ParseBinaryNumber(ZScriptParser.BinaryNumberContext context)
+        public static long ParseBinaryNumber([NotNull] ZScriptParser.BinaryNumberContext context)
         {
             return ValueParser.ParseBinaryLong(context.BINARY().GetText());
         }
