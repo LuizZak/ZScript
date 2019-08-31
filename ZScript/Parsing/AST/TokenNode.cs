@@ -19,38 +19,41 @@
 */
 #endregion
 
-using ZScript.Parsing.AST;
+using JetBrains.Annotations;
 
-namespace ZScript.Parsing
+namespace ZScript.Parsing.AST
 {
     /// <summary>
-    /// A diagnostic message from a <see cref="Diagnostics"/> container.
+    /// A token node hosts a single <see cref="ZScriptToken"/> instance.
     /// </summary>
-    public class DiagnosticMessage
+    public class TokenNode
     {
         /// <summary>
-        /// Message for the diagnostic
+        /// Gets or sets the parent for this node.
         /// </summary>
-        public string Message { get; }
-        
-        /// <summary>
-        /// The location for this diagnostic message
-        /// </summary>
-        public SourceLocation Location { get; }
+        [CanBeNull]
+        public SyntaxNode Parent { get; internal set; }
 
         /// <summary>
-        /// Level for this diagnostic message
+        /// Gets the token associated with this token node
         /// </summary>
-        public DiagnosticLevel Level { get; }
+        public ZScriptToken Token { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
+        /// Creates a new instance of the <see cref="TokenNode"/> class.
         /// </summary>
-        public DiagnosticMessage(string message, SourceLocation location, DiagnosticLevel level)
+        public TokenNode(ZScriptToken token)
         {
-            Message = message;
-            Location = location;
-            Level = level;
+            Token = token;
+        }
+
+        /// <summary>
+        /// Detaches this node from its parent, if it has one.
+        /// </summary>
+        public void RemoveFromParent()
+        {
+            Parent?.ChildTokens.Remove(this);
+            Parent = null;
         }
     }
 }

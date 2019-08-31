@@ -37,6 +37,7 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <DocumentationFile>bin\Release\ZScript.XML</DocumentationFile>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime, Version=4.6.0.0, Culture=neutral, PublicKeyToken=09abb75b9ed49849, processorArchitecture=MSIL">
@@ -106,14 +107,17 @@
       <DependentUpon>ZScript.g4</DependentUpon>
     </Compile>
     <Compile Include="Parsing\AST\FunctionDefinitionNode.cs" />
+    <Compile Include="Parsing\AST\IdentifierNode.cs" />
     <Compile Include="Parsing\AST\ProgramBodyNode.cs" />
     <Compile Include="Parsing\AST\SourceLocation.cs" />
     <Compile Include="Parsing\AST\SyntaxNode.cs" />
+    <Compile Include="Parsing\AST\TokenNode.cs" />
     <Compile Include="Parsing\DiagnosticMessage.cs" />
     <Compile Include="Parsing\Diagnostics.cs" />
     <Compile Include="Parsing\IDiagnosticsCollector.cs" />
     <Compile Include="Parsing\ZScriptLexer1.cs" />
     <Compile Include="Parsing\ZScriptParser1.cs" />
+    <Compile Include="Parsing\ZScriptToken.cs" />
     <Compile Include="Runtime\Execution\TypeList.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Callables\ClassMethod.cs" />
     <Compile Include="Runtime\Execution\Wrappers\Callables\ZClassMethod.cs" />
@@ -230,9 +234,7 @@
     <None Include="packages.config" />
     <None Include="ZScript.licenseheader" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CodeGeneration\ILGenerator\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>

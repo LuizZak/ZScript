@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ZScript.Parsing.AST;
 
 namespace ZScript.Parsing
 {
@@ -49,14 +50,32 @@ namespace ZScript.Parsing
         /// <summary>
         /// Creates a new diagnostic message
         /// </summary>
-        public DiagnosticMessage Diagnose(DiagnosticLevel level, int line, int column, string message)
+        public DiagnosticMessage Diagnose(DiagnosticLevel level, string message, SourceLocation location)
         {
-            var diagnostic = new DiagnosticMessage(message, line, column, level);
+            var diagnostic = new DiagnosticMessage(message, location, level);
             _diagnostics.Add(diagnostic);
 
             return diagnostic;
         }
 
+        /// <inheritdoc />
+        public DiagnosticMessage Error(string message, SourceLocation location)
+        {
+            return Diagnose(DiagnosticLevel.Error, message, location);
+        }
+
+        /// <inheritdoc />
+        public DiagnosticMessage Warning(string message, SourceLocation location)
+        {
+            return Diagnose(DiagnosticLevel.Warning, message, location);
+        }
+
+        /// <inheritdoc />
+        public DiagnosticMessage Note(string message, SourceLocation location)
+        {
+            return Diagnose(DiagnosticLevel.Note, message, location);
+        }
+        
         /// <summary>
         /// Gets all errors of a given diagnostic level
         /// </summary>

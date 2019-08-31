@@ -114,7 +114,7 @@ namespace ZScript.CodeGeneration.Analysis
                 try
                 {
                     // Get the value of the constant atom
-                    var value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
+                    object value = ConstantAtomParser.ParseConstantAtom(context.constantAtom());
 
                     // Verify if any implicit casts are in place
                     if (context.ImplicitCastType != null && !context.ImplicitCastType.IsAny && TypeProvider.CanImplicitCast(context.EvaluatedType, context.ImplicitCastType))

@@ -19,8 +19,10 @@
 */
 #endregion
 
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ZScript.Parsing;
+using ZScript.Parsing.AST;
 
 namespace ZScriptTests.Parsing
 {
@@ -71,8 +73,8 @@ namespace ZScriptTests.Parsing
         [TestMethod]
         public void TestTokenizeKeyword()
         {
-            TestLex("class", new ZScriptToken(LexerTokenType.Class, "class"));
-            TestLex("func", new ZScriptToken(LexerTokenType.Function, "func"));
+            TestLex("class", new ZScriptToken(LexerTokenType.ClassKeyword, "class"));
+            TestLex("func", new ZScriptToken(LexerTokenType.FunctionKeyword, "func"));
             TestLex("if", new ZScriptToken(LexerTokenType.If, "if"));
             TestLex("else", new ZScriptToken(LexerTokenType.Else, "else"));
             TestLex("for", new ZScriptToken(LexerTokenType.For, "for"));
@@ -92,7 +94,7 @@ namespace ZScriptTests.Parsing
             TestLex("_", new ZScriptToken(LexerTokenType.Identifier, "_"));
             TestLex("_i_", new ZScriptToken(LexerTokenType.Identifier, "_i_"));
             
-            TestLex("1malformed", new ZScriptToken(LexerTokenType.IntegerLiteral, "1", 1));
+            TestLex("1malformed", new ZScriptToken(LexerTokenType.IntegerLiteral, "1", 1), 1);
         }
 
         [TestMethod]
@@ -119,8 +121,8 @@ namespace ZScriptTests.Parsing
             TestLex("&=", new ZScriptToken(LexerTokenType.BitwiseAndAssignOperator, "&="));
             TestLex("|", new ZScriptToken(LexerTokenType.BitwiseOrOperator, "|"));
             TestLex("|=", new ZScriptToken(LexerTokenType.BitwiseOrAssignOperator, "|="));
-            TestLex("^", new ZScriptToken(LexerTokenType.XorOperator, "^"));
-            TestLex("^=", new ZScriptToken(LexerTokenType.XorAssignOperator, "^="));
+            TestLex("^", new ZScriptToken(LexerTokenType.BitwiseXorOperator, "^"));
+            TestLex("^=", new ZScriptToken(LexerTokenType.BitwiseXorAssignOperator, "^="));
 
             TestLex("+", new ZScriptToken(LexerTokenType.PlusSign, "+"));
             TestLex("+=", new ZScriptToken(LexerTokenType.PlusEqualsSign, "+="));
@@ -138,10 +140,119 @@ namespace ZScriptTests.Parsing
             TestLex("!=", new ZScriptToken(LexerTokenType.UnequalsSign, "!="));
         }
 
-        private static void TestLex(string input, ZScriptToken expected)
+        [TestMethod]
+        public void TestTokenizeSequence()
         {
-            var lexer = new ZScriptLexer1(input);
-            Assert.AreEqual(expected, lexer.Next());
+            TestLexMany(
+                "+ <= = >= < == > func ident1 class",
+                LexerTokenType.PlusSign, 
+                LexerTokenType.LessThanOrEqualsSign, 
+                LexerTokenType.AssignOperator, 
+                LexerTokenType.GreaterThanOrEqualsSign,
+                LexerTokenType.LessThanSign,
+                LexerTokenType.EqualsSign,
+                LexerTokenType.GreaterThanSign,
+                LexerTokenType.FunctionKeyword,
+                LexerTokenType.Identifier,
+                LexerTokenType.ClassKeyword
+                );
+        }
+
+        [TestMethod]
+        public void TestLineAtOffset()
+        {
+            var sut = CreateTestLexer("abc\ndef\n\ng");
+
+            Assert.AreEqual(1, sut.LineAtOffset(0));
+            Assert.AreEqual(1, sut.LineAtOffset(1));
+            Assert.AreEqual(1, sut.LineAtOffset(2));
+            Assert.AreEqual(1, sut.LineAtOffset(3));
+            Assert.AreEqual(2, sut.LineAtOffset(4));
+            Assert.AreEqual(2, sut.LineAtOffset(5));
+            Assert.AreEqual(2, sut.LineAtOffset(6));
+            Assert.AreEqual(2, sut.LineAtOffset(7));
+            Assert.AreEqual(3, sut.LineAtOffset(8));
+            Assert.AreEqual(4, sut.LineAtOffset(9));
+        }
+
+        [TestMethod]
+        public void TestColumnAtOffset()
+        {
+            var sut = CreateTestLexer("abc\ndef\n\ng");
+
+            Assert.AreEqual(1, sut.ColumnAtOffset(0));
+            Assert.AreEqual(2, sut.ColumnAtOffset(1));
+            Assert.AreEqual(3, sut.ColumnAtOffset(2));
+            Assert.AreEqual(4, sut.ColumnAtOffset(3));
+            Assert.AreEqual(1, sut.ColumnAtOffset(4));
+            Assert.AreEqual(2, sut.ColumnAtOffset(5));
+            Assert.AreEqual(3, sut.ColumnAtOffset(6));
+            Assert.AreEqual(4, sut.ColumnAtOffset(7));
+            Assert.AreEqual(1, sut.ColumnAtOffset(8));
+            Assert.AreEqual(1, sut.ColumnAtOffset(9));
+        }
+
+        private static void TestLex(string input, ZScriptToken expected, int expectedLength = -1)
+        {
+            var testSource = new TestSource();
+            var loc = new SourceLocation(testSource, 0, expectedLength == -1 ? input.Length : expectedLength, 1, 1);
+            var expWithLoc = new ZScriptToken(expected.TokenType, loc, expected.TokenString, expected.Value);
+            var lexer = new ZScriptLexer1(testSource, input);
+            Assert.AreEqual(expWithLoc, lexer.Next());
+        }
+
+        private static void TestLexMany(string input, params LexerTokenType[] expected)
+        {
+            var lexer = CreateTestLexer(input);
+
+            var toks = lexer.ReadAllTokens();
+            
+            for (int i = 0; i < Math.Min(toks.Count, expected.Length); i++)
+            {
+                var tok = toks[i];
+
+                Assert.AreEqual(expected[i], tok.TokenType, $"Expected token {i + 1} to tokenize as {expected[i]}, but received {tok.TokenType}");
+            }
+
+            Assert.AreEqual(expected.Length, toks.Count, $"Expected {expected.Length} tokens, but tokenized {toks.Count}");
+        }
+
+        private static ZScriptLexer1 CreateTestLexer(string input)
+        {
+            var testSource = new TestSource();
+            return new ZScriptLexer1(testSource, input);
+        }
+
+        private class TestSource : ISource
+        {
+            public bool Equals(ISource other)
+            {
+                return other is TestSource;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+                return Equals((ISource) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
+                return base.GetHashCode();
+            }
+
+            public static bool operator ==(TestSource left, TestSource right)
+            {
+                return Equals(left, right);
+            }
+
+            public static bool operator !=(TestSource left, TestSource right)
+            {
+                return !Equals(left, right);
+            }
         }
     }
 }

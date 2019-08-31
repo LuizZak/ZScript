@@ -19,6 +19,8 @@
 */
 #endregion
 
+using JetBrains.Annotations;
+
 namespace ZScript.Parsing.AST
 {
     /// <summary>
@@ -26,6 +28,10 @@ namespace ZScript.Parsing.AST
     /// </summary>
     public class FunctionDefinitionNode : SyntaxNode
     {
-
+        /// <summary>
+        /// Gets the identifier for the function definition.
+        /// </summary>
+        [CanBeNull]
+        public IdentifierNode Identifier => GetFirstChildOfType<IdentifierNode>();
     }
 }

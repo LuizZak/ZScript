@@ -19,38 +19,13 @@
 */
 #endregion
 
-using ZScript.Parsing.AST;
-
-namespace ZScript.Parsing
+namespace ZScript.Parsing.AST
 {
     /// <summary>
-    /// A diagnostic message from a <see cref="Diagnostics"/> container.
+    /// Node for identifiers
     /// </summary>
-    public class DiagnosticMessage
+    public class IdentifierNode : SyntaxNode
     {
-        /// <summary>
-        /// Message for the diagnostic
-        /// </summary>
-        public string Message { get; }
-        
-        /// <summary>
-        /// The location for this diagnostic message
-        /// </summary>
-        public SourceLocation Location { get; }
 
-        /// <summary>
-        /// Level for this diagnostic message
-        /// </summary>
-        public DiagnosticLevel Level { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
-        /// </summary>
-        public DiagnosticMessage(string message, SourceLocation location, DiagnosticLevel level)
-        {
-            Message = message;
-            Location = location;
-            Level = level;
-        }
     }
 }

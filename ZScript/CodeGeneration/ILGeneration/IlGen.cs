@@ -22,11 +22,9 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Antlr4.Runtime.Tree;
 using JetBrains.Annotations;
 using ZScript.CodeGeneration.Analysis;
 using ZScript.CodeGeneration.Definitions;
-using ZScript.Parsing;
 using ZScript.Parsing.ANTLR;
 
 namespace ZScript.CodeGeneration.ILGeneration
@@ -107,7 +105,7 @@ namespace ZScript.CodeGeneration.ILGeneration
         /// <summary>
         /// Generates an IL-assembly instruction set from the given function definition, on a given target type
         /// </summary>
-        public MethodBuilder GenerateIl(ZScriptParser.FunctionBodyContext context, [NotNull] FunctionDefinition functionDefinition, CodeScope scope, [NotNull] TypeBuilder targetType)
+        public MethodBuilder GenerateIl([NotNull] ZScriptParser.FunctionBodyContext context, [NotNull] FunctionDefinition functionDefinition, [NotNull] CodeScope scope, [NotNull] TypeBuilder targetType)
         {
             var returnType = _generationContext.TypeProvider.NativeTypeForTypeDef(functionDefinition.ReturnType);
             var parameterTypes = functionDefinition.Parameters.Select(parameter => _generationContext.TypeProvider.NativeTypeForTypeDef(parameter.Type)).ToArray();
@@ -116,9 +114,9 @@ namespace ZScript.CodeGeneration.ILGeneration
 
             var gen = method.GetILGenerator();
 
-            var generator = new MethodIlGen(_generationContext, scope, context.blockStatement());
+            var generator = new MethodIlGen(gen, _generationContext, scope, context.blockStatement());
 
-            generator.Generate(gen);
+            generator.Generate();
             
             return method;
         }
@@ -126,22 +124,23 @@ namespace ZScript.CodeGeneration.ILGeneration
 
     internal class MethodIlGen
     {
+        private readonly ILGenerator _builder;
         private readonly RuntimeGenerationContext _generationContext;
         private readonly CodeScope _scope;
         private readonly ZScriptParser.BlockStatementContext _context;
-
-        public MethodIlGen([NotNull] RuntimeGenerationContext generationContext, [NotNull] CodeScope scope, [NotNull] ZScriptParser.BlockStatementContext context)
+        
+        public MethodIlGen([NotNull] ILGenerator builder, [NotNull] RuntimeGenerationContext generationContext,
+            [NotNull] CodeScope scope, [NotNull] ZScriptParser.BlockStatementContext context)
         {
+            _builder = builder;
             _generationContext = generationContext;
             _scope = scope;
             _context = context;
         }
 
-        public void Generate(ILGenerator builder)
+        public void Generate()
         {
             
         }
-        
-
     }
 }

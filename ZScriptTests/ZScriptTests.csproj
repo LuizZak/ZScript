@@ -168,9 +168,7 @@
     <None Include="packages.config" />
     <None Include="ZScript.licenseheader" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CodeGeneration\ILGenerator\" />
-  </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -26,6 +26,14 @@ namespace ZScript.Parsing.AST
     /// </summary>
     public class ProgramBodyNode : SyntaxNode
     {
+        /// <summary>
+        /// Gets all function definitions in this node
+        /// </summary>
+        public FunctionDefinitionNode[] FunctionDefinitions()
+        {
+            return GetAllChildrenOfType<FunctionDefinitionNode>();
+        }
+
 
     }
 }

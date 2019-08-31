@@ -19,6 +19,8 @@
 */
 #endregion
 
+using ZScript.Parsing.AST;
+
 namespace ZScript.Parsing
 {
     /// <summary>
@@ -29,7 +31,22 @@ namespace ZScript.Parsing
         /// <summary>
         /// Creates a new diagnostic message
         /// </summary>
-        DiagnosticMessage Diagnose(DiagnosticLevel level, int line, int column, string message);
+        DiagnosticMessage Diagnose(DiagnosticLevel level, string message, SourceLocation location);
+
+        /// <summary>
+        /// Creates a new error diagnostic message
+        /// </summary>
+        DiagnosticMessage Error(string message, SourceLocation location);
+
+        /// <summary>
+        /// Creates a new warning diagnostic message
+        /// </summary>
+        DiagnosticMessage Warning(string message, SourceLocation location);
+
+        /// <summary>
+        /// Creates a new note diagnostic message
+        /// </summary>
+        DiagnosticMessage Note(string message, SourceLocation location);
     }
     
     /// <summary>

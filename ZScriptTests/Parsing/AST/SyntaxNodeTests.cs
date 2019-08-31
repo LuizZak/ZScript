@@ -29,9 +29,9 @@ namespace ZScriptTests.Parsing.AST
     public class SyntaxNodeTests
     {
         [TestMethod]
-        public void TestIntialState()
+        public void TestInitialState()
         {
-            var sut = new SyntaxNode();
+            var sut = new TestRootNode();
 
             Assert.AreEqual(0, sut.Children.Count);
             Assert.IsNull(sut.Parent);
@@ -42,8 +42,8 @@ namespace ZScriptTests.Parsing.AST
         [TestMethod]
         public void TestAddChild()
         {
-            var sut = new SyntaxNode();
-            var child = new SyntaxNode();
+            var sut = new TestRootNode();
+            var child = new TestRootNode();
 
             sut.AddChild(child);
 
@@ -52,11 +52,11 @@ namespace ZScriptTests.Parsing.AST
         }
 
         [TestMethod]
-        public void TestAddChildDetatchesFromPreviousParent()
+        public void TestAddChildDetachesFromPreviousParent()
         {
-            var sut = new SyntaxNode();
-            var oldParent = new SyntaxNode();
-            var child = new SyntaxNode();
+            var sut = new TestRootNode();
+            var oldParent = new TestRootNode();
+            var child = new TestRootNode();
             oldParent.AddChild(child);
 
             sut.AddChild(child);
@@ -69,8 +69,8 @@ namespace ZScriptTests.Parsing.AST
         [TestMethod]
         public void TestAddChildRaisesExceptionOnCyclicReference()
         {
-            var sut = new SyntaxNode();
-            var child = new SyntaxNode();
+            var sut = new TestRootNode();
+            var child = new TestRootNode();
             sut.AddChild(child);
 
             Assert.ThrowsException<ArgumentException>(() => child.AddChild(sut));
@@ -79,22 +79,22 @@ namespace ZScriptTests.Parsing.AST
         [TestMethod]
         public void TestAddChildRaisesExceptionOnCyclicReferenceOfArbitraryDepths()
         {
-            var sut = new SyntaxNode();
-            var child = new SyntaxNode();
-            var grandchild = new SyntaxNode();
-            var grandgrandchild = new SyntaxNode();
+            var sut = new TestRootNode();
+            var child = new TestRootNode();
+            var grandchild = new TestRootNode();
+            var grandGrandchild = new TestRootNode();
             child.AddChild(grandchild);
-            grandchild.AddChild(grandgrandchild);
+            grandchild.AddChild(grandGrandchild);
             sut.AddChild(child);
 
-            Assert.ThrowsException<ArgumentException>(() => grandgrandchild.AddChild(sut));
+            Assert.ThrowsException<ArgumentException>(() => grandGrandchild.AddChild(sut));
         }
         
         [TestMethod]
         public void TestRemoveFromParent()
         {
-            var sut = new SyntaxNode();
-            var child = new SyntaxNode();
+            var sut = new TestRootNode();
+            var child = new TestRootNode();
             sut.AddChild(child);
 
             child.RemoveFromParent();
@@ -107,8 +107,8 @@ namespace ZScriptTests.Parsing.AST
         public void TestGetParentOfType()
         {
             var root = new TestNode();
-            var parent = new SyntaxNode();
-            var sut = new SyntaxNode();
+            var parent = new TestRootNode();
+            var sut = new TestRootNode();
             root.AddChild(parent);
             parent.AddChild(sut);
 
@@ -120,8 +120,8 @@ namespace ZScriptTests.Parsing.AST
         [TestMethod]
         public void TestGetParentOfTypeNone()
         {
-            var parent = new SyntaxNode();
-            var sut = new SyntaxNode();
+            var parent = new TestRootNode();
+            var sut = new TestRootNode();
             parent.AddChild(sut);
 
             var result = sut.GetParentOfType<TestNode>();
@@ -132,7 +132,7 @@ namespace ZScriptTests.Parsing.AST
         [TestMethod]
         public void TestGetFirstChildOfType()
         {
-            var sut = new SyntaxNode();
+            var sut = new TestRootNode();
             var child = new TestNode();
             sut.AddChild(child);
 
@@ -144,15 +144,20 @@ namespace ZScriptTests.Parsing.AST
         [TestMethod]
         public void TestGetFirstChildOfTypeNone()
         {
-            var sut = new SyntaxNode();
-            var child = new SyntaxNode();
+            var sut = new TestRootNode();
+            var child = new TestRootNode();
             sut.AddChild(child);
 
             var result = sut.GetFirstChildOfType<TestNode>();
 
             Assert.IsNull(result);
         }
-        
+
+        private class TestRootNode : SyntaxNode
+        {
+
+        }
+
         private class TestNode : SyntaxNode
         {
 

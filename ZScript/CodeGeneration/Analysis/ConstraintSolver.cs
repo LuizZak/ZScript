@@ -182,8 +182,8 @@ namespace ZScript.CodeGeneration.Analysis
             // Flatten down same-type constraints until we can't anymore
             foreach (var constraint in _constraints)
             {
-                var leftTypeIndex = GetIndexOfTypeNamedIn(constraint.FirstType, newTypes);
-                var rightTypeIndex = GetIndexOfTypeNamedIn(constraint.SecondType, newTypes);
+                int leftTypeIndex = GetIndexOfTypeNamedIn(constraint.FirstType, newTypes);
+                int rightTypeIndex = GetIndexOfTypeNamedIn(constraint.SecondType, newTypes);
 
                 var leftType = newTypes[leftTypeIndex];
                 var rightType = newTypes[rightTypeIndex];
@@ -410,14 +410,14 @@ namespace ZScript.CodeGeneration.Analysis
             public override bool Equals(object obj)
             {
                 if (ReferenceEquals(null, obj)) return false;
-                return obj is TypeConstraint && Equals((TypeConstraint) obj);
+                return obj is TypeConstraint other && Equals(other);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    var hashCode = FirstType.GetHashCode();
+                    int hashCode = FirstType.GetHashCode();
                     hashCode = (hashCode * 397) ^ (int) Constraint;
                     hashCode = (hashCode * 397) ^ SecondType.GetHashCode();
                     return hashCode;
@@ -444,7 +444,7 @@ namespace ZScript.CodeGeneration.Analysis
         }
 
         /// <summary>
-        /// Used during type constraining to specify the reletionships
+        /// Used during type constraining to specify the relationships
         /// between open and closed types
         /// </summary>
         public enum Constraint
@@ -454,7 +454,7 @@ namespace ZScript.CodeGeneration.Analysis
             /// </summary>
             SameType,
             /// <summary>
-            /// Specifies a sub-type constraint, e.g. 'T: Hashable'.
+            /// Specifies a sub-type constraint, e.g. 'T: IEquatable'.
             /// </summary>
             Subtype
         }

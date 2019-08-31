@@ -21,10 +21,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
+using ZScript.Parsing.AST;
 
 namespace ZScript.Parsing
 {
@@ -35,30 +35,46 @@ namespace ZScript.Parsing
     {
         private delegate bool CharacterTest(char c);
 
+        private bool _hasLexedToken;
+        private ZScriptToken _current;
+
         /// <summary>
         /// The source string this lexer is currently using
         /// </summary>
-        public string Source { get; }
+        public string SourceCode { get; }
+
+        /// <summary>
+        /// The source string this lexer is currently using
+        /// </summary>
+        public ISource Source { get; }
 
         /// <summary>
         /// Current character offset that the lexer is at on the source string.
         /// </summary>
         public int Offset { get; private set; }
-        
+
         /// <summary>
         /// Gets the current token under the current string position.
         /// </summary>
-        public ZScriptToken Current { get; private set; }
+        public ZScriptToken Current
+        {
+            get
+            {
+                if(!_hasLexedToken)
+                    LexNextToken();
+
+                return _current;
+            }
+            private set => _current = value;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ZScriptLexer1"/> class with a given string source to parse with.
         /// </summary>
-        public ZScriptLexer1(string source)
+        public ZScriptLexer1(ISource source, string sourceCode)
         {
             Source = source;
-
-            // Start by reading the current token.
-            LexNextToken();
+            SourceCode = sourceCode;
         }
         
         /// <summary>
@@ -68,23 +84,46 @@ namespace ZScript.Parsing
         {
             var token = Current;
 
-            _advanceWhile(IsWhitespace);
-
             LexNextToken();
 
             return token;
         }
+        
+        /// <summary>
+        /// Skips the current token on the lexer
+        /// </summary>
+        public void SkipToken()
+        {
+            LexNextToken();
+        }
+        
+        /// <summary>
+        /// Returns true iff the current token's type matches the one specified.
+        /// </summary>
+        public bool IsCurrentTokenType(LexerTokenType type)
+        {
+            return Current.TokenType == type;
+        }
 
+        /// <summary>
+        /// Returns true iff the current token's type matches an operator token.
+        /// </summary>
+        public bool IsCurrentTokenOperator()
+        {
+            return Current.TokenType.IsOperator();
+        }
+        
         /// <summary>
         /// Returns a list containing all remaining tokens up to the end of the string.
         /// </summary>
-        public List<ZScriptToken> AllTokens()
+        public List<ZScriptToken> ReadAllTokens()
         {
             var tokens = new List<ZScriptToken>();
 
-            while (!_isEof() && Current.TokenType != LexerTokenType.Eof)
+            while (Current.TokenType != LexerTokenType.Eof)
             {
-                tokens.Add(Next());
+                tokens.Add(Current);
+                SkipToken();
             }
 
             return tokens;
@@ -92,9 +131,13 @@ namespace ZScript.Parsing
 
         private void LexNextToken()
         {
+            _advanceWhile(IsWhitespace);
+
+            _hasLexedToken = true;
+
             if (_isEof())
             {
-                Current = new ZScriptToken(LexerTokenType.Eof, "", null);
+                Current = new ZScriptToken(LexerTokenType.Eof, Location(), "", null);
                 return;
             }
 
@@ -118,7 +161,7 @@ namespace ZScript.Parsing
 
         private void LexNumber()
         {
-            var stringRange = StartStringRange();
+            var range = StartStringRange();
             var tokenType = LexerTokenType.IntegerLiteral;
 
             // Try an integer first
@@ -179,18 +222,18 @@ namespace ZScript.Parsing
                 }
             }
 
-            string source = stringRange.GetString();
+            string source = range.CreateString();
             object value =
                 tokenType == LexerTokenType.IntegerLiteral
                     ? (object)int.Parse(source, NumberStyles.Integer)
                     : float.Parse(source, NumberStyles.Float, new CultureInfo("en-US"));
 
-            Current = new ZScriptToken(tokenType, source, value);
+            Current = new ZScriptToken(tokenType, range.CreateLocation(), source, value);
         }
 
         private void LexString()
         {
-            var stringRange = StartStringRange();
+            var range = StartStringRange();
             var value = new StringBuilder();
 
             // Opening quotes
@@ -243,8 +286,8 @@ namespace ZScript.Parsing
             // Closing quotes
             _advance();
 
-            string str = stringRange.GetString();
-            Current = new ZScriptToken(LexerTokenType.StringLiteral, str, value.ToString());
+            string str = range.CreateString();
+            Current = new ZScriptToken(LexerTokenType.StringLiteral, range.CreateLocation(), str, value.ToString());
         }
 
         private void LexAlphanumeric()
@@ -256,12 +299,12 @@ namespace ZScript.Parsing
                 _advance();
             }
 
-            string result = range.GetString();
+            string result = range.CreateString();
 
             var keywordMapping = new Dictionary<string, LexerTokenType>
             {
-                {"func", LexerTokenType.Function},
-                {"class", LexerTokenType.Class},
+                {"func", LexerTokenType.FunctionKeyword},
+                {"class", LexerTokenType.ClassKeyword},
                 {"if", LexerTokenType.If},
                 {"else", LexerTokenType.Else},
                 {"for", LexerTokenType.For},
@@ -269,16 +312,16 @@ namespace ZScript.Parsing
                 {"switch", LexerTokenType.Switch},
                 {"break", LexerTokenType.Break},
                 {"continue", LexerTokenType.Continue},
-                {"return", LexerTokenType.Return},
+                {"return", LexerTokenType.Return}
             };
 
             if(keywordMapping.TryGetValue(result, out var keyword))
             {
-                Current = new ZScriptToken(keyword, result);
+                Current = new ZScriptToken(keyword, range.CreateLocation(), result);
             }
             else
             {
-                Current = new ZScriptToken(LexerTokenType.Identifier, result);
+                Current = new ZScriptToken(LexerTokenType.Identifier, range.CreateLocation(), result);
             }
         }
 
@@ -303,7 +346,7 @@ namespace ZScript.Parsing
             if (operatorMapping.TryGetValue(c, out var oper))
             {
                 _advance();
-                Current = new ZScriptToken(oper, marker.GetString());
+                Current = new ZScriptToken(oper, marker.CreateLocation(), marker.CreateString());
                 return;
             }
 
@@ -320,8 +363,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.PlusEqualsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '-')
             {
@@ -339,8 +380,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.Arrow;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '*')
             {
@@ -353,8 +392,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.MultiplyEqualsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '/')
             {
@@ -367,8 +404,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.DivideEqualsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '<')
             {
@@ -381,8 +416,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.LessThanOrEqualsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '>')
             {
@@ -395,8 +428,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.GreaterThanOrEqualsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '=')
             {
@@ -409,8 +440,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.EqualsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '!')
             {
@@ -423,8 +452,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.UnequalsSign;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '&')
             {
@@ -442,8 +469,6 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.BitwiseAndAssignOperator;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '|')
             {
@@ -461,43 +486,132 @@ namespace ZScript.Parsing
                     _advance();
                     op = LexerTokenType.BitwiseOrAssignOperator;
                 }
-                
-                Current = new ZScriptToken(op, marker.GetString());
             }
             else if(c == '^')
             {
                 _advance();
 
-                op = LexerTokenType.XorOperator;
+                op = LexerTokenType.BitwiseXorOperator;
 
                 if (_peekChar() == '=')
                 {
                     _advance();
-                    op = LexerTokenType.XorAssignOperator;
+                    op = LexerTokenType.BitwiseXorAssignOperator;
                 }
+            }
+            else if (c == '~')
+            {
+                _advance();
+
+                op = LexerTokenType.BitwiseNegateOperator;
+
+                if (_peekChar() == '=')
+                {
+                    _advance();
+                    op = LexerTokenType.BitwiseNegateAssignOperator;
+                }
+            }
+            else
+            {
+                op = LexerTokenType.Unknown;
+            }
                 
-                Current = new ZScriptToken(op, marker.GetString());
+            Current = new ZScriptToken(op, marker.CreateLocation(), marker.CreateString());
+        }
+
+        private void LexCommentToken()
+        {
+            var range = StartStringRange();
+
+            if (_advanceIfSubstring("//"))
+            {
+                _advanceWhile(c => c != '\n');
+                _advance();
+
+                Current = new ZScriptToken(LexerTokenType.SingleLineComment, range.CreateLocation(), range.CreateString());
+            }
+            else if (_advanceIfSubstring("/*"))
+            {
+                while (!_isEof(1))
+                {
+                    if (_peekChar() == '*' && _peekChar() == '/')
+                    {
+                        _advance(2);
+                        break;
+                    }
+                }
+
+                Current = new ZScriptToken(LexerTokenType.MultiLineComment, range.CreateLocation(), range.CreateString());
             }
         }
 
-        private BacktrackPoint CreateBacktrack()
+        /// <summary>
+        /// Requests a backtrack for the current point.
+        /// </summary>
+        /// <returns></returns>
+        public IBacktrackPoint CreateBacktrack()
         {
             return new BacktrackPoint(this);
         }
 
-        private StringRangeMaker StartStringRange()
+        /// <summary>
+        /// Requests the start of a a range marker at the current offset.
+        /// </summary>
+        public ISourceRangeMarker StartStringRange()
         {
-            return new StringRangeMaker(this);
+            return new SourceRangeMarker(this, Offset);
+        }
+
+        /// <summary>
+        /// Returns the current offset, as a zero-length <see cref="SourceLocation"/> instance.
+        /// </summary>
+        public SourceLocation Location()
+        {
+            return new SourceLocation(Source, Offset, 0, LineAtOffset(Offset), ColumnAtOffset(Offset));
+        }
+
+        /// <summary>
+        /// Returns the line at a given string offset
+        /// </summary>
+        public int LineAtOffset(int offset)
+        {
+            int line = 1;
+
+            for (int i = 0; i < offset; i++)
+            {
+                if (SourceCode[i] == '\n')
+                    line += 1;
+            }
+
+            return line;
+        }
+
+        /// <summary>
+        /// Returns the column offset until the start of the leading line at a given offset.
+        /// </summary>
+        public int ColumnAtOffset(int offset)
+        {
+            int column = 1;
+
+            for (int i = offset - 1; i >= 0; i--)
+            {
+                if (SourceCode[i] == '\n')
+                    return column;
+
+                column += 1;
+            }
+
+            return column;
         }
 
         #region String scanning
 
         /// <summary>
-        /// Returns true iff (<see cref="Offset"/> + lookahead) &gt;= <see cref="Source"/>.Length
+        /// Returns true iff (<see cref="Offset"/> + lookahead) &gt;= <see cref="SourceCode"/>.Length
         /// </summary>
         private bool _isEof(int lookahead = 0)
         {
-            return Offset + lookahead >= Source.Length;
+            return Offset + lookahead >= SourceCode.Length;
         }
 
         /// <summary>
@@ -509,7 +623,45 @@ namespace ZScript.Parsing
             if (_isEof())
                 return '\0';
             
-            return Source[Offset++];
+            return SourceCode[Offset++];
+        }
+        
+        /// <summary>
+        /// Peeks the current character without advancing the reading offset.
+        /// </summary>
+        private char _peekChar(int lookahead = 0)
+        {
+            if (_isEof(lookahead))
+                return '\0';
+
+            return SourceCode[Offset + lookahead];
+        }
+
+        /// <summary>
+        /// Returns whether the current offset on the buffer has the given string.
+        /// </summary>
+        private bool _isSubstring([NotNull] string str)
+        {
+            if (_isEof(str.Length))
+            {
+                return false;
+            }
+
+            return SourceCode.IndexOf(str, Offset, str.Length, StringComparison.Ordinal) == 0;
+        }
+
+        /// <summary>
+        /// Advances the string offset by a given string's length iff <see cref="_isSubstring(string)"/>.
+        /// </summary>
+        private bool _advanceIfSubstring([NotNull] string str)
+        {
+            if (_isSubstring(str))
+            {
+                Offset += str.Length;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -522,18 +674,9 @@ namespace ZScript.Parsing
         }
 
         /// <summary>
-        /// Peeks the current character without advancing the reading offset.
-        /// </summary>
-        private char _peekChar(int lookahead = 0)
-        {
-            if (_isEof(lookahead))
-                return '\0';
-
-            return Source[Offset + lookahead];
-        }
-
-        /// <summary>
-        /// Advances the offset on the string while a given character testing method returns true.
+        /// Advances the offset on the string while a given character testing predicate returns true.
+        /// 
+        /// The offset then points to the first character which failed the predicate test.
         /// </summary>
         private void _advanceWhile([NotNull] CharacterTest test)
         {
@@ -594,7 +737,7 @@ namespace ZScript.Parsing
         
         #endregion
 
-        private class BacktrackPoint
+        private class BacktrackPoint : IBacktrackPoint
         {
             private readonly ZScriptLexer1 _lexer;
             private readonly int _offset;
@@ -616,112 +759,69 @@ namespace ZScript.Parsing
             }
         }
 
-        private class StringRangeMaker
+        private class SourceRangeMarker : ISourceRangeMarker
         {
             private readonly ZScriptLexer1 _lexer;
-            private readonly int _offset;
+            private readonly int _startOffset;
 
-            public StringRangeMaker([NotNull] ZScriptLexer1 lexer)
+            public SourceRangeMarker([NotNull] ZScriptLexer1 lexer, int startOffset)
             {
                 _lexer = lexer;
-                _offset = lexer.Offset;
+                _startOffset = startOffset;
+            }
+
+            /// <summary>
+            /// Using the start/end offsets of a lexer, computates the total source location
+            /// of the range.
+            /// </summary>
+            public SourceLocation CreateLocation()
+            {
+                return new SourceLocation(_lexer.Source, _startOffset, _lexer.Offset - _startOffset, _lexer.LineAtOffset(_startOffset), _lexer.ColumnAtOffset(_startOffset));
+            }
+
+            /// <summary>
+            /// Creates a string that matches the interval this source range represents.
+            /// </summary>
+            public string CreateString()
+            {
+                return _lexer.SourceCode.Substring(_startOffset, _lexer.Offset - _startOffset);
             }
 
             public string GetString()
             {
-                return _lexer.Source.Substring(_offset, _lexer.Offset - _offset);
+                return _lexer.SourceCode.Substring(_startOffset, _lexer.Offset - _startOffset);
             }
         }
+    }
+    
+    /// <summary>
+    /// Represents an object that encapsulates a backtracking operation for a lexer.
+    /// </summary>
+    public interface IBacktrackPoint
+    {
+        /// <summary>
+        /// Backtracks the lexer to the point at which this backtrack point was created.
+        /// </summary>
+        void Backtrack();
     }
 
     /// <summary>
-    /// A token read by a <see cref="ZScriptLexer1"/>
+    /// Specifies a source range marker that a lexer produces when requested by a call to <see cref="ZScriptLexer1.StartStringRange"/>.
     /// </summary>
-    [DebuggerDisplay("TokenType: {TokenType}, TokenString: {TokenString}, Value: {Value}")]
-    public readonly struct ZScriptToken : IEquatable<ZScriptToken>
+    public interface ISourceRangeMarker
     {
         /// <summary>
-        /// Type for this token.
+        /// Using the start/end offsets of a lexer, computes the total source location
+        /// of the range.
         /// </summary>
-        public LexerTokenType TokenType { get; }
+        SourceLocation CreateLocation();
 
         /// <summary>
-        /// Input string for this token. Is an empty string, in case <see cref="LexerTokenType"/> is <see cref="LexerTokenType.Eof"/>
+        /// Creates a string that matches the interval this source range represents.
         /// </summary>
-        public string TokenString { get; }
-
-        /// <summary>
-        /// An object value that represents this token's semantic value.
-        /// 
-        /// For example, for <see cref="LexerTokenType.IntegerLiteral"/> this is an <see cref="int"/> value, for <see cref="LexerTokenType.FloatingPointLiteral"/>
-        /// this is a <see cref="float"/>, etc.
-        /// </summary>
-        [CanBeNull]
-        public object Value { get; }
-
-        /// <summary>
-        /// Initializes a new instance of a <see cref="ZScriptToken"/>
-        /// </summary>
-        public ZScriptToken(LexerTokenType tokenType, string tokenString) : this()
-        {
-            TokenType = tokenType;
-            TokenString = tokenString;
-            Value = null;
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of a <see cref="ZScriptToken"/>
-        /// </summary>
-        public ZScriptToken(LexerTokenType tokenType, string tokenString, [CanBeNull] object value) : this()
-        {
-            TokenType = tokenType;
-            TokenString = tokenString;
-            Value = value;
-        }
-        
-#pragma warning disable 1591
-
-        public bool Equals(ZScriptToken other)
-        {
-            return TokenType == other.TokenType && string.Equals(TokenString, other.TokenString) && Equals(Value, other.Value);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null) return false;
-            else
-            return obj is ZScriptToken token && Equals(token);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (int) TokenType;
-                hashCode = (hashCode * 397) ^ (TokenString != null ? TokenString.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Value != null ? Value.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(ZScriptToken left, ZScriptToken right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ZScriptToken left, ZScriptToken right)
-        {
-            return !left.Equals(right);
-        }
-
-        public override string ToString()
-        {
-            return $"{{TokenType: {TokenType}, TokenString: {TokenString}, Value: {Value}}}";
-        }
-
-#pragma warning restore 1591
+        string CreateString();
     }
-    
+
     /// <summary>
     /// Specifies the type of a token read by the lexer
     /// </summary>
@@ -731,6 +831,21 @@ namespace ZScript.Parsing
         /// An end-of-file token. Represents the end of the input stream when no more tokens can be read.
         /// </summary>
         Eof = 0,
+
+        /// <summary>
+        /// An unknown token that the lexer cannot recognize.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// A single line comment
+        /// </summary>
+        SingleLineComment,
+
+        /// <summary>
+        /// A C-like multi-line comment
+        /// </summary>
+        MultiLineComment,
 
         /// <summary>
         /// Identifier token.
@@ -781,12 +896,12 @@ namespace ZScript.Parsing
         /// <summary>
         /// 'func' keyword
         /// </summary>
-        Function,
+        FunctionKeyword,
 
         /// <summary>
         /// 'class' keyword
         /// </summary>
-        Class,
+        ClassKeyword,
 
         /// <summary>
         /// An 'if' statement keyword
@@ -867,9 +982,13 @@ namespace ZScript.Parsing
         /// <summary>'&amp;=' (bitwise AND assignment operator)</summary>
         BitwiseAndAssignOperator,
         /// <summary>'^' (bitwise XOR operator)</summary>
-        XorOperator,
+        BitwiseXorOperator,
         /// <summary>'^=' (bitwise XOR assignment operator)</summary>
-        XorAssignOperator,
+        BitwiseXorAssignOperator,
+        /// <summary>'~' (bitwise NOT operator)</summary>
+        BitwiseNegateOperator,
+        /// <summary>'~=' (bitwise NOT assignment operator)</summary>
+        BitwiseNegateAssignOperator,
         
         /// <summary>'+' (add operator)</summary>
         PlusSign,
@@ -899,5 +1018,54 @@ namespace ZScript.Parsing
         GreaterThanOrEqualsSign,
         /// <summary>'&lt;=' (less-than-or-equals operator)</summary>
         LessThanOrEqualsSign,
+    }
+
+    /// <summary>
+    /// Helper operations for token types
+    /// </summary>
+    public static class LexerTokenHelpers
+    {
+        /// <summary>
+        /// Returns true iff the token represents a binary/unary operator.
+        /// </summary>
+        public static bool IsOperator(this LexerTokenType tok)
+        {
+            switch (tok)
+            {
+                // Signs (work as operators, as well)
+                case LexerTokenType.PlusSign:
+                case LexerTokenType.PlusEqualsSign:
+                case LexerTokenType.MinusSign:
+                case LexerTokenType.MinusEqualsSign:
+                case LexerTokenType.MultiplySign:
+                case LexerTokenType.MultiplyEqualsSign:
+                case LexerTokenType.DivideSign:
+                case LexerTokenType.DivideEqualsSign:
+                case LexerTokenType.LessThanSign:
+                case LexerTokenType.LessThanOrEqualsSign:
+                case LexerTokenType.GreaterThanSign:
+                case LexerTokenType.GreaterThanOrEqualsSign:
+                case LexerTokenType.EqualsSign:
+                case LexerTokenType.UnequalsSign:
+                    
+                // Operators
+                case LexerTokenType.AssignOperator:
+                case LexerTokenType.AndOperator:
+                case LexerTokenType.OrOperator:
+                case LexerTokenType.BooleanNegateOperator:
+                case LexerTokenType.BitwiseAndOperator:
+                case LexerTokenType.BitwiseOrOperator:
+                case LexerTokenType.BitwiseXorOperator:
+                case LexerTokenType.BitwiseNegateOperator:
+                case LexerTokenType.BitwiseAndAssignOperator:
+                case LexerTokenType.BitwiseXorAssignOperator:
+                case LexerTokenType.BitwiseOrAssignOperator:
+                case LexerTokenType.BitwiseNegateAssignOperator:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
     }
 }

@@ -20,31 +20,45 @@
 #endregion
 
 using System;
+using System.Diagnostics;
+using JetBrains.Annotations;
 
 namespace ZScript.Parsing.AST
 {
     /// <summary>
     /// Specifies a location in a source code file
     /// </summary>
+    [DebuggerDisplay("Source = {Source}, Offset = {Offset}, Length = {Length}, Line = {Line}, Column = {Column}")]
     public readonly struct SourceLocation : IEquatable<SourceLocation>
     {
-        private static SourceLocation _invalid = new SourceLocation(-1, -1, -1, -1);
+        private static readonly SourceLocation InvalidNode = new SourceLocation(null, -1, -1, -1, -1);
 
         /// <summary>
         /// Gets a source location value that represents an invalid source location
         /// </summary>
-        public static ref readonly SourceLocation Invalid => ref _invalid;
+        public static ref readonly SourceLocation Invalid => ref InvalidNode;
 
         /// <summary>
         /// Gets a boolean value specifying whether this source location structure represents
         /// an invalid source location.
         /// </summary>
-        public bool IsValid => Offset > -1 && Line > -1 && Column > -1 && Length > -1;
+        public bool IsValid => Offset > -1 && Length > -1 && Line > -1 && Column > -1;
+
+        /// <summary>
+        /// The origin of this location.
+        /// </summary>
+        [CanBeNull]
+        public ISource Source { get; }
 
         /// <summary>
         /// Total offset (in characters) on the file.
         /// </summary>
         public int Offset { get; }
+        
+        /// <summary>
+        /// If positive non-zero, this specifies a range of the source location.
+        /// </summary>
+        public int Length { get; }
 
         /// <summary>
         /// Line this location originated from.
@@ -57,19 +71,15 @@ namespace ZScript.Parsing.AST
         public int Column { get; }
 
         /// <summary>
-        /// If positive non-zero, this specifies a range of the source location.
-        /// </summary>
-        public int Length { get; }
-
-        /// <summary>
         /// Creates a new source location structure.
         /// </summary>
-        public SourceLocation(int offset, int line, int column, int length)
+        public SourceLocation(ISource source, int offset, int length, int line, int column)
         {
+            Source = source;
             Offset = offset;
+            Length = length;
             Line = line;
             Column = column;
-            Length = length;
         }
 
         /// <summary>
@@ -77,7 +87,7 @@ namespace ZScript.Parsing.AST
         /// </summary>
         public bool Equals(SourceLocation other)
         {
-            return Offset == other.Offset && Line == other.Line && Column == other.Column && Length == other.Length;
+            return Equals(Source, other.Source) && Offset == other.Offset && Line == other.Line && Column == other.Column && Length == other.Length;
         }
 
         /// <summary>
@@ -121,5 +131,19 @@ namespace ZScript.Parsing.AST
         {
             return !left.Equals(right);
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{{Source: {Source}, Offset: {Offset}, Length: {Length} Line: {Line}, Column: {Column}}}";
+        }
+    }
+
+    /// <summary>
+    /// Interface for source-code origin objects.
+    /// </summary>
+    public interface ISource : IEquatable<ISource>
+    {
+
     }
 }

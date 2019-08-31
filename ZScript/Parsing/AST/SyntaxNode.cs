@@ -29,8 +29,9 @@ namespace ZScript.Parsing.AST
     /// <summary>
     /// Base class for abstract syntax tree nodes.
     /// </summary>
-    public class SyntaxNode
+    public abstract class SyntaxNode
     {
+        internal readonly List<TokenNode> ChildTokens = new List<TokenNode>();
         private readonly List<SyntaxNode> _children = new List<SyntaxNode>();
 
         /// <summary>
@@ -45,9 +46,14 @@ namespace ZScript.Parsing.AST
         public SourceLocation SourceLocation { get; set; } = SourceLocation.Invalid;
 
         /// <summary>
-        /// Gets the list of children nodes on this node
+        /// Gets the list of children nodes on this node.
         /// </summary>
         public IReadOnlyList<SyntaxNode> Children => _children;
+
+        /// <summary>
+        /// Gets the list of tokens contained within this node.
+        /// </summary>
+        public IReadOnlyList<TokenNode> Tokens => ChildTokens;
 
         /// <summary>
         /// Adds a given node as a child of this <see cref="SyntaxNode"/>.
@@ -72,6 +78,18 @@ namespace ZScript.Parsing.AST
 
             child.Parent = this;
             _children.Add(child);
+        }
+        
+        /// <summary>
+        /// Adds a given token node to this <see cref="SyntaxNode"/>.
+        /// 
+        /// If the token is already a child of another node, it is first removed from that node
+        /// before attempting to add as a child of this node.
+        /// </summary>
+        public void AddToken([NotNull] TokenNode node)
+        {
+            node.RemoveFromParent();
+            ChildTokens.Add(node);
         }
 
         /// <summary>
@@ -108,25 +126,20 @@ namespace ZScript.Parsing.AST
         /// <summary>
         /// Returns the first child of this node that matches a given type.
         /// 
-        /// Returns null, if no child matches the type <see cref="T"/>.
+        /// Returns null, if no child matches the type T.
         /// </summary>
         [CanBeNull]
         public T GetFirstChildOfType<T>() where T : SyntaxNode
         {
             return _children.OfType<T>().FirstOrDefault();
         }
-    }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class SyntaxNodeRef<T> where T : SyntaxNode
-    {
         /// <summary>
-        /// The node contained within this syntax node reference
+        /// Returns all children of this syntax node that match a particular type.
         /// </summary>
-        [CanBeNull]
-        public T Node { get; }
+        public T[] GetAllChildrenOfType<T>() where T : SyntaxNode
+        {
+            return _children.OfType<T>().ToArray();
+        }
     }
 }

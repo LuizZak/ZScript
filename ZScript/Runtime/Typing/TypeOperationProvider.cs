@@ -543,7 +543,7 @@ namespace ZScript.Runtime.Typing
             }
 
             if (throwOnError)
-                throw new ArgumentException("The provided boxed object is not a valid numeric type", nameof(boxedNumber));
+                throw new ArgumentException($"The provided boxed object {boxedNumber} is not a valid numeric type", nameof(boxedNumber));
 
             return NumberClass.NotANumber;
         }
